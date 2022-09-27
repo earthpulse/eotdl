@@ -2,5 +2,5 @@
 <p>
   Visit <a href="https://github.com/earthpulse/eotds"
     >https://github.com/earthpulse/eotds</a
-  > to know more.
+  > to know more !
 </p>
