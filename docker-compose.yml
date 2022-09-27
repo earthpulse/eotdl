@@ -9,7 +9,7 @@ services:
       - 8000:8000
     volumes:
       - ./apis/eotds:/api
-      - ./eotds/eotds:/api/eotds
+      - ./lib/eotds:/api/eotds
     command: uvicorn main:app --host 0.0.0.0 --reload
 
   eotds-train-api:
@@ -20,5 +20,5 @@ services:
       - 8001:8000
     volumes:
       - ./apis/train:/api
-      - ./eotds/eotds:/api/eotds
+      - ./lib/eotds:/api/eotds
     command: uvicorn main:app --host 0.0.0.0 --reload

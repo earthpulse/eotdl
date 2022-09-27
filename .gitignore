@@ -10,3 +10,4 @@ package
 .env.*
 !.env.example
 yarn.lock
+poetry.lock
