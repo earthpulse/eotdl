@@ -1,0 +1,14 @@
+__pycache__
+.pytest_cache
+dist
+.DS_Store
+node_modules
+build
+.svelte-kit
+package
+.env
+.env.*
+!.env.example
+yarn.lock
+poetry.lock
+.vercel

@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "eotds"
+version = "0.1.0"
+description = "Earth Observation Training Datasets"
+authors = ["Juan Sensio <it@earthpulse.es>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
