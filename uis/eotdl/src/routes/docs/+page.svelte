@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>EO-TDL | Docs</title>
+</svelte:head>
+
 <main class="flex flex-col max-w-6xl px-5  gap-3">
   <h1 class="text-3xl pt-7">Documentation</h1>
 
