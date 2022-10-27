@@ -11,3 +11,4 @@ package
 !.env.example
 yarn.lock
 poetry.lock
+.vercel
