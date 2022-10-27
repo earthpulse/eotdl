@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  eotds-api:
+    build: ./apis/eotds
+    image: eotds-api
+    container_name: eotds-api
+    ports:
+      - 8000:8000
+    volumes:
+      - ./apis/eotds:/api
+      - ./lib/eotds:/api/eotds
+    command: uvicorn main:app --host 0.0.0.0 --reload
+
+  eotds-train-api:
+    build: ./apis/train
+    image: eotds-train-api
+    container_name: eotds-train-api
+    ports:
+      - 8001:8000
+    volumes:
+      - ./apis/train:/api
+      - ./lib/eotds:/api/eotds
+    command: uvicorn main:app --host 0.0.0.0 --reload

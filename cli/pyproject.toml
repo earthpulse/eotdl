@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "eotds-cli"
+version = "0.1.0"
+description = ""
+authors = ["Juan Sensio <it@earthpulse.es>"]
+readme = "README.md"
+packages = [{include = "eotds_cli"}]
+
+[tool.poetry.scripts]
+eotds-cli = "eotds_cli.main:app"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+typer = {extras = ["all"], version = "^0.1.0"}
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
