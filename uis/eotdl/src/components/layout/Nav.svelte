@@ -2,7 +2,11 @@
   import { navigating } from "$app/stores";
 
   let ref = null;
-  $: if ($navigating) ref.click();
+  let clicked = false;
+  $: if ($navigating) {
+    if (clicked) ref.click();
+    clicked = false;
+  }
 </script>
 
 <div class="drawer drawer-end">
@@ -16,7 +20,7 @@
         <div class="px-2 mx-2">
           <a class="link link-hover text-xl" href="/">EO-TDL</a>
         </div>
-        <div class="md:hidden justify-end">
+        <div class="md:hidden justify-end" on:click={() => (clicked = true)}>
           <label for="my-drawer-3" class="btn btn-square btn-ghost">
             <svg
               xmlns="http://www.w3.org/2000/svg"
