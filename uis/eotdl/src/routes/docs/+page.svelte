@@ -1,4 +1,4 @@
-<main class="flex flex-col max-w-6xl px-5 min-h-screen gap-3">
+<main class="flex flex-col max-w-6xl px-5  gap-3">
   <h1 class="text-3xl pt-7">Documentation</h1>
 
   <p class="p-4 badge badge-warning uppercase text-xs font-bold">
