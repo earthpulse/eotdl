@@ -7,6 +7,55 @@
     if (clicked) ref.click();
     clicked = false;
   }
+
+  let website_links = [
+    {
+      name: "Datasets",
+      link: "/",
+    },
+    {
+      name: "Models",
+      link: "/",
+    },
+    {
+      name: "Labelling",
+      link: "/",
+    },
+    {
+      name: "Training",
+      link: "/",
+    },
+  ];
+
+  let reference_links = [
+    {
+      name: "Docs",
+      link: "/docs",
+    },
+    {
+      name: "Blog",
+      link: "/",
+    },
+    {
+      name: "Github",
+      link: "https://github.com/earthpulse/eotdl",
+    },
+    {
+      name: "Youtube",
+      link: "/",
+    },
+  ];
+
+  let community_links = [
+    {
+      name: "Discord",
+      link: "/",
+    },
+    {
+      name: "Twitter",
+      link: "/",
+    },
+  ];
 </script>
 
 <div class="drawer drawer-end">
@@ -90,22 +139,50 @@
   </div>
   <div class="drawer-side">
     <label for="my-drawer-3" class="drawer-overlay" bind:this={ref} />
-    <ul class="menu p-4 overflow-y-auto w-80 bg-base-100">
+    <div class="p-4 overflow-y-auto w-80 bg-base-100">
       <!-- Sidebar content here -->
-      <li><a class="link link-hover" href="/">Datasets</a></li>
-      <li><a class="link link-hover" href="/">Models</a></li>
-      <li><a class="link link-hover" href="/">Labelling</a></li>
-      <li><a class="link link-hover" href="/">Training</a></li>
-      <li><a class="link link-hover" href="/docs">Docs</a></li>
-      <li><a class="link link-hover" href="/">Blog</a></li>
-      <li>
-        <a
-          class="link link-hover"
-          href="https://github.com/earthpulse/eotdl"
-          target="_blank">Github</a
-        >
-      </li>
-      <li><a class="link link-hover">Discord</a></li>
-    </ul>
+      <div
+        class="badge badge-success mb-2 text-sm w-full font-bold text-green-700"
+      >
+        Website
+      </div>
+      <ul class="w-full grid grid-cols-2 center items-center gap-2 ">
+        {#each website_links as { name, link }}
+          <li
+            class="w-full grid items-center border rounded-md hover:bg-base-200 text-sm"
+          >
+            <a class="text-center" href={link}>{name}</a>
+          </li>
+        {/each}
+      </ul>
+      <div
+        class="badge badge-warning mb-2 text-sm w-full mt-6 font-bold text-yellow-700"
+      >
+        Reference
+      </div>
+      <ul class="w-full grid grid-cols-2 center items-center gap-2 ">
+        {#each reference_links as { name, link }}
+          <li
+            class="w-full grid items-center border rounded-md hover:bg-base-200 text-sm"
+          >
+            <a class="text-center" href={link}>{name}</a>
+          </li>
+        {/each}
+      </ul>
+      <div
+        class="badge badge-error mb-2 text-sm w-full mt-6 text-red-900 font-bold"
+      >
+        Community
+      </div>
+      <ul class="w-full grid grid-cols-2 center items-center gap-2 ">
+        {#each community_links as { name, link }}
+          <li
+            class="w-full grid items-center border rounded-md hover:bg-base-200 text-sm"
+          >
+            <a class="text-center" href={link}>{name}</a>
+          </li>
+        {/each}
+      </ul>
+    </div>
   </div>
 </div>
