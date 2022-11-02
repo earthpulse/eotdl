@@ -1,4 +1,4 @@
-<footer class="footer footer-center p-10 text-base-content rounded bg-black">
+<footer class="footer footer-center p-10 text-base-content bg-black">
   <div class="grid grid-flow-row gap-4 text-base-100">
     <p>
       EO-TDL is carried out under a programme of, and funded by the European
