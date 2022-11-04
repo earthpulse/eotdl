@@ -15,7 +15,10 @@
         <img src="logos/EOX_Logo_grey.svg" class="h-[30px] text-black" />
       </a>
       <a href="https://www.brockmann-consult.de/" target="_blank"
-        >Brockmann Consult</a
+        ><img
+          src="logos/BC-Logo-vectorized-dark-text-no-GmbH-bw.png"
+          class="w-[80px]"
+        /></a
       >
 
       <a href="https://www.sinergise.com/" target="_blank">
