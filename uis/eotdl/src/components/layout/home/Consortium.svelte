@@ -16,8 +16,8 @@
       </a>
       <a href="https://www.brockmann-consult.de/" target="_blank"
         ><img
-          src="logos/BC-Logo-vectorized-dark-text-no-GmbH-bw.png"
-          class="w-[80px]"
+          src="logos/BC-Logo-vectorized-dark-text-no-GmbH-bw.svg"
+          class="w-[90px]"
         /></a
       >
 
