@@ -1,0 +1,194 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Highway_1386",
+  "properties": {
+    "datetime": "2015-10-22T00:00:00Z",
+    "eo:bands": [
+      {
+        "name": "Aerosols",
+        "common_name": "aerosols",
+        "description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)"
+      },
+      {
+        "name": "Blue",
+        "common_name": "blue",
+        "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+      },
+      {
+        "name": "Green",
+        "common_name": "green",
+        "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+      },
+      {
+        "name": "Red",
+        "common_name": "red",
+        "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+      },
+      {
+        "name": "Red edge 1",
+        "common_name": "rededge1",
+        "description": "Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)"
+      },
+      {
+        "name": "Red edge 2",
+        "common_name": "rededge2",
+        "description": "Vegetation red edge, 740.5 nm (S2A), 739.1 nm (S2B)"
+      },
+      {
+        "name": "Red edge 3",
+        "common_name": "rededge3",
+        "description": "Vegetation red edge, 782.8 nm (S2A), 779.7 nm (S2B)"
+      },
+      {
+        "name": "NIR",
+        "common_name": "nir",
+        "description": "NIR, 832.8 nm (S2A), 833.0 nm (S2B)"
+      },
+      {
+        "name": "Red edge 4",
+        "common_name": "rededge4",
+        "description": "Narrow NIR, 864.7 nm (S2A), 864.0 nm (S2B)"
+      },
+      {
+        "name": "Water vapour",
+        "common_name": "watervapour",
+        "description": "Water vapour, 945.1 nm (S2A), 943.2 nm (S2B)"
+      },
+      {
+        "name": "Cirrus",
+        "common_name": "cirrus",
+        "description": "SWIR – Cirrus, 1373.5 nm (S2A), 1376.9 nm (S2B)"
+      },
+      {
+        "name": "SWIR1",
+        "common_name": "swir1",
+        "description": "SWIR, 1613.7 nm (S2A), 1610.4 nm (S2B)"
+      },
+      {
+        "name": "SWIR2",
+        "common_name": "swir2",
+        "description": "SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)"
+      }
+    ]
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          432952.94740033336,
+          4185993.096730769
+        ],
+        [
+          432952.94740033336,
+          4186630.41702
+        ],
+        [
+          432312.310825,
+          4186630.41702
+        ],
+        [
+          432312.310825,
+          4185993.096730769
+        ],
+        [
+          432952.94740033336,
+          4185993.096730769
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "B1": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B1.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B2": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B2.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B3": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B3.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B4": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B4.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B5": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B5.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B6": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B6.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B7": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B7.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B8": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B8.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B9": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B9.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B10": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B10.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B11": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B11.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B12": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B12.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    },
+    "B13": {
+      "href": "../../../eurosat-stac/sentinel2/Highway_1386/data/eurosat/Highway_1386_B13.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Geotiff"
+    }
+  },
+  "bbox": [
+    432312.310825,
+    4185993.096730769,
+    432952.94740033336,
+    4186630.41702
+  ],
+  "stac_extensions": [],
+  "collection": "sentinel2"
+}
