@@ -12,3 +12,8 @@ package
 yarn.lock
 poetry.lock
 .vercel
+data
+metadata
+eurosat-stac
+.ipynb_checkpoints
+eurosat-stac**
