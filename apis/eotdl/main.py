@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import hello
+from routers import hello, auth
 
 app = FastAPI()
 app.add_middleware(
@@ -12,9 +12,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(hello.router)
+app.include_router(auth.router)
 
 
-@app.get("/")
+@app.get("/", name="home", include_in_schema=False)
 async def root():
     return {
         'name': 'eotdl',

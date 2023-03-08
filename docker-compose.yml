@@ -3,6 +3,8 @@ version: "3"
 services:
   eotdl-mongo:
     image: mongo
+    ports:
+      - 27017:27017
 
   eotdl-api:
     build: ./apis/eotdl

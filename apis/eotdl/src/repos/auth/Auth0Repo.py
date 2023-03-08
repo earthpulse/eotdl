@@ -15,7 +15,7 @@ class Auth0Repo():
         jwks_url = f'https://{self.domain}/.well-known/jwks.json'
         self.jwks_client = jwt.PyJWKClient(jwks_url)
 
-    def generate_login_url(self, redirect_uri='/', goto=None):
+    def generate_login_url(self, redirect_uri, goto=None):
         return f'https://{self.domain}/authorize?response_type=code&scope=openid profile email&client_id={self.client_id}&redirect_uri={redirect_uri}{f"?goto={goto}" if goto else ""}'
 
     def generate_id_token(self, code, redirect_uri):
@@ -30,8 +30,7 @@ class Auth0Repo():
         return res.json()
 
     def parse_token(self, token):
-        signing_key = self.jwks_client.get_signing_key_from_jwt(
-            token).key
+        signing_key = self.jwks_client.get_signing_key_from_jwt(token).key
         payload = jwt.decode(
             token,
             signing_key,

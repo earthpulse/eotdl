@@ -1,15 +1,6 @@
 from ...models import User
-from .Login import Login
 from .PersistUser import PersistUser
-from ...repos import MongoRepo, AuthRepo
-
-# retrieve user token
-def login() -> str:
-    repo = AuthRepo()
-    login = Login(repo)
-    inputs = Login.Inputs()
-    outputs = login(inputs)
-    return outputs.token
+from ...repos import MongoRepo
 
 # save user info in db 
 def persist_user(data: dict) -> User:
