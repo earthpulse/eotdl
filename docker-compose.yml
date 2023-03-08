@@ -1,24 +1,20 @@
 version: "3"
 
 services:
-  eotds-api:
-    build: ./apis/eotds
-    image: eotds-api
-    container_name: eotds-api
+  eotdl-mongo:
+    image: mongo
+
+  eotdl-api:
+    build: ./apis/eotdl
+    container_name: eotdl-api
+    environment:
+      - MONGO_URL=mongodb://eotdl-mongo:27017
+      - MONGO_DB_NAME=eotdl
+    env_file: # auth0 credentials
+      - .env
+    volumes:
+      - ./apis/eotdl:/api
+      - ./lib/eotdl:/api/eotdl
     ports:
       - 8000:8000
-    volumes:
-      - ./apis/eotds:/api
-      - ./lib/eotds:/api/eotds
-    command: uvicorn main:app --host 0.0.0.0 --reload
-
-  eotds-train-api:
-    build: ./apis/train
-    image: eotds-train-api
-    container_name: eotds-train-api
-    ports:
-      - 8001:8000
-    volumes:
-      - ./apis/train:/api
-      - ./lib/eotds:/api/eotds
     command: uvicorn main:app --host 0.0.0.0 --reload
