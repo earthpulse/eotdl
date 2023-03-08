@@ -1,19 +1,16 @@
-from datetime import datetime
 from pydantic import BaseModel
 
-from ...models.user import User
-
-
-class Login():
+class GenerateToken():
     def __init__(self, repo):
         self.repo = repo
 
     class Inputs(BaseModel):
-        pass
+        code: str
+        redirect_uri: str
 
     class Outputs(BaseModel):
         token: str
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        login_url = self.repo.generate_login_url()
-        return self.Outputs(token=login_url)
+        token = self.repo.generate_id_token(inputs.code, inputs.redirect_uri)
+        return self.Outputs(token=token['id_token'])
