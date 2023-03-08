@@ -1,20 +1,22 @@
 [tool.poetry]
-name = "eotds-cli"
-version = "0.1.0"
+name = "eotdl-cli"
+version = "0.0.1"
 description = ""
-authors = ["Juan Sensio <it@earthpulse.es>"]
+authors = ["EarthPulse <it@earthpulse.es>"]
+license = "MIT"
 readme = "README.md"
-packages = [{include = "eotds_cli"}]
+packages = [{include = "eotdl_cli"}]
 
 [tool.poetry.scripts]
-eotds-cli = "eotds_cli.main:app"
+eotdl-cli = "eotdl_cli.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-typer = {extras = ["all"], version = "^0.1.0"}
+typer = {extras = ["all"], version = "^0.7.0"}
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
 
 [build-system]
 requires = ["poetry-core"]
