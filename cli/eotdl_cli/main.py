@@ -9,8 +9,9 @@ def callback():
 
 
 @app.command()
-def hello():
-    typer.echo("hello")
+def hello(name: str = 'World!'):
+    """Say hello to someone"""
+    typer.echo(f"hello, {name}")
 
 if __name__ == "__main__":
     app()
