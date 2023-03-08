@@ -19,9 +19,19 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
 
-      - name: Install project
+      - name: Install lib deps
         run: |
           cd lib
+          poetry install --no-interaction
+
+      - name: Run tests
+        run: |
+          cd lib
+          poetry run pytest tests --cov .
+
+      - name: Install cli deps
+        run: |
+          cd cli
           poetry install --no-interaction
 
       - name: Run tests
