@@ -17,6 +17,7 @@ typer = {extras = ["all"], version = "^0.7.0"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
+pytest-cov = "^4.0.0"
 
 [build-system]
 requires = ["poetry-core"]
