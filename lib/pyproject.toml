@@ -2,7 +2,7 @@
 name = "eotdl"
 version = "0.0.1"
 description = "Earth Obsertvation Training Datasets Lab"
-authors = ["Juan Sensio <it@earthpulse.es>"]
+authors = ["EarthPulse <it@earthpulse.es>"]
 license = "MIT"
 readme = "README.md"
 
