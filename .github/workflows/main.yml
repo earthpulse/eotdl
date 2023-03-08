@@ -20,7 +20,8 @@ jobs:
         uses: snok/install-poetry@v1
 
       - name: Install project
-        run: cd lib
+        run: |
+          cd lib
           poetry install --no-interaction
 
       - name: Run tests
