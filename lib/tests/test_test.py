@@ -1,4 +1,5 @@
 import pytest 
+from eotdl import say_hello
 
-def test_add():
-    assert 1 + 1 == 2
+def test_hello():
+    assert say_hello() == "Hello, World!"

@@ -17,3 +17,4 @@ metadata
 eurosat-stac
 .ipynb_checkpoints
 eurosat-stac**
+.coverage
