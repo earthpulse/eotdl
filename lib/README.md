@@ -1,3 +1,4 @@
-# EOTDS
+# eotdl 
 
-Main python library
+This is the main library for EOTDL.
+
