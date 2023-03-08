@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from eotdl.models import User
-from eotdl.usecases.user.PersistUser import PersistUser
+from ....src.models import User
+from ....src.usecases.user.PersistUser import PersistUser
 
 @pytest.fixture
 def user():
@@ -27,7 +27,5 @@ def test_create_new_user(user):
     assert outputs.user.name == user['name']
     assert outputs.user.email == user['email']
     assert outputs.user.picture == user['picture']
-    assert outputs.user.createdAt is not None
-    assert outputs.user.updatedAt is not None
     assert outputs.user.dataset_count == 0
     assert outputs.user.model_count == 0

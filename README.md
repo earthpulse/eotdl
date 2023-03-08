@@ -33,13 +33,13 @@ docer-compose up -d
 Then, run the tests
 
 ```
-docker-compose exec eotdl-lib-test pytest src/tests --cov src
+docker-compose exec eotdl-api pytest --cov .
 ```
 
 During development, you may want to keep test alive with
 
 ```
-docker-compose exec eotdl-lib-test ptw src/tests 
+docker-compose exec eotdl-api ptw
 ```
 
-You will need a `.env` file with the missing environment variables.
+You will need a `.env` file with the environment variables missing in the docker-compose file.
