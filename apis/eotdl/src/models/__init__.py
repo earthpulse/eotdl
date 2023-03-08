@@ -1,2 +1,1 @@
 from .user import User
-
