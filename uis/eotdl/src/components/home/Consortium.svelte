@@ -1,9 +1,9 @@
 <div
-  class="border-t grid grid-rows-[200px,auto] md:grid-rows-1 md:grid-cols-[300px,auto] max-w-6xl px-5 py-10 w-full"
+  class="grid grid-rows-[200px,auto] md:grid-rows-1 md:grid-cols-[300px,auto] max-w-6xl px-5 py-10 w-full"
 >
   <div>
     <h2 class="mb-10 text-2xl font-bold">Initiated By</h2>
-    <img src="/logos/esa_logo.png" alt="ESA logo" class="h-[60px]" />
+    <img src="/logos/philab-esa_logo.jpg" alt="ESA logo" class="h-[180px]" />
   </div>
   <div>
     <h2 class="mb-10 text-2xl font-bold">Implemented By</h2>
