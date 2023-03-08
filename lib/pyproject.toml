@@ -8,6 +8,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+pydantic = "^1.10.5"
+pymongo = "^4.3.3"
+auth0-python = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
