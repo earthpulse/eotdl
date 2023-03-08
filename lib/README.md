@@ -1,3 +1,0 @@
-# EOTDS
-
-Main python library
