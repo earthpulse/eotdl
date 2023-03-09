@@ -4,7 +4,7 @@ export async function GET(event) {
   // get code from auth0 response
   const code = event.url.searchParams.get("code");
   const redirect_uri = `http://${event.request.headers.get("host")}/`;
-  // retrieve toksn
+  // retrieve token
   const { error, id_token } = await retrieveToken(code, redirect_uri);
   if (error) 
     return Response.error(500, error);
