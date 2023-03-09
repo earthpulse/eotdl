@@ -7,14 +7,14 @@ class Auth0Repo():
     def __init__(self):
         self.domain = os.environ['AUTH0_DOMAIN']
         self.client_id = os.environ['AUTH0_CLIENT_ID']
-        self.client_secret = os.environ['AUTH0_CLIENT_SECRET']
+        # self.client_secret = os.environ['AUTH0_CLIENT_SECRET']
 
         self.algorithms = ["RS256"]
-        self.issuer = f"https://{self.domain}/"
-        self.audience = f"https://{self.domain}/api/v2/"
+        # self.issuer = f"https://{self.domain}/"
+        # self.audience = f"https://{self.domain}/api/v2/"
 
-        jwks_url = f'https://{self.domain}/.well-known/jwks.json'
-        self.jwks_client = jwt.PyJWKClient(jwks_url)
+        # jwks_url = f'https://{self.domain}/.well-known/jwks.json'
+        # self.jwks_client = jwt.PyJWKClient(jwks_url)
 
     def generate_login_url(self):
         device_code_payload = {
@@ -56,6 +56,7 @@ class Auth0Repo():
         tv.verify(id_token)
 
     def parse_token(self, token):
+        # self.validate_token(token)
         payload = jwt.decode(token, algorithms=self.algorithms, options={"verify_signature": False})
         return {
             'uid': payload['sub'],
@@ -63,3 +64,6 @@ class Auth0Repo():
             'email': payload['email'],
             'picture': payload['picture'],
         }
+    
+    def generate_logout_url(self, redirect_uri):
+        return f'https://{self.domain}/v2/logout?cliend_id={self.client_id}&returnTo={redirect_uri}'
