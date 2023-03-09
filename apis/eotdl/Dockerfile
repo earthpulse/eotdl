@@ -10,5 +10,6 @@ RUN pip install pydantic
 RUN pip install pymongo  
 RUN pip install pyjwt[crypto]
 RUN pip install requests
+RUN pip install auth0-python
 
 WORKDIR /api

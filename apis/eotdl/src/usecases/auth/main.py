@@ -5,17 +5,17 @@ from .Logout import Logout
 
 from ...repos import AuthRepo
 
-def generate_login_url(redirect_uri, goto):
+def generate_login_url():
     repo = AuthRepo()
     login = Login(repo)
-    inputs = Login.Inputs(redirect_uri=redirect_uri, goto=goto)
+    inputs = Login.Inputs()
     outputs = login(inputs)
     return outputs.login_url
 
-def generate_id_token(code, redirect_uri):
+def generate_id_token(code):
     repo = AuthRepo()
     generate_token = GenerateToken(repo)
-    inputs = GenerateToken.Inputs(code=code, redirect_uri=redirect_uri)
+    inputs = GenerateToken.Inputs(code=code)
     outputs = generate_token(inputs)
     return outputs.token
 

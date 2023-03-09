@@ -1,6 +1,7 @@
 import jwt
 import requests
 import os
+from auth0.authentication.token_verifier import TokenVerifier, AsymmetricSignatureVerifier
 
 class Auth0Repo():
     def __init__(self):
@@ -15,30 +16,50 @@ class Auth0Repo():
         jwks_url = f'https://{self.domain}/.well-known/jwks.json'
         self.jwks_client = jwt.PyJWKClient(jwks_url)
 
-    def generate_login_url(self, redirect_uri, goto=None):
-        return f'https://{self.domain}/authorize?response_type=code&scope=openid profile email&client_id={self.client_id}&redirect_uri={redirect_uri}{f"?goto={goto}" if goto else ""}'
-
-    def generate_id_token(self, code, redirect_uri):
-        payload = {
+    def generate_login_url(self):
+        device_code_payload = {
             'client_id': self.client_id,
-            "client_secret": self.client_secret,
-            "code": code,
-            "grant_type": "authorization_code",
-            "redirect_uri": redirect_uri
+            'scope': 'openid profile email'
         }
-        res = requests.post(f"https://{self.domain}/oauth/token", json=payload)
-        return res.json()
+        device_code_response = requests.post('https://{}/oauth/device/code'.format(self.domain), data=device_code_payload)
+        if device_code_response.status_code != 200:
+            raise Exception('Error generating the device code')
+        device_code_data = device_code_response.json()
+        return {
+            'login_url': device_code_data['verification_uri_complete'],
+            'code': device_code_data['device_code'],
+            'message': 'Navigate to the URL and confirm to login. Then, request your token at the /token endpoint with the provided code.'
+        }
+
+    def generate_id_token(self, code):
+        token_payload = {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
+            'device_code': code,
+            'client_id': self.client_id
+        }
+        token_response = requests.post('https://{}/oauth/token'.format(self.domain), data=token_payload)
+        token_data = token_response.json()
+        if token_response.status_code == 200:
+            self.validate_token(token_data['id_token'])
+            return {
+                'id_token': token_data['id_token'],
+                'expires_in': token_data['expires_in'],
+                'token_type': token_data['token_type']
+            }
+        raise Exception(token_response.json()['error_description'])
+
+    def validate_token(self, id_token):
+        jwks_url = 'https://{}/.well-known/jwks.json'.format(self.domain)
+        issuer = 'https://{}/'.format(self.domain)
+        sv = AsymmetricSignatureVerifier(jwks_url)
+        tv = TokenVerifier(signature_verifier=sv, issuer=issuer, audience=self.client_id)
+        tv.verify(id_token)
 
     def parse_token(self, token):
-        signing_key = self.jwks_client.get_signing_key_from_jwt(token).key
-        payload = jwt.decode(
-            token,
-            signing_key,
-            algorithms=self.algorithms,
-            issuer=self.issuer,
-            audience=self.client_id
-        )
-        return payload
-
-    def generate_logout_url(self, redirect_uri):
-        return f'https://{self.domain}/v2/logout?cliend_id={self.client_id}&returnTo={redirect_uri}'
+        payload = jwt.decode(token, algorithms=self.algorithms, options={"verify_signature": False})
+        return {
+            'uid': payload['sub'],
+            'name': payload['name'],
+            'email': payload['email'],
+            'picture': payload['picture'],
+        }

@@ -5,12 +5,11 @@ class Login():
         self.repo = repo
 
     class Inputs(BaseModel):
-        redirect_uri: str
-        goto: str = None
+        pass
 
     class Outputs(BaseModel):
-        login_url: str
+        login_url: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        login_url = self.repo.generate_login_url(inputs.redirect_uri, inputs.goto)
+        login_url = self.repo.generate_login_url()
         return self.Outputs(login_url=login_url)

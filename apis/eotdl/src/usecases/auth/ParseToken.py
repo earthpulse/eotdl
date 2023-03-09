@@ -11,5 +11,5 @@ class ParseToken():
         payload: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        payload = self.repo.parse_token(inputs.token)
-        return self.Outputs(payload=payload)
+        data = self.repo.parse_token(inputs.token)
+        return self.Outputs(payload=data)

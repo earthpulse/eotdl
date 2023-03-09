@@ -6,11 +6,10 @@ class GenerateToken():
 
     class Inputs(BaseModel):
         code: str
-        redirect_uri: str
 
     class Outputs(BaseModel):
-        token: str
+        token: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        token = self.repo.generate_id_token(inputs.code, inputs.redirect_uri)
-        return self.Outputs(token=token['id_token'])
+        token = self.repo.generate_id_token(inputs.code)
+        return self.Outputs(token=token)
