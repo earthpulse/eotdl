@@ -1,16 +1,17 @@
 <script>
 	import { user, id_token } from "$stores/auth";
-	export let data;
 	import { EOTDL_API } from "$lib/env";
-	// import { createWriteStream } from "streamsaver";
 	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
+
+	export let data;
 
 	$: ({ name, id, createdAt, description } = data.dataset);
 
 	let createWriteStream;
 	onMount(async () => {
 		if (browser) {
+			// only works in browser
 			const streamsaver = await import("streamsaver");
 			createWriteStream = streamsaver.createWriteStream;
 		}
