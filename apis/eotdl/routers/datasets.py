@@ -42,10 +42,10 @@ def retrieve(
 @router.get("/{id}/download")
 async def download(
     id: str ,
-    # user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     try:
-        data_stream, object_info, name = download_dataset(id, None)
+        data_stream, object_info, name = download_dataset(id, user)
         response_headers = {
             "Content-Disposition": f'attachment; filename="{name}.zip"',
             "Content-Type": "application/zip",
