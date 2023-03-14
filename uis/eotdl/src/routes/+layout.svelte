@@ -1,19 +1,12 @@
 <script>
   import "../app.css";
   import Nav from "../components/layout/Nav.svelte";
-  import Nav2 from "../components/layout/Nav2.svelte";
   import Footer from "../components/layout/Footer.svelte";
-
-  export let data;
 </script>
 
-<main class="min-h-screen flex flex-col items-center justify-between">
-  <div class="w-full">
-    <Nav />
-    <div class="relative">
-      <slot />
-      <div class="absolute top-0 left-0 w-full"><Nav2 user={data.user} /></div>
-    </div>
-  </div>
-  <Footer />
-</main>
+<Nav>
+  <main class="min-h-screen flex flex-col items-center justify-between">
+    <slot />
+    <Footer />
+  </main>
+</Nav>
