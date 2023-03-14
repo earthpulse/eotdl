@@ -8,5 +8,5 @@ router = APIRouter(
 )
 
 @router.get("/")
-async def root():
+def root():
     return say_hello()
