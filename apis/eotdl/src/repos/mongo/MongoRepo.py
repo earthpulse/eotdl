@@ -19,7 +19,9 @@ class MongoRepo():
             return self.db[collection].insert_one(data)
         return self.db[collection].insert_one(data).inserted_id
 
-    def retrieve(self, collection, value, field='id'):
+    def retrieve(self, collection, value=None, field='id'):
+        if value is None:
+            return list(self.db[collection].find())
         if field == '_id':
             value = ObjectId(value)
         return self.db[collection].find_one({field: value})
@@ -32,3 +34,9 @@ class MongoRepo():
 
     def retrieve_all(self, collection):
         return list(self.db[collection].find())
+    
+    def find_one_by_field(self, collection, field, value):
+        return self.db[collection].find_one({field: value})
+    
+    def find_one_by_name(self, collection, name):
+        return self.find_one_by_field(collection, 'name', name)

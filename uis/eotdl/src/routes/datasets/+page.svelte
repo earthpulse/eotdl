@@ -1,23 +1,24 @@
 <script>
 	import { datasets } from "$stores/datasets";
-	import { id_token } from "$stores/auth";
+	import { user, id_token } from "$stores/auth";
 
 	let loading = false;
-	let name,
+	let name = "",
+		description = "",
 		files = null;
 	const ingest = async () => {
-		if (name.length === 0 || files === null) return;
+		if (name.length === 0 || description.length === 0 || files === null)
+			return;
 		loading = true;
 		try {
-			await datasets.ingest(files[0], name, $id_token);
+			await datasets.ingest(files[0], name, description, $id_token);
+			document.getElementById("ingest-dataset").checked = false;
+			name = "";
 		} catch (e) {
 			alert(e.message);
 		}
 		loading = false;
-		files = null;
 	};
-
-	$: console.log($datasets.data);
 </script>
 
 <div class="w-full flex flex-col items-center">
@@ -34,11 +35,27 @@
 					placeholder="Filter by name"
 				/>
 				<p>advanced filtering</p>
-				<label for="ingest-dataset" class="btn btn-ghost btn-outline"
-					>+ Ingest Dataset</label
-				>
+				{#if $user}
+					<label
+						for="ingest-dataset"
+						class="btn btn-ghost btn-outline"
+						>+ Ingest Dataset</label
+					>
+				{/if}
 			</div>
 			<div>tags</div>
+		</div>
+		<div class="grid grid-cols-3 gap-3 w-full mt-3">
+			{#each $datasets?.data as dataset}
+				<a
+					href="/datasets/{dataset.name}"
+					class="w-full h-[200px] bg-gray-100 border-2 rounded-xl p-3"
+				>
+					<p>{dataset.name}</p>
+					<p class="text-gray-400">{dataset.description}</p>
+					<p class="text-gray-400">{dataset.createdAt}</p>
+				</a>
+			{/each}
 		</div>
 	</div>
 </div>
@@ -59,6 +76,13 @@
 				/>
 				<p class="text-sm text-gray-400">*Name should be unique</p>
 			</span>
+			<input
+				class="input input-bordered w-full"
+				type="text"
+				placeholder="Dataset description"
+				required
+				bind:value={description}
+			/>
 			<span class="self-end">
 				<label
 					for="ingest-dataset"

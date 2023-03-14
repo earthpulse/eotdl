@@ -5,12 +5,14 @@ services:
     image: mongo
     ports:
       - 27017:27017
+    volumes:
+      - ./data/mongo:/data/db
 
   eotdl-minio:
     image: minio/minio
     container_name: eotdl-minio
     ports:
-      - 9001:9001
+      - 9031:9001
     volumes:
       - ./data/minio:/data
     environment:

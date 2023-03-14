@@ -1,7 +1,7 @@
 <nav class="bg-blue-500 grid place-items-center">
   <div class="max-w-6xl flex flex-row justify-end w-full p-3">
     <a href="https://www.esa.int/" target="_blank" rel="noreferrer">
-      <img src="logos/eesa-logo.svg" alt="esa logo" /></a
+      <img src="/logos/eesa-logo.svg" alt="esa logo" /></a
     >
   </div>
 </nav>

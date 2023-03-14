@@ -5,5 +5,6 @@ class Dataset(BaseModel):
     uid: str
     id: str
     name: str
+    description: str
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
