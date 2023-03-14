@@ -16,7 +16,7 @@ token_auth_scheme = HTTPBearer(auto_error=False)
 api_key_auth_scheme = APIKeyHeader(name='X-API-Key', auto_error=False)
 
 @router.get("/login")
-async def login():
+def login():
     try:
         return generate_login_url()
     except Exception as e:
@@ -25,7 +25,7 @@ async def login():
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("/token")
-async def token(code: str):
+def token(code: str):
     try:
         return generate_id_token(code)
     except Exception as e:
@@ -43,7 +43,7 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.get("/me")
-async def me(user: User = Depends(get_current_user)):
+def me(user: User = Depends(get_current_user)):
     try:
         return user
     except Exception as e:
@@ -52,7 +52,7 @@ async def me(user: User = Depends(get_current_user)):
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.get("/logout")
-async def logout(request: Request, redirect_uri: str = None):
+def logout(request: Request, redirect_uri: str = None):
     try:
         if redirect_uri is None:
             redirect_uri = request.url_for('callback')
@@ -64,5 +64,5 @@ async def logout(request: Request, redirect_uri: str = None):
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("/callback", name="callback", include_in_schema=False)
-async def logout_callback():
+def logout_callback():
     return "You are logged out."

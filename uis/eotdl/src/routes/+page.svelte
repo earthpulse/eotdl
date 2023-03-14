@@ -15,9 +15,9 @@
 
 <div class="w-full flex flex-col items-center">
   <Hero />
-  <Recent />
+  <!-- <Recent />
   <Popular />
   <Contributors />
-  <Posts />
+  <Posts /> -->
   <Consortium />
 </div>

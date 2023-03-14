@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import hello, auth
+from routers import hello, auth, datasets
 
 app = FastAPI()
 app.add_middleware(
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 app.include_router(hello.router)
 app.include_router(auth.router)
+app.include_router(datasets.router)
 
 
 @app.get("/", name="home", include_in_schema=False)
