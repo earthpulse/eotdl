@@ -2,17 +2,27 @@
 module.exports = {
   content: ["./src/**/*.{html,js,svelte,ts}"],
   theme: {
-    extend: {
-      colors: {
-        'blue': {
-          500: '#003247'
-        },
-        'green': {
-          200: '#4ABFA7'
-        }
-      }
-    },
-
+    extend: {},
   },
-  plugins: [require("daisyui")]
+  plugins: [require("daisyui")],
+  daisyui: {
+    // styled: true,
+    themes: [
+      {
+        light: {
+          ...require("daisyui/src/colors/themes")["[data-theme=light]"],
+          primary: "#0E173E",
+          "primary-focus": "mediumblue",
+          "blue-900": "#0E173E",
+        },
+      },
+      "dark",
+    ],
+    // base: true,
+    // utils: true,
+    // logs: true,
+    // rtl: false,
+    // prefix: "",
+    // darkTheme: "dark",
+  },
 };
