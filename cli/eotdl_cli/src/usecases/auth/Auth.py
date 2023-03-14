@@ -15,6 +15,7 @@ class Auth:
 
     class Outputs(BaseModel):
         user: dict = None
+        token: str = None
 
     def __call__(self, inputs: Inputs) -> Outputs:
         response = self.api_repo.login()
@@ -35,6 +36,7 @@ class Auth:
                 print('Saved credentials to: ', creds_path)
                 current_user = self.repo.decode_token(token_data)
                 authenticated = True
+                current_user['id_token'] = token_data['id_token']
                 return self.Outputs(user=current_user)
             else:
                 time.sleep(self.interval)
