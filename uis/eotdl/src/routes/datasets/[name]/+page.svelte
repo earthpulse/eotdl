@@ -42,7 +42,7 @@
 			return pump();
 		});
 
-		// this works but I thing will not work with large files (no streaming)
+		// this works but is slow with large files (no streaming)
 
 		// const response = await fetch(`${EOTDL_API}/datasets/${id}/download`, {
 		// 	method: "GET",
