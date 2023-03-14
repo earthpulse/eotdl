@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 
-class Login():
+class IsLogged:
     def __init__(self, repo):
         self.repo = repo
 
     class Inputs(BaseModel):
-        pass
+        pass 
 
     class Outputs(BaseModel):
-        login_url: dict
+        user: dict = None
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        login_url = self.repo.generate_login_url()
-        return self.Outputs(login_url=login_url)
+        user = self.repo.load_creds()
+        return self.Outputs(user=user)
