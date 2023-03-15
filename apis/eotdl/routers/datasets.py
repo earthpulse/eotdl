@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from src.models import User
-from src.usecases.datasets import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset
+from src.usecases.datasets import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
 from .auth import get_current_user
 
 router = APIRouter(
@@ -73,4 +73,12 @@ def edit(
         return edit_dataset(id, body.name, body.description, body.tags, user)
     except Exception as e:
         print('ERROR datasets:edit', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
+@router.get("/leaderboard")
+def leaderboard():
+    try:
+        return retrieve_datasets_leaderboard()
+    except Exception as e:
+        print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

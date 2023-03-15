@@ -1,6 +1,8 @@
 <script>
 	import { datasets } from "$stores/datasets";
 	import { user, id_token } from "$stores/auth";
+	import Leaderboard from "$components/datasets/Leaderboard.svelte";
+	import Card from "$components/datasets/Card.svelte";
 
 	export let data;
 
@@ -45,7 +47,7 @@
 				.includes(filterName.toLowerCase());
 		});
 
-	const maxVisibleDatasets = 6;
+	const maxVisibleDatasets = 9;
 	let currentPage = 0;
 	$: numPages = Math.ceil(filtered_datasets?.length / maxVisibleDatasets);
 	$: if (numPages > 0) currentPage = 0;
@@ -57,7 +59,7 @@
 
 <div class="w-full flex flex-col items-center">
 	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center">
-		<div class="grid grid-cols-[200px,auto] gap-3">
+		<div class="grid grid-cols-[200px,auto] gap-8 w-full">
 			<div class="flex flex-col">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Datasets</h1>
@@ -95,23 +97,7 @@
 		</div>
 		<div class="grid grid-cols-3 gap-3 w-full mt-3">
 			{#each visible_datasets as dataset}
-				<a
-					href="/datasets/{dataset.name}"
-					class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between"
-				>
-					<span
-						><p>{dataset.name}</p>
-						<p class="text-gray-400">{dataset.description}</p></span
-					>
-					<span>
-						<div class="flex flex-wrap gap-1 content-start">
-							{#each dataset.tags as tag}
-								<p class="badge badge-outline">{tag}</p>
-							{/each}
-						</div>
-						<p class="text-gray-400">{dataset.createdAt}</p>
-					</span>
-				</a>
+				<Card {dataset} />
 			{/each}
 		</div>
 		<div>
@@ -135,6 +121,7 @@
 			{/if}
 		</div>
 	</div>
+	<Leaderboard leaderboard={data.leaderboard} />
 </div>
 
 <input type="checkbox" id="ingest-dataset" class="modal-toggle" />
