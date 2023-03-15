@@ -6,6 +6,8 @@ from .DownloadDataset import DownloadDataset
 from .EditDataset import EditDataset
 from .RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 from ..tags import retrieve_tags
+from .LikeDataset import LikeDataset
+from .RetrieveLikedDatasets import RetrieveLikedDatasets
 
 def ingest_dataset(file, name, description, user):
 	db_repo = DBRepo()
@@ -50,3 +52,17 @@ def retrieve_datasets_leaderboard():
 	inputs = retrieve.Inputs()
 	outputs = retrieve(inputs)
 	return outputs.leaderboard
+
+def like_dataset(id, user):
+	db_repo = DBRepo()
+	like = LikeDataset(db_repo)
+	inputs = like.Inputs(id=id, uid=user.uid)
+	outputs = like(inputs)
+	return outputs.message
+
+def retrieve_liked_datasets(user):
+	db_repo = DBRepo()
+	retrieve = RetrieveLikedDatasets(db_repo)
+	inputs = retrieve.Inputs(uid=user.uid)
+	outputs = retrieve(inputs)
+	return outputs.datasets

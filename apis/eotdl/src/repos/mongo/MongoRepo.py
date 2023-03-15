@@ -25,6 +25,11 @@ class MongoRepo():
         if field == '_id':
             value = ObjectId(value)
         return self.db[collection].find_one({field: value})
+    
+    def retrieve_many(self, collection, values, field='id'):
+        if field == '_id':
+            values = [ObjectId(value) for value in values]
+        return list(self.db[collection].find({field: {'$in': values}}))
 
     def update(self, collection, id, data):
         return self.db[collection].update_one({'_id': ObjectId(id)}, {'$set': data})
@@ -41,8 +46,10 @@ class MongoRepo():
     def find_one_by_name(self, collection, name):
         return self.find_one_by_field(collection, 'name', name)
     
-    def increase_counter(self, collection, field, value=1):
-        return self.db[collection].update_one({}, {'$inc': {field: value}})
+    def increase_counter(self, collection, field1, value1, field2, value2=1):
+        if field1 == '_id':
+            value1 = ObjectId(value1)
+        return self.db[collection].update_one({field1: value1}, {'$inc': {field2: value2}})
     
     def find_in_time_range(self, collection, uid, value, field="type", t0=datetime.combine(datetime.today(), time.min), dt=timedelta(days=1)):
         return list(self.db[collection].find({
@@ -53,3 +60,13 @@ class MongoRepo():
     
     def find_top(self, collection, field, n=10):
         return list(self.db[collection].find().sort(field, -1).limit(n))
+    
+    def append_to_list(self, collection, field1, value1, field2, value2):
+        if field1 == '_id':
+            value1 = ObjectId(value1)
+        return self.db[collection].update_one({field1: value1}, {'$push': {field2: value2}})
+    
+    def remove_from_list(self, collection, field1, value1, field2, value2):
+        if field1 == '_id':
+            value1 = ObjectId(value1)
+        return self.db[collection].update_one({field1: value1}, {'$pull': {field2: value2}})

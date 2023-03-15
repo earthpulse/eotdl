@@ -38,7 +38,7 @@ class IngestDataset():
         dataset = Dataset(uid=inputs.uid, id=id, name=inputs.name, description=inputs.description)
         self.db_repo.persist('datasets', dataset.dict(), id)
         # update user dataset count
-        self.db_repo.increase_counter('users', 'dataset_count')
+        self.db_repo.increase_counter('users', 'uid', inputs.uid, 'dataset_count')
         # report usage
         usage = Usage.DatasetIngested(uid=inputs.uid, payload={'dataset': id})
         self.db_repo.persist('usage', usage.dict())

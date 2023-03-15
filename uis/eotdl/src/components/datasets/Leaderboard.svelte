@@ -1,7 +1,5 @@
 <script>
     export let leaderboard;
-
-    $: console.log(leaderboard);
 </script>
 
 <div class="w-full bg-gray-200 grid place-items-center">

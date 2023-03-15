@@ -3,6 +3,7 @@
 	import { user, id_token } from "$stores/auth";
 	import Leaderboard from "$components/datasets/Leaderboard.svelte";
 	import Card from "$components/datasets/Card.svelte";
+	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
 	export let data;
 
@@ -34,18 +35,26 @@
 	};
 
 	let filterName = "";
-
-	$: filtered_datasets = $datasets?.data
-		.filter((dataset) => {
-			if (selected_tags.length === 0) return true;
-			return selected_tags.every((tag) => dataset.tags.includes(tag));
-		})
-		.filter((dataset) => {
-			if (filterName.length === 0) return true;
-			return dataset.name
-				.toLowerCase()
-				.includes(filterName.toLowerCase());
-		});
+	let show_liked = false;
+	let filtered_datasets;
+	$: {
+		filtered_datasets = $datasets?.data
+			.filter((dataset) => {
+				if (selected_tags.length === 0) return true;
+				return selected_tags.every((tag) => dataset.tags.includes(tag));
+			})
+			.filter((dataset) => {
+				if (filterName.length === 0) return true;
+				return dataset.name
+					.toLowerCase()
+					.includes(filterName.toLowerCase());
+			});
+		if (show_liked) {
+			filtered_datasets = filtered_datasets.filter((dataset) =>
+				data.liked_datasets.includes(dataset.id)
+			);
+		}
+	}
 
 	const maxVisibleDatasets = 9;
 	let currentPage = 0;
@@ -55,6 +64,10 @@
 		currentPage * maxVisibleDatasets,
 		(currentPage + 1) * maxVisibleDatasets
 	);
+
+	const toggleLike = () => {
+		if ($user) show_liked = !show_liked;
+	};
 </script>
 
 <div class="w-full flex flex-col items-center">
@@ -71,9 +84,18 @@
 					placeholder="Filter by name"
 					bind:value={filterName}
 				/>
-				<p class="text-gray-400 hover:underline cursor-pointer text-sm">
-					advanced filtering
-				</p>
+				<span class="flex flew-row justify-between mt-1">
+					<p
+						class="text-gray-400 hover:underline cursor-pointer text-sm"
+					>
+						advanced filtering
+					</p>
+					<button on:click={toggleLike}
+						><HeartOutline
+							color={show_liked ? "red" : "gray"}
+						/></button
+					>
+				</span>
 				{#if $user}
 					<label
 						for="ingest-dataset"
@@ -97,7 +119,10 @@
 		</div>
 		<div class="grid grid-cols-3 gap-3 w-full mt-3">
 			{#each visible_datasets as dataset}
-				<Card {dataset} />
+				<Card
+					{dataset}
+					liked={data.liked_datasets.includes(dataset.id)}
+				/>
 			{/each}
 		</div>
 		<div>

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from src.models import User
-from src.usecases.datasets import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
+from src.usecases.datasets import retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
 from .auth import get_current_user
 
 router = APIRouter(
@@ -38,7 +38,15 @@ def retrieve(
         print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
+@router.get("/liked")
+def retrieve(
+    user: User = Depends(get_current_user),
+):
+    try:
+        return retrieve_liked_datasets(user)
+    except Exception as e:
+        print('ERROR datasets:retrieve', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("/{id}/download")
 async def download(
@@ -81,4 +89,15 @@ def leaderboard():
         return retrieve_datasets_leaderboard()
     except Exception as e:
         print('ERROR datasets:retrieve', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
+@router.post("/{id}/like")
+def edit(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return like_dataset(id, user)
+    except Exception as e:
+        print('ERROR datasets:like', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
