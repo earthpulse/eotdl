@@ -2,6 +2,8 @@
 	import { datasets } from "$stores/datasets";
 	import { user, id_token } from "$stores/auth";
 
+	export let data;
+
 	let loading = false;
 	let name = "",
 		description = "",
@@ -19,6 +21,29 @@
 		}
 		loading = false;
 	};
+
+	let selected_tags = [];
+	const toggleTag = (tag) => {
+		if (selected_tags.includes(tag)) {
+			selected_tags = selected_tags.filter((t) => t !== tag);
+		} else {
+			selected_tags = [...selected_tags, tag];
+		}
+	};
+
+	let filterName = "";
+
+	$: filtered_datasets = $datasets?.data
+		.filter((dataset) => {
+			if (selected_tags.length === 0) return true;
+			return selected_tags.every((tag) => dataset.tags.includes(tag));
+		})
+		.filter((dataset) => {
+			if (filterName.length === 0) return true;
+			return dataset.name
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		});
 </script>
 
 <div class="w-full flex flex-col items-center">
@@ -27,33 +52,56 @@
 			<div class="flex flex-col">
 				<div class="flex flew-row justify-between">
 					<h1>Datasets</h1>
-					<p>420</p>
+					<p>{filtered_datasets.length}</p>
 				</div>
 				<input
 					class="input input-bordered w-full max-w-xs"
 					type="text"
 					placeholder="Filter by name"
+					bind:value={filterName}
 				/>
-				<p>advanced filtering</p>
+				<p class="text-gray-400 hover:underline cursor-pointer">
+					advanced filtering
+				</p>
 				{#if $user}
 					<label
 						for="ingest-dataset"
-						class="btn btn-ghost btn-outline"
+						class="btn btn-ghost btn-outline mt-4"
 						>+ Ingest Dataset</label
 					>
 				{/if}
 			</div>
-			<div>tags</div>
+			<div class="flex flex-wrap gap-1 content-start">
+				{#each data.tags as tag}
+					<p
+						class="badge badge-outline cursor-pointer {selected_tags.includes(
+							tag
+						) && 'badge-accent'}"
+						on:click={() => toggleTag(tag)}
+					>
+						{tag}
+					</p>
+				{/each}
+			</div>
 		</div>
 		<div class="grid grid-cols-3 gap-3 w-full mt-3">
-			{#each $datasets?.data as dataset}
+			{#each filtered_datasets as dataset}
 				<a
 					href="/datasets/{dataset.name}"
-					class="w-full h-[200px] bg-gray-100 border-2 rounded-xl p-3"
+					class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between"
 				>
-					<p>{dataset.name}</p>
-					<p class="text-gray-400">{dataset.description}</p>
-					<p class="text-gray-400">{dataset.createdAt}</p>
+					<span
+						><p>{dataset.name}</p>
+						<p class="text-gray-400">{dataset.description}</p></span
+					>
+					<span>
+						<div class="flex flex-wrap gap-1 content-start">
+							{#each dataset.tags as tag}
+								<p class="badge badge-outline">{tag}</p>
+							{/each}
+						</div>
+						<p class="text-gray-400">{dataset.createdAt}</p>
+					</span>
 				</a>
 			{/each}
 		</div>

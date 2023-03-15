@@ -1,1 +1,1 @@
-from .main import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset
+from .main import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset

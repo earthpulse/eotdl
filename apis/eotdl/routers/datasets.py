@@ -1,10 +1,11 @@
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, File, Form, UploadFile
-import aiofiles
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import List, Optional
 
 from src.models import User
-from src.usecases.datasets import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset
+from src.usecases.datasets import ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset
 from .auth import get_current_user
 
 router = APIRouter(
@@ -54,4 +55,22 @@ async def download(
         return StreamingResponse(data_stream(id), headers=response_headers, media_type=object_info.content_type)
     except Exception as e:
         print('ERROR datasets:download', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
+class EditBody(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    tags: Optional[List[str]]
+
+
+@router.post("/{id}")
+def edit(
+    id: str,
+    body: EditBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return edit_dataset(id, body.name, body.description, body.tags, user)
+    except Exception as e:
+        print('ERROR datasets:edit', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
