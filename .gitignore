@@ -19,4 +19,5 @@ eurosat-stac
 eurosat-stac**
 .coverage
 data
+db
 *.zip
