@@ -41,9 +41,13 @@ class EditDataset():
                 if tag not in data:
                     raise InvalidTagError()
         # update dataset
-        dataset.name = inputs.name if inputs.name is not None else dataset.name
-        dataset.description = inputs.description if inputs.description is not None else dataset.description
-        dataset.tags = inputs.tags if inputs.tags is not None else dataset.tags
-        dataset.updatedAt = datetime.now()
-        self.db_repo.update('datasets', inputs.id, dataset.dict())
+        updated_data = dataset.dict().copy()
+        updated_data.update(
+            name=inputs.name if inputs.name is not None else dataset.name,
+            description=inputs.description if inputs.description is not None else dataset.description,
+            tags=inputs.tags if inputs.tags is not None else dataset.tags,
+            updatedAt=datetime.now()
+        )
+        updated_dataset = Dataset(**updated_data)
+        self.db_repo.update('datasets', inputs.id, updated_dataset.dict())
         return self.Outputs(dataset=dataset)

@@ -1,3 +1,3 @@
-from .datasets import DatasetDoesNotExistError, DatasetAlreadyExistsError
-from .user import UserUnauthorizedError
+from .datasets import DatasetDoesNotExistError, DatasetAlreadyExistsError, NameCharsValidationError, NameLengthValidationError, DescriptionLengthValidationError
+from .user import UserUnauthorizedError, TierLimitError
 from .tags import InvalidTagError

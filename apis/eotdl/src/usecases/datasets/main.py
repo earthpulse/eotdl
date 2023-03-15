@@ -32,7 +32,7 @@ def download_dataset(id, user):
 	db_repo = DBRepo()
 	os_repo = OSRepo()
 	retrieve = DownloadDataset(db_repo, os_repo)
-	inputs = retrieve.Inputs(id=id)
+	inputs = retrieve.Inputs(id=id, uid=user.uid)
 	outputs = retrieve(inputs)
 	return outputs.data_stream, outputs.object_info, outputs.name
 
