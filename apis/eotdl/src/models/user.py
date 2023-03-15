@@ -10,3 +10,4 @@ class User(BaseModel):
     updatedAt: datetime = datetime.now()
     dataset_count: int = 0
     model_count: int = 0
+    tier: str = 'free'

@@ -27,22 +27,30 @@
 			headers: {
 				Authorization: `Bearer ${$id_token}`,
 			},
-		}).then((res) => {
-			const fileStream = createWriteStream(fileName);
-			const writer = fileStream.getWriter();
-			if (res.body.pipeTo) {
-				writer.releaseLock();
-				return res.body.pipeTo(fileStream);
-			}
-			const reader = res.body.getReader();
-			const pump = () =>
-				reader
-					.read()
-					.then(({ value, done }) =>
-						done ? writer.close() : writer.write(value).then(pump)
-					);
-			return pump();
-		});
+		})
+			.then((res) => {
+				console.log(res.status);
+				if (!res.ok) return res.json();
+				const fileStream = createWriteStream(fileName);
+				const writer = fileStream.getWriter();
+				if (res.body.pipeTo) {
+					writer.releaseLock();
+					return res.body.pipeTo(fileStream);
+				}
+				const reader = res.body.getReader();
+				const pump = () =>
+					reader
+						.read()
+						.then(({ value, done }) =>
+							done
+								? writer.close()
+								: writer.write(value).then(pump)
+						);
+				return pump();
+			})
+			.then((res) => {
+				alert(res.detail);
+			});
 
 		// this works but is slow with large files (no streaming)
 
@@ -116,7 +124,7 @@
 				on:click={download}>Download</button
 			>
 		</div>
-		{#if uid == $user.sub}
+		{#if uid == $user?.sub}
 			<label
 				for="edit-dataset"
 				class="text-gray-400 cursor-pointer hover:underline">Edit</label

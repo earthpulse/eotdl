@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 import typing
 
-from ...models import Dataset
-from ...errors import DatasetAlreadyExistsError
+from ...models import Dataset, Usage, User, Limits
+from ...errors import DatasetAlreadyExistsError, TierLimitError
 
 class IngestDataset():
     def __init__(self, db_repo, os_repo):
@@ -19,6 +19,14 @@ class IngestDataset():
         dataset: Dataset
 
     def __call__(self, inputs: Inputs) -> Outputs:
+        # check if user can ingest dataset
+        data = self.db_repo.retrieve('users', inputs.uid, 'uid')
+        user = User(**data)
+        data = self.db_repo.find_one_by_name('tiers', user.tier)
+        limits = Limits(**data['limits'])
+        usage = self.db_repo.find_in_time_range('usage',  inputs.uid, 'dataset_ingested', 'type')
+        if len(usage) + 1 >= limits.datasets.upload:
+            raise TierLimitError("You cannot ingest more than {} datasets per day".format(limits.datasets.upload))
         # check if name already exists
         if self.db_repo.find_one_by_name('datasets', inputs.name):
             raise DatasetAlreadyExistsError()
@@ -29,4 +37,9 @@ class IngestDataset():
         # save dataset in db
         dataset = Dataset(uid=inputs.uid, id=id, name=inputs.name, description=inputs.description)
         self.db_repo.persist('datasets', dataset.dict(), id)
+        # update user dataset count
+        self.db_repo.increase_counter('users', 'dataset_count')
+        # report usage
+        usage = Usage.DatasetIngested(uid=inputs.uid, payload={'dataset': id})
+        self.db_repo.persist('usage', usage.dict())
         return self.Outputs(dataset=dataset)

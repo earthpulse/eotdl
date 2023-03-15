@@ -1,6 +1,6 @@
 from .client import get_db
 from bson.objectid import ObjectId
-
+from datetime import datetime, timedelta, time
 
 class MongoRepo():
 
@@ -40,3 +40,13 @@ class MongoRepo():
     
     def find_one_by_name(self, collection, name):
         return self.find_one_by_field(collection, 'name', name)
+    
+    def increase_counter(self, collection, field, value=1):
+        return self.db[collection].update_one({}, {'$inc': {field: value}})
+    
+    def find_in_time_range(self, collection, uid, value, field="type", t0=datetime.combine(datetime.today(), time.min), dt=timedelta(days=1)):
+        return list(self.db[collection].find({
+            'uid': uid,
+            field: value,
+            'timestamp': {'$gte': t0, '$lt': t0 + dt}
+        }))
