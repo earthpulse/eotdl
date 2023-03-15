@@ -4,6 +4,7 @@ from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
 from .DownloadDataset import DownloadDataset
 from .EditDataset import EditDataset
+from .RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 from ..tags import retrieve_tags
 
 def ingest_dataset(file, name, description, user):
@@ -42,3 +43,10 @@ def edit_dataset(id, name, description, tags, user):
 	inputs = edit.Inputs(id=id, name=name, description=description, tags=tags, uid=user.uid)
 	outputs = edit(inputs)
 	return outputs.dataset
+
+def retrieve_datasets_leaderboard():
+	db_repo = DBRepo()
+	retrieve = RetrieveDatasetsLeaderboard(db_repo)
+	inputs = retrieve.Inputs()
+	outputs = retrieve(inputs)
+	return outputs.leaderboard

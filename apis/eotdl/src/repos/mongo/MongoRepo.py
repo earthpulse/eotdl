@@ -50,3 +50,6 @@ class MongoRepo():
             field: value,
             'timestamp': {'$gte': t0, '$lt': t0 + dt}
         }))
+    
+    def find_top(self, collection, field, n=10):
+        return list(self.db[collection].find().sort(field, -1).limit(n))
