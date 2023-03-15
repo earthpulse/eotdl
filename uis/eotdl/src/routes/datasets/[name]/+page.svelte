@@ -5,6 +5,8 @@
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
 	import { goto } from "$app/navigation";
+	import { parseISO, formatDistanceToNow } from "date-fns";
+	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
 	export let data;
 
@@ -105,6 +107,14 @@
 			newTags = [...newTags, tag];
 		}
 	};
+
+	const like = () => {
+		if (!$user) return;
+		datasets.like(id, $id_token);
+		if (data.liked_datasets.includes(id))
+			data.liked_datasets = data.liked_datasets.filter((d) => d !== id);
+		else data.liked_datasets = [...data.liked_datasets, id];
+	};
 </script>
 
 <div class="w-full flex flex-col items-center">
@@ -130,7 +140,17 @@
 				class="text-gray-400 cursor-pointer hover:underline">Edit</label
 			>
 		{/if}
-		<p class="text-gray-400">{createdAt}</p>
+		<span class="text-gray-400 flex flex-row gap-3 items-center">
+			<button on:click={like}
+				><HeartOutline
+					color={data.liked_datasets?.includes(id) ? "red" : "gray"}
+				/></button
+			>
+
+			<p>
+				Created {formatDistanceToNow(parseISO(createdAt))} ago
+			</p>
+		</span>
 		<p class="py-10">{description}</p>
 	</div>
 </div>

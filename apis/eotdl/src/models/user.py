@@ -11,3 +11,4 @@ class User(BaseModel):
     dataset_count: int = 0
     model_count: int = 0
     tier: str = 'free'
+    liked_datasets: list = []

@@ -23,3 +23,8 @@ class DescriptionLengthValidationError(Exception):
     def __init__(self, max_len, min_len):
         message = f'Description must be less than {max_len} characters, and more than {min_len}'
         super().__init__(message)
+
+class DatasetAlreadyLikedError(Exception):
+    message = "Dataset already liked"
+    def __init__(self):
+        super().__init__(self.message)

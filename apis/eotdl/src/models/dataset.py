@@ -24,6 +24,7 @@ class Dataset(BaseModel):
     tags: List[str] = []
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
+    likes: int = 0
 
     @validator('name')
     def check_name_is_valid(cls, name):
