@@ -29,7 +29,7 @@ class APIRepo():
         if path is None:
             path = str(Path.home()) + '/.etodl/datasets'
             os.makedirs(path, exist_ok=True)
-        with requests.get(url, headers, stream=True) as r:
+        with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get('content-length', 0))
             block_size = 1024  # 1 Kibibyte
