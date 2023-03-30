@@ -12,6 +12,7 @@
     "@sveltejs/kit": "^1.10.0",
     "autoprefixer": "^10.4.12",
     "daisyui": "^2.33.0",
+    "mdsvex": "^0.10.6",
     "postcss": "^8.4.18",
     "svelte": "^3.44.0",
     "svelte-material-icons": "^3.0.4",
