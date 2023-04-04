@@ -1,8 +1,8 @@
 <script>
-  import "../app.css";
-  import Nav from "../components/layout/Nav.svelte";
-  import Nav2 from "../components/layout/Nav2.svelte";
-  import Footer from "../components/layout/Footer.svelte";
+  import "../styles/app.css";
+  import Nav from "./Nav.svelte";
+  import Nav2 from "./Nav2.svelte";
+  import Footer from "./Footer.svelte";
   import { user, id_token } from "$stores/auth";
 
   export let data;

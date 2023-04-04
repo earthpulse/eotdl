@@ -2,10 +2,10 @@ from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from src.models import User
-from src.usecases.datasets import retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
+from src.usecases.datasets import retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
 from .auth import get_current_user
 
 router = APIRouter(
@@ -29,11 +29,12 @@ def ingest(
 @router.get("")
 def retrieve(
     name: str = None,
+    limit: Union[int,None] = None
 ):
     try:
         if name is None:
-            return retrieve_datasets()
-        return retrieve_dataset_by_name(name)
+            return retrieve_datasets(limit)
+        return retrieve_dataset_by_name(name, limit)
     except Exception as e:
         print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -44,6 +45,17 @@ def retrieve(
 ):
     try:
         return retrieve_liked_datasets(user)
+    except Exception as e:
+        print('ERROR datasets:retrieve', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/popular")
+def retrieve(
+    limit: Union[int,None] = None
+):
+    try:
+        return retrieve_popular_datasets(limit)
     except Exception as e:
         print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

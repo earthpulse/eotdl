@@ -1,12 +1,12 @@
 <script>
-  import Hero from "../components/home/Hero.svelte";
-  import Consortium from "../components/home/Consortium.svelte";
-  import Recent from "../components/home/Recent.svelte";
-  import Popular from "../components/home/Popular.svelte";
-  import Contributors from "../components/home/Contributors.svelte";
-  import Posts from "../components/home/Posts.svelte";
+  import Hero from "./Hero.svelte";
+  import Consortium from "./Consortium.svelte";
+  import Recent from "./Recent.svelte";
+  import Popular from "./Popular.svelte";
+  import Posts from "./Posts.svelte";
+  import Leaderboard from "./datasets/Leaderboard.svelte";
 
-  // export let data; // user data coming from layout
+  export let data;
 </script>
 
 <svelte:head>
@@ -15,9 +15,11 @@
 
 <div class="w-full flex flex-col items-center">
   <Hero />
-  <!-- <Recent />
-  <Popular />
-  <Contributors />
-  <Posts /> -->
+  <Recent {data} />
+  <Popular {data} />
+  <div class="mt-[100px] w-full">
+    <Leaderboard leaderboard={data.leaderboard} />
+  </div>
+  <!--<Posts /> -->
   <Consortium />
 </div>
