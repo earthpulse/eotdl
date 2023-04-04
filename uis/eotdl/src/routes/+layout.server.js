@@ -6,5 +6,3 @@ export function load({locals}) {
             id_token
         }
 }
-
-export const prerender = true;
