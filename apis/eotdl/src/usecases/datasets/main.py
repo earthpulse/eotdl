@@ -8,6 +8,7 @@ from .RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 from ..tags import retrieve_tags
 from .LikeDataset import LikeDataset
 from .RetrieveLikedDatasets import RetrieveLikedDatasets
+from .RetrievePopularDatasets import RetrievePopularDatasets
 
 def ingest_dataset(file, name, description, user):
 	db_repo = DBRepo()
@@ -17,17 +18,24 @@ def ingest_dataset(file, name, description, user):
 	outputs = ingest(inputs)
 	return outputs.dataset
 
-def retrieve_datasets():
+def retrieve_datasets(limit):
 	db_repo = DBRepo()
 	retrieve = RetrieveDatasets(db_repo)
-	inputs = retrieve.Inputs()
+	inputs = retrieve.Inputs(limit=limit)
 	outputs = retrieve(inputs)
 	return outputs.datasets
 
-def retrieve_dataset_by_name(name):
+def retrieve_popular_datasets(limit):
+	db_repo = DBRepo()
+	retrieve = RetrievePopularDatasets(db_repo)
+	inputs = retrieve.Inputs(limit=limit)
+	outputs = retrieve(inputs)
+	return outputs.datasets
+
+def retrieve_dataset_by_name(name, limit):
 	db_repo = DBRepo()
 	retrieve = RetrieveOneDatasetByName(db_repo)
-	inputs = retrieve.Inputs(name=name)
+	inputs = retrieve.Inputs(name=name, limit=limit)
 	outputs = retrieve(inputs)
 	return outputs.dataset
 

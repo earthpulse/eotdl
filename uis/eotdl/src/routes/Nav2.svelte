@@ -1,15 +1,16 @@
 <script>
     const links = [
+        { href: "/", label: "Home" },
         { href: "/datasets", label: "Datasets" },
-        { href: "/models", label: "Models" },
+        // { href: "/models", label: "Models" },
         { href: "/docs", label: "Docs" },
     ];
     const secondary_links = [
-        { href: "/", label: "Labelling" },
-        { href: "/", label: "Training" },
-        { href: "/", label: "Blog" },
-        { href: "/", label: "Youtube" },
-        { href: "/", label: "Discord" },
+        // { href: "/", label: "Labelling" },
+        // { href: "/", label: "Training" },
+        { href: "/blog", label: "Blog" },
+        // { href: "/", label: "Youtube" },
+        // { href: "/", label: "Discord" },
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
@@ -19,7 +20,7 @@
 
 <div class="grid place-items-center w-full">
     <ul
-        class="flex flex-row gap-3 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
+        class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
             <li>
@@ -44,7 +45,7 @@
         <li>
             <div class="avatar">
                 <div class="w-10 rounded-full">
-                    <img src={user?.picture} />
+                    <img src={user?.picture || "avatar.webp"} />
                 </div>
             </div>
         </li>
@@ -65,7 +66,7 @@
                 >
             </div>
             <ul
-                class="px-7 text-black bg-base-100 dropdown-content border py-4 flex flex-col gap-2 rounded mt-2 text-sm"
+                class="px-7 text-black bg-base-100 dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
                 {#each secondary_links as link}
                     <li>

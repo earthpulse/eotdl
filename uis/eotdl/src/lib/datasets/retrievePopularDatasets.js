@@ -1,7 +1,7 @@
 import { EOTDL_API } from '$lib/env';
 
 export default async (fetch, limit=null) => {
-	let url = `${EOTDL_API}/datasets`;
+	let url = `${EOTDL_API}/datasets/popular`;
   if (limit) url += `?limit=${limit}`;
   const res = await fetch(url);
   const data = await res.json();

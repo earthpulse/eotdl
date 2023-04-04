@@ -1,8 +1,8 @@
 <script>
 	import { datasets } from "$stores/datasets";
 	import { user, id_token } from "$stores/auth";
-	import Leaderboard from "$components/datasets/Leaderboard.svelte";
-	import Card from "$components/datasets/Card.svelte";
+	import Leaderboard from "./Leaderboard.svelte";
+	import Card from "./Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
 	export let data;
@@ -38,8 +38,8 @@
 	let show_liked = false;
 	let filtered_datasets;
 	$: {
-		filtered_datasets = $datasets?.data
-			.filter((dataset) => {
+		filtered_datasets = $datasets.data
+			?.filter((dataset) => {
 				if (selected_tags.length === 0) return true;
 				return selected_tags.every((tag) => dataset.tags.includes(tag));
 			})
@@ -76,7 +76,7 @@
 			<div class="flex flex-col">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Datasets</h1>
-					<p class="text-gray-400">{filtered_datasets.length}</p>
+					<p class="text-gray-400">{filtered_datasets?.length}</p>
 				</div>
 				<input
 					class="input input-bordered w-full max-w-xs input-xs"
@@ -105,7 +105,7 @@
 				{/if}
 			</div>
 			<div class="flex flex-wrap gap-1 content-start">
-				{#each data.tags as tag}
+				{#each data?.tags as tag}
 					<button
 						class="badge badge-outline {selected_tags.includes(
 							tag
@@ -118,12 +118,14 @@
 			</div>
 		</div>
 		<div class="grid grid-cols-3 gap-3 w-full mt-3">
-			{#each visible_datasets as dataset}
-				<Card
-					{dataset}
-					liked={data.liked_datasets.includes(dataset.id)}
-				/>
-			{/each}
+			{#if visible_datasets?.length > 0}
+				{#each visible_datasets as dataset}
+					<Card
+						{dataset}
+						liked={data.liked_datasets.includes(dataset.id)}
+					/>
+				{/each}
+			{/if}
 		</div>
 		<div>
 			{#if numPages > 1}

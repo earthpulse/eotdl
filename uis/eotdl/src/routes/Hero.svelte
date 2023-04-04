@@ -1,5 +1,5 @@
 <div
-  class="py-[80px] w-full md:py-[100px] min-h-[400px] bg-base-200 flex flex-col items-center"
+  class="py-[80px] w-full md:py-[100px] min-h-[400px] flex flex-col items-center mt-10"
 >
   <div class="gap-3 max-w-[450px] text-center flex flex-col items-center px-4">
     <h1 class="text-5xl font-bold">Earth Observation Training Data Lab</h1>

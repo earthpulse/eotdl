@@ -19,12 +19,18 @@ class MongoRepo():
             return self.db[collection].insert_one(data)
         return self.db[collection].insert_one(data).inserted_id
 
-    def retrieve(self, collection, value=None, field='id'):
+    def retrieve(self, collection, value=None, field='id', limit=None, sort=None, order=None):
         if value is None:
-            return list(self.db[collection].find())
+            query = self.db[collection].find()
+            if sort is not None: query = query.sort(sort, order)
+            if limit is not None: query = query.limit(limit)
+            return list(query)
         if field == '_id':
             value = ObjectId(value)
-        return self.db[collection].find_one({field: value})
+        query = self.db[collection].find_one({field: value})
+        if sort is not None: query = query.sort(sort, order)
+        if limit is not None: query = query.limit(limit)
+        return query
     
     def retrieve_many(self, collection, values, field='id'):
         if field == '_id':
@@ -40,11 +46,13 @@ class MongoRepo():
     def retrieve_all(self, collection):
         return list(self.db[collection].find())
     
-    def find_one_by_field(self, collection, field, value):
-        return self.db[collection].find_one({field: value})
+    def find_one_by_field(self, collection, field, value, limit):
+        if limit is None:
+            return self.db[collection].find_one({field: value})
+        return self.db[collection].find_one({field: value}).limit(limit)
     
-    def find_one_by_name(self, collection, name):
-        return self.find_one_by_field(collection, 'name', name)
+    def find_one_by_name(self, collection, name, limit=None):
+        return self.find_one_by_field(collection, 'name', name, limit)
     
     def increase_counter(self, collection, field1, value1, field2, value2=1):
         if field1 == '_id':

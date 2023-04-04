@@ -19,10 +19,10 @@ const createDatasets = () => {
         data: [...current.data, data],
       }));
     },
-    retrieve: async (fetch) => {
+    retrieve: async (fetch, limit=null) => {
       set({ loading: true });
       try {
-        const data = await retrieveDatasets(fetch);
+        const data = await retrieveDatasets(fetch, limit);
         set({ loading: false, data });
       } catch (e) {
         set({ loading: false, error: e.message });

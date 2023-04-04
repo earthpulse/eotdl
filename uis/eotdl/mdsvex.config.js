@@ -1,5 +1,5 @@
 const config = {
-	extensions: ['.svx', '.md'],
+	extensions: ['.svx'],
 	smartypants: {
 		dashes: 'oldschool',
 	},
