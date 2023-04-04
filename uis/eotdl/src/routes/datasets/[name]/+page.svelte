@@ -179,14 +179,14 @@
 				<h3>Select relevant tags:</h3>
 				<div class="flex flex-wrap gap-1">
 					{#each data.tags as tag}
-						<p
+						<button
 							class="badge badge-outline cursor-pointer {newTags.includes(
 								tag
 							) && 'badge-accent'}"
 							on:click={() => toggleTag(tag)}
 						>
 							{tag}
-						</p>
+						</button>
 					{/each}
 				</div>
 			</span>

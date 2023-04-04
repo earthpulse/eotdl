@@ -45,11 +45,11 @@
         <li>
             <div class="avatar">
                 <div class="w-10 rounded-full">
-                    <img src={user?.picture || "avatar.webp"} />
+                    <img src={user?.picture || "/avatar.webp"} alt="avatar" />
                 </div>
             </div>
         </li>
-        <li tabindex="0" class="dropdown dropdown-end cursor-pointer">
+        <button tabindex="0" class="dropdown dropdown-end cursor-pointer">
             <div>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +66,7 @@
                 >
             </div>
             <ul
-                class="px-7 text-black bg-base-100 dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
+                class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
                 {#each secondary_links as link}
                     <li>
@@ -79,6 +79,6 @@
                     </li>
                 {/each}
             </ul>
-        </li>
+        </button>
     </ul>
 </div>

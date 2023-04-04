@@ -20,6 +20,6 @@
   <div class="mt-[100px] w-full">
     <Leaderboard leaderboard={data.leaderboard} />
   </div>
-  <!--<Posts /> -->
+  <Posts posts={data.posts} />
   <Consortium />
 </div>

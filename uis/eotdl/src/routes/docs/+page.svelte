@@ -8,6 +8,7 @@
     as possible. In the meantime you can track the progress of the project on <a
       class="link link-underline"
       href="https://github.com/earthpulse/eotdl"
+      rel="noopener noreferrer"
       target="_blank">Github</a
     >.
   </p>
