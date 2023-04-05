@@ -118,13 +118,17 @@
 </script>
 
 <div class="w-full flex flex-col items-center">
-	<div class="px-3 py-10 mt-10 w-full max-w-6xl">
-		<div class="flex flex-row justify-between w-full">
-			<span>
+	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-2">
+		<div class="flex flex-col sm:flex-row justify-between w-full gap-3">
+			<span class="flex flex-col gap-2">
 				<h1 class="text-3xl">{name}</h1>
 				<div class="flex flex-wrap gap-1">
 					{#each tags as tag}
-						<p class="badge badge-outline">{tag}</p>
+						<p
+							class="badge badge-outline border-slate-300 text-slate-400 text-xs"
+						>
+							{tag}
+						</p>
 					{/each}
 				</div>
 			</span>
@@ -146,7 +150,6 @@
 					color={data.liked_datasets?.includes(id) ? "red" : "gray"}
 				/></button
 			>
-
 			<p>
 				Created {formatDistanceToNow(parseISO(createdAt))} ago
 			</p>
@@ -179,14 +182,15 @@
 				<h3>Select relevant tags:</h3>
 				<div class="flex flex-wrap gap-1">
 					{#each data.tags as tag}
-						<button
-							class="badge badge-outline cursor-pointer {newTags.includes(
+						<p
+							class="badge badge-outline cursor-pointer text-slate-400 text-xs {newTags.includes(
 								tag
 							) && 'badge-accent'}"
 							on:click={() => toggleTag(tag)}
+							on:keyup={() => {}}
 						>
 							{tag}
-						</button>
+						</p>
 					{/each}
 				</div>
 			</span>

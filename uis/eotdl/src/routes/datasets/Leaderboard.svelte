@@ -3,7 +3,7 @@
 </script>
 
 <div class="w-full bg-gray-200 grid place-items-center">
-    <div class="w-full max-w-2xl overflow-x-auto py-10">
+    <div class="w-full max-w-2xl overflow-x-auto py-10 px-5">
         <h2 class="text-2xl mb-8">Top contributors</h2>
         <table class="table w-full mt-3">
             <thead>

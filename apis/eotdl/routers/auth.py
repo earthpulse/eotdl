@@ -1,11 +1,11 @@
 from fastapi.exceptions import HTTPException
 from fastapi import Depends, APIRouter, status, Request
-
+from pydantic import BaseModel
 from fastapi.security import HTTPBearer, APIKeyHeader
 
 from src.models import User
 from src.usecases.user import persist_user
-from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
+from src.usecases.auth import update_user, retrieve_user, generate_login_url, generate_id_token, parse_token, generate_logout_url
 
 router = APIRouter(
     prefix="/auth",
@@ -45,7 +45,8 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
 @router.get("/me")
 def me(user: User = Depends(get_current_user)):
     try:
-        return user
+        # return user
+        return retrieve_user(user)
     except Exception as e:
         print('ERROR', str(e))
         raise HTTPException(
@@ -66,3 +67,19 @@ def logout(request: Request, redirect_uri: str = None):
 @router.get("/callback", name="callback", include_in_schema=False)
 def logout_callback():
     return "You are logged out."
+
+class UpdateData(BaseModel):
+    name: str
+
+@router.post("")
+def update(
+    data: UpdateData,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return update_user(user, data)
+    except Exception as e:
+        print('ERROR', str(e))
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
