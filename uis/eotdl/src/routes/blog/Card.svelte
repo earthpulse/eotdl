@@ -6,14 +6,14 @@
 
 <a
     href="/blog/{post.slug}"
-    class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-[150px] text-left"
+    class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left"
 >
     <span
         ><p class="font-bold">{post.title}</p>
         <p class="text-gray-400">{post.description}</p></span
     >
     <span>
-        <div class="flex flex-wrap gap-1 content-start">
+        <div class="flex flex-wrap gap-1 content-start mt-1">
             {#each post.tags as tag}
                 <p
                     class="badge badge-outline bg-white border-slate-300 text-slate-400 text-xs"

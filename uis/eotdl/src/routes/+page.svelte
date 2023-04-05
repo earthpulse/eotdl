@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-  <title>EO-TDL | Home</title>
+  <title>EOTDL | Home</title>
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">

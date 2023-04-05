@@ -23,8 +23,8 @@
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
-            <li>
-                <a href={link.href} class="hover:underline ">{link.label}</a>
+            <li class="hidden sm:block">
+                <a href={link.href} class="hover:underline">{link.label}</a>
             </li>
         {/each}
         <li>
@@ -43,11 +43,21 @@
             {/if}
         </li>
         <li>
-            <div class="avatar">
-                <div class="w-10 rounded-full">
-                    <img src={user?.picture || "/avatar.webp"} alt="avatar" />
+            <a href={user ? "/profile" : ""}>
+                <div
+                    class="tooltip tooltip-bottom"
+                    data-tip={user ? "Profile" : "Sign in to view profile"}
+                >
+                    <div class="avatar">
+                        <div class="w-10 rounded-full">
+                            <img
+                                src={user?.picture || "/avatar.webp"}
+                                alt="avatar"
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </li>
         <button tabindex="0" class="dropdown dropdown-end cursor-pointer">
             <div>
@@ -68,6 +78,13 @@
             <ul
                 class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
+                {#each links as link}
+                    <li class="sm:hidden block">
+                        <a href={link.href} class="hover:underline"
+                            >{link.label}</a
+                        >
+                    </li>
+                {/each}
                 {#each secondary_links as link}
                     <li>
                         <a

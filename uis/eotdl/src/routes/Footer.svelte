@@ -4,7 +4,9 @@
     import Linkedin from "svelte-material-icons/Linkedin.svelte";
 </script>
 
-<footer class="footer p-10 bg-blue-500 flex flex-row justify-between">
+<footer
+    class="footer p-10 bg-blue-500 flex flex-col md:flex-row justify-between"
+>
     <ul class="text-green-200">
         <li><a href="/" class="hover:underline">Privacy Policy</a></li>
         <li><a href="/" class="hover:underline">Terms & Conditions</a></li>

@@ -71,15 +71,17 @@
 </script>
 
 <div class="w-full flex flex-col items-center">
-	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center">
-		<div class="grid grid-cols-[200px,auto] gap-8 w-full">
-			<div class="flex flex-col">
+	<div
+		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
+	>
+		<div class="grid grid-cols-1 sm:grid-cols-[250px,auto] gap-8 w-full">
+			<div class="flex flex-col w-full">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Datasets</h1>
 					<p class="text-gray-400">{filtered_datasets?.length}</p>
 				</div>
 				<input
-					class="input input-bordered w-full max-w-xs input-xs"
+					class="input input-bordered max-w-full input-xs"
 					type="text"
 					placeholder="Filter by name"
 					bind:value={filterName}
@@ -107,7 +109,7 @@
 			<div class="flex flex-wrap gap-1 content-start">
 				{#each data?.tags as tag}
 					<button
-						class="badge badge-outline {selected_tags.includes(
+						class="badge badge-outline bg-white border-slate-300 text-slate-400 text-xs {selected_tags.includes(
 							tag
 						) && 'badge-accent'}"
 						on:click={() => toggleTag(tag)}
@@ -117,7 +119,7 @@
 				{/each}
 			</div>
 		</div>
-		<div class="grid grid-cols-3 gap-3 w-full mt-3">
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 			{#if visible_datasets?.length > 0}
 				{#each visible_datasets as dataset}
 					<Card
