@@ -56,7 +56,7 @@
 		}
 	}
 
-	const maxVisibleDatasets = 9;
+	const maxVisibleDatasets = 3;
 	let currentPage = 0;
 	$: numPages = Math.ceil(filtered_datasets?.length / maxVisibleDatasets);
 	$: if (numPages > 0) currentPage = 0;
@@ -109,7 +109,7 @@
 			<div class="flex flex-wrap gap-1 content-start">
 				{#each data?.tags as tag}
 					<button
-						class="badge badge-outline bg-white border-slate-300 text-slate-400 text-xs {selected_tags.includes(
+						class="badge badge-outline bg-white text-slate-400 text-xs {selected_tags.includes(
 							tag
 						) && 'badge-accent'}"
 						on:click={() => toggleTag(tag)}
@@ -119,28 +119,35 @@
 				{/each}
 			</div>
 		</div>
-		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-			{#if visible_datasets?.length > 0}
+		{#if visible_datasets?.length > 0}
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each visible_datasets as dataset}
 					<Card
 						{dataset}
 						liked={data.liked_datasets.includes(dataset.id)}
 					/>
 				{/each}
-			{/if}
-		</div>
+			</div>
+		{:else}
+			<p class="text-gray-400 text-center">No datasets found</p>
+		{/if}
 		<div>
 			{#if numPages > 1}
-				<div class="btn-group grid grid-cols-2 w-[200px] btn-xs mt-3">
+				<div
+					class="grid grid-cols-3 w-[250px] btn-xs mt-3 items-center"
+				>
 					<button
-						class="btn btn-outline btn-xs"
+						class="btn btn-ghost btn-xs disabled:bg-white"
 						disabled={currentPage === 0}
 						on:click={() =>
 							(currentPage = Math.max(0, currentPage - 1))}
 						>Previous</button
 					>
+					<p class="w-full text-center">
+						{currentPage + 1} / {numPages}
+					</p>
 					<button
-						class="btn btn-outline btn-xs"
+						class="btn btn-ghost btn-xs disabled:bg-white"
 						disabled={currentPage === numPages - 1}
 						on:click={() =>
 							(currentPage = Math.min(currentPage + 1, numPages))}

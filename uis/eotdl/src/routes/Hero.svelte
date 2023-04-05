@@ -4,8 +4,8 @@
   <div class="gap-3 max-w-[450px] text-center flex flex-col items-center px-4">
     <h1 class="text-5xl font-bold">Earth Observation Training Data Lab</h1>
     <p class="py-6">
-      Create, share and use training data for Earth Observation Machine Learning
-      applications with our open source tools.
+      Create, share and use training datasets for Earth Observation Machine
+      Learning applications with our open source tools.
     </p>
     <span>
       <a

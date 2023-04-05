@@ -15,6 +15,6 @@ class RetrievePopularDatasets():
         datasets: List[Dataset]
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        data = self.db_repo.find_top('datasets', 'liked', inputs.limit)
+        data = self.db_repo.find_top('datasets', 'likes', inputs.limit)
         datasets = [Dataset(**d) for d in data]
         return self.Outputs(datasets=datasets)

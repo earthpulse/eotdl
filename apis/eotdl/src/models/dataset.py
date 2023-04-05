@@ -25,6 +25,7 @@ class Dataset(BaseModel):
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     likes: int = 0
+    downloads: int = 0
 
     @validator('name')
     def check_name_is_valid(cls, name):

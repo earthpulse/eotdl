@@ -32,7 +32,7 @@ const createDatasets = () => {
       return downloadDataset(id, token);
     },
     edit: async (id, newName, newDescription, newTags, token) => {
-      editDataset(id, newName, newDescription, newTags, token);
+      await editDataset(id, newName, newDescription, newTags, token);
       update((current) => ({
         data: current.data.map((dataset) =>
           dataset.id === id ? { ...dataset, name: newName, description: newDescription, tags: newTags } : dataset

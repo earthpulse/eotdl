@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-import typing
 from typing import List, Union
 
 from ...models import Dataset

@@ -1,6 +1,7 @@
 <script>
     import { parseISO, formatDistanceToNow } from "date-fns";
     import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+    import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 
     export let dataset;
     export let liked = null;
@@ -30,9 +31,15 @@
             <p>
                 Created {formatDistanceToNow(parseISO(dataset.createdAt))} ago
             </p>
-            <span class="flex flex-row items-center">
-                <HeartOutline color={liked ? "red" : "gray"} />
-                <p>{dataset.likes}</p>
+            <span class="flex flex-row gap-2 items-center">
+                <span class="flex flex-row items-center gap-1">
+                    <HeartOutline color={liked ? "red" : "gray"} />
+                    <p>{dataset.likes}</p>
+                </span>
+                <span class="flex flex-row items-center gap-1">
+                    <Download color="gray" size={14} />
+                    <p>{dataset.downloads}</p>
+                </span>
             </span>
         </span>
     </span>

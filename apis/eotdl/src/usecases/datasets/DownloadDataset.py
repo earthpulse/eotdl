@@ -34,6 +34,7 @@ class DownloadDataset():
         # report usage
         usage = Usage.DatasetDownload(uid=inputs.uid, payload={'dataset': inputs.id})
         self.db_repo.persist('usage', usage.dict())
+        self.db_repo.increase_counter('datasets', 'id', inputs.id, 'downloads')
         # download
         return self.Outputs(
             data_stream=self.os_repo.data_stream,
