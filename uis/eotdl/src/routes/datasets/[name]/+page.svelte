@@ -7,10 +7,12 @@
 	import { goto } from "$app/navigation";
 	import { parseISO, formatDistanceToNow } from "date-fns";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 
 	export let data;
 
-	$: ({ name, id, createdAt, uid, description, tags } = data.dataset);
+	$: ({ name, id, createdAt, uid, description, tags, likes, downloads } =
+		data.dataset);
 
 	let createWriteStream;
 	onMount(async () => {
@@ -82,6 +84,7 @@
 	const edit = async () => {
 		loading = true;
 		try {
+			console.log("ei");
 			await datasets.edit(
 				id,
 				newName,
@@ -89,6 +92,7 @@
 				newTags,
 				$id_token
 			);
+			console.log("eo");
 			document.getElementById("edit-dataset").checked = false;
 			data.dataset.tags = newTags;
 			data.dataset.name = newName || name;
@@ -132,28 +136,40 @@
 					{/each}
 				</div>
 			</span>
-			<button
-				class="btn btn-ghost btn-outline"
-				disabled={!$user}
-				on:click={download}>Download</button
-			>
+			{#if $user}
+				<button class="btn btn-ghost btn-outline" on:click={download}
+					>Download</button
+				>
+			{:else}
+				<p class="badge badge-warning p-3">Sign in to download</p>
+			{/if}
 		</div>
-		{#if uid == $user?.sub}
+
+		<p class="text-gray-400">
+			Created {formatDistanceToNow(parseISO(createdAt))} ago
+		</p>
+		<span class="text-gray-400 flex flex-row gap-3 items-center">
+			<span class="flex flex-row gap-1">
+				<button on:click={like}
+					><HeartOutline
+						color={data.liked_datasets?.includes(id)
+							? "red"
+							: "gray"}
+					/></button
+				>
+				<p>{likes}</p>
+			</span>
+			<span class="flex flex-row items-center gap-1">
+				<Download color="gray" size={20} />
+				<p>{downloads}</p>
+			</span>
+		</span>
+		{#if uid == $user?.uid}
 			<label
 				for="edit-dataset"
 				class="text-gray-400 cursor-pointer hover:underline">Edit</label
 			>
 		{/if}
-		<span class="text-gray-400 flex flex-row gap-3 items-center">
-			<button on:click={like}
-				><HeartOutline
-					color={data.liked_datasets?.includes(id) ? "red" : "gray"}
-				/></button
-			>
-			<p>
-				Created {formatDistanceToNow(parseISO(createdAt))} ago
-			</p>
-		</span>
 		<p class="py-10">{description}</p>
 	</div>
 </div>

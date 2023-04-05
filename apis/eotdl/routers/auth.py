@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBearer, APIKeyHeader
 
 from src.models import User
-from src.usecases.user import persist_user
-from src.usecases.auth import update_user, retrieve_user, generate_login_url, generate_id_token, parse_token, generate_logout_url
+from src.usecases.user import persist_user, update_user, retrieve_user
+from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
 
 router = APIRouter(
     prefix="/auth",

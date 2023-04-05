@@ -13,8 +13,8 @@ class RetrieveDatasetsLeaderboard():
         leaderboard: List[dict]
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        # retrieve top 10 user with more datasets
-        users = self.db_repo.find_top('users', 'datasets', 10)
+        # retrieve top 5 user with more datasets
+        users = self.db_repo.find_top('users', 'dataset_count', 5)
         leaderboard = [{
             'name': user['name'],
             'datasets': user['dataset_count']
