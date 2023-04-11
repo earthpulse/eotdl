@@ -3,6 +3,7 @@ from .GenerateToken import GenerateToken
 from .ParseToken import ParseToken
 from .Logout import Logout
 
+
 from ...repos import AuthRepo
 
 def generate_login_url():

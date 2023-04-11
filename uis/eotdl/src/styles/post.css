@@ -1,0 +1,55 @@
+.post :where(p, h1, h2, h3, h4, h5, h6, pre, ul, li, blockquote, pre, code) {
+    @apply w-full;
+}
+
+.post h1 {
+    @apply text-3xl pt-3 font-bold;
+}
+
+.post h2 {
+    @apply text-2xl pt-2 font-bold;
+}
+
+.post :where(h3, h4, h5, h6)  {
+    @apply text-xl pt-1 font-bold;
+}
+
+.post pre {
+    @apply overflow-auto;
+}
+
+.post :where(img, svg) {
+    @apply mx-auto;
+}
+
+.post ul {
+    @apply list-disc list-inside;
+}
+
+.post blockquote {
+    @apply bg-green-500 text-black p-2 rounded-md;
+}
+
+.post .equation {
+    @apply block
+}
+
+.post .inline-equation {
+    @apply inline-block 
+}
+
+.post code {
+    @apply bg-gray-200 text-black;
+}
+
+.post table {
+    @apply w-full mx-auto inline-block overflow-auto border-collapse border-none relative left-1/2 -translate-x-1/2;
+}
+
+.post th, .post td {
+    @apply border border-gray-300 p-2 text-left;
+}
+
+.post a {
+    @apply text-pink-400;
+}

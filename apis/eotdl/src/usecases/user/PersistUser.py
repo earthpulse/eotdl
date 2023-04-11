@@ -19,9 +19,9 @@ class PersistUser():
         user = self.repo.retrieve('users', uid, 'uid')
         if user:
             user.update(
-                name=inputs.data['name'],
+                # name=inputs.data['name'],
+                # picture=inputs.data['picture'],
                 email=inputs.data['email'],
-                picture=inputs.data['picture'],
                 updatedAt=datetime.now()
             )
             updated_user = User(**user)
