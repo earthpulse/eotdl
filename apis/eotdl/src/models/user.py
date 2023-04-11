@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
+
 class User(BaseModel):
     uid: str
     name: str
@@ -10,3 +12,5 @@ class User(BaseModel):
     updatedAt: datetime = datetime.now()
     dataset_count: int = 0
     model_count: int = 0
+    tier: str = 'free'
+    liked_datasets: list = []

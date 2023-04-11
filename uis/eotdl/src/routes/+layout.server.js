@@ -1,10 +1,12 @@
-export function load({locals}) {
-    const {user, id_token} = locals;
-    if (user) 
-        return {
-            user,
-            id_token
-        }
-}
+import retrieveUserData from '$lib/auth/retrieveUserData';
 
-export const prerender = true;
+export async function load({locals, fetch}) {
+    const {user, id_token} = locals;
+    if (user) {
+        const userData = await retrieveUserData(id_token, fetch)
+        return {
+            id_token,
+            user: userData
+        }
+    }
+}

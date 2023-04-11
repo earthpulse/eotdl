@@ -20,6 +20,7 @@ class AuthRepo():
             with open(self.creds_path, 'r') as f:
                 creds = json.load(f)
             user = self.decode_token(creds)
+            user['id_token'] = creds['id_token']
             return user
         return None
     
