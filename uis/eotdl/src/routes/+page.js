@@ -1,6 +1,6 @@
-import retrieveDatasets from '$lib/datasets/retrieveDatasets'
-import retrievePopularDatasets from '$lib/datasets/retrievePopularDatasets'
-import retrieveDatasetsLeaderboard from '$lib/datasets/retrieveDatasetsLeaderboard'
+import retrieveDatasets from '../lib/datasets/retrieveDatasets'
+import retrieveDatasetsLeaderboard from '../lib/datasets/retrieveDatasetsLeaderboard'
+import retrievePopularDatasets from '../lib/datasets/retrievePopularDatasets'
 
 export const load = async ({fetch}) => {
 	const datasets = await retrieveDatasets(fetch, 3)
