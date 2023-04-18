@@ -1,7 +1,7 @@
 import {datasets} from '$stores/datasets'
-import retrieveTags from '$lib/tags/retrieveTags'
-import retrieveDatasetsLeaderboard from '$lib/datasets/retrieveDatasetsLeaderboard'
-import retrieveLikedDatasets from '$lib/datasets/retrieveLikedDatasets';
+import retrieveTags from '../../lib/tags/retrieveTags'
+import retrieveDatasetsLeaderboard from '../../lib/datasets/retrieveDatasetsLeaderboard'
+import retrieveLikedDatasets from '../../lib/datasets/retrieveLikedDatasets';
 
 export const load = async ({fetch, parent}) => {
 	const data = await parent()
