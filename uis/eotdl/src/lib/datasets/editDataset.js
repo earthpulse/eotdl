@@ -1,8 +1,8 @@
-import { EOTDL_API } from '$lib/env';
+import { PUBLIC_EOTDL_API } from '$env/static/public';
 import fetchEOTDL from '$lib/shared/fetchEOTDL';
 
 export default async (id, name, description, tags, token) => {
-    let url = `${EOTDL_API}/datasets/${id}`;
+    let url = `${PUBLIC_EOTDL_API}/datasets/${id}`;
     const body = {
         name,
         description,

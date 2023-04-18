@@ -1,7 +1,7 @@
-import { EOTDL_API } from '$lib/env';
+import { PUBLIC_EOTDL_API } from '$env/static/public';
 
 export default async (fetch) => {
-	let url = `${EOTDL_API}/tags`;
+	let url = `${PUBLIC_EOTDL_API}/tags`;
   try {
     const res = await fetch(url);
     const data = await res.json();

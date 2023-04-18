@@ -1,4 +1,4 @@
-import retrieveUserData from '$lib/auth/retrieveUserData';
+import retrieveUserData from '../lib/auth/retrieveUserData';
 
 export async function load({locals, fetch}) {
     const {user, id_token} = locals;

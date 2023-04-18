@@ -1,4 +1,4 @@
-import { AUTH0_DOMAIN, AUTH0_CLIENT_ID } from "$lib/env";
+import { AUTH0_DOMAIN, AUTH0_CLIENT_ID } from '$env/static/private';
 
 export async function GET({url}) {
   const redirect_uri = `http://${url.host}/api/auth/callback`; 
