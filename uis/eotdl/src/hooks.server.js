@@ -1,24 +1,21 @@
-import { verifyToken } from "$lib/auth/auth0";
+// import { verifyToken } from "$lib/auth/auth0";
 import cookie from "cookie";
 
 export const handle = async ({ event, resolve }) => {
   const cookies = cookie.parse(event.request.headers.get("cookie") || "");
   event.locals.id_token = cookies.id_token;
   if (cookies?.id_token) {
-    const user = await verifyToken(cookies.id_token);
+    let user = null
+    console.log(cookies?.id_token);
+    try {
+      user = null //await verifyToken(cookies.id_token);
+    } catch (error) {
+      console.log(error)
+    }
     if (!user) {
       console.log("unauthenticated");
       event.locals.user = null;
       event.locals.id_token = null;
-      if (event.url.pathname.startsWith("/api")) {
-        console.log("unauthenticated server-side api call, returning a 401");
-        return {
-          status: 401,
-          headers: {
-            "WWW-Authenticate": "Bearer",
-          },
-        };
-      }
     }
     event.locals.user = user;
   }
