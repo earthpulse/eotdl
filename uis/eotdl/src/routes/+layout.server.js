@@ -10,3 +10,5 @@ export async function load({locals, fetch}) {
         }
     }
 }
+
+export const prerender = false;
