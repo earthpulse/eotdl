@@ -1,6 +1,6 @@
 import typer
-from src.usecases.auth import is_logged, auth, generate_logout_url
-from src.errors.auth import LoginError
+from eotdl_cli.src.usecases.auth import is_logged, auth, generate_logout_url
+from eotdl_cli.src.errors.auth import LoginError
 
 app = typer.Typer()
 
