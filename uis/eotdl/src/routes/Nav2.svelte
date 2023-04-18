@@ -1,7 +1,7 @@
 <script>
     const links = [
         { href: "/", label: "Home" },
-        { href: "/datasets", label: "Datasets" },
+        // { href: "/datasets", label: "Datasets" },
         // { href: "/models", label: "Models" },
         { href: "/docs", label: "Docs" },
     ];
