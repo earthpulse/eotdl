@@ -17,7 +17,7 @@ Some of the operations within EOTDL require authentication.
 
 ## API
 
-The interactive documentation is available at [https://eotdl.api.com/docs](https://api.eotdl.com/docs).
+The interactive documentation is available at [https://api.eotdl.com/docs](https://api.eotdl.com/docs).
 
 You can authenticate in the API using the `login` endpoint.
 
