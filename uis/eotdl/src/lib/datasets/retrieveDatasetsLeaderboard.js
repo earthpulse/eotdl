@@ -1,7 +1,7 @@
-import { EOTDL_API } from '$lib/env';
+import { PUBLIC_EOTDL_API } from '$env/static/public';
 
 export default async (fetch) => {
-	let url = `${EOTDL_API}/datasets/leaderboard`;
+	let url = `${PUBLIC_EOTDL_API}/datasets/leaderboard`;
   try {
     const res = await fetch(url);
     const data = await res.json();

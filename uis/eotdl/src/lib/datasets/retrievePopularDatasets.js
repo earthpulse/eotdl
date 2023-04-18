@@ -1,7 +1,7 @@
-import { EOTDL_API } from '$lib/env';
+import { PUBLIC_EOTDL_API } from '$env/static/public';
 
 export default async (fetch, limit=null) => {
-	let url = `${EOTDL_API}/datasets/popular`;
+	let url = `${PUBLIC_EOTDL_API}/datasets/popular`;
   if (limit) url += `?limit=${limit}`;
   try {
     const res = await fetch(url);

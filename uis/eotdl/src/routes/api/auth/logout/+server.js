@@ -1,4 +1,4 @@
-import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from "$lib/env";
+import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from '$env/static/private';
 
 export async function GET(event) {
   const returnTo = `http://${event.url.host}`; 
