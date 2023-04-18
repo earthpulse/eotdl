@@ -1,1 +1,34 @@
-hola
+
+<script>
+	import Api from "../components/Api.svelte";
+	import CLI from "../components/CLI.svelte";
+	import Library from "../components/Library.svelte";
+	import UI from "../components/UI.svelte";
+	import Posts from "../../Posts.svelte";
+</script>
+
+# The EOTDL ecosystem
+
+The EOTDL is composed by a set of libraries, user interfaces, command line tools, and APIs. Throughout this documentation you will find instructions 
+on how to perform different tasks with the different components.
+
+
+<Api>
+	API instructions
+</Api>
+
+<CLI>
+	CLI instructions
+</CLI>
+
+<Library>
+	Library instructions
+</Library>
+
+<UI>
+	UI instructions
+</UI>
+
+## Tutorials
+
+The easiest and fastest way to get started with EOTDL is to browse and execute the tutorials available in our [blog](/blog). 

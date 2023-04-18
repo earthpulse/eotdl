@@ -1,0 +1,24 @@
+
+<script>
+	import CLI from "../../components/CLI.svelte";
+	import Code from "../../components/Code.svelte";
+	import Library from "../../components/Library.svelte";
+</script>
+
+
+# Install
+
+You can install the CLI using pip.
+
+<CLI><Code>pip install eotdl-cli</Code></CLI>
+
+To verify the installation you can run the `help` command, which will give you a list of all the available commands in the CLI.
+
+<CLI><Code>eotdl-cli --help</Code></CLI> 
+
+
+You can install the library using pip.
+
+<Library><Code>pip install eotdl</Code></Library> 
+
+You don't have to install anything to interact with user interfaces or the API.

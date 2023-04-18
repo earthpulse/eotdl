@@ -1,0 +1,15 @@
+.text-link {
+    @apply text-green-200 underline;
+}
+
+h1 {
+    @apply text-xl font-bold;
+}
+
+h2 {
+    @apply text-xl font-bold mt-6;
+}
+
+.list {
+    @apply list-disc list-inside;
+}

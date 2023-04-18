@@ -4,7 +4,8 @@ from pathlib import Path
 import os 
 
 class APIRepo():
-    def __init__(self, url='http://localhost:8000/'):
+    # def __init__(self, url='http://localhost:8000/'):
+    def __init__(self, url='https://api.eotdl.com/'):
         self.url = url
 
     def login(self):
