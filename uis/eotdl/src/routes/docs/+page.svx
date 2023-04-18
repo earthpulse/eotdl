@@ -1,0 +1,56 @@
+<script>
+  import BadgeWarning from "./BadgeWarning.svelte";
+</script>
+
+<svelte:head>
+  <title>EO-TDL | Docs</title>
+</svelte:head>
+
+<BadgeWarning>🚧 Under development</BadgeWarning>
+
+# Welcome to EOTDL
+
+The **Earth Observation Training Data Lab**
+(EOTDL) allows you, among other feature, to:
+
+- Explore and download Training Datasets (TDS) for Earth Observation (EO) applications.
+- Create and upload your own TDS by combining and annotating EO data from different sources.
+- Train Machine Learning (ML) models using the hosted TDS in the cloud with multi-GPU machines.
+- Explore and download pre-trianed ML models for EO applications.
+
+Here you will find information on how to use the platform and how to contribute to the project and get involved. 
+
+## Why EOTDL?
+
+One of the most limiting factors of AI for EO applications is the scarcity of suitable and accessible
+Training Datasets (TDS). As the name suggests, TDS are used to train an AI model to perform a specific
+task. Currently, the main barrier is that gathering and labelling EO data is a convoluted process. Some
+techniques exist that can help alleviate this issue, for example transfer learning or unsupervised
+learning, but annotated data is always required for fine-tuning and final validation of AI models.
+
+Generating TDS is time consuming and expensive. Data access is usually limited and costly, especially for
+Very High Resolution (VHR) images that allow objects like trees to be clearly identified. In some cases,
+domain experts or even in-person (in-situ) trips are required to manually confirm the objects in a
+satellite image are correctly annotated with a high degree of quality. This results in the field of AI for EO
+applications lagging when compared to other fields, impeding the development of new applications and
+limiting the full potential of AI in EO.
+
+The European Space Agency (ESA) Earth Observation Training Data Lab (EOTDL) will address key
+limitations and capability gaps for working with Machine Learning (ML) training data in EO by
+providing a set of open-source tools to create, share, and improve datasets as well as training ML
+algorithms in the cloud. EOTDL will also offer an online repository where datasets and models can
+be explored and accessed.
+
+## Github repository
+
+EOTDL is an open-source project. You can find the code in our [Github](https://github.com/earthpulse/eotdl) repository. There you will be able to track the progress
+and instructions for [Contributing](https://github.com/earthpulse/eotdl/blob/main/CONTRIBUTING.md).
+
+## Discord server
+
+To get in touch with the team and other users, join our [Discord](https://discord.gg/hYxc5AJB92) server. There you will be able to ask questions, share your
+feedback and get involved in the platform evolution.
+
+## Getting started
+
+to get started with EOTDL we recommend to take a look at our [blog](/blog) where examples and tutorials can be found for multiple use cases. For a complete walkthrough of the platform, you can continue with this documentation.

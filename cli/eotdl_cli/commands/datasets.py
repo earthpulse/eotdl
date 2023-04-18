@@ -1,6 +1,6 @@
 import typer
-from src.usecases.datasets import retrieve_datasets, download_dataset, ingest_dataset
-from src.usecases.auth import auth
+from eotdl_cli.src.usecases.datasets import retrieve_datasets, download_dataset, ingest_dataset
+from eotdl_cli.src.usecases.auth import auth
 
 app = typer.Typer()
 
