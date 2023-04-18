@@ -1,9 +1,4 @@
 <script>
-<<<<<<< HEAD
-  import "../app.css";
-  import Nav from "../components/layout/Nav.svelte";
-  import Footer from "../components/layout/Footer.svelte";
-=======
   import "../styles/app.css";
   import Nav from "./Nav.svelte";
   import Nav2 from "./Nav2.svelte";
@@ -14,7 +9,6 @@
 
   user.set(data?.user);
   id_token.set(data?.id_token);
->>>>>>> develop
 </script>
 
 <Nav>
