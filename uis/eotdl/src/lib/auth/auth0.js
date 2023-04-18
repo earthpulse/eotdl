@@ -1,4 +1,4 @@
-import { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET } from '$lib/env';
+import { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET } from '$env/static/private';
 import pkg from 'jsonwebtoken';
 const { decode, verify } = pkg;
 import { JwksClient } from 'jwks-rsa';

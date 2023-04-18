@@ -1,6 +1,6 @@
 <script>
 	import { user, id_token } from "$stores/auth";
-	import { EOTDL_API } from "$lib/env";
+	import { PUBLIC_EOTDL_API } from "$env/static/public";
 	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
@@ -26,7 +26,7 @@
 	const download = async () => {
 		// seems to work, but not sure if it will with large datasets (need to test)
 		const fileName = `${name}.zip`;
-		fetch(`${EOTDL_API}/datasets/${id}/download`, {
+		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${$id_token}`,
@@ -58,7 +58,7 @@
 
 		// this works but is slow with large files (no streaming)
 
-		// const response = await fetch(`${EOTDL_API}/datasets/${id}/download`, {
+		// const response = await fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
 		// 	method: "GET",
 		// 	headers: {
 		// 		Authorization: `Bearer ${$id_token}`,
