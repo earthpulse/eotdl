@@ -1,5 +1,5 @@
 import typer
-from commands import auth, datasets
+from eotdl_cli.commands import auth, datasets
 
 app = typer.Typer()
 app.add_typer(auth.app, name="auth")
