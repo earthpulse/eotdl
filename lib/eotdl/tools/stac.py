@@ -7,8 +7,9 @@ from pystac import ItemCollection
 
 def stac_items_to_gdf(items: ItemCollection) -> gpd.GeoDataFrame:
     """
-    Get a GeoDataFrame from a given PySTAC.ItemCollection
-    :param: items: A PySTAC.ItemCollection
+    Get a GeoDataFrame from a given pystac.ItemCollection. 
+
+    :param: items: A pystac.ItemCollection
     :return: GeoDataframe from the given ItemCollection
     """
     _features = [i.to_dict() for i in items]
