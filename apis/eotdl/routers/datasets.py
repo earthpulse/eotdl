@@ -20,11 +20,11 @@ def ingest(
     description: str = Form(...),
     user: User = Depends(get_current_user),
 ):
-    try:
-        return ingest_dataset(file.file, name, description, user)
-    except Exception as e:
-        print('ERROR datasets:ingest', str(e))
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    return ingest_dataset(file.file, name, description, user)
+    # except Exception as e:
+    #     print('ERROR datasets:ingest', str(e))
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("")
 def retrieve(
