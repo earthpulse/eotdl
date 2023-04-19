@@ -1,1 +1,37 @@
-download
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Code from "../../components/Code.svelte";
+</script>
+
+
+# Download datasets
+
+Once you find a suitable dataset you can download it for training your models.
+
+## User interface
+
+<UI>Use the DOWNLOAD button in the dataset.</UI>
+
+You'll need to be logged in to download datasets.
+
+## API 
+
+You can download a dataset using the following API call:
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/datasets/dataset-id/download' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer your-token'</Code></Api>
+
+Where you will need the `dataset-id` (see the [explore](/docs/datasets/expolore) datasets section) and a valid `token` to access the API (see the [authenticate](/docs/getting-started/authenticate) section).
+
+
+## CLI 
+
+You can retrieve the list of all datasets using the following CLI command:
+
+<CLI><Code>eotdl-cli datasets get dataset-name</Code></CLI>
+
+Here you can use the name of the dataset to download it (names are unique).
