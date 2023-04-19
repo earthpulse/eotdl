@@ -1,1 +1,45 @@
-ingest
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Code from "../../components/Code.svelte";
+	import BadgeWarning from "../../BadgeWarning.svelte";
+</script>
+
+<BadgeWarning>Currently only Q0 datasets are supported.</BadgeWarning>
+
+Learn more about the datasets [quality levels](/docs/datasets/quality).
+
+# Ingest datasets
+
+You can upload your own datasets to the EOTDL platform.
+
+## User interface
+
+<UI>Use the INGEST button in the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> page.</UI>
+
+You'll need to be logged in to ingest datasets.
+
+## API 
+
+You can ingest a dataset using the following API call:
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/datasets' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@{'<'}dataset-path>;type=application/zip' \
+  -F 'name={'<'}dataset-name>' \
+  -F 'description={'<'}dataset-description>'</Code></Api>
+
+Where you will need the provide a unique `dataset-name` and `dataset-description`.
+
+
+## CLI 
+
+You can ingest a dataset using the following CLI command:
+
+<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path></Code></CLI>
+
+You will be prompted to provide a unique name for your dataset and a description.

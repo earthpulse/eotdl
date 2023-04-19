@@ -21,3 +21,4 @@ eurosat-stac**
 data
 db
 *.zip
+docker-compose.prod.yml
