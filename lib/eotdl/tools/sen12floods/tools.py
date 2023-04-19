@@ -7,13 +7,14 @@ import geopandas as gpd
 def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     Generate a GeoDataFrame with the available images for each location in the dataset. 
-    The GeoDataFrame has three columns:
-        - location_id: the unique ID of each location.
-        - images_count: the count of available images of each location.
-        - images_dates: list with the dates of the available images of each location.
+
     :param gdf: GeoDataFrame generated from the ItemCollection of a sen12floods collection
     :return gdf_dates_per_aoi:  GeoDataFrame with the available images for each location in
                                 the dataset.
+            The returned GeoDataFrame has three columns:
+                - location_id: the unique ID of each location.
+                - images_count: the count of available images of each location.
+                - images_dates: list with the dates of the available images of each location.
     """
     uniques_location_id = gdf['location_id'].unique()   # List of unique location ids
     uniques_location_id.sort()
