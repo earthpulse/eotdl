@@ -1,6 +1,8 @@
 """
 Module for data engineering the sen12floods dataset
 """
+from statistics import mean
+
 import geopandas as gpd
 
 
@@ -32,3 +34,27 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf_dates_per_aoi = gpd.GeoDataFrame.from_dict(data)
 
     return gdf_dates_per_aoi
+
+
+def calculate_average_coordinates_distance(bounding_box_by_location: dict) -> list:
+    """
+    Calculate the mean distance between maximum and minixum longitude and latitude of the bounding boxes
+    from the existing locations. This is intended to use these mean distance to generate the bounding 
+    boxes of the new locations given a centroid.
+
+    :param bounding_box_by_location: dictionary with format location_id : bounding_box for the existing
+            locations in the sen12floods dataset.
+    :return mean_long_diff, mean_lat_diff: mean longitude and latitude difference in the bounding boxes
+    """
+    long_diff_list, lat_diff_list = list(), list()
+
+    for bbox in bounding_box_by_location.values():
+        long_diff = bbox[2] - bbox[0]
+        long_diff_list.append(long_diff)
+        lat_diff = bbox[3] - bbox[1]
+        lat_diff_list.append(lat_diff)
+
+    mean_long_diff = mean(long_diff_list)
+    mean_lat_diff = mean(lat_diff_list)
+
+    return mean_long_diff, mean_lat_diff
