@@ -1,1 +1,1 @@
-from .sentinelhub import EOTDLClient
+from .sentinelhub import EOTDLClient, ParametersFeature
