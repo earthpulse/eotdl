@@ -16,6 +16,8 @@ class ParametersFeature:
                     - data_to_download: dict with the unique ID and bounding box of every location to request sentinel data from.
                     - bbox: list with the bounding box of the location.
                     - time_interval: list with the time interval stablished.
+                    - resolution: resolution of the image to download.
+                    - data_folder: location of the directory where the fetched data will be saved.
                     - fields: dict with the fields desired to include or exclude. It must follow the format:
                         {
                         "include": list of fields to include, 
@@ -33,3 +35,5 @@ class ParametersFeature:
         self.fields = parameters['fields'] if 'fields' in parameters else None
         self.filter = parameters['filter'] if 'filter' in parameters else None
         self.evalscript = parameters['evalscript'] if 'evalscript' in parameters else None
+        self.resolution = parameters['resolution'] if 'resolution' in parameters else None
+        self.data_folder = parameters['data_folder'] if 'data_folder' in parameters else None
