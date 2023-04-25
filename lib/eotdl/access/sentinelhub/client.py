@@ -7,6 +7,7 @@ from sentinelhub import (SHConfig,
                          bbox_to_dimensions, 
                          CRS, 
                          SentinelHubRequest, 
+                         SentinelHubDownloadClient,
                          MimeType)
 
 from .utils import ParametersFeature
@@ -48,8 +49,8 @@ class EOTDLClient():
             parameters.data_collection,
             bbox=BBox(parameters.bounding_box, crs=CRS.WGS84),
             time=parameters.time_interval,
-            fields=parameters.fields,
-            filter=parameters.filter
+            filter=parameters.filter,
+            fields=parameters.fields
         )
 
         results = list(search_iterator)
@@ -66,9 +67,16 @@ class EOTDLClient():
         information and we pass it to a download client.
 
         :param parameters: ParametersFeature object with the needed parameters for the search. The neeeded parameters are:
-                    - data_to_download: Required.
+                    - data_to_download: Required. Dictionary with the information about the data that the user wants to
+                        download. It could have two formats:
+                            - location_id : list(bounding_box)
+                            - location_id : dict(bounding_box: list(bounding_box),
+                                                time_interval: list(time_interval)
+                                                )
                     - data_collection: Required.
                     - evalscript: Required.
+                    - resolution: Required.
+                    - data_folder: Required.
 
         :return process_request: list with the download information for every location
         """
@@ -76,19 +84,40 @@ class EOTDLClient():
         
         process_requests = list()
 
-        for id, bbox in parameters.data_to_download.items():
+        for id, info in parameters.data_to_download.items():
+            # We should distinct between the possible input formats
+            if isinstance(info, tuple):
+                bbox = BBox(info, crs=CRS.WGS84)
+                time = None
+            elif isinstance(info, dict):
+                bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
+                time = info['time_interval']
+
             request = SentinelHubRequest(
+                data_folder=parameters.data_folder,
                 evalscript=parameters.evalscript,
                 input_data=[
                     SentinelHubRequest.input_data(
-                        data_collection=parameters.data_collection
+                        data_collection=parameters.data_collection,
+                        time_interval=time
                     )
                 ],
                 responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-                bbox=BBox(bbox, crs=CRS.WGS84),
-	            size=bbox_to_dimensions(bbox, resolution=5000),
+                bbox=bbox,
+	            size=bbox_to_dimensions(bbox, parameters.resolution),
                 config=self,
             )
             process_requests.append(request)
 
         return process_requests
+
+    def download_data(self,
+                      requests: list
+                      ) -> list:
+        """
+        """
+        download_client = SentinelHubDownloadClient(config=self.config)
+        download_requests = [request.download_list[0] for request in requests]
+        data = download_client.download(download_requests[0:5])
+
+        return data
