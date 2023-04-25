@@ -12,9 +12,9 @@ from sentinelhub import (SHConfig,
 from .utils import ParametersFeature
 
 
-class EOTDLClient(SHConfig):
+class EOTDLClient():
     """
-    Child class from SHConfig, the sentinelhub-py package configuration class.
+    Client class to manage the Sentinel Hub Python interface.
     """
 
     def __init__(self, 
@@ -25,9 +25,10 @@ class EOTDLClient(SHConfig):
         :param sh_client_id: User's OAuth client ID for Sentinel Hub service.
         :param sh_client_secret: User's OAuth client secret for Sentinel Hub service.
         """
-        self.sh_client_id = sh_client_id
-        self.sh_client_secret = sh_client_secret
-        self.catalog = SentinelHubCatalog(config=self)
+        self.config = SHConfig()
+        self.config.sh_client_id = sh_client_id
+        self.config.sh_client_secret = sh_client_secret
+        self.catalog = SentinelHubCatalog(config=self.config)
 
     def search_available_sentinel_data(self,
                                        parameters: ParametersFeature
