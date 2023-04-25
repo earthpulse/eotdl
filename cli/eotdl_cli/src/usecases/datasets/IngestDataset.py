@@ -15,6 +15,7 @@ class IngestDataset():
 
     def __call__(self, inputs: Inputs) -> Outputs:
         response = self.repo.ingest_dataset(inputs.name, inputs.description, inputs.path, inputs.user['id_token'])
+        # response = self.repo.ingest_large_dataset(inputs.name, inputs.description, inputs.path, inputs.user['id_token'])
         data = response.json()
         if response.status_code == 200:
             return self.Outputs(dataset=data)

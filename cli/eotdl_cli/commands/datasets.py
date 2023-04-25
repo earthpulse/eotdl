@@ -1,6 +1,6 @@
 import typer
-from eotdl_cli.src.usecases.datasets import retrieve_datasets, download_dataset, ingest_dataset
-from eotdl_cli.src.usecases.auth import auth
+from src.usecases.datasets import retrieve_datasets, download_dataset, ingest_dataset
+from src.usecases.auth import auth
 
 app = typer.Typer()
 
@@ -16,7 +16,7 @@ def list():
 def get(name: str, path: str = None):
     """
     Download a dataset
-    
+
     name: Name of the dataset
     path: Path to download the dataset to
     """
@@ -31,15 +31,15 @@ def get(name: str, path: str = None):
 def ingest(path: str):
     """
     Ingest a dataset
-    
+
     path: Path to dataset to ingest
     """
     try:
         user = auth()
-        name = typer.prompt("Dataset name")
-        description = typer.prompt("Description")
-        # confirm 
-        typer.confirm(f"Is the data correct?", abort=True)
+        name = 'asasdasdas' #typer.prompt("Dataset name")
+        description = 'asdjklhfgalskdjghf' #typer.prompt("Description")
+        # confirm
+        # typer.confirm(f"Is the data correct?", abort=True)
         ingest_dataset(name, description, path, user)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:

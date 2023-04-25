@@ -1,11 +1,11 @@
 from fastapi.exceptions import HTTPException
-from fastapi import APIRouter, status, Depends, File, Form, UploadFile
+from fastapi import APIRouter, status, Depends, File, Form, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional, Union
 
 from src.models import User
-from src.usecases.datasets import retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
+from src.usecases.datasets import ingest_dataset_chunk, retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
 from .auth import get_current_user
 
 router = APIRouter(
@@ -20,11 +20,33 @@ def ingest(
     description: str = Form(...),
     user: User = Depends(get_current_user),
 ):
-    # try:
-    return ingest_dataset(file.file, name, description, user)
-    # except Exception as e:
-    #     print('ERROR datasets:ingest', str(e))
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # if file.size > 100000000: # 100 MB
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, use the CLI to upload large files")
+    try:
+        return ingest_dataset(file.file, name, description, user)
+    except Exception as e:
+        print('ERROR datasets:ingest', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@router.post("/chunk", include_in_schema=False)
+def ingest_large(
+    request: Request,
+    file: UploadFile = File(...),
+    name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    id: Optional[str] = Form(None),
+    user: User = Depends(get_current_user),
+):
+    try:
+        content_range = request.headers.get('content-range')
+        ab, total = content_range.split(' ')[1].split('/')
+        a, b = ab.split('-')
+        is_last = int(b) == int(total) - 1
+        dataset, id = ingest_dataset_chunk(file, name, description, user, total, id, is_last)
+        return {'dataset': dataset, 'id': id}
+    except Exception as e:
+        print('ERROR datasets:ingest_large', str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("")
 def retrieve(
@@ -39,7 +61,7 @@ def retrieve(
         print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-@router.get("/liked")
+@router.get("/liked", include_in_schema=False)
 def retrieve(
     user: User = Depends(get_current_user),
 ):
@@ -50,7 +72,7 @@ def retrieve(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/popular")
+@router.get("/popular", include_in_schema=False)
 def retrieve(
     limit: Union[int,None] = None
 ):
@@ -95,7 +117,7 @@ def edit(
         print('ERROR datasets:edit', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/leaderboard")
+@router.get("/leaderboard", include_in_schema=False)
 def leaderboard():
     try:
         return retrieve_datasets_leaderboard()
@@ -103,7 +125,7 @@ def leaderboard():
         print('ERROR datasets:retrieve', str(e))
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.post("/{id}/like")
+@router.post("/{id}/like", include_in_schema=False)
 def edit(
     id: str,
     user: User = Depends(get_current_user),

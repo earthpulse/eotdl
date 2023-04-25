@@ -4,6 +4,8 @@
 	import Leaderboard from "./Leaderboard.svelte";
 	import Card from "./Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+	import Code from "../docs/components/Code.svelte";
+	import CLI from "../docs/components/CLI.svelte";
 
 	export let data;
 
@@ -14,6 +16,7 @@
 	const ingest = async () => {
 		if (name.length === 0 || description.length === 0 || files === null)
 			return;
+		if (!validate_file(files[0])) return;
 		loading = true;
 		try {
 			await datasets.ingest(files[0], name, description, $id_token);
@@ -56,7 +59,7 @@
 		}
 	}
 
-	const maxVisibleDatasets = 3;
+	const maxVisibleDatasets = 9;
 	let currentPage = 0;
 	$: numPages = Math.ceil(filtered_datasets?.length / maxVisibleDatasets);
 	$: if (numPages > 0) currentPage = 0;
@@ -67,6 +70,14 @@
 
 	const toggleLike = () => {
 		if ($user) show_liked = !show_liked;
+	};
+
+	let valid_file = true;
+	const validate_file = (file) => {
+		// 100 MB limit
+		if (file.size > 100000000) valid_file = false;
+		else valid_file = true;
+		return valid_file;
 	};
 </script>
 
@@ -165,7 +176,13 @@
 	<label class="modal-box relative" for="">
 		<form on:submit|preventDefault={ingest} class="flex flex-col gap-2">
 			<h3 class="text-lg font-bold">Ingest dataset</h3>
-			<input type="file" accept=".zip" required bind:files />
+			<input
+				type="file"
+				accept=".zip"
+				required
+				bind:files
+				on:change={(e) => validate_file(e.target.files[0])}
+			/>
 			<span>
 				<input
 					class="input input-bordered w-full"
@@ -183,6 +200,18 @@
 				required
 				bind:value={description}
 			/>
+			{#if !valid_file}
+				<CLI>
+					You are trying to upload a big dataset. Please, use the CLI
+					instead:
+					<Code>eotdl-cli datasets ingest {`<dataset-path>`}</Code>
+					Instruction to install the CLI
+					<a
+						class="text-green-200 hover:underline"
+						href="/docs/getting-started/install">here</a
+					>
+				</CLI>
+			{/if}
 			<span class="self-end">
 				<label
 					for="ingest-dataset"
@@ -190,6 +219,7 @@
 				>
 				<button
 					class="btn btn-ghost btn-outline {loading && 'loading'}"
+					disabled={!valid_file}
 					type="submit">Ingest</button
 				>
 			</span>
