@@ -9,6 +9,7 @@ from ..tags import retrieve_tags
 from .LikeDataset import LikeDataset
 from .RetrieveLikedDatasets import RetrieveLikedDatasets
 from .RetrievePopularDatasets import RetrievePopularDatasets
+from .IngestDatasetChunk import IngestDatasetChunk
 
 def ingest_dataset(file, name, description, user):
 	db_repo = DBRepo()
@@ -17,6 +18,14 @@ def ingest_dataset(file, name, description, user):
 	inputs = ingest.Inputs(name=name, file=file, uid=user.uid, description=description)
 	outputs = ingest(inputs)
 	return outputs.dataset
+
+def ingest_dataset_chunk(chunk, name, description, user, size, id=None, is_last=False):
+	db_repo = DBRepo()
+	os_repo = OSRepo()
+	ingest = IngestDatasetChunk(db_repo, os_repo)
+	inputs = ingest.Inputs(name=name, chunk=chunk, uid=user.uid, description=description, id=id, is_last=is_last, size=size)
+	outputs = ingest(inputs)
+	return outputs.dataset, outputs.id
 
 def retrieve_datasets(limit):
 	db_repo = DBRepo()

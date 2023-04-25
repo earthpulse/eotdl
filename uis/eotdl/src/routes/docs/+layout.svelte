@@ -1,7 +1,6 @@
 <script>
 	import { page } from "$app/stores";
 	import "../../styles/docs.css";
-	import "../../styles/prism.css";
 	import Nav from "./Nav.svelte";
 
 	const links = [
