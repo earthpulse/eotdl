@@ -17,3 +17,5 @@ export const load = async ({fetch, parent}) => {
 		liked_datasets: liked_datasets.map(d => d.id)
 	}
 }
+
+export const prerender = false;

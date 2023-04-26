@@ -26,9 +26,9 @@ def download_dataset(name, path, user):
 	outputs = download(inputs)
 	return outputs.dst_path
 
-def ingest_dataset(name, description, path, user):
+def ingest_dataset(name, description, path, user, logger):
 	api_repo = APIRepo()
-	ingest = IngestDataset(api_repo)
+	ingest = IngestDataset(api_repo, logger)
 	inputs = ingest.Inputs(name=name, description=description, path=path, user=user)
 	outputs = ingest(inputs)
 	return outputs.dataset

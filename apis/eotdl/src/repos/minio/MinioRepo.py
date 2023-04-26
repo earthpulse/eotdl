@@ -23,15 +23,17 @@ class MinioRepo():
             self.get_object(id),
             expires=timedelta(hours=1),
         )
-    
-    # def persist_object(self, source, id):
-    #     return self.client.fput_object(
-    #         self.bucket, self.get_object(id), source
-    #     )
 
     def persist_file(self, source, id):
         return self.client.put_object(
             self.bucket, self.get_object(id), source, length=-1, part_size=10*1024*1024,
+        )
+    
+    def persist_file_chunk(self, chunk, id, size):
+        print(size, chunk.size)
+        return self.client.put_object(
+            self.bucket, self.get_object(id), chunk.file, length=size, part_size=chunk.size
+            # self.bucket, self.get_object(id), chunk.file, length=-1, part_size=size
         )
 
     def delete(self, id):

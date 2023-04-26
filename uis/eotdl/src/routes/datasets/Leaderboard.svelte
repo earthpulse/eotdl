@@ -13,15 +13,17 @@
                     <th>Datasets</th>
                 </tr>
             </thead>
-            <tbody>
-                {#each leaderboard as user, i}
-                    <tr class={i % 2 && "active"}>
-                        <th>{i + 1}</th>
-                        <td>{user.name}</td>
-                        <td>{user.datasets}</td>
-                    </tr>
-                {/each}
-            </tbody>
+            {#if leaderboard?.length > 0}
+                <tbody>
+                    {#each leaderboard as user, i}
+                        <tr class={i % 2 && "active"}>
+                            <th>{i + 1}</th>
+                            <td>{user.name}</td>
+                            <td>{user.datasets}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            {/if}
         </table>
     </div>
 </div>

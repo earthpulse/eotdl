@@ -2,10 +2,13 @@ from fastapi.exceptions import HTTPException
 from fastapi import Depends, APIRouter, status, Request
 from pydantic import BaseModel
 from fastapi.security import HTTPBearer, APIKeyHeader
+import logging
 
 from src.models import User
 from src.usecases.user import persist_user, update_user, retrieve_user
 from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
+
+logger=logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/auth",
@@ -20,7 +23,7 @@ def login():
     try:
         return generate_login_url()
     except Exception as e:
-        print('ERROR', str(e))
+        logger.exception('login')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
@@ -29,7 +32,7 @@ def token(code: str):
     try:
         return generate_id_token(code)
     except Exception as e:
-        print('ERROR', str(e))
+        logger.exception('token')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
@@ -40,15 +43,15 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
         data = parse_token(token.credentials)
         return persist_user(data)
     except Exception as e:
+        logger.exception('get_current_user')
         raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.get("/me")
 def me(user: User = Depends(get_current_user)):
     try:
-        # return user
         return retrieve_user(user)
     except Exception as e:
-        print('ERROR', str(e))
+        logger.exception('me')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
@@ -64,7 +67,7 @@ def logout(request: Request, redirect_uri: str = None):
         logout_url = generate_logout_url(redirect_uri)
         return {"logout_url": logout_url}
     except Exception as e:
-        print('ERROR', str(e))
+        logger.exception('logout')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
@@ -81,7 +84,7 @@ def update(
     try:
         return update_user(user, data)
     except Exception as e:
-        print('ERROR', str(e))
+        logger.exception('auth.update')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
