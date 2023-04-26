@@ -1,1 +1,11 @@
-contributing
+# Contributing
+
+## Github repository
+
+EOTDL is an open-source project. You can find the code in our [Github](https://github.com/earthpulse/eotdl) repository. There you will be able to track the progress
+and instructions for [Contributing](https://github.com/earthpulse/eotdl/blob/main/CONTRIBUTING.md).
+
+## Discord server
+
+To get in touch with the team and other users, join our [Discord](https://discord.gg/hYxc5AJB92) server. There you will be able to ask questions, share your
+feedback and get involved in the platform evolution.

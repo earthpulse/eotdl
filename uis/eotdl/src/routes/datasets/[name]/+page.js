@@ -15,3 +15,5 @@ export const load = async ({params, fetch, parent}) => {
 		return { dataset, tags, liked_datasets: liked_datasets.map(d => d.id) };
 	return { error: data.detail };
 }
+
+export const prerender = false;

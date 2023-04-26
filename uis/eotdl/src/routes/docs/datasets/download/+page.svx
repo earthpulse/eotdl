@@ -25,7 +25,7 @@ You can download a dataset using the following API call:
   -H 'accept: application/json' \
   -H 'Authorization: Bearer your-token'</Code></Api>
 
-Where you will need the `dataset-id` (see the [explore](/docs/datasets/expolore) datasets section) and a valid `token` to access the API (see the [authenticate](/docs/getting-started/authenticate) section).
+Where you will need the `dataset-id` (see the [explore](/docs/datasets/explore) datasets section) and a valid `token` to access the API (see the [authenticate](/docs/getting-started/authenticate) section).
 
 
 ## CLI 
