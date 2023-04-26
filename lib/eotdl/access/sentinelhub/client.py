@@ -1,6 +1,7 @@
 """
 Module for managing the Sentinel Hub configuration and data access
 """
+from os.path import join
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
                          BBox, 
@@ -92,9 +93,11 @@ class EOTDLClient():
             elif isinstance(info, dict):
                 bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
                 time = info['time_interval']
+            # Create a different data folder for each request
+            data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
 
             request = SentinelHubRequest(
-                data_folder=parameters.data_folder,
+                data_folder=data_folder,
                 evalscript=parameters.evalscript,
                 input_data=[
                     SentinelHubRequest.input_data(
@@ -115,9 +118,17 @@ class EOTDLClient():
                       requests: list
                       ) -> list:
         """
+        Download data from Sentinel Hub Services using a list of requests. 
+        This is the prefered way to download data, in order to efficiently 
+        download data for all requests in parallel.
+        
+        :param requests: list with SentinelHubRequest objects representing each 
+                        request to the Sentinel Hub Services.
+        :return: list with the downloaded data
         """
         download_client = SentinelHubDownloadClient(config=self.config)
         download_requests = [request.download_list[0] for request in requests]
-        data = download_client.download(download_requests[0:5])
+        # Download data with multiple threads
+        data = download_client.download(download_requests[0:5], max_threads=5)
 
         return data
