@@ -58,9 +58,9 @@ class EOTDLClient():
 
         return results
 
-    def request_sentinel_data(self, 
-                              parameters: ParametersFeature
-                              ) -> list:
+    def request_data(self, 
+                    parameters: ParametersFeature
+                    ) -> list:
         """
         Get and return a list with the download information for every location. 
         This is the prefered way to download data, as in order to efficiently 
@@ -90,7 +90,7 @@ class EOTDLClient():
             # We should distinct between the possible input formats
             if isinstance(info, tuple):
                 bbox = BBox(info, crs=CRS.WGS84)
-                time_interval = list(None)
+                time_interval = [None]
             elif isinstance(info, dict):   # Bulk download
                 bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
                 time_interval = info['time_interval']
