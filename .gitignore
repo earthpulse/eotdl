@@ -22,3 +22,4 @@ data
 db
 *.zip
 docker-compose.prod.yml
+tutorials/*md
