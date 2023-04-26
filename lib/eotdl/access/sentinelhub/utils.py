@@ -27,6 +27,7 @@ class ParametersFeature:
                     - evalscript: is a piece of Javascript code which defines how the satellite data shall be 
                     processed by Sentinel Hub and what values the service shall return. For further information,
                     see https://docs.sentinel-hub.com/api/latest/evalscript/
+                    - mosaicking_order: sentinelhub.MosaickingOrder object with the desired mosaicking order
         """
         self.data_collection = parameters['data_collection'] if 'data_collection' in parameters else None
         self.data_to_download = parameters['data_to_download'] if 'data_to_download' in parameters else None
@@ -37,3 +38,4 @@ class ParametersFeature:
         self.evalscript = parameters['evalscript'] if 'evalscript' in parameters else None
         self.resolution = parameters['resolution'] if 'resolution' in parameters else None
         self.data_folder = parameters['data_folder'] if 'data_folder' in parameters else None
+        self.mosaicking_order = parameters['mosaicking_order'] if 'mosaicking_order' in parameters else None
