@@ -129,6 +129,6 @@ class EOTDLClient():
         download_client = SentinelHubDownloadClient(config=self.config)
         download_requests = [request.download_list[0] for request in requests]
         # Download data with multiple threads
-        data = download_client.download(download_requests[0:5], max_threads=5)
+        data = download_client.download(download_requests)
 
         return data

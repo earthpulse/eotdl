@@ -4,6 +4,7 @@ Module for data engineering the sen12floods dataset
 from statistics import mean
 
 import geopandas as gpd
+from shapely import geometry
 
 
 def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -58,3 +59,30 @@ def calculate_average_coordinates_distance(bounding_box_by_location: dict) -> li
     mean_lat_diff = mean(lat_diff_list)
 
     return mean_long_diff, mean_lat_diff
+
+def generate_new_location_bounding_box(geom: geometry.point.Point, 
+                                       differences: list
+                                       ) -> list:
+    """
+    Generate the bounding box of a given point using the difference
+    between the maximum and mininum coordinates of the bounding box
+
+    :param geom: shapely geometry object of the point which we want to
+                generate the bounding box.
+    :param differences: list with the difference between the maximum
+                and minimum longitude and latitude coordinates.
+    :return: list with the resulting bounding box from the computing.
+    """
+    long_diff, lat_diff = differences[0], differences[1]
+    lon, lat = geom.x, geom.y
+    
+    bbox = (lon - (long_diff/2), 
+            lat - (lat_diff/2), 
+            lon + (long_diff/2), 
+            lat + (lat_diff/2))
+    
+    # Round the coordinates to 6 decimals
+    bounding_box = [round(i, 6) for i in bbox]
+
+    return bounding_box
+
