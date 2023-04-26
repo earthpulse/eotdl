@@ -72,12 +72,13 @@ class EOTDLClient():
                         download. It could have two formats:
                             - location_id : list(bounding_box)
                             - location_id : dict(bounding_box: list(bounding_box),
-                                                time_interval: list(time_interval)
+                                                time_interval: list(list(time_interval), list(time_interval) ...)
                                                 )
                     - data_collection: Required.
                     - evalscript: Required.
                     - resolution: Required.
                     - data_folder: Required.
+                    - mosaicking_order: Optional.
 
         :return process_request: list with the download information for every location
         """
@@ -89,28 +90,32 @@ class EOTDLClient():
             # We should distinct between the possible input formats
             if isinstance(info, tuple):
                 bbox = BBox(info, crs=CRS.WGS84)
-                time = None
-            elif isinstance(info, dict):
+                time_interval = list(None)
+            elif isinstance(info, dict):   # Bulk download
                 bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
-                time = info['time_interval']
+                time_interval = info['time_interval']
             # Create a different data folder for each request
-            data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
+            _data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
 
-            request = SentinelHubRequest(
-                data_folder=data_folder,
-                evalscript=parameters.evalscript,
-                input_data=[
-                    SentinelHubRequest.input_data(
-                        data_collection=parameters.data_collection,
-                        time_interval=time
-                    )
-                ],
-                responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
-                bbox=bbox,
-	            size=bbox_to_dimensions(bbox, parameters.resolution),
-                config=self,
-            )
-            process_requests.append(request)
+            for time in time_interval:
+                # Is it is a bulk download, add the date to the data folder name
+                data_folder = f'{_data_folder}_{time[1]}' if time else _data_folder
+                request = SentinelHubRequest(
+                    data_folder=data_folder,
+                    evalscript=parameters.evalscript,
+                    input_data=[
+                        SentinelHubRequest.input_data(
+                            data_collection=parameters.data_collection,
+                            time_interval=time,
+                            mosaicking_order=parameters.mosaicking_order
+                        )
+                    ],
+                    responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+                    bbox=bbox,
+                    size=bbox_to_dimensions(bbox, parameters.resolution),
+                    config=self,
+                )
+                process_requests.append(request)
 
         return process_requests
 
