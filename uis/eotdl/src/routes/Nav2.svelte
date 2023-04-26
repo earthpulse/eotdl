@@ -10,7 +10,7 @@
         // { href: "/", label: "Training" },
         { href: "/blog", label: "Blog" },
         // { href: "/", label: "Youtube" },
-        // { href: "/", label: "Discord" },
+        { href: "https://discord.gg/hYxc5AJB92", label: "Discord" },
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];

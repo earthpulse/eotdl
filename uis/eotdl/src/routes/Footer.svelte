@@ -8,8 +8,18 @@
     class="footer p-10 bg-blue-500 flex flex-col md:flex-row justify-between"
 >
     <ul class="text-green-200">
-        <li><a href="/" class="hover:underline">Privacy Policy</a></li>
-        <li><a href="/" class="hover:underline">Terms & Conditions</a></li>
+        <li>
+            <a href="/PrivacyPolicy.pdf" class="hover:underline" target="_blank"
+                >Privacy Policy</a
+            >
+        </li>
+        <li>
+            <a
+                href="/TermsConditions.pdf"
+                class="hover:underline"
+                target="_blank">Terms & Conditions</a
+            >
+        </li>
         <li><a href="/" class="hover:underline">Cookies</a></li>
     </ul>
     <div class="text-slate-100">

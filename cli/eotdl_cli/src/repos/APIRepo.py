@@ -52,3 +52,42 @@ class APIRepo():
         data = {'name': name, 'description': description}
         response = requests.post(url, headers=headers, files=files, data=data)
         return response
+
+    def read_in_chunks(self, file_object, CHUNK_SIZE):
+        while True:
+            data = file_object.read(CHUNK_SIZE)
+            if not data:
+                break
+            yield data
+    
+    def ingest_large_dataset(self, name, description, path, id_token):
+        content_name = str(path)
+        content_path = os.path.abspath(path)
+        content_size = os.stat(content_path).st_size 
+        file_object = open(content_path, "rb")
+        index = 0
+        offset = 0
+        headers = {}
+        url = self.url + 'datasets/chunk'
+        data = {'name': name, 'description': description}
+        id = None
+        calls = 0
+        for chunk in self.read_in_chunks(file_object, 1024*1024*5):
+            offset = index + len(chunk)
+            headers['Content-Range'] = 'bytes %s-%s/%s' % (index, offset - 1, content_size) 
+            headers['Authorization'] = 'Bearer ' + id_token
+            index = offset 
+            file = {"file": chunk}
+            if id is not None: data['id'] = id
+            r = requests.post(url, files=file, headers=headers, data=data)
+            if r.status_code == 200:
+                id = r.json()['id']
+                print("r: %s, Content-Range: %s" % (r, headers['Content-Range'])) 
+            else:
+                break
+            calls += 1
+            # if calls >= 3: break
+        return r
+
+
+    

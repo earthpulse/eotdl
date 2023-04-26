@@ -50,7 +50,8 @@ export const fetchPost = async (post) => {
 	return {
 		meta: {
 			...matterResult.data,
-			tags: matterResult.data.tags?.split(',').map((tag) => tag.toLowerCase().trimStart()) || [],
+			// tags: matterResult.data.tags?.split(',').map((tag) => tag.toLowerCase().trimStart()) || [],
+			tags: matterResult.data.tags?.split(',').map((tag) => tag.trimStart()) || [],
 			printReadingTime,
 			printDate,
 			path: `/blog/${post?.replace('.md', '')}`,
