@@ -1,6 +1,8 @@
 """
 Module for data engineering the sen12floods dataset
 """
+from ...access.sentinelhub.client import EOTDLClient
+from ...access.sentinelhub.utils import ParametersFeature
 from statistics import mean
 
 import geopandas as gpd
@@ -60,9 +62,9 @@ def calculate_average_coordinates_distance(bounding_box_by_location: dict) -> li
 
     return mean_long_diff, mean_lat_diff
 
-def generate_new_location_bounding_box(geom: geometry.point.Point, 
-                                       differences: list
-                                       ) -> list:
+def generate_bounding_box(geom: geometry.point.Point, 
+                          differences: list
+                          ) -> list:
     """
     Generate the bounding box of a given point using the difference
     between the maximum and mininum coordinates of the bounding box
@@ -86,3 +88,54 @@ def generate_new_location_bounding_box(geom: geometry.point.Point,
 
     return bounding_box
 
+
+def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
+                                          mean_differences: list,
+                                          latest_id: int
+                                          ) -> dict:
+    """
+    """
+    bbox_by_new_location = dict()
+
+    for i, row in gdf.iterrows():
+        new_location_id = str(latest_id + 1)
+        time_interval = row['Began'].strftime("%Y-%m-%d"), row['Ended'].strftime("%Y-%m-%d")
+        bbox = generate_bounding_box(row['geometry'], mean_differences)
+        bbox_by_new_location[new_location_id] = {'bounding_box': bbox, 'time_interval': time_interval}
+        latest_id += 1
+
+    return bbox_by_new_location
+
+
+def get_available_data_by_location(dictionary: dict,
+                                   eotdl_client: EOTDLClient,
+                                   parameters: ParametersFeature
+                                   ) -> list:
+    """
+    """
+    available_data, not_available_data = dict(), list()
+    for location_id, location_info in dictionary.items():
+        parameters.bounding_box = location_info['bounding_box']
+        parameters.time_interval = location_info['time_interval']
+        results = eotdl_client.search_available_sentinel_data(parameters)
+        if results:
+            # The returning results are composed by a list with format 
+            # 'id': <image ID>, properties : {'datetime': <image date>}
+            # As we can't make a bulk request with the ID but with the date time,
+            # and we need all the available images in a time lapse and not
+            # a mosaic, we are going to generate a dict with format
+            # 'location_id': <location ID>,
+            # {'bounding_box': <image bbox>, 'time_interval': <image date>}
+            # This dictionary is digerible by the EOTDLClient
+            time_intervals = list()
+            for result in results:
+                datetime = result['properties']['datetime'][0:10]
+                time_interval = (datetime, datetime)
+                time_intervals.append(time_interval) if time_interval not in time_intervals else time_intervals
+            available_data[location_id] = {'bounding_box': location_info['bounding_box'], 'time_interval': time_intervals}
+        else:
+            # We should have a trace with the locations without
+            # Sentinel-1 available data
+            not_available_data.append(location_id)
+
+    return available_data, not_available_data
