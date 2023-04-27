@@ -20,7 +20,11 @@
                 target="_blank">Terms & Conditions</a
             >
         </li>
-        <li><a href="/" class="hover:underline">Cookies</a></li>
+        <li>
+            <a href="/cookies" class="hover:underline" target="_blank"
+                >Cookies</a
+            >
+        </li>
     </ul>
     <div class="text-slate-100">
         <p>
