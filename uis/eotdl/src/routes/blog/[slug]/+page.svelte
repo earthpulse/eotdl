@@ -6,12 +6,17 @@
     const { post } = data;
 </script>
 
+<svelte:head>
+    <title>EOTDL | {post.meta.title}</title>
+    <meta name="description" content={post.meta.description} />
+</svelte:head>
+
 <article class="w-full flex flex-col items-center">
     <div class="px-3 py-10 mt-10 w-full max-w-3xl flex flex-col gap-4">
         <div
-            class="flex flex-row w-full justify-between text-green-200  text-md"
+            class="flex flex-row w-full justify-between text-green-200 text-md"
         >
-            <p class="capitalize ">{post.meta.printDate}</p>
+            <p class="capitalize">{post.meta.printDate}</p>
             <p>~ {post.meta.printReadingTime} MIN</p>
         </div>
         <div>

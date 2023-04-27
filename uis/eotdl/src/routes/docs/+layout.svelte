@@ -67,12 +67,17 @@
 		];
 </script>
 
+<svelte:head>
+	<title>EOTDL | Docs</title>
+	<meta name="description" content="This is the EOTDL documentation." />
+</svelte:head>
+
 <div class="w-full min-w-6xl flex flex-col items-center">
 	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-5">
 		<a class="text-3xl font-bold hover:underline" href="/docs"
 			>Documentation</a
 		>
-		<div class="grid grid-cols-[200px,auto]">
+		<div class="grid grid-cols-1 sm:grid-cols-[200px,auto]">
 			<div class="list pr-3">
 				{#each links as link}
 					<span class="pb-3 flex flex-col gap-2">

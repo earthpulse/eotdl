@@ -20,6 +20,7 @@
 
 <svelte:head>
 	<title>EOTDL | Profile</title>
+	<meta name="description" content="user profile" />
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
