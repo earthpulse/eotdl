@@ -1,4 +1,6 @@
 <script>
+    import { user } from "$stores/auth";
+
     const links = [
         { href: "/", label: "Home" },
         { href: "/datasets", label: "Datasets" },
@@ -14,8 +16,6 @@
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
-
-    export let user;
 </script>
 
 <div class="grid place-items-center w-full">
@@ -28,7 +28,7 @@
             </li>
         {/each}
         <li>
-            {#if user}
+            {#if $user}
                 <a
                     href="/api/auth/logout"
                     class="border-2 rounded-md px-2 hover:border-gray-300"
@@ -43,15 +43,15 @@
             {/if}
         </li>
         <li>
-            <a href={user ? "/profile" : ""}>
+            <a href={$user ? "/profile" : ""}>
                 <div
-                    class={user ? "tooltip tooltip-bottom" : ""}
-                    data-tip={user ? "Profile" : "Profile"}
+                    class={$user ? "tooltip tooltip-bottom" : ""}
+                    data-tip={$user ? "Profile" : "Profile"}
                 >
                     <div class="avatar">
                         <div class="w-10 rounded-full">
                             <img
-                                src={user?.picture || "/avatar.webp"}
+                                src={$user?.picture || "/avatar.webp"}
                                 alt="avatar"
                             />
                         </div>

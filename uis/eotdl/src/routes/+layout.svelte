@@ -17,7 +17,7 @@
     <div class="relative">
       <slot />
       <div class="absolute top-0 left-0 w-full">
-        <Nav2 user={data.user} />
+        <Nav2 />
       </div>
     </div>
   </div>
