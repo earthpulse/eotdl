@@ -24,6 +24,10 @@
 
 <svelte:head>
   <title>EOTDL | Home</title>
+  <meta
+    name="description"
+    content="EOTDL is a platform for sharing and discovering training datasets."
+  />
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">

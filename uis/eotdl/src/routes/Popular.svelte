@@ -1,5 +1,6 @@
 <script>
     import Card from "./datasets/Card.svelte";
+    import Skeleton from "./datasets/Skeleton.svelte";
     export let datasets;
 </script>
 
@@ -10,6 +11,10 @@
             {#if datasets?.length > 0}
                 {#each datasets as dataset}
                     <Card {dataset} />
+                {/each}
+            {:else}
+                {#each [1, 2, 3] as _}
+                    <Skeleton />
                 {/each}
             {/if}
         </div>

@@ -22,7 +22,7 @@ logging.basicConfig(filename='/tmp/eotdl-api.log', level=logging.DEBUG, format='
 async def root():
     return {
         'name': 'eotdl',
-        'version': '0.0.1',
+        'version': '2023.04.27',
         'description': 'Earth Observation Training Data Lab',
-        'contact': 'it@earthpulse.es'
+        'contact': 'support@eotdl.com'
     }
