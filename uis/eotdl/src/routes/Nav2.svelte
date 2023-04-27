@@ -12,6 +12,9 @@
         // { href: "/", label: "Training" },
         { href: "/blog", label: "Blog" },
         // { href: "/", label: "Youtube" },
+    ];
+    const external_links = [
+        // { href: "/", label: "Youtube" },
         { href: "https://discord.gg/hYxc5AJB92", label: "Discord" },
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
@@ -87,11 +90,18 @@
                 {/each}
                 {#each secondary_links as link}
                     <li>
+                        <a href={link.href} class="hover:underline"
+                            >{link.label}</a
+                        >
+                    </li>
+                {/each}
+                {#each external_links as link}
+                    <li>
                         <a
                             href={link.href}
                             class="hover:underline"
                             target="_blank"
-                            rel="noreferrer">{link.label}</a
+                            rel="noopener noreferrer">{link.label}</a
                         >
                     </li>
                 {/each}
