@@ -9,6 +9,8 @@
 
   user.set(data?.user);
   id_token.set(data?.id_token);
+
+  console.log(data);
 </script>
 
 <main class="min-h-screen flex flex-col items-center justify-between">
