@@ -46,16 +46,21 @@
     );
 </script>
 
+<svelte:head>
+    <title>EOTDL | Blog</title>
+    <meta name="description" content="This is the EOTDL blog." />
+</svelte:head>
+
 <div class="w-full flex flex-col items-center">
     <div class="px-3 py-10 mt-10 w-full max-w-4xl flex flex-col items-center">
-        <div class="grid grid-cols-[200px,auto] gap-8 w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-[200px,auto] gap-8 w-full">
             <div class="flex flex-col">
                 <div class="flex flew-row justify-between text-3xl">
                     <h1 class="font-bold mb-3">Blog</h1>
                     <p class="text-gray-400">{filtered_posts?.length || 0}</p>
                 </div>
                 <input
-                    class="input input-bordered w-full max-w-xs input-xs"
+                    class="input input-bordered w-full max-w-full input-xs"
                     type="text"
                     placeholder="Filter by name"
                     bind:value={filterName}

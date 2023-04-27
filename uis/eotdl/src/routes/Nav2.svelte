@@ -45,8 +45,8 @@
         <li>
             <a href={user ? "/profile" : ""}>
                 <div
-                    class="tooltip tooltip-bottom"
-                    data-tip={user ? "Profile" : "Sign in to view profile"}
+                    class={user ? "tooltip tooltip-bottom" : ""}
+                    data-tip={user ? "Profile" : "Profile"}
                 >
                     <div class="avatar">
                         <div class="w-10 rounded-full">
