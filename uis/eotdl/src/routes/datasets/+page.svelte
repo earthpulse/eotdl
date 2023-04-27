@@ -4,38 +4,33 @@
 	import Leaderboard from "./Leaderboard.svelte";
 	import Card from "./Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
-	import Code from "../docs/components/Code.svelte";
-	import CLI from "../docs/components/CLI.svelte";
+	import { browser } from "$app/environment";
+	import retrieveDatasetsLeaderboard from "../../lib/datasets/retrieveDatasetsLeaderboard";
+	import retrieveLikedDatasets from "../../lib/datasets/retrieveLikedDatasets";
+	import Ingest from "./Ingest.svelte";
+	import Pagination from "./Pagination.svelte";
+	import Tags from "./Tags.svelte";
+	import Skeleton from "./Skeleton.svelte";
 
 	export let data;
 
-	let loading = false;
-	let name = "",
-		description = "",
-		files = null;
-	const ingest = async () => {
-		if (name.length === 0 || description.length === 0 || files === null)
-			return;
-		if (!validate_file(files[0])) return;
+	let leaderboard,
+		liked_datasets = [],
 		loading = true;
-		try {
-			await datasets.ingest(files[0], name, description, $id_token);
-			document.getElementById("ingest-dataset").checked = false;
-			name = "";
-		} catch (e) {
-			alert(e.message);
+
+	const load = async () => {
+		await datasets.retrieve(fetch);
+		leaderboard = await retrieveDatasetsLeaderboard(fetch);
+		if (data.user) {
+			liked_datasets = await retrieveLikedDatasets(fetch, $id_token);
+			liked_datasets = liked_datasets.map((dataset) => dataset.id);
 		}
 		loading = false;
 	};
 
+	$: if (browser) load();
+
 	let selected_tags = [];
-	const toggleTag = (tag) => {
-		if (selected_tags.includes(tag)) {
-			selected_tags = selected_tags.filter((t) => t !== tag);
-		} else {
-			selected_tags = [...selected_tags, tag];
-		}
-	};
 
 	let filterName = "";
 	let show_liked = false;
@@ -54,7 +49,7 @@
 			});
 		if (show_liked) {
 			filtered_datasets = filtered_datasets.filter((dataset) =>
-				data.liked_datasets.includes(dataset.id)
+				liked_datasets.includes(dataset.id)
 			);
 		}
 	}
@@ -67,19 +62,15 @@
 		currentPage * maxVisibleDatasets,
 		(currentPage + 1) * maxVisibleDatasets
 	);
-
-	const toggleLike = () => {
-		if ($user) show_liked = !show_liked;
-	};
-
-	let valid_file = true;
-	const validate_file = (file) => {
-		// 100 MB limit
-		if (file.size > 100000000) valid_file = false;
-		else valid_file = true;
-		return valid_file;
-	};
 </script>
+
+<svelte:head>
+	<title>EOTDL | Datasets</title>
+	<meta
+		name="description"
+		content="EOTDL is a platform for sharing and discovering training datasets."
+	/>
+</svelte:head>
 
 <div class="w-full flex flex-col items-center">
 	<div
@@ -89,7 +80,9 @@
 			<div class="flex flex-col w-full">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Datasets</h1>
-					<p class="text-gray-400">{filtered_datasets?.length}</p>
+					<p class="text-gray-400">
+						{loading ? "" : filtered_datasets?.length}
+					</p>
 				</div>
 				<input
 					class="input input-bordered max-w-full input-xs"
@@ -103,126 +96,35 @@
 					>
 						advanced filtering
 					</p>
-					<button on:click={toggleLike}
+					<button on:click={() => (show_liked = $user && !show_liked)}
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
 				</span>
-				{#if $user}
-					<label
-						for="ingest-dataset"
-						class="btn btn-ghost btn-outline mt-4"
-						>+ Ingest Dataset</label
-					>
-				{/if}
+				<Ingest />
 			</div>
-			<div class="flex flex-wrap gap-1 content-start">
-				{#each data?.tags as tag}
-					<button
-						class="badge badge-outline bg-white text-slate-400 text-xs {selected_tags.includes(
-							tag
-						) && 'badge-accent'}"
-						on:click={() => toggleTag(tag)}
-					>
-						{tag}
-					</button>
+			<Tags tags={data?.tags} bind:selected_tags />
+		</div>
+		{#if loading}
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
+				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
+					<Skeleton />
 				{/each}
 			</div>
-		</div>
-		{#if visible_datasets?.length > 0}
+		{:else if visible_datasets?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each visible_datasets as dataset}
 					<Card
 						{dataset}
-						liked={data.liked_datasets.includes(dataset.id)}
+						liked={liked_datasets.includes(dataset.id)}
 					/>
 				{/each}
 			</div>
 		{:else}
 			<p class="text-gray-400 text-center">No datasets found</p>
 		{/if}
-		<div>
-			{#if numPages > 1}
-				<div
-					class="grid grid-cols-3 w-[250px] btn-xs mt-3 items-center"
-				>
-					<button
-						class="btn btn-ghost btn-xs disabled:bg-white"
-						disabled={currentPage === 0}
-						on:click={() =>
-							(currentPage = Math.max(0, currentPage - 1))}
-						>Previous</button
-					>
-					<p class="w-full text-center">
-						{currentPage + 1} / {numPages}
-					</p>
-					<button
-						class="btn btn-ghost btn-xs disabled:bg-white"
-						disabled={currentPage === numPages - 1}
-						on:click={() =>
-							(currentPage = Math.min(currentPage + 1, numPages))}
-						>Next</button
-					>
-				</div>
-			{/if}
-		</div>
+		<Pagination {numPages} bind:currentPage />
 	</div>
-	<Leaderboard leaderboard={data.leaderboard} />
+	<Leaderboard {leaderboard} />
 </div>
-
-<input type="checkbox" id="ingest-dataset" class="modal-toggle" />
-<label for="ingest-dataset" class="modal cursor-pointer">
-	<label class="modal-box relative" for="">
-		<form on:submit|preventDefault={ingest} class="flex flex-col gap-2">
-			<h3 class="text-lg font-bold">Ingest dataset</h3>
-			<input
-				type="file"
-				accept=".zip"
-				required
-				bind:files
-				on:change={(e) => validate_file(e.target.files[0])}
-			/>
-			<span>
-				<input
-					class="input input-bordered w-full"
-					type="text"
-					placeholder="Dataset name"
-					required
-					bind:value={name}
-				/>
-				<p class="text-sm text-gray-400">*Name should be unique</p>
-			</span>
-			<input
-				class="input input-bordered w-full"
-				type="text"
-				placeholder="Dataset description"
-				required
-				bind:value={description}
-			/>
-			{#if !valid_file}
-				<CLI>
-					You are trying to upload a big dataset. Please, use the CLI
-					instead:
-					<Code>eotdl-cli datasets ingest {`<dataset-path>`}</Code>
-					Instruction to install the CLI
-					<a
-						class="text-green-200 hover:underline"
-						href="/docs/getting-started/install">here</a
-					>
-				</CLI>
-			{/if}
-			<span class="self-end">
-				<label
-					for="ingest-dataset"
-					class="btn btn-ghost btn-outline btn-error">Close</label
-				>
-				<button
-					class="btn btn-ghost btn-outline {loading && 'loading'}"
-					disabled={!valid_file}
-					type="submit">Ingest</button
-				>
-			</span>
-		</form>
-	</label>
-</label>

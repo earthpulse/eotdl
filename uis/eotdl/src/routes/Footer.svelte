@@ -40,7 +40,7 @@
         <div class="flex flex-col">
             <h2 class="opacity-30">Contact Us</h2>
             <a
-                href="/"
+                href="mailto:support@eotld.com"
                 class="border border-green-200 rounded-md p-1 text-center opacity-30 hover:opacity-100 mt-2"
                 >Contact</a
             >

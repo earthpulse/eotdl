@@ -12,7 +12,7 @@ export const load = async ({params, fetch, parent}) => {
 	if (data.user)
 		liked_datasets = await retrieveLikedDatasets(fetch, data.id_token)
 	if (res.status == 200) 
-		return { dataset, tags, liked_datasets: liked_datasets.map(d => d.id) };
+		return { dataset, tags, liked_datasets: liked_datasets.map(d => d.id), name: params.name };
 	return { error: data.detail };
 }
 

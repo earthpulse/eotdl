@@ -121,6 +121,11 @@
 	};
 </script>
 
+<svelte:head>
+	<title>EOTDL | {data.name}</title>
+	<meta name="description" content={description} />
+</svelte:head>
+
 <div class="w-full flex flex-col items-center">
 	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-2">
 		<div class="flex flex-col sm:flex-row justify-between w-full gap-3">
