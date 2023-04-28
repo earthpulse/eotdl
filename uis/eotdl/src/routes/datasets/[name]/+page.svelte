@@ -33,7 +33,6 @@
 			},
 		})
 			.then((res) => {
-				console.log(res.status);
 				if (!res.ok) return res.json();
 				const fileStream = createWriteStream(fileName);
 				const writer = fileStream.getWriter();
@@ -84,7 +83,6 @@
 	const edit = async () => {
 		loading = true;
 		try {
-			console.log("ei");
 			await datasets.edit(
 				id,
 				newName,
@@ -92,7 +90,6 @@
 				newTags,
 				$id_token
 			);
-			console.log("eo");
 			document.getElementById("edit-dataset").checked = false;
 			data.dataset.tags = newTags;
 			data.dataset.name = newName || name;
