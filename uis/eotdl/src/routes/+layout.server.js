@@ -1,7 +1,6 @@
 import retrieveUserData from '../lib/auth/retrieveUserData';
 
 export async function load({locals, fetch}) {
-    console.log("hola", locals)
     const {user, id_token} = locals;
     if (user) {
         const userData = await retrieveUserData(id_token, fetch)

@@ -4,13 +4,23 @@
   import Nav2 from "./Nav2.svelte";
   import Footer from "./Footer.svelte";
   import { user, id_token } from "$stores/auth";
+  import { browser } from "$app/environment";
 
   export let data;
 
   user.set(data?.user);
   id_token.set(data?.id_token);
 
-  console.log(data);
+  const me = async () => {
+    const res = await fetch("/api/auth/me");
+    if (res.status != 200) return;
+    const data = await res.json();
+    user.set(data);
+  };
+
+  // prerendered routes won't call hooks.server.js so the user info will not be retrieved
+  // check if id_token in cookies and fetch user info if so
+  $: if (browser && !data?.user) me();
 </script>
 
 <main class="min-h-screen flex flex-col items-center justify-between">
