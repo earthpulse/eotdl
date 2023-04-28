@@ -7,15 +7,20 @@
   import { browser } from "$app/environment";
 
   export let data;
+  let loading = !data?.user;
 
   user.set(data?.user);
   id_token.set(data?.id_token);
 
   const me = async () => {
     const res = await fetch("/api/auth/me");
-    if (res.status != 200) return;
+    if (res.status != 200) {
+      loading = false;
+      return;
+    }
     const data = await res.json();
     user.set(data);
+    loading = false;
   };
 
   // prerendered routes won't call hooks.server.js so the user info will not be retrieved
@@ -29,7 +34,7 @@
     <div class="relative">
       <slot />
       <div class="absolute top-0 left-0 w-full">
-        <Nav2 />
+        <Nav2 {loading} />
       </div>
     </div>
   </div>

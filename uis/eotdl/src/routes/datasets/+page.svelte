@@ -1,6 +1,6 @@
 <script>
-	import { datasets } from "$stores/datasets";
-	import { user, id_token } from "$stores/auth";
+	import { datasets } from "../../stores/datasets";
+	import { user, id_token } from "../../stores/auth";
 	import Leaderboard from "./Leaderboard.svelte";
 	import Card from "./Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";

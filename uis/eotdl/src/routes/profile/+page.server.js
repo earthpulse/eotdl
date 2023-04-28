@@ -5,3 +5,5 @@ export async function load({ locals }) {
         throw redirect(307, '/api/auth/login');
     return locals
 }
+
+export const prerender = false;
