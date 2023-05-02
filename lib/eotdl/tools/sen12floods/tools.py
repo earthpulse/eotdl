@@ -95,6 +95,15 @@ def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
                                           latest_id: int
                                           ) -> dict:
     """
+    Generate the bounding box of every new location, using the mean difference between the maximum and
+    minimum calculated longitude and latitude. This function also returns the time interval which we
+    want to request from Sentinel Hub Services.
+
+    :param gdf: GeoDataFrame wiht the new locations that are going to be added to the dataset
+    :param mean_differences: list with the longitude and latitude mean differences, which are going to be used
+            to generate the bounding boxes.
+    :return: bbox_by_new_location: dict with format {<location_id>: {'bounding_box': list(), 'time_interval': list()}, ... }
+            that contains the bounding box and time interval of the imagery for each location
     """
     bbox_by_new_location = dict()
 
@@ -112,11 +121,21 @@ sentinel_parameters = {'sentinel-1': sentinel_1_search_parameters,
                        'sentinel-2': sentinel_2_search_parameters}
 
 
-def get_available_data_by_location(dictionary: dict,
+def get_available_data_by_location(search_data: dict,
                                    eotdl_client: SHClient,
                                    sentinel_mission: str
                                    ) -> list:
     """
+    Search and return a dict with the available Sentinel data for a dict with given locations and a time intervals.
+
+    :param search_data: dictionary with the data required to search the available imagery in a given location
+            and time interval. It must have the following format:
+                {<location_id>: {'bounding_box': list(), 'time_interval': list()}, ... }
+    :param eotdl_client: eotdl.SHClient object required to search for availabe data in Sentinel Hub 
+    :param sentinel_mission: id of the required Sentinel mission. The value must be <sentinel-1> or <sentinel-2>
+    :return: available_data: available data for downloading for a given location and time interval
+    :return: not_available_data: list with the locations that does not have any available data for the
+            given location and time interval
     """
     if sentinel_mission not in ('sentinel-1', 'sentinel-2'):
         print('The specified Sentinel mission is not valid. The values must be between <sentinel-1> and <sentinel-2>')
@@ -125,7 +144,7 @@ def get_available_data_by_location(dictionary: dict,
     parameters = sentinel_parameters[sentinel_mission]
 
     available_data, not_available_data = dict(), list()
-    for location_id, location_info in dictionary.items():
+    for location_id, location_info in search_data.items():
         parameters.bounding_box = location_info['bounding_box']
         parameters.time_interval = location_info['time_interval']
         results = eotdl_client.search_available_sentinel_data(parameters)
@@ -137,7 +156,7 @@ def get_available_data_by_location(dictionary: dict,
             # a mosaic, we are going to generate a dict with format
             # 'location_id': <location ID>,
             # {'bounding_box': <image bbox>, 'time_interval': <image date>}
-            # This dictionary is digerible by the EOTDLClient
+            # This dictionary is digerible by the SHClient
             time_intervals = list()
             for result in results:
                 datetime = result['properties']['datetime'][0:10]
@@ -146,7 +165,7 @@ def get_available_data_by_location(dictionary: dict,
             available_data[location_id] = {'bounding_box': location_info['bounding_box'], 'time_interval': time_intervals}
         else:
             # We should have a trace with the locations without
-            # Sentinel-1 available data
+            # available data
             not_available_data.append(location_id)
 
     return available_data, not_available_data

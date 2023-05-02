@@ -1,7 +1,8 @@
 """
 Module for managing the Sentinel Hub configuration and data access
 """
-from os.path import join
+from os.path import join, exists
+from shutil import rmtree
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
                          BBox, 
@@ -15,9 +16,13 @@ from sentinelhub import (SHConfig,
 from .utils import ParametersFeature, EvalScript
 
 
-evalscripts = {DataCollection.SENTINEL1: EvalScript.sentinel_1,
-               DataCollection.SENTINEL2_L2A: EvalScript.sentinel_2,
-               DataCollection.DEM_COPERNICUS_30: EvalScript.dem}
+evalscript = EvalScript()
+
+# Relate the DataCollection.api_id with the corresponding evalscript
+# We will use it in the SHClient.request_data function
+data_collection_evalscripts = {'sentinel-1-grd': evalscript.sentinel_1,
+                               'sentinel-2-l2a': evalscript.sentinel_2,
+                               'dem': evalscript.dem}
 
 
 class SHClient():
@@ -86,7 +91,8 @@ class SHClient():
 
         :return process_request: list with the download information for every location
         """
-        self.sh_base_url = parameters.data_collection.service_url   # Use exactly the needed service url to avoid errors
+        # Use exactly the needed service url to avoid errors
+        self.sh_base_url = parameters.data_collection.service_url   
         
         process_requests = list()
 
@@ -102,12 +108,12 @@ class SHClient():
             _data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
 
             for time in time_interval:
-                # Is it is a bulk download, add the date to the data folder name
+                # Add the date to the data folder name, if it exists
                 data_folder = f'{_data_folder}_{time[1]}' if time else _data_folder
                 
                 request = SentinelHubRequest(
                     data_folder=data_folder,
-                    evalscript=evalscripts[parameters.data_collection],
+                    evalscript=data_collection_evalscripts[parameters.data_collection.api_id],
                     input_data=[
                         SentinelHubRequest.input_data(
                             data_collection=parameters.data_collection,
