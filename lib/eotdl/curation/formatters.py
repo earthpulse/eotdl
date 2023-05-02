@@ -2,7 +2,7 @@
 Module for formatter classes
 """
 
-from os.path import join
+from os.path import join, exists
 from os import listdir, mkdir
 
 from shutil import rmtree, copyfile
@@ -112,17 +112,21 @@ class SHFolderFormatter(Formatter):
                 request_folder = join(image, _request_folder)
                 response_json = join(request_folder, 'request.json')
                 response_tiff = join(request_folder, 'response.tiff')
+
+                # If any of the needed files does not exists, it means that the downloaded
+                # data is not valid or that the folder has been already formated
+                if not exists(response_json) or not exists(response_tiff):
+                    continue
                 
                 # Create new destination folder
                 dst_folder = join(source, f'{_source}_{location_id}')
                 if date:
                     dst_folder = f'{dst_folder}_{date}'
 
-                try:
-                    mkdir(dst_folder)
-                except FileExistsError:
-                    rmtree(dst_folder)
-                    mkdir(dst_folder)
+                # If the destination folder already exists, skip it
+                if exists(dst_folder):
+                    continue
+                mkdir(dst_folder)
                     
                 # Maintain the request.json file, as it has important info that we will
                 # need for STAC generation

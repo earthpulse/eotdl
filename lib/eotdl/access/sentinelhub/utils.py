@@ -95,9 +95,8 @@ class EvalScript:
     Class that defines the needed Sentinel Hub evalscripts
     """
 
-    @property
-    def sentinel_1(self):
-        return """
+    def __init__(self):
+        self._sentinel_1 = """
                 //VERSION=3
                 function setup() {
                     return {
@@ -114,10 +113,7 @@ class EvalScript:
                     return [sample.VH, sample.VV];
                 }
                 """
-    
-    @property
-    def sentinel_2(self):
-        return """
+        self._sentinel_2 = """
             //VERSION=3
             function setup() {
                 return {
@@ -154,10 +150,7 @@ class EvalScript:
                         sample.B12];
             }
             """
-    
-    @property
-    def dem(self):
-        return """
+        self._dem = """
             //VERSION=3
 
             function setup() {
@@ -173,3 +166,15 @@ class EvalScript:
                 return [sample.DEM]
             }
             """
+
+    @property
+    def sentinel_1(self):
+        return self._sentinel_1
+    
+    @property
+    def sentinel_2(self):
+        return self._sentinel_2
+    
+    @property
+    def dem(self):
+        return self._dem
