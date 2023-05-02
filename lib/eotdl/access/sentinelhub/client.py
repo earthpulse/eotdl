@@ -9,12 +9,18 @@ from sentinelhub import (SHConfig,
                          CRS, 
                          SentinelHubRequest, 
                          SentinelHubDownloadClient,
-                         MimeType)
+                         MimeType,
+                         DataCollection)
 
-from .utils import ParametersFeature
+from .utils import ParametersFeature, EvalScript
 
 
-class EOTDLClient():
+evalscripts = {DataCollection.SENTINEL1: EvalScript.sentinel_1,
+               DataCollection.SENTINEL2_L2A: EvalScript.sentinel_2,
+               DataCollection.DEM_COPERNICUS_30: EvalScript.dem}
+
+
+class SHClient():
     """
     Client class to manage the Sentinel Hub Python interface.
     """
@@ -75,10 +81,8 @@ class EOTDLClient():
                                                 time_interval: list(list(time_interval), list(time_interval) ...)
                                                 )
                     - data_collection: Required.
-                    - evalscript: Required.
                     - resolution: Required.
                     - data_folder: Required.
-                    - mosaicking_order: Optional.
 
         :return process_request: list with the download information for every location
         """
@@ -100,9 +104,10 @@ class EOTDLClient():
             for time in time_interval:
                 # Is it is a bulk download, add the date to the data folder name
                 data_folder = f'{_data_folder}_{time[1]}' if time else _data_folder
+                
                 request = SentinelHubRequest(
                     data_folder=data_folder,
-                    evalscript=parameters.evalscript,
+                    evalscript=evalscripts[parameters.data_collection],
                     input_data=[
                         SentinelHubRequest.input_data(
                             data_collection=parameters.data_collection,
