@@ -1,8 +1,9 @@
 """
-Module for data engineering the sen12floods dataset
+Module for data engineering in the sen12floods dataset
 """
-from ...access.sentinelhub.client import EOTDLClient
-from ...access.sentinelhub.utils import ParametersFeature
+from ...access.sentinelhub.client import SHClient
+from ...access.sentinelhub.utils import (sentinel_1_search_parameters, 
+                                         sentinel_2_search_parameters)
 from statistics import mean
 
 import geopandas as gpd
@@ -107,12 +108,22 @@ def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
     return bbox_by_new_location
 
 
+sentinel_parameters = {'sentinel-1': sentinel_1_search_parameters,
+                       'sentinel-2': sentinel_2_search_parameters}
+
+
 def get_available_data_by_location(dictionary: dict,
-                                   eotdl_client: EOTDLClient,
-                                   parameters: ParametersFeature
+                                   eotdl_client: SHClient,
+                                   sentinel_mission: str
                                    ) -> list:
     """
     """
+    if sentinel_mission not in ('sentinel-1', 'sentinel-2'):
+        print('The specified Sentinel mission is not valid. The values must be between <sentinel-1> and <sentinel-2>')
+        return
+    
+    parameters = sentinel_parameters[sentinel_mission]
+
     available_data, not_available_data = dict(), list()
     for location_id, location_info in dictionary.items():
         parameters.bounding_box = location_info['bounding_box']

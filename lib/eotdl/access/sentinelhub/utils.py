@@ -2,6 +2,9 @@
 Utils
 """
 
+from sentinelhub import DataCollection, MosaickingOrder
+
+
 class ParametersFeature:
     """
     Class that allows the control of the parameters needed to search
@@ -39,3 +42,134 @@ class ParametersFeature:
         self.resolution = parameters['resolution'] if 'resolution' in parameters else None
         self.data_folder = parameters['data_folder'] if 'data_folder' in parameters else None
         self.mosaicking_order = parameters['mosaicking_order'] if 'mosaicking_order' in parameters else None
+
+
+options = {
+        'data_collection': DataCollection.SENTINEL1,
+        'fields': {"include": ["id", 
+                        "properties.datetime",
+                        "sar:instrument_mode", 
+                        "s1:polarization",
+                        "sat:orbit_state",
+                        "s1:resolution",
+                        "s1:timeliness"], 
+            "exclude": []},
+        'filter': None
+    }
+sentinel_1_search_parameters = ParametersFeature(options)
+
+
+options = {
+        'data_collection': DataCollection.SENTINEL2_L2A,
+        'fields': {"include": ["id", 
+                        "properties.datetime"], 
+            "exclude": []}
+    }
+sentinel_2_search_parameters = ParametersFeature(options)
+
+
+options = {
+    'data_collection': DataCollection.SENTINEL1,
+    'resolution': 3
+}
+sentinel_1_download_parameters = ParametersFeature(options)
+
+
+options = {
+    'data_collection': DataCollection.SENTINEL2_L2A,
+    'resolution': 3,
+    'mosaicking_order': MosaickingOrder.LEAST_CC 
+}
+sentinel_2_download_parameters = ParametersFeature(options)
+
+
+options = {
+    'data_collection': DataCollection.DEM_COPERNICUS_30,
+    'resolution': 3
+}
+dem_download_parameters = ParametersFeature(options)
+
+
+class EvalScript:
+    """
+    Class that defines the needed Sentinel Hub evalscripts
+    """
+
+    @property
+    def sentinel_1(self):
+        return """
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["VH", "VV"]
+                        }],
+                        output: {
+                            bands: 2
+                        }
+                    };
+                }
+
+                function evaluatePixel(sample) {
+                    return [sample.VH, sample.VV];
+                }
+                """
+    
+    @property
+    def sentinel_2(self):
+        return """
+            //VERSION=3
+            function setup() {
+                return {
+                    input: [{
+                        bands: ["B01", 
+                                "B02", 
+                                "B03", 
+                                "B04",
+                                "B05", 
+                                "B06", 
+                                "B07", 
+                                "B08", 
+                                "B09",
+                                "B11", 
+                                "B12"]
+                    }],
+                    output: {
+                        bands: 11
+                    }
+                };
+            }
+
+            function evaluatePixel(sample) {
+                return [sample.B01, 
+                        sample.B02, 
+                        sample.B03, 
+                        sample.B04, 
+                        sample.B05, 
+                        sample.B06, 
+                        sample.B07, 
+                        sample.B08, 
+                        sample.B09,
+                        sample.B11, 
+                        sample.B12];
+            }
+            """
+    
+    @property
+    def dem(self):
+        return """
+            //VERSION=3
+
+            function setup() {
+                return {
+                    input: ["DEM"],
+                    output: { id: "default",
+                            bands: 1,
+                            sampleType: SampleType.FLOAT32
+                    },
+                }
+            }
+            function evaluatePixel(sample) {
+                return [sample.DEM]
+            }
+            """
