@@ -4,8 +4,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional, Union
 
-from src.models import User
-from src.usecases.datasets import delete_dataset, ingest_dataset_chunk, retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
+from ..src.models import User
+from ..src.usecases.datasets import delete_dataset, ingest_dataset_chunk, retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
 from .auth import get_current_user, key_auth
 
 router = APIRouter(

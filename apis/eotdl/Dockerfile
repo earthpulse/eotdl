@@ -14,5 +14,4 @@ RUN pip install requests
 RUN pip install auth0-python
 RUN pip install python-multipart 
 RUN pip install streaming-form-data
-
-WORKDIR /api
+RUN pip install httpx

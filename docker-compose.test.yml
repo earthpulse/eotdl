@@ -1,42 +1,31 @@
 version: "3"
 
 services:
-  eotdl-mongo:
+  eotdl-mongo-test:
     image: mongo
-    ports:
-      - 27017:27017
-    volumes:
-      - ./data/mongo:/data/db
 
-  eotdl-minio:
+  eotdl-minio-test:
     image: minio/minio
-    container_name: eotdl-minio
-    ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - ./data/minio:/data
+    container_name: eotdl-minio-test
     environment:
       - MINIO_ROOT_USER=eotdl
       - MINIO_ROOT_PASSWORD=12345678
     command: server /data --console-address ":9001"
 
-  eotdl-api:
+  eotdl-api-test:
     build: ./apis/eotdl
-    container_name: eotdl-api
+    container_name: eotdl-api-test
     environment:
-      - MONGO_URL=mongodb://eotdl-mongo:27017
-      - MONGO_DB_NAME=eotdl
-      - S3_ENDPOINT=eotdl-minio:9000
+      - MONGO_URL=mongodb://eotdl-mongo-test:27017
+      - MONGO_DB_NAME=test
+      - S3_ENDPOINT=eotdl-minio-test:9000
       - ACCESS_KEY_ID=eotdl
       - SECRET_ACCESS_KEY=12345678
-      - S3_BUCKET=dev
+      - S3_BUCKET=test
       - ADMIN_API_KEY=12345678
     env_file: # auth0 credentials
       - .env
     volumes:
       - ./apis/eotdl:/api
       - ./lib/eotdl:/api/eotdl
-    ports:
-      - 8000:8000
     command: uvicorn api.main:app --host 0.0.0.0 --reload

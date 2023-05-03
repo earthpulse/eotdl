@@ -33,19 +33,25 @@ In order to run the API, you need to set the following environment variables:
 First, start docker
 
 ```
-docer-compose up -d
+docker-compose -f docker-compose.test.yml up -d
 ```
 
 Then, run the tests
 
 ```
-docker-compose exec eotdl-api pytest --cov .
+docker exec eotdl-api-test pytest api --cov .
 ```
 
 During development, you may want to keep test alive with
 
 ```
-docker-compose exec eotdl-api ptw
+docker exec eotdl-api-test ptw api
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
+
+#### Running the API
+
+```
+docker-compose up -d
+```
