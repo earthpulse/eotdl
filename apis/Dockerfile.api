@@ -16,5 +16,3 @@ RUN pip install python-multipart
 RUN pip install aiofiles
 
 COPY ./eotdl /api
-
-WORKDIR /api

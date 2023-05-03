@@ -21,15 +21,12 @@ class MongoRepo():
 
     def retrieve(self, collection, value=None, field='id', limit=None, sort=None, order=None):
         if value is None:
-            query = self.db[collection].find()
+            query = self.db[collection].find() # TODO: find_many if field is provided
             if sort is not None: query = query.sort(sort, order)
             if limit is not None: query = query.limit(limit)
             return list(query)
-        if field == '_id':
-            value = ObjectId(value)
+        if field == '_id': value = ObjectId(value)
         query = self.db[collection].find_one({field: value})
-        if sort is not None: query = query.sort(sort, order)
-        if limit is not None: query = query.limit(limit)
         return query
     
     def retrieve_many(self, collection, values, field='id'):

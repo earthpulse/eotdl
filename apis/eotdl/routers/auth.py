@@ -5,9 +5,9 @@ from fastapi.security import HTTPBearer, APIKeyHeader
 import logging
 import os
 
-from src.models import User
-from src.usecases.user import persist_user, update_user, retrieve_user, update_user_tier
-from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
+from ..src.models import User
+from ..src.usecases.user import persist_user, update_user, retrieve_user, update_user_tier
+from ..src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
 
 logger=logging.getLogger(__name__)
 
@@ -44,6 +44,7 @@ def key_auth(api_key: str = Depends(api_key_auth_scheme)):
 
 # def token_auth(token: str = Depends(token_auth_scheme)):
 def get_current_user(token: str = Depends(token_auth_scheme)):
+    print("hola")
     if not token:
         return None
     try:
@@ -82,8 +83,6 @@ def logout(request: Request, redirect_uri: str = None):
         logger.exception('logout')
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
 
 class UpdateData(BaseModel):
     name: str
