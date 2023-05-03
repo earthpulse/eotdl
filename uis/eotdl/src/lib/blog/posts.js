@@ -46,7 +46,7 @@ export const fetchPost = async (post) => {
 		async: true,
 		walkTokens
 	});
-	// content = await marked.parse(content);
+	content = await marked.parse(content);
 	return {
 		meta: {
 			...matterResult.data,

@@ -1,7 +1,17 @@
-export async function GET({ locals }) {
-    const user = { locals };
-    if (!user) 
-      return Response.error(401, "unauthorized");
-    return new Response(JSON.stringify(user))
+import { verifyToken } from "$lib/auth/auth0";
+import cookie from "cookie";
+
+export async function GET(event) {
+  const cookies = cookie.parse(event.request.headers.get("cookie") || "");
+  if (cookies?.id_token) {
+    try {
+      const user = await verifyToken(cookies.id_token);
+      if (!user)  return new Response('unauthorized', {status: 401})
+      return new Response(JSON.stringify(user))
+    } catch (error) {
+      return new Response('unauthorized', {status: 401})
+    }
+  }
+  return new Response('unauthorized', {status: 401})
 }
   
