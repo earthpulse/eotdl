@@ -1,0 +1,19 @@
+.content a {
+    @apply text-green-200 underline;
+}
+
+h1 {
+    @apply text-xl font-bold;
+}
+
+h2 {
+    @apply text-xl font-bold mt-6;
+}
+
+.list {
+    @apply list-disc list-inside;
+}
+
+pre {
+    @apply bg-gray-800 text-white p-4 rounded-lg;
+}

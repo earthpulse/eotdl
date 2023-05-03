@@ -3,6 +3,7 @@ from fastapi import Depends, APIRouter, status, Request
 from pydantic import BaseModel
 from fastapi.security import HTTPBearer, APIKeyHeader
 import logging
+import os
 
 from src.models import User
 from src.usecases.user import persist_user, update_user, retrieve_user
@@ -36,6 +37,12 @@ def token(code: str):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+def key_auth(api_key: str = Depends(api_key_auth_scheme)):
+    if not api_key or api_key != os.environ.get('ADMIN_API_KEY'):
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return
+
+# def token_auth(token: str = Depends(token_auth_scheme)):
 def get_current_user(token: str = Depends(token_auth_scheme)):
     if not token:
         return None
@@ -45,6 +52,11 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
     except Exception as e:
         logger.exception('get_current_user')
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+# async def get_current_user(api_key_user=Depends(key_auth), token_user=Depends(token_auth)):
+#     if not token_user:
+#         raise HTTPException(status_code=401, detail="Not authenticated")
+#     return token_user
 
 @router.get("/me")
 def me(user: User = Depends(get_current_user)):

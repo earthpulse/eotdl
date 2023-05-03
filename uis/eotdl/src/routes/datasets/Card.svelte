@@ -11,10 +11,9 @@
     href="/datasets/{dataset.name}"
     class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left"
 >
-    <span
-        ><p class="font-bold">{dataset.name}</p>
-        <p class="text-gray-400">{dataset.description}</p></span
-    >
+    <span>
+        <p class="font-bold">{dataset.name}</p>
+    </span>
     <span>
         <div class="flex flex-wrap gap-1 content-start mt-1">
             {#each dataset.tags as tag}

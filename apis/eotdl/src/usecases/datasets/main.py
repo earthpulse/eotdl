@@ -10,6 +10,7 @@ from .LikeDataset import LikeDataset
 from .RetrieveLikedDatasets import RetrieveLikedDatasets
 from .RetrievePopularDatasets import RetrievePopularDatasets
 from .IngestDatasetChunk import IngestDatasetChunk
+from .DeleteDataset import DeleteDataset
 
 def ingest_dataset(file, name, description, user):
 	db_repo = DBRepo()
@@ -83,3 +84,11 @@ def retrieve_liked_datasets(user):
 	inputs = retrieve.Inputs(uid=user.uid)
 	outputs = retrieve(inputs)
 	return outputs.datasets
+
+def delete_dataset(name):
+	db_repo = DBRepo()
+	os_repo = OSRepo()
+	delete = DeleteDataset(db_repo, os_repo)
+	inputs = delete.Inputs(name=name)
+	outputs = delete(inputs)
+	return outputs.message

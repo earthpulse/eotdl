@@ -2,18 +2,20 @@
     import Code from "../docs/components/Code.svelte";
     import CLI from "../docs/components/CLI.svelte";
     import { user, id_token } from "$stores/auth";
+    import { datasets } from "../../stores/datasets";
+    import TextEditor from "./TextEditor.svelte";
 
+    let content = { html: "", text: "" };
     let loading = false;
     let name = "",
-        description = "",
         files = null;
     const ingest = async () => {
-        if (name.length === 0 || description.length === 0 || files === null)
+        if (name.length === 0 || content.text.length === 0 || files === null)
             return;
         if (!validate_file(files[0])) return;
         loading = true;
         try {
-            await datasets.ingest(files[0], name, description, $id_token);
+            await datasets.ingest(files[0], name, content.html, $id_token);
             document.getElementById("ingest-dataset").checked = false;
             name = "";
         } catch (e) {
@@ -59,13 +61,7 @@
                 />
                 <p class="text-sm text-gray-400">*Name should be unique</p>
             </span>
-            <input
-                class="input input-bordered w-full"
-                type="text"
-                placeholder="Dataset description"
-                required
-                bind:value={description}
-            />
+            <TextEditor bind:content />
             {#if !valid_file}
                 <CLI>
                     You are trying to upload a big dataset. Please, use the CLI
