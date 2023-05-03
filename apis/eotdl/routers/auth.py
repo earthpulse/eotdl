@@ -6,7 +6,7 @@ import logging
 import os
 
 from src.models import User
-from src.usecases.user import persist_user, update_user, retrieve_user
+from src.usecases.user import persist_user, update_user, retrieve_user, update_user_tier
 from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
 
 logger=logging.getLogger(__name__)
@@ -100,3 +100,18 @@ def update(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+class UpdateTier(BaseModel):
+    uid: str
+    tier: str
+
+@router.post("/tier", include_in_schema=False)
+def update(
+    data: UpdateTier,
+    isAdmin: bool = Depends(key_auth),
+):
+    try:
+        return update_user_tier(data.uid, data.tier)
+    except Exception as e:
+        logger.exception('auth.update')
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=str(e))
