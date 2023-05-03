@@ -8,11 +8,15 @@
 	import { parseISO, formatDistanceToNow } from "date-fns";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
+	import "../../../styles/dataset.css";
+	import TextEditor from "../TextEditor.svelte";
 
 	export let data;
 
 	$: ({ name, id, createdAt, uid, description, tags, likes, downloads } =
 		data.dataset);
+
+	$: content = description || "";
 
 	let createWriteStream;
 	onMount(async () => {
@@ -74,7 +78,6 @@
 	};
 
 	let newName,
-		newDescription,
 		newTags,
 		loading = false;
 	$: {
@@ -83,17 +86,11 @@
 	const edit = async () => {
 		loading = true;
 		try {
-			await datasets.edit(
-				id,
-				newName,
-				newDescription,
-				newTags,
-				$id_token
-			);
+			await datasets.edit(id, newName, content, newTags, $id_token);
 			document.getElementById("edit-dataset").checked = false;
 			data.dataset.tags = newTags;
 			data.dataset.name = newName || name;
-			data.dataset.description = newDescription || description;
+			data.dataset.description = content || description;
 			if (newName) goto(`/datasets/${newName}`, { replaceState: true });
 		} catch (e) {
 			alert(e.message);
@@ -172,7 +169,10 @@
 				class="text-gray-400 cursor-pointer hover:underline">Edit</label
 			>
 		{/if}
-		<p class="py-10">{description}</p>
+		<!-- <p class="py-10">{description}</p> -->
+		<div class="content">
+			{@html description}
+		</div>
 	</div>
 </div>
 
@@ -190,12 +190,7 @@
 				/>
 				<p class="text-sm text-gray-400">*Name should be unique</p>
 			</span>
-			<input
-				class="input input-bordered w-full"
-				type="text"
-				placeholder={description}
-				bind:value={newDescription}
-			/>
+			<TextEditor bind:content />
 			<span>
 				<h3>Select relevant tags:</h3>
 				<div class="flex flex-wrap gap-1">
@@ -225,3 +220,6 @@
 		</form>
 	</label>
 </label>
+
+<style>
+</style>
