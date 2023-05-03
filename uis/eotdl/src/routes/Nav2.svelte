@@ -1,5 +1,6 @@
 <script>
     import { user } from "$stores/auth";
+    export let loading;
 
     const links = [
         { href: "/", label: "Home" },
@@ -33,13 +34,13 @@
         <li>
             {#if $user}
                 <a
-                    href="/api/auth/logout"
+                    href={loading ? "" : "/api/auth/logout"}
                     class="border-2 rounded-md px-2 hover:border-gray-300"
                     >Sign Out</a
                 >
             {:else}
                 <a
-                    href="/api/auth/login"
+                    href={loading ? "" : "/api/auth/login"}
                     class="border-2 rounded-md px-2 hover:border-gray-300"
                     >Sign In</a
                 >

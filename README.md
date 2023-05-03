@@ -18,9 +18,15 @@ In order to run the API, you need to set the following environment variables:
 
 - `MONGO_URL`: the URL of the MongoDB database
 - `MONGO_DB_NAME`: the name of the MongoDB database
+- `S3_ENDPOINT`: the endpoint of the S3 object storage
+- `ACCESS_KEY_ID`: the access key ID of the S3 object storage
+- `SECRET_ACCESS_KEY`: the secret access key of the S3 object storage
+- `S3_BUCKET`: the name of the S3 bucket to store the datasets
 - `AUTH0_DOMAIN`: the domain of the Auth0 tenant
 - `AUTH0_CLIENT_ID`: the client ID of the Auth0 application
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
+- `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
+- `ADMIN_API_KEY`: the API key to access the admin endpoints
 
 #### Running tests
 

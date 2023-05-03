@@ -16,10 +16,3 @@ export const handle = async ({ event, resolve }) => {
   const response = await resolve(event);
   return response;
 };
-
-export const getSession = (event) => {
-  return {
-    user: event.locals.user,
-    id_token: event.locals.id_token,
-  };
-};

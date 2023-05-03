@@ -32,9 +32,3 @@ class Dataset(BaseModel):
         if name is not None:
             assert validate_name(name) == name
         return name
-    
-    @validator('description')
-    def check_description_is_valid(cls, description):
-        if description is not None:
-            assert validate_description(description) == description
-        return description
