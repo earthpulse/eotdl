@@ -1,7 +1,8 @@
 from ...models import User
 from .PersistUser import PersistUser
-from ..user.UpdateUser import UpdateUser
-from ..user.RetrieveUser import RetrieveUser
+from .UpdateUser import UpdateUser
+from .RetrieveUser import RetrieveUser
+from .UpdateUserTier import UpdateUserTier
 
 from ...repos import DBRepo
 
@@ -24,4 +25,11 @@ def retrieve_user(user):
     retrieve = RetrieveUser(repo)
     inputs = RetrieveUser.Inputs(uid=user.uid)
     outputs = retrieve(inputs)
+    return outputs.user
+
+def update_user_tier(uid, tier):
+    repo = DBRepo()
+    update = UpdateUserTier(repo)
+    inputs = UpdateUserTier.Inputs(uid=uid, tier=tier)
+    outputs = update(inputs)
     return outputs.user

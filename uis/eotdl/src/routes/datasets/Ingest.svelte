@@ -5,17 +5,16 @@
     import { datasets } from "../../stores/datasets";
     import TextEditor from "./TextEditor.svelte";
 
-    let content = { html: "", text: "" };
+    let content = "";
     let loading = false;
     let name = "",
         files = null;
     const ingest = async () => {
-        if (name.length === 0 || content.text.length === 0 || files === null)
-            return;
+        if (name.length === 0 || content.length === 0 || files === null) return;
         if (!validate_file(files[0])) return;
         loading = true;
         try {
-            await datasets.ingest(files[0], name, content.html, $id_token);
+            await datasets.ingest(files[0], name, content, $id_token);
             document.getElementById("ingest-dataset").checked = false;
             name = "";
         } catch (e) {

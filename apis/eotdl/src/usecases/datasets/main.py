@@ -89,6 +89,6 @@ def delete_dataset(name):
 	db_repo = DBRepo()
 	os_repo = OSRepo()
 	delete = DeleteDataset(db_repo, os_repo)
-	inputs = delete.Inputs(name=name)
+	inputs = DeleteDataset.Inputs(name=name)
 	outputs = delete(inputs)
 	return outputs.message
