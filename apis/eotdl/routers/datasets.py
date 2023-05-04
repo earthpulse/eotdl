@@ -101,7 +101,7 @@ def edit(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.put("/{id}/like", include_in_schema=False)
-def edit(
+def like(
     id: str,
     user: User = Depends(get_current_user),
 ):

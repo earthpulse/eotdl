@@ -8,10 +8,6 @@ from ....src.errors import DatasetDoesNotExistError
 def user():
     return {'uid': '123', 'email': 'test', 'name': 'test', 'picture': 'test', 'tier': 'free'}
 
-@pytest.fixture
-def dataset():
-    return {'uid': '123', 'id': '123', 'name': 'test', 'description': 'test'}
-
 def test_like_dataset_fails_if_dataset_not_found():
     db_repo = mock.Mock()
     db_repo.exists.return_value = False
