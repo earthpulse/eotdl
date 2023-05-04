@@ -14,14 +14,25 @@ datasets = [
     {'uid': '456', '_id': ObjectId(), 'id': '000', 'name': 'test6', 'description': 'test 6'},
 ]
 
-user = {
-    'uid': '123', 
-    'name': 'test', 
-    'email': 'test', 
-    'picture': 'test', 
-    'tier': 'dev', 
-    'liked_datasets': [str(datasets[3]['_id']), str(datasets[4]['_id'])]
-}
+users = [
+    {
+        'uid': '123', 
+        'name': 'test', 
+        'email': 'test', 
+        'picture': 'test', 
+        'tier': 'dev', 
+        'liked_datasets': [str(datasets[3]['_id']), str(datasets[4]['_id'])],
+        'dataset_count': 3
+    },
+    {
+        'uid': '456', 
+        'name': 'test2', 
+        'email': 'test2', 
+        'picture': 'test2', 
+        'dataset_count': 10
+    }
+]
+
 
 tiers = [
     {
@@ -53,7 +64,7 @@ tags = [
 @pytest.fixture
 def db():
     db = get_db()
-    db['users'].insert_one(user)
+    db['users'].insert_many(users)
     db['tiers'].insert_many(tiers)
     db['datasets'].insert_many(datasets)
     db['tags'].insert_many(tags)

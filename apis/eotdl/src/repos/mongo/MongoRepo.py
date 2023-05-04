@@ -37,8 +37,9 @@ class MongoRepo():
     def update(self, collection, id, data):
         return self.db[collection].update_one({'_id': ObjectId(id)}, {'$set': data})
 
-    def delete(self, collection, id):
-        return self.db[collection].delete_one({'_id': ObjectId(id)})
+    def delete(self, collection, value, field='id'):
+        if field == '_id': value = ObjectId(value)
+        return self.db[collection].delete_one({field: value})
 
     def retrieve_all(self, collection):
         return list(self.db[collection].find())

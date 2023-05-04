@@ -77,8 +77,6 @@ def like_dataset(id, user):
 	outputs = like(inputs)
 	return outputs.message
 
-
-
 def delete_dataset(name):
 	db_repo = DBRepo()
 	os_repo = OSRepo()

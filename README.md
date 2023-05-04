@@ -39,7 +39,7 @@ docker-compose -f docker-compose.test.yml up -d
 Then, run the tests
 
 ```
-docker exec eotdl-api-test pytest api --cov .
+docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with

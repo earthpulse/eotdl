@@ -8,7 +8,7 @@ from api.main import app
 
 from ...routers.auth import get_current_user, key_auth
 from ...src.models import User
-from .setup import user, db, s3
+from .setup import users, db, s3
 
 client = TestClient(app)
 
@@ -17,7 +17,7 @@ SKIP = False
 # override token auth 
 
 def get_current_user_mock():
-	return User(**user)
+	return User(**users[0])
 
 def key_auth_mock():
 	return True
@@ -134,26 +134,6 @@ def test_edit_dataset(url, db):
     assert data['name'] == 'new-name'
     assert data['description'] == 'new description'
     assert data['tags'] == ['tag1', 'tag2']
-    # # invalid dataset
-    # _url = url + f"/invalid"
-    # response = client.put(_url, json={'name': 'new-name', 'description': 'new description', 'tags': ['tag1', 'tag2']})
-    # assert response.status_code != 200
-    # # invalid user
-    # dataset = db['datasets'].find_one({'id': '000'})
-    # _url = url + f"/{str(dataset['_id'])}"
-    # response = client.put(_url, json={'name': 'new-name', 'description': 'new description', 'tags': ['tag1', 'tag2']})
-    # assert response.status_code != 200
-    # # invalid new name
-    # dataset = db['datasets'].find_one({'id': '456'})
-    # _url = url + f"/{str(dataset['_id'])}"
-    # response = client.put(_url, json={'name': '123'})
-    # assert response.status_code != 200
-    # # existing new name
-    # response = client.put(_url, json={'name': dataset['name']})
-    # assert response.status_code != 200
-    # # invalid tags
-    # response = client.put(_url, json={'tags': ['tag4']})
-    # assert response.status_code != 200
     # update only name
     response = client.put(_url, json={'name': 'new-name2'})
     assert response.status_code == 200
@@ -190,3 +170,25 @@ def test_like_dataset(url, db):
     assert response.status_code == 200
     assert db['datasets'].find_one({'id': '456'})['likes'] == 2
     assert str(dataset['_id']) in db['users'].find_one({'uid': '123'})['liked_datasets']
+
+@pytest.mark.skipif(SKIP, reason='skip')
+def test_leaderboard(url, db):
+    url += '/leaderboard'
+    response = client.get(url)
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]['name'] == 'test2'
+    assert data[0]['datasets'] == 10
+    assert data[1]['name'] == 'test'
+    assert data[1]['datasets'] == 3
+
+# delete
+
+@pytest.mark.skipif(SKIP, reason='skip')
+def test_delete_dataset(url, db, s3):
+    url += '/test1'
+    assert db['datasets'].find_one({'name': 'test1'}) is not None
+    response = client.delete(url)
+    assert response.status_code == 200
+    assert db['datasets'].find_one({'name': 'test1'}) is None
