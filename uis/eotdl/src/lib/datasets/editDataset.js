@@ -8,7 +8,7 @@ export default async (id, name, description, tags, token) => {
         description,
         tags,
     }
-    const { data, error } = await fetchEOTDL(url, token, 'POST', body);
+    const { data, error } = await fetchEOTDL(url, token, 'PUT', body);
     if (error) throw new Error(error);
 	return data;
 };

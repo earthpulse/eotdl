@@ -29,7 +29,7 @@ class MongoRepo():
         query = self.db[collection].find_one({field: value})
         return query
     
-    def retrieve_many(self, collection, values, field='id'):
+    def retrieve_many(self, collection, values, field='_id'):
         if field == '_id':
             values = [ObjectId(value) for value in values]
         return list(self.db[collection].find({field: {'$in': values}}))

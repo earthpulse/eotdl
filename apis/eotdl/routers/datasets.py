@@ -88,7 +88,7 @@ class EditBody(BaseModel):
     tags: Optional[List[str]]
 
 
-@router.post("/{id}")
+@router.put("/{id}")
 def edit(
     id: str,
     body: EditBody,
@@ -98,14 +98,6 @@ def edit(
         return edit_dataset(id, body.name, body.description, body.tags, user)
     except Exception as e:
         logger.exception('datasets:edit')
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
-@router.get("/leaderboard", include_in_schema=False)
-def leaderboard():
-    try:
-        return retrieve_datasets_leaderboard()
-    except Exception as e:
-        logger.exception('datasets:leaderboard')
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.put("/{id}/like", include_in_schema=False)
@@ -119,6 +111,15 @@ def edit(
         logger.exception('datasets:like')
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
+@router.get("/leaderboard", include_in_schema=False)
+def leaderboard():
+    try:
+        return retrieve_datasets_leaderboard()
+    except Exception as e:
+        logger.exception('datasets:leaderboard')
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
+
 @router.delete("/{name}", include_in_schema=False)
 def delete(
     name: str,
