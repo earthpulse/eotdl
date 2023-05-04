@@ -28,6 +28,10 @@ In order to run the API, you need to set the following environment variables:
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
 
+To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
+
+- `EOTDL_API_URL`: the URL of the API
+
 #### Running tests
 
 First, start docker
@@ -40,12 +44,14 @@ Then, run the tests
 
 ```
 docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
+docker exec eotdl-cli-test poetry run pytest --cov cli --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with
 
 ```
 docker exec eotdl-api-test ptw api
+docker exec eotdl-cli-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
