@@ -10,13 +10,12 @@ class RetrieveOneDatasetByName():
 
     class Inputs(BaseModel):
         name: str
-        limit: Union[int,None] = None
 
     class Outputs(BaseModel):
         dataset: Dataset
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        data = self.db_repo.find_one_by_name('datasets', inputs.name, limit=inputs.limit)
+        data = self.db_repo.find_one_by_name('datasets', inputs.name)
         if not data:
             raise DatasetDoesNotExistError()
         dataset = Dataset(**data)

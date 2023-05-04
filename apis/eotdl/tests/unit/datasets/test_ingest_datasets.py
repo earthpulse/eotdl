@@ -2,13 +2,19 @@ import pytest
 from unittest import mock
 
 from ....src.usecases.datasets.IngestDataset import IngestDataset
-from ...utils import tiers
 
 def test_ingest_dataset_fails_if_tier_limits_surpassed():
 	db_repo = mock.Mock()
 	db_repo.retrieve.return_value = {'uid': '123', 'email': 'test', 'name': 'test', 'picture': 'test', 'tier': 'free'}
-	tier = tiers[0]
-	tier['limits']['datasets']['upload'] = 10
+	tier = {
+		"name": "dev",
+		"limits": {
+			"datasets": {
+				"upload": 10,
+				"download": 100
+			}
+		}
+	}
 	db_repo.find_one_by_name.return_value = tier
 	db_repo.find_in_time_range.return_value = [1]*100
 	os_repo = mock.Mock()

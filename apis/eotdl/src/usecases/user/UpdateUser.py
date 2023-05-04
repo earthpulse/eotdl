@@ -5,7 +5,7 @@ from ...models import User
 from ...errors import UserDoesNotExistError, UserAlreadyExistsError, NameCharsValidationError, NameLengthValidationError
 import re
 
-# we do it here instead than in model because first time a user is created, the name comes from auth0 and is usually an email
+# we do it here instead of in model because first time a user is created, the name comes from auth0 and is usually an email
 def validate_name(name: str, regex: str = "^[^a-zA-Z]{1}|[^a-zA-Z0-9-]", max_length: int = 15, min_length: int = 3) -> str:
     if re.findall(regex, name):
         raise NameCharsValidationError()
