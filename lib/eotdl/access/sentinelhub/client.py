@@ -13,16 +13,13 @@ from sentinelhub import (SHConfig,
                          MimeType,
                          DataCollection)
 
-from .utils import ParametersFeature, EvalScript
-
-
-evalscript = EvalScript()
+from .utils import ParametersFeature, EvalScripts
 
 # Relate the DataCollection.api_id with the corresponding evalscript
 # We will use it in the SHClient.request_data function
-data_collection_evalscripts = {'sentinel-1-grd': evalscript.sentinel_1,
-                               'sentinel-2-l2a': evalscript.sentinel_2,
-                               'dem': evalscript.dem}
+data_collection_evalscripts = {'sentinel-1-grd': EvalScripts.SENTINEL_1,
+                               'sentinel-2-l2a': EvalScripts.SENTINEL_2,
+                               'dem': EvalScripts.DEM}
 
 
 class SHClient():
@@ -121,7 +118,9 @@ class SHClient():
                             mosaicking_order=parameters.mosaicking_order
                         )
                     ],
-                    responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+                    responses=[
+                                SentinelHubRequest.output_response("default", MimeType.TIFF)
+                    ],
                     bbox=bbox,
                     size=bbox_to_dimensions(bbox, parameters.resolution),
                     config=self,
