@@ -22,3 +22,23 @@ def test_generate_login_url_fails_bad_client():
     with pytest.raises(Exception) as e:
         repo.generate_login_url()
         assert str(e) == 'Error generating the device code'
+
+def test_generate_id_token_fails_if_bad_code():
+    repo = Auth0Repo()
+    with pytest.raises(Exception) as e:
+        repo.generate_id_token('bad_code')
+
+def test_validate_token_fails_if_bad_token():
+    repo = Auth0Repo()
+    with pytest.raises(Exception) as e:
+        repo.validate_token('bad_token')
+
+def test_parse_token_fails_if_bad_token():
+    repo = Auth0Repo()
+    with pytest.raises(Exception) as e:
+        repo.parse_token('bad_token')
+
+def test_generate_logout_url():
+    repo = Auth0Repo()
+    logout_url = repo.generate_logout_url('redirect_uri')
+    assert 'logout_url' is not None

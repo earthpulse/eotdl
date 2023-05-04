@@ -44,7 +44,6 @@ def key_auth(api_key: str = Depends(api_key_auth_scheme)):
 
 # def token_auth(token: str = Depends(token_auth_scheme)):
 def get_current_user(token: str = Depends(token_auth_scheme)):
-    print("hola")
     if not token:
         return None
     try:
@@ -88,7 +87,7 @@ class UpdateData(BaseModel):
     name: str
 
 @router.post("", include_in_schema=False)
-def update(
+def update_user_data(
     data: UpdateData,
     user: User = Depends(get_current_user),
 ):
@@ -104,7 +103,7 @@ class UpdateTier(BaseModel):
     tier: str
 
 @router.post("/tier", include_in_schema=False)
-def update(
+def update_tier(
     data: UpdateTier,
     isAdmin: bool = Depends(key_auth),
 ):

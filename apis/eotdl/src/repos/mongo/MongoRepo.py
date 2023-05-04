@@ -63,8 +63,10 @@ class MongoRepo():
             'timestamp': {'$gte': t0, '$lt': t0 + dt}
         }))
     
-    def find_top(self, collection, field, n=10):
-        return list(self.db[collection].find().sort(field, -1).limit(n))
+    def find_top(self, collection, field, n=None):
+        query = self.db[collection].find().sort(field, -1)
+        if n is not None: return list(query.limit(n))
+        return list(query)
     
     def append_to_list(self, collection, field1, value1, field2, value2):
         if field1 == '_id':

@@ -20,18 +20,24 @@ def ingest_dataset(file, name, description, user):
 	outputs = ingest(inputs)
 	return outputs.dataset
 
-def ingest_dataset_chunk(chunk, name, description, user, size, id=None, is_last=False):
-	db_repo = DBRepo()
-	os_repo = OSRepo()
-	ingest = IngestDatasetChunk(db_repo, os_repo)
-	inputs = ingest.Inputs(name=name, chunk=chunk, uid=user.uid, description=description, id=id, is_last=is_last, size=size)
-	outputs = ingest(inputs)
-	return outputs.dataset, outputs.id
-
 def retrieve_datasets(limit):
 	db_repo = DBRepo()
 	retrieve = RetrieveDatasets(db_repo)
 	inputs = retrieve.Inputs(limit=limit)
+	outputs = retrieve(inputs)
+	return outputs.datasets
+
+def retrieve_dataset_by_name(name):
+	db_repo = DBRepo()
+	retrieve = RetrieveOneDatasetByName(db_repo)
+	inputs = retrieve.Inputs(name=name)
+	outputs = retrieve(inputs)
+	return outputs.dataset
+
+def retrieve_liked_datasets(user):
+	db_repo = DBRepo()
+	retrieve = RetrieveLikedDatasets(db_repo)
+	inputs = retrieve.Inputs(uid=user.uid)
 	outputs = retrieve(inputs)
 	return outputs.datasets
 
@@ -41,13 +47,6 @@ def retrieve_popular_datasets(limit):
 	inputs = retrieve.Inputs(limit=limit)
 	outputs = retrieve(inputs)
 	return outputs.datasets
-
-def retrieve_dataset_by_name(name, limit):
-	db_repo = DBRepo()
-	retrieve = RetrieveOneDatasetByName(db_repo)
-	inputs = retrieve.Inputs(name=name, limit=limit)
-	outputs = retrieve(inputs)
-	return outputs.dataset
 
 def download_dataset(id, user):
 	db_repo = DBRepo()
@@ -78,12 +77,7 @@ def like_dataset(id, user):
 	outputs = like(inputs)
 	return outputs.message
 
-def retrieve_liked_datasets(user):
-	db_repo = DBRepo()
-	retrieve = RetrieveLikedDatasets(db_repo)
-	inputs = retrieve.Inputs(uid=user.uid)
-	outputs = retrieve(inputs)
-	return outputs.datasets
+
 
 def delete_dataset(name):
 	db_repo = DBRepo()
@@ -92,3 +86,11 @@ def delete_dataset(name):
 	inputs = DeleteDataset.Inputs(name=name)
 	outputs = delete(inputs)
 	return outputs.message
+
+def ingest_dataset_chunk(chunk, name, description, user, size, id=None, is_last=False):
+	db_repo = DBRepo()
+	os_repo = OSRepo()
+	ingest = IngestDatasetChunk(db_repo, os_repo)
+	inputs = ingest.Inputs(name=name, chunk=chunk, uid=user.uid, description=description, id=id, is_last=is_last, size=size)
+	outputs = ingest(inputs)
+	return outputs.dataset, outputs.id
