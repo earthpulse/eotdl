@@ -13,8 +13,7 @@
 
 	export let data;
 
-	$: ({ name, id, createdAt, uid, description, tags, likes, downloads } =
-		data.dataset);
+	$: ({ name, id, createdAt, uid, description, tags } = data.dataset);
 
 	$: content = description || "";
 
@@ -53,6 +52,7 @@
 								? writer.close()
 								: writer.write(value).then(pump)
 						);
+				data.dataset.downloads = data.dataset.downloads + 1;
 				return pump();
 			})
 			.then((res) => {
@@ -109,9 +109,13 @@
 	const like = () => {
 		if (!$user) return;
 		datasets.like(id, $id_token);
-		if (data.liked_datasets.includes(id))
+		if (data.liked_datasets.includes(id)) {
 			data.liked_datasets = data.liked_datasets.filter((d) => d !== id);
-		else data.liked_datasets = [...data.liked_datasets, id];
+			data.dataset.likes = data.dataset.likes - 1;
+		} else {
+			data.liked_datasets = [...data.liked_datasets, id];
+			data.dataset.likes = data.dataset.likes + 1;
+		}
 	};
 </script>
 
@@ -156,11 +160,11 @@
 							: "gray"}
 					/></button
 				>
-				<p>{likes}</p>
+				<p>{data.dataset.likes}</p>
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<Download color="gray" size={20} />
-				<p>{downloads}</p>
+				<p>{data.dataset.downloads}</p>
 			</span>
 		</span>
 		{#if uid == $user?.uid}
