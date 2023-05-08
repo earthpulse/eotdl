@@ -7,7 +7,7 @@ export async function GET(event) {
     try {
       const user = await verifyToken(cookies.id_token);
       if (!user)  return new Response('unauthorized', {status: 401})
-      return new Response(JSON.stringify(user))
+      return new Response(JSON.stringify({user, id_token: cookies.id_token}))
     } catch (error) {
       return new Response('unauthorized', {status: 401})
     }

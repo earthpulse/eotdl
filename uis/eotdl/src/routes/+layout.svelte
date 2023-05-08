@@ -19,7 +19,8 @@
       return;
     }
     const data = await res.json();
-    user.set(data);
+    user.set(data.user);
+    id_token.set(data.id_token);
     loading = false;
   };
 
