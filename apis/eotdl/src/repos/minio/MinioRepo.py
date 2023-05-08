@@ -30,7 +30,6 @@ class MinioRepo():
         )
     
     def persist_file_chunk(self, chunk, id, size):
-        print(size, chunk.size)
         return self.client.put_object(
             self.bucket, self.get_object(id), chunk.file, length=size, part_size=chunk.size
             # self.bucket, self.get_object(id), chunk.file, length=-1, part_size=size
