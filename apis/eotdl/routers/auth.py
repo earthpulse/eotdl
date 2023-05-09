@@ -5,9 +5,9 @@ from fastapi.security import HTTPBearer, APIKeyHeader
 import logging
 import os
 
-from src.models import User
-from src.usecases.user import persist_user, update_user, retrieve_user, update_user_tier
-from src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
+from ..src.models import User
+from ..src.usecases.user import persist_user, update_user, retrieve_user, update_user_tier
+from ..src.usecases.auth import generate_login_url, generate_id_token, parse_token, generate_logout_url
 
 logger=logging.getLogger(__name__)
 
@@ -83,13 +83,11 @@ def logout(request: Request, redirect_uri: str = None):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
-
 class UpdateData(BaseModel):
     name: str
 
 @router.post("", include_in_schema=False)
-def update(
+def update_user_data(
     data: UpdateData,
     user: User = Depends(get_current_user),
 ):
@@ -105,7 +103,7 @@ class UpdateTier(BaseModel):
     tier: str
 
 @router.post("/tier", include_in_schema=False)
-def update(
+def update_tier(
     data: UpdateTier,
     isAdmin: bool = Depends(key_auth),
 ):

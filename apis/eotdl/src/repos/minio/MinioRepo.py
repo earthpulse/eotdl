@@ -2,8 +2,8 @@ from .client import get_client
 import os
 from datetime import timedelta
 
-class MinioRepo():
 
+class MinioRepo:
     def __init__(self):
         self.client = get_client()
         self.bucket = os.environ["S3_BUCKET"]
@@ -11,10 +11,10 @@ class MinioRepo():
             self.client.make_bucket(self.bucket)
 
     def get_object(self, id):
-        return f'{id}.zip'
+        return f"{id}.zip"
 
     def retrieve_object_file(self, id):
-        return self.client.get_object(self.bucket,  self.get_object(id)).read()
+        return self.client.get_object(self.bucket, self.get_object(id)).read()
 
     def retrieve_object_url(self, id):
         return self.client.get_presigned_url(
@@ -26,13 +26,20 @@ class MinioRepo():
 
     def persist_file(self, source, id):
         return self.client.put_object(
-            self.bucket, self.get_object(id), source, length=-1, part_size=10*1024*1024,
+            self.bucket,
+            self.get_object(id),
+            source,
+            length=-1,
+            part_size=10 * 1024 * 1024,
         )
-    
+
     def persist_file_chunk(self, chunk, id, size):
-        print(size, chunk.size)
         return self.client.put_object(
-            self.bucket, self.get_object(id), chunk.file, length=size, part_size=chunk.size
+            self.bucket,
+            self.get_object(id),
+            chunk.file,
+            length=size,
+            part_size=chunk.size
             # self.bucket, self.get_object(id), chunk.file, length=-1, part_size=size
         )
 
@@ -42,8 +49,16 @@ class MinioRepo():
 
     async def data_stream(self, id):
         with self.client.get_object(self.bucket, self.get_object(id)) as stream:
-            for chunk in stream.stream(1024*1024): # Stream in chunks of 1MB
+            for chunk in stream.stream(1024 * 1024):  # Stream in chunks of 1MB
                 yield chunk
 
     def object_info(self, id):
         return self.client.stat_object(self.bucket, self.get_object(id))
+
+    def get_size(self, id):
+        return self.object_info(id).size
+
+    # def upload_id(self):
+    #     return self.client.initiate_multipart_upload(
+    #         self.bucket, self.get_object(id)
+    #     ).upload_id
