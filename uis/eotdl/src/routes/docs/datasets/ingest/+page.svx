@@ -46,6 +46,6 @@ You will be prompted to provide a unique name for your dataset and a description
 
 <CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --n {'<'}dataset-name> --d {'<'}dataset-description> --y</Code></CLI>
 
-For very large datasets, parallel ingestion can speed up the process. You can use the `--p` flag to specify the number of parallel processes to use.
+For very large datasets, parallel ingestion can speed up the process with the `--p` flag.
 
 <CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --p</Code></CLI>
