@@ -63,10 +63,10 @@ def ingest(path: str):
     """
     try:
         user = auth()
-        name = typer.prompt("Dataset name")
-        description = typer.prompt("Description")
+        name = "test"  # typer.prompt("Dataset name")
+        description = "test"  # typer.prompt("Description")
         # confirm
-        typer.confirm(f"Is the data correct?", abort=True)
+        # typer.confirm(f"Is the data correct?", abort=True)
         ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:

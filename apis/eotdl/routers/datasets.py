@@ -18,6 +18,8 @@ from ..src.usecases.datasets import (
     download_dataset,
     edit_dataset,
     retrieve_datasets_leaderboard,
+    generate_upload_id,
+    complete_multipart_upload,
 )
 from .auth import get_current_user, key_auth
 
@@ -135,7 +137,7 @@ def leaderboard():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/{name}", include_in_schema=False)
+@router.delete("/{name}", include_in_schema=True)
 def delete(
     name: str,
     isAdmin: bool = Depends(key_auth),
@@ -147,37 +149,65 @@ def delete(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-# trying to ingest large files in chunks, not working yet
-@router.post("/chunk", include_in_schema=False)
-async def ingest_large(
-    request: Request,
-    file: UploadFile = File(...),
-    name: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
+@router.get("/chunk", include_in_schema=True)
+def start_large_dataset_upload(
+    name: str,
+    description: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        content_range = request.headers.get("content-range")
-        upload_id = request.headers.get("upload-id", None)
-        part_number = int(request.headers.get("part-number", None))
-        dataset_id = request.headers.get("dataset-id", None)
-        ab, total = content_range.split(" ")[1].split("/")
-        a, b = ab.split("-")
-        is_last = int(b) == int(total) - 1
-        is_first = int(a) == 0
-        dataset, id, upload_id = ingest_dataset_chunk(
-            file.file,
-            int(total),
+        dataset_id, upload_id = generate_upload_id(
             name,
             description,
             user,
+        )
+        return {"dataset_id": dataset_id, "upload_id": upload_id}
+    except Exception as e:
+        print(str(e))
+        logger.exception("datasets:upload_id")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/chunk", include_in_schema=True)
+def ingest_large_dataset_chunk(
+    request: Request,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    try:
+        upload_id = request.headers.get("upload-id", None)
+        part_number = int(request.headers.get("part-number", None))
+        dataset_id = request.headers.get("dataset-id", None)
+        ingest_dataset_chunk(
+            file.file,
             part_number,
             dataset_id,
-            is_first,
-            is_last,
             upload_id,
         )
-        return {"dataset": dataset, "id": id, "upload_id": upload_id}
+        return {"message": "done"}
+    except Exception as e:
+        logger.exception("datasets:ingest_large")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CompleteBody(BaseModel):
+    name: str
+    description: str
+
+
+@router.post("/complete", include_in_schema=True)
+def complete_large_dataset_upload(
+    request: Request,
+    body: CompleteBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        upload_id = request.headers.get("upload-id", None)
+        dataset_id = request.headers.get("dataset-id", None)
+        dataset = complete_multipart_upload(
+            user, body.name, body.description, dataset_id, upload_id
+        )
+        return {"dataset": dataset}
     except Exception as e:
         logger.exception("datasets:ingest_large")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
