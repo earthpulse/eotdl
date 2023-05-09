@@ -6,6 +6,7 @@ from src.usecases.datasets import (
     ingest_large_dataset,
 )
 from src.usecases.auth import auth
+from typing import Optional
 
 app = typer.Typer()
 
@@ -55,7 +56,12 @@ def get(name: str, path: str = None):
 
 
 @app.command()
-def ingest(path: str):
+def ingest(
+    path: str,
+    n: Optional[str] = None,
+    d: Optional[str] = None,
+    y: Optional[bool] = False,
+):
     """
     Ingest a dataset
 
@@ -63,10 +69,11 @@ def ingest(path: str):
     """
     try:
         user = auth()
-        name = "test"  # typer.prompt("Dataset name")
-        description = "test"  # typer.prompt("Description")
+        name = n or typer.prompt("Dataset name")
+        description = d or typer.prompt("Description")
         # confirm
-        # typer.confirm(f"Is the data correct?", abort=True)
+        if not y:
+            typer.confirm(f"Is the data correct?", abort=True)
         ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:
