@@ -4,8 +4,10 @@ Utils
 
 from sentinelhub import DataCollection, MosaickingOrder
 
+from ..parameters import ParametersFeature
 
-class ParametersFeature:
+
+class SHParametersFeature(ParametersFeature):
     """
     Class that allows the control of the parameters needed to search
     or download data from Sentinel Hub
@@ -32,6 +34,7 @@ class ParametersFeature:
                     see https://docs.sentinel-hub.com/api/latest/evalscript/
                     - mosaicking_order: sentinelhub.MosaickingOrder object with the desired mosaicking order
         """
+        ParametersFeature.__init__(self, parameters)
         self.data_collection = parameters['data_collection'] if 'data_collection' in parameters else None
         self.data_to_download = parameters['data_to_download'] if 'data_to_download' in parameters else None
         self.bounding_box = parameters['bounding_box'] if 'bounding_box' in parameters else None
@@ -56,7 +59,7 @@ options = {
             "exclude": []},
         'filter': None
     }
-sentinel_1_search_parameters = ParametersFeature(options)
+sentinel_1_search_parameters = SHParametersFeature(options)
 
 
 options = {
@@ -65,14 +68,14 @@ options = {
                         "properties.datetime"], 
             "exclude": []}
     }
-sentinel_2_search_parameters = ParametersFeature(options)
+sentinel_2_search_parameters = SHParametersFeature(options)
 
 
 options = {
     'data_collection': DataCollection.SENTINEL1,
     'resolution': 3
 }
-sentinel_1_download_parameters = ParametersFeature(options)
+sentinel_1_download_parameters = SHParametersFeature(options)
 
 
 options = {
@@ -80,14 +83,14 @@ options = {
     'resolution': 3,
     'mosaicking_order': MosaickingOrder.LEAST_CC 
 }
-sentinel_2_download_parameters = ParametersFeature(options)
+sentinel_2_download_parameters = SHParametersFeature(options)
 
 
 options = {
     'data_collection': DataCollection.DEM_COPERNICUS_30,
     'resolution': 3
 }
-dem_download_parameters = ParametersFeature(options)
+dem_download_parameters = SHParametersFeature(options)
 
 
 class EvalScripts:

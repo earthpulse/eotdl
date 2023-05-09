@@ -3,17 +3,19 @@ Module for generating STAC metadata
 """
 
 import json
+from typing import Optional
 import pystac
 import rasterio
+from rasterio.warp import transform_bounds
 
 from datetime import datetime
 from shapely.geometry import Polygon, mapping
+from glob import glob
+
+from .utils import format_time_acquired
 
 
 class STACGenerator:
-
-    def __init__(self):
-        pass
 
     def create_stac_catalog(self):
         """
@@ -26,57 +28,51 @@ class STACGenerator:
         pass
 
     def create_stac_item(self,
-                        tiff_path: str,
+                        tiff_dir_path: str,
                         metadata_json: str,
-                        extensions: list
+                        extensions: Optional[list] = None
                         ) -> pystac.Item:
         """
         """
         with open(metadata_json, "r") as f:
             metadata = json.load(f)
+
+        bbox = metadata['bounding-box']
+        left, bottom, right, top = bbox
+
+        # Create geojson feature
+        geom = mapping(Polygon([
+        [left, bottom],
+        [left, top],
+        [right, top],
+        [right, bottom]
+        ]))
+
+        try:
+            time_acquired = format_time_acquired(metadata["date-adquired"])
+        except KeyError:
+            return
         
-        with rasterio.open(tiff_path) as ds:
-            
-            bounds = ds.bounds
-            src_crs = ds.crs
-            dst_crs = 'EPSG:4326'  # EPSG identifier for WGS84 coordinate system used by the geojson format
-            
-            left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
-            bbox = [left, bottom, right, top]
-            
-            # Create geojson feature
-            geom = mapping(Polygon([
-            [left, bottom],
-            [left, top],
-            [right, top],
-            [right, bottom]
-            ]))
+        # Instantiate pystac item
+        item = pystac.Item(id='test',
+                geometry=geom,
+                bbox=bbox,
+                datetime = time_acquired,
+                properties={
+                })
 
-            bbox = None
-                
-            # Create geojson feature
-            geom = mapping(Polygon([
-            [left, bottom],
-            [left, top],
-            [right, top],
-            [right, bottom]
-            ]))
-            
-            try:
-                time_acquired = datetime.strptime(metadata_json["date-adquired"], '%Y-%m-%dT%H:%M:%S.%f')
-            except KeyError:
-                return
-            
-            # Instantiate pystac item
-            item = pystac.Item(id=metadata_json["id"],
-                    geometry=geom,
-                    bbox=bbox,
-                    datetime = time_acquired,
-                    properties={
-                    })
-
-            # Enable item extensions
+        # Enable item extensions
+        if extensions:
             for extension in extensions:
                 item.ext.enable(extension)
 
-            return item
+        rasters = glob(f'{tiff_dir_path}/*.tif*')
+
+        for raster in rasters:
+            href = raster.split('/')[-1]
+            title = href.split('.')[-2]
+            type = "image/tiff; application=geotiff"
+            asset = pystac.Asset(href=href, title=title, media_type=type)
+            item.add_asset(title, asset)
+
+        return item
