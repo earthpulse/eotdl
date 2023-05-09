@@ -1,8 +1,14 @@
 import typer
-from src.usecases.datasets import retrieve_datasets, download_dataset, ingest_dataset
+from src.usecases.datasets import (
+    retrieve_datasets,
+    download_dataset,
+    ingest_dataset,
+    ingest_large_dataset,
+)
 from src.usecases.auth import auth
 
 app = typer.Typer()
+
 
 @app.command()
 def list():
@@ -11,6 +17,7 @@ def list():
     """
     datasets = retrieve_datasets()
     typer.echo(datasets)
+
 
 @app.command()
 def get(name: str, path: str = None):
@@ -27,6 +34,26 @@ def get(name: str, path: str = None):
     except Exception as e:
         typer.echo(e)
 
+
+# @app.command()
+# def ingest(path: str):
+#     """
+#     Ingest a dataset
+
+#     path: Path to dataset to ingest
+#     """
+#     try:
+#         user = auth()
+#         name = typer.prompt("Dataset name")
+#         description = typer.prompt("Description")
+#         # confirm
+#         typer.confirm(f"Is the data correct?", abort=True)
+#         ingest_dataset(name, description, path, user, typer.echo)
+#         typer.echo(f"Dataset {name} ingested")
+#     except Exception as e:
+#         typer.echo(e)
+
+
 @app.command()
 def ingest(path: str):
     """
@@ -40,10 +67,11 @@ def ingest(path: str):
         description = typer.prompt("Description")
         # confirm
         typer.confirm(f"Is the data correct?", abort=True)
-        ingest_dataset(name, description, path, user, typer.echo)
+        ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:
         typer.echo(e)
+
 
 if __name__ == "__main__":
     app()
