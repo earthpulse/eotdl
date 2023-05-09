@@ -3,15 +3,30 @@ from fastapi import APIRouter, status, Depends, File, Form, UploadFile, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional, Union
+import logging
 
-from src.models import User
-from src.usecases.datasets import delete_dataset, ingest_dataset_chunk, retrieve_liked_datasets, like_dataset, ingest_dataset, retrieve_datasets, retrieve_popular_datasets, retrieve_dataset_by_name, download_dataset, edit_dataset, retrieve_datasets_leaderboard
+from ..src.models import User
+from ..src.usecases.datasets import (
+    delete_dataset,
+    ingest_dataset_chunk,
+    retrieve_liked_datasets,
+    like_dataset,
+    ingest_dataset,
+    retrieve_datasets,
+    retrieve_popular_datasets,
+    retrieve_dataset_by_name,
+    download_dataset,
+    edit_dataset,
+    retrieve_datasets_leaderboard,
+    generate_upload_id,
+    complete_multipart_upload,
+)
 from .auth import get_current_user, key_auth
 
-router = APIRouter(
-    prefix="/datasets",
-    tags=["datasets"]
-)
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/datasets", tags=["datasets"])
+
 
 @router.post("")
 def ingest(
@@ -23,68 +38,46 @@ def ingest(
     # if file.size > 1000000000: # 1 GB
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, the maximum allowed is 1 GB. For larger dataset get in touch with us.")
     try:
-        return ingest_dataset(file.file, name, description, user)
+        return ingest_dataset(file, name, description, user)
     except Exception as e:
-        print('ERROR datasets:ingest', str(e))
+        logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-@router.post("/chunk", include_in_schema=False)
-def ingest_large(
-    request: Request,
-    file: UploadFile = File(...),
-    name: Optional[str] = Form(None),
-    description: Optional[str] = Form(None),
-    id: Optional[str] = Form(None),
-    user: User = Depends(get_current_user),
-):
-    try:
-        content_range = request.headers.get('content-range')
-        ab, total = content_range.split(' ')[1].split('/')
-        a, b = ab.split('-')
-        is_last = int(b) == int(total) - 1
-        dataset, id = ingest_dataset_chunk(file, name, description, user, total, id, is_last)
-        return {'dataset': dataset, 'id': id}
-    except Exception as e:
-        print('ERROR datasets:ingest_large', str(e))
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("")
-def retrieve(
-    name: str = None,
-    limit: Union[int,None] = None
-):
+def retrieve(name: str = None, limit: Union[int, None] = None):
     try:
         if name is None:
             return retrieve_datasets(limit)
-        return retrieve_dataset_by_name(name, limit)
+        return retrieve_dataset_by_name(name)
     except Exception as e:
-        print('ERROR datasets:retrieve', str(e))
+        logger.exception("datasets:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+
 @router.get("/liked", include_in_schema=False)
-def retrieve(
+def retrieve_liked(
     user: User = Depends(get_current_user),
 ):
     try:
         return retrieve_liked_datasets(user)
     except Exception as e:
-        print('ERROR datasets:retrieve', str(e))
+        logger.exception("datasets:retrieve_liked")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("/popular", include_in_schema=False)
-def retrieve(
-    limit: Union[int,None] = None
-):
+def retrieve_popular(limit: Union[int, None] = None):
     try:
         return retrieve_popular_datasets(limit)
     except Exception as e:
-        print('ERROR datasets:retrieve', str(e))
+        logger.exception("datasets:retrieve_popular")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
 
 @router.get("/{id}/download")
 async def download(
-    id: str ,
+    id: str,
     user: User = Depends(get_current_user),
 ):
     try:
@@ -94,18 +87,23 @@ async def download(
             "Content-Type": "application/zip",
             "Content-Length": str(object_info.size),
         }
-        return StreamingResponse(data_stream(id), headers=response_headers, media_type=object_info.content_type)
+        return StreamingResponse(
+            data_stream(id),
+            headers=response_headers,
+            media_type=object_info.content_type,
+        )
     except Exception as e:
-        print('ERROR datasets:download', str(e))
+        logger.exception("datasets:download")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
+
+
 class EditBody(BaseModel):
     name: Optional[str]
     description: Optional[str]
     tags: Optional[List[str]]
 
 
-@router.post("/{id}")
+@router.put("/{id}")
 def edit(
     id: str,
     body: EditBody,
@@ -114,28 +112,31 @@ def edit(
     try:
         return edit_dataset(id, body.name, body.description, body.tags, user)
     except Exception as e:
-        print('ERROR datasets:edit', str(e))
+        logger.exception("datasets:edit")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
-@router.get("/leaderboard", include_in_schema=False)
-def leaderboard():
-    try:
-        return retrieve_datasets_leaderboard()
-    except Exception as e:
-        print('ERROR datasets:retrieve', str(e))
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
-@router.post("/{id}/like", include_in_schema=False)
-def edit(
+
+
+@router.put("/{id}/like", include_in_schema=False)
+def like(
     id: str,
     user: User = Depends(get_current_user),
 ):
     try:
         return like_dataset(id, user)
     except Exception as e:
-        print('ERROR datasets:like', str(e))
+        logger.exception("datasets:like")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
+
+
+@router.get("/leaderboard", include_in_schema=False)
+def leaderboard():
+    try:
+        return retrieve_datasets_leaderboard()
+    except Exception as e:
+        logger.exception("datasets:leaderboard")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
 @router.delete("/{name}", include_in_schema=False)
 def delete(
     name: str,
@@ -144,5 +145,69 @@ def delete(
     try:
         return delete_dataset(name)
     except Exception as e:
-        print('ERROR datasets:delete', str(e))
+        logger.exception("datasets:delete")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/chunk", include_in_schema=False)
+def start_large_dataset_upload(
+    name: str,
+    description: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id, upload_id = generate_upload_id(
+            name,
+            description,
+            user,
+        )
+        return {"dataset_id": dataset_id, "upload_id": upload_id}
+    except Exception as e:
+        print(str(e))
+        logger.exception("datasets:upload_id")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/chunk", include_in_schema=False)
+def ingest_large_dataset_chunk(
+    request: Request,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    try:
+        upload_id = request.headers.get("upload-id", None)
+        part_number = int(request.headers.get("part-number", None))
+        dataset_id = request.headers.get("dataset-id", None)
+        ingest_dataset_chunk(
+            file.file,
+            part_number,
+            dataset_id,
+            upload_id,
+        )
+        return {"message": "done"}
+    except Exception as e:
+        logger.exception("datasets:ingest_large")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CompleteBody(BaseModel):
+    name: str
+    description: str
+
+
+@router.post("/complete", include_in_schema=False)
+def complete_large_dataset_upload(
+    request: Request,
+    body: CompleteBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        upload_id = request.headers.get("upload-id", None)
+        dataset_id = request.headers.get("dataset-id", None)
+        dataset = complete_multipart_upload(
+            user, body.name, body.description, dataset_id, upload_id
+        )
+        return {"dataset": dataset}
+    except Exception as e:
+        logger.exception("datasets:ingest_large")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

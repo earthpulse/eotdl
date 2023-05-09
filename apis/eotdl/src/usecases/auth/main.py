@@ -30,7 +30,6 @@ def parse_token(token):
 def generate_logout_url(redirect_uri):
     repo = AuthRepo()
     logout = Logout(repo)
-    print("ei", redirect_uri, type(redirect_uri))
     inputs = Logout.Inputs(redirect_uri=redirect_uri)
     outputs = logout(inputs)
     return outputs.logout_url
