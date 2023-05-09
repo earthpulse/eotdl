@@ -17,7 +17,9 @@ def ingest_dataset(file, name, description, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestDataset(db_repo, os_repo)
-    inputs = ingest.Inputs(name=name, file=file, uid=user.uid, description=description)
+    inputs = ingest.Inputs(
+        name=name, file=file.file, size=file.size, uid=user.uid, description=description
+    )
     outputs = ingest(inputs)
     return outputs.dataset
 
@@ -100,6 +102,7 @@ def delete_dataset(name):
 
 def ingest_dataset_chunk(
     chunk,
+    size,
     name,
     description,
     user,
@@ -115,6 +118,7 @@ def ingest_dataset_chunk(
     ingest = IngestDatasetChunk(db_repo, os_repo, s3_repo)
     inputs = ingest.Inputs(
         uid=user.uid,
+        size=size,
         name=name,
         description=description,
         chunk=chunk,

@@ -22,6 +22,7 @@ class IngestDatasetChunk:
         id: Optional[str] = None
         upload_id: Optional[str] = None
         part_number: Optional[int] = 0
+        size: Optional[int] = 0
 
     class Outputs(BaseModel):
         dataset: Optional[Dataset] = None
@@ -56,6 +57,7 @@ class IngestDatasetChunk:
                 id=id,
                 name=inputs.name,
                 description=inputs.description,
+                size=inputs.size,
             )
             # generate multipart upload id
             storage = self.os_repo.get_object(id)
@@ -76,6 +78,7 @@ class IngestDatasetChunk:
                 id=inputs.id,
                 name=inputs.name,
                 description=inputs.description,
+                size=inputs.size,
             )
             self.db_repo.persist("datasets", dataset.dict(), inputs.id)
             # update user dataset count
