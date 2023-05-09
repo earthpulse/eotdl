@@ -61,46 +61,27 @@ def ingest(
     path: str,
     n: Optional[str] = None,
     d: Optional[str] = None,
-    y: Optional[bool] = False,
+    p: Optional[bool] = False,
 ):
     """
     Ingest a dataset
 
     path: Path to dataset to ingest
+    n: Name of the dataset
+    d: Description of the dataset
+    p: Parallel ingest
     """
     try:
         user = auth()
         name = n or typer.prompt("Dataset name")
         description = d or typer.prompt("Description")
         # confirm
-        if not y:
+        if not n or not d:
             typer.confirm(f"Is the data correct?", abort=True)
-        ingest_large_dataset(name, description, path, user, typer.echo)
-        typer.echo(f"Dataset {name} ingested")
-    except Exception as e:
-        typer.echo(e)
-
-
-@app.command()
-def pingest(
-    path: str,
-    n: Optional[str] = None,
-    d: Optional[str] = None,
-    y: Optional[bool] = False,
-):
-    """
-    Ingest a dataset
-
-    path: Path to dataset to ingest
-    """
-    try:
-        user = auth()
-        name = n or typer.prompt("Dataset name")
-        description = d or typer.prompt("Description")
-        # confirm
-        if not y:
-            typer.confirm(f"Is the data correct?", abort=True)
-        ingest_large_dataset_parallel(name, description, path, user, typer.echo)
+        if p:
+            ingest_large_dataset_parallel(name, description, path, user, typer.echo)
+        else:
+            ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:
         typer.echo(e)
