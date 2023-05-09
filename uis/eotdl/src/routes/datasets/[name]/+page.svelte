@@ -10,6 +10,9 @@
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 	import "../../../styles/dataset.css";
 	import TextEditor from "../TextEditor.svelte";
+	import Sd from "svelte-material-icons/Sd.svelte";
+	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
+	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
 
 	export let data;
 
@@ -165,6 +168,14 @@
 			<span class="flex flex-row items-center gap-1">
 				<Download color="gray" size={20} />
 				<p>{data.dataset.downloads}</p>
+			</span>
+			<span class="flex flex-row items-center gap-1">
+				<Sd color="gray" size={20} />
+				<p>{formatFileSize(data.dataset.size)}</p>
+			</span>
+			<span class="flex flex-row items-center gap-1">
+				<CheckDecagramOutline color="gray" size={20} />
+				<p>Q{data.dataset.quality}</p>
 			</span>
 		</span>
 		{#if uid == $user?.uid}
