@@ -61,6 +61,7 @@ class APIRepo:
             yield data
 
     def ingest_large_dataset(self, name, description, path, id_token):
+        # TODO: parallel upload for improved performance
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         file_object = open(content_path, "rb")

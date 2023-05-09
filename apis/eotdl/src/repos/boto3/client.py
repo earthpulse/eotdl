@@ -13,9 +13,11 @@ import os
 
 
 def get_client():
-    HTTPS = os.getenv("S3_SSL", True)
-    HTTP_PREFIX = "http://" if HTTPS else "https://"  # ???
-    # print("HTTPS", HTTPS, HTTP_PREFIX)
+    if not "S3_SSL" in os.environ:  # use SSL if not specified
+        HTTPS = True
+    else:
+        HTTPS = os.getenv("S3_SSL", "False") == "True"
+    HTTP_PREFIX = "https://" if HTTPS else "http://"
     return boto3.client(
         "s3",
         aws_access_key_id=os.environ["ACCESS_KEY_ID"],

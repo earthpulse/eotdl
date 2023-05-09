@@ -149,34 +149,34 @@ def delete(
 
 # trying to ingest large files in chunks, not working yet
 @router.post("/chunk", include_in_schema=False)
-def ingest_large(
+async def ingest_large(
     request: Request,
     file: UploadFile = File(...),
     name: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     user: User = Depends(get_current_user),
 ):
-    # try:
-    content_range = request.headers.get("content-range")
-    upload_id = request.headers.get("upload-id", None)
-    part_number = int(request.headers.get("part-number", None))
-    dataset_id = request.headers.get("dataset-id", None)
-    ab, total = content_range.split(" ")[1].split("/")
-    a, b = ab.split("-")
-    is_last = int(b) == int(total) - 1
-    is_first = int(a) == 0
-    dataset, id, upload_id = ingest_dataset_chunk(
-        file.file,
-        name,
-        description,
-        user,
-        part_number,
-        dataset_id,
-        is_first,
-        is_last,
-        upload_id,
-    )
-    return {"dataset": dataset, "id": id, "upload_id": upload_id}
-    # except Exception as e:
-    #     logger.exception("datasets:ingest_large")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        content_range = request.headers.get("content-range")
+        upload_id = request.headers.get("upload-id", None)
+        part_number = int(request.headers.get("part-number", None))
+        dataset_id = request.headers.get("dataset-id", None)
+        ab, total = content_range.split(" ")[1].split("/")
+        a, b = ab.split("-")
+        is_last = int(b) == int(total) - 1
+        is_first = int(a) == 0
+        dataset, id, upload_id = ingest_dataset_chunk(
+            file.file,
+            name,
+            description,
+            user,
+            part_number,
+            dataset_id,
+            is_first,
+            is_last,
+            upload_id,
+        )
+        return {"dataset": dataset, "id": id, "upload_id": upload_id}
+    except Exception as e:
+        logger.exception("datasets:ingest_large")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
