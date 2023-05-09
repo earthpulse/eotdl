@@ -55,6 +55,9 @@ class MinioRepo:
     def object_info(self, id):
         return self.client.stat_object(self.bucket, self.get_object(id))
 
+    def get_size(self, id):
+        return self.object_info(id).size
+
     # def upload_id(self):
     #     return self.client.initiate_multipart_upload(
     #         self.bucket, self.get_object(id)

@@ -11,6 +11,8 @@ from .RetrieveLikedDatasets import RetrieveLikedDatasets
 from .RetrievePopularDatasets import RetrievePopularDatasets
 from .IngestDatasetChunk import IngestDatasetChunk
 from .DeleteDataset import DeleteDataset
+from .GenerateUploadId import GenerateUploadId
+from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
 def ingest_dataset(file, name, description, user):
@@ -100,33 +102,47 @@ def delete_dataset(name):
     return outputs.message
 
 
-def ingest_dataset_chunk(
-    chunk,
-    size,
-    name,
-    description,
-    user,
-    part_number=0,
-    id=None,
-    is_first=False,
-    is_last=False,
-    upload_id=None,
-):
+def generate_upload_id(name, description, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
-    ingest = IngestDatasetChunk(db_repo, os_repo, s3_repo)
-    inputs = ingest.Inputs(
+    generate = GenerateUploadId(db_repo, os_repo, s3_repo)
+    inputs = generate.Inputs(
         uid=user.uid,
-        size=size,
         name=name,
         description=description,
-        chunk=chunk,
-        is_first=is_first,
-        is_last=is_last,
-        id=id,
-        upload_id=upload_id,
-        part_number=part_number,
+    )
+    outputs = generate(inputs)
+    return outputs.dataset_id, outputs.upload_id
+
+
+def ingest_dataset_chunk(
+    chunk,
+    part_number,
+    id,
+    upload_id,
+):
+    os_repo = OSRepo()
+    s3_repo = S3Repo()
+    ingest = IngestDatasetChunk(os_repo, s3_repo)
+    inputs = ingest.Inputs(
+        chunk=chunk, id=id, upload_id=upload_id, part_number=part_number
     )
     outputs = ingest(inputs)
-    return outputs.dataset, outputs.id, outputs.upload_id
+    return outputs.id, outputs.upload_id
+
+
+def complete_multipart_upload(user, name, description, dataset_id, upload_id):
+    db_repo = DBRepo()
+    os_repo = OSRepo()
+    s3_repo = S3Repo()
+    complete = CompleteMultipartUpload(db_repo, os_repo, s3_repo)
+    inputs = complete.Inputs(
+        uid=user.uid,
+        name=name,
+        description=description,
+        id=dataset_id,
+        upload_id=upload_id,
+    )
+    outputs = complete(inputs)
+    return outputs.dataset
