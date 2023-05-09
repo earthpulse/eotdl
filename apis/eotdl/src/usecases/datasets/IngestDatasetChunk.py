@@ -49,8 +49,14 @@ class IngestDatasetChunk:
             # check if name already exists
             if self.db_repo.find_one_by_name("datasets", inputs.name):
                 raise DatasetAlreadyExistsError()
-            # generate new dataset id
+            # generate new dataset id and validate name, description
             id = self.db_repo.generate_id()
+            dataset = Dataset(
+                uid=inputs.uid,
+                id=id,
+                name=inputs.name,
+                description=inputs.description,
+            )
             # generate multipart upload id
             storage = self.os_repo.get_object(id)
             upload_id = self.s3_repo.multipart_upload_id(storage)

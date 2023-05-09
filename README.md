@@ -22,14 +22,14 @@ In order to run the API, you need to set the following environment variables:
 - `ACCESS_KEY_ID`: the access key ID of the S3 object storage
 - `SECRET_ACCESS_KEY`: the secret access key of the S3 object storage
 - `S3_BUCKET`: the name of the S3 bucket to store the datasets
-- `S3_SSL`: whether to use SSL to connect to the S3 object storage
+- `S3_SSL`: whether to use SSL to connect to the S3 object storage (optinal, True by default)
 - `S3_REGION`: the region of the S3 object storage
 - `AUTH0_DOMAIN`: the domain of the Auth0 tenant
 - `AUTH0_CLIENT_ID`: the client ID of the Auth0 application
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
-- `TZ`: Your time zone (for example, `Europe/Madrid`)
+- `TZ`: Your time zone (for example, `Europe/Madrid`. Optional, `UTC` by default)
 
 
 To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
