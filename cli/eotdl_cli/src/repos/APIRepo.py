@@ -68,10 +68,18 @@ class APIRepo:
             yield data
 
     def parallel_upload(
-        self, content_size, chunk_size, content_path, url, headers, total_chunks
+        self,
+        content_size,
+        chunk_size,
+        content_path,
+        url,
+        id_token,
+        upload_id,
+        dataset_id,
+        total_chunks,
     ):
         # Create thread pool executor
-        executor = ThreadPoolExecutor(max_workers=4)
+        executor = ThreadPoolExecutor()
 
         # Divide file into chunks and create tasks for each chunk
         offset = 0
@@ -87,8 +95,17 @@ class APIRepo:
             with open(content_path, "rb") as f:
                 f.seek(start)
                 chunk = f.read(end - start)
-            headers["Part-Number"] = part
-            response = requests.post(url, files={"file": chunk}, headers=headers)
+            # headers["Part-Number"] = part
+            response = requests.post(
+                url,
+                files={"file": chunk},
+                headers={
+                    "Authorization": "Bearer " + id_token,
+                    "Upload-Id": upload_id,
+                    "Dataset-Id": dataset_id,
+                    "Part-Number": part,
+                },
+            )
             if response.status_code != 200:
                 print(f"Failed to upload chunk {start} - {end}")
             return response
@@ -105,35 +122,63 @@ class APIRepo:
             for future in futures:
                 future.result()
 
-    def ingest_large_dataset(self, name, description, path, id_token):
+    def prepare_large_upload(self, name, description, path, id_token):
         # first call to get upload id
         url = self.url + "datasets/chunk?name=" + name + "&description=" + description
-        headers = {"Authorization": "Bearer " + id_token}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
         if response.status_code != 200:
             return None, response.json()["detail"]
         data = response.json()
         dataset_id, upload_id = data["dataset_id"], data["upload_id"]
-
-        # upload chunks in parallel
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
-        file_object = open(content_path, "rb")
-        index = 0
-        offset = 0
-        headers["Upload-Id"] = upload_id
-        headers["Dataset-Id"] = dataset_id
         url = self.url + "datasets/chunk"
         chunk_size = 1024 * 1024 * 5  # 5 MiB
         total_chunks = content_size // chunk_size
+        return (
+            content_size,
+            chunk_size,
+            content_path,
+            url,
+            upload_id,
+            dataset_id,
+            total_chunks,
+        )
 
-        # parallel upload not working so well, the api cannot handle it...
-        # self.parallel_upload(
-        #     content_size, chunk_size, content_path, url, headers, total_chunks
-        # )
+    def complete_upload(self, name, description, id_token, upload_id, dataset_id):
+        url = self.url + "datasets/complete"
+        r = requests.post(
+            url,
+            json={"name": name, "description": description},
+            headers={
+                "Authorization": "Bearer " + id_token,
+                "Upload-Id": upload_id,
+                "Dataset-Id": dataset_id,
+            },
+        )
+        return r.json(), None
 
+    def ingest_large_dataset(self, name, description, path, id_token):
+        (
+            content_size,
+            chunk_size,
+            content_path,
+            url,
+            upload_id,
+            dataset_id,
+            total_chunks,
+        ) = self.prepare_large_upload(name, description, path, id_token)
+        headers = {
+            "Authorization": "Bearer " + id_token,
+            "Upload-Id": upload_id,
+            "Dataset-Id": dataset_id,
+        }
         # upload chunks sequentially
-        pbar = tqdm(self.read_in_chunks(file_object, chunk_size), total=total_chunks)
+        pbar = tqdm(
+            self.read_in_chunks(open(content_path, "rb"), chunk_size),
+            total=total_chunks,
+        )
+        index = 0
         for chunk in pbar:
             offset = index + len(chunk)
             headers["Part-Number"] = str(index // chunk_size + 1)
@@ -141,18 +186,33 @@ class APIRepo:
             file = {"file": chunk}
             r = requests.post(url, files=file, headers=headers)
             if r.status_code != 200:
-                return None, response.json()["detail"]
+                return None, r.json()["detail"]
             pbar.set_description(
                 "{:.2f}/{:.2f} MB".format(
                     offset / 1024 / 1024, content_size / 1024 / 1024
                 )
             )
         pbar.close()
+        return self.complete_upload(name, description, id_token, upload_id, dataset_id)
 
-        # complete upload
-        url = self.url + "datasets/complete"
-        del headers["Part-Number"]
-        r = requests.post(
-            url, json={"name": name, "description": description}, headers=headers
+    def ingest_large_dataset_parallel(self, name, description, path, id_token):
+        (
+            content_size,
+            chunk_size,
+            content_path,
+            url,
+            upload_id,
+            dataset_id,
+            total_chunks,
+        ) = self.prepare_large_upload(name, description, path, id_token)
+        self.parallel_upload(
+            content_size,
+            chunk_size,
+            content_path,
+            url,
+            id_token,
+            upload_id,
+            dataset_id,
+            total_chunks,
         )
-        return response.json(), None
+        return self.complete_upload(name, description, id_token, upload_id, dataset_id)
