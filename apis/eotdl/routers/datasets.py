@@ -149,7 +149,7 @@ def delete(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/chunk", include_in_schema=True)
+@router.get("/chunk", include_in_schema=False)
 def start_large_dataset_upload(
     name: str,
     description: str,
@@ -168,7 +168,7 @@ def start_large_dataset_upload(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/chunk", include_in_schema=True)
+@router.post("/chunk", include_in_schema=False)
 def ingest_large_dataset_chunk(
     request: Request,
     file: UploadFile = File(...),
@@ -195,7 +195,7 @@ class CompleteBody(BaseModel):
     description: str
 
 
-@router.post("/complete", include_in_schema=True)
+@router.post("/complete", include_in_schema=False)
 def complete_large_dataset_upload(
     request: Request,
     body: CompleteBody,
