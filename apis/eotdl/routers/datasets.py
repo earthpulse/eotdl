@@ -135,7 +135,7 @@ def leaderboard():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/{name}", include_in_schema=True)
+@router.delete("/{name}", include_in_schema=False)
 def delete(
     name: str,
     isAdmin: bool = Depends(key_auth),
