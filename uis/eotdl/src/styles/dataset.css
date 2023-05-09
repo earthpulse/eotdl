@@ -10,8 +10,8 @@ h2 {
     @apply text-xl font-bold mt-6;
 }
 
-.list {
-    @apply list-disc list-inside;
+ul {
+    @apply list-disc list-inside p-5;
 }
 
 pre {
