@@ -1,8 +1,7 @@
 """
 Module for managing the Sentinel Hub configuration and data access
 """
-from os.path import join, exists
-from shutil import rmtree
+from os.path import join
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
                          BBox, 
@@ -13,7 +12,7 @@ from sentinelhub import (SHConfig,
                          MimeType,
                          DataCollection)
 
-from .utils import ParametersFeature, EvalScripts
+from .utils import SHParametersFeature, EvalScripts
 
 # Relate the DataCollection.api_id with the corresponding evalscript
 # We will use it in the SHClient.request_data function
@@ -41,7 +40,7 @@ class SHClient():
         self.catalog = SentinelHubCatalog(config=self.config)
 
     def search_available_sentinel_data(self,
-                                       parameters: ParametersFeature
+                                       parameters: SHParametersFeature
                                        ) -> list:
         """
         Search and return the available Sentinel data from a given DataCollection in a selected location and time interval. 
@@ -66,8 +65,8 @@ class SHClient():
 
         return results
 
-    def request_data(self, 
-                    parameters: ParametersFeature
+    def request_bulk_data(self, 
+                    parameters: SHParametersFeature
                     ) -> list:
         """
         Get and return a list with the download information for every location. 
@@ -89,7 +88,7 @@ class SHClient():
         :return process_request: list with the download information for every location
         """
         # Use exactly the needed service url to avoid errors
-        self.sh_base_url = parameters.data_collection.service_url   
+        self.config.sh_base_url = parameters.data_collection.service_url   
         
         process_requests = list()
 
@@ -101,33 +100,57 @@ class SHClient():
             elif isinstance(info, dict):   # Bulk download
                 bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
                 time_interval = info['time_interval']
-            # Create a different data folder for each request
-            _data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
+            parameters.bounding_box = bbox
 
+            # Create a different data folder for each request
+            data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
+
+            parameters.data_folder = data_folder
             for time in time_interval:
                 # Add the date to the data folder name, if it exists
-                data_folder = f'{_data_folder}_{time[1]}' if time else _data_folder
-                
-                request = SentinelHubRequest(
-                    data_folder=data_folder,
+                data_folder = f'{data_folder}_{time[1]}' if time else data_folder
+                # Add required parameters to the ParametersFeature, in order to
+                # pass it to the request data function
+                parameters.data_folder = data_folder
+                parameters.time_interval = time
+                # Do the request and append it to the requests list 
+                request = self.request_data(parameters)
+                process_requests.append(request)
+
+        return process_requests
+    
+    def request_data(self, 
+                    parameters: SHParametersFeature
+                    ) -> list:
+        """
+        Request the specified Sentinel Hub data and return the SentinelHubRequest object
+
+        :param parameters: ParametersFeature object with the needed parameters for the search. The neeeded parameters are:
+                    - time_interval: Required.
+                    - data_collection: Required.
+                    - resolution: Required.
+                    - data_folder: Required.
+                    - bounding_box: Required.
+                    - mosaicking_order: Optional.
+
+        """
+        return SentinelHubRequest(
+                    data_folder=parameters.data_folder,
                     evalscript=data_collection_evalscripts[parameters.data_collection.api_id],
                     input_data=[
                         SentinelHubRequest.input_data(
                             data_collection=parameters.data_collection,
-                            time_interval=time,
+                            time_interval=parameters.time_interval,
                             mosaicking_order=parameters.mosaicking_order
                         )
                     ],
                     responses=[
                                 SentinelHubRequest.output_response("default", MimeType.TIFF)
                     ],
-                    bbox=bbox,
-                    size=bbox_to_dimensions(bbox, parameters.resolution),
-                    config=self,
+                    bbox=parameters.bounding_box,
+                    size=bbox_to_dimensions(parameters.bounding_box, parameters.resolution),
+                    config=self.config,
                 )
-                process_requests.append(request)
-
-        return process_requests
 
     def download_data(self,
                       requests: list

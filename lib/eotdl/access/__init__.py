@@ -1,6 +1,6 @@
 from .sentinelhub import (SHClient, 
-                          ParametersFeature, 
-                          EvalScript, 
+                          SHParametersFeature, 
+                          EvalScripts, 
                           sentinel_1_download_parameters, 
                           sentinel_2_download_parameters,
                           dem_download_parameters)
