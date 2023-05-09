@@ -36,7 +36,7 @@ def ingest(
     # if file.size > 1000000000: # 1 GB
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, the maximum allowed is 1 GB. For larger dataset get in touch with us.")
     try:
-        return ingest_dataset(file.file, name, description, user)
+        return ingest_dataset(file, name, description, user)
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -167,6 +167,7 @@ async def ingest_large(
         is_first = int(a) == 0
         dataset, id, upload_id = ingest_dataset_chunk(
             file.file,
+            int(total),
             name,
             description,
             user,
