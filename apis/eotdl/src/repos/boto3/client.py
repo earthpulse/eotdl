@@ -13,7 +13,7 @@ import os
 
 
 def get_client():
-    HTTPS = os.getenv("S3_SSL", False)
+    HTTPS = os.getenv("S3_SSL", True)
     HTTP_PREFIX = "http://" if HTTPS else "https://"  # ???
     # print("HTTPS", HTTPS, HTTP_PREFIX)
     return boto3.client(
