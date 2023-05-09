@@ -24,7 +24,10 @@ class APIRepo:
         return requests.get(self.url + "datasets").json()
 
     def retrieve_dataset(self, name):
-        return requests.get(self.url + "datasets?name=" + name)
+        response = requests.get(self.url + "datasets?name=" + name)
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
 
     def download_dataset(self, dataset_id, id_token, path):
         url = self.url + "datasets/" + dataset_id + "/download"
@@ -53,7 +56,9 @@ class APIRepo:
         files = {"file": open(path, "rb")}
         data = {"name": name, "description": description}
         response = requests.post(url, headers=headers, files=files, data=data)
-        return response
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
 
     def read_in_chunks(self, file_object, CHUNK_SIZE):
         while True:
@@ -106,7 +111,7 @@ class APIRepo:
         headers = {"Authorization": "Bearer " + id_token}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            return response
+            return None, response.json()["detail"]
         data = response.json()
         dataset_id, upload_id = data["dataset_id"], data["upload_id"]
 
@@ -136,7 +141,7 @@ class APIRepo:
             file = {"file": chunk}
             r = requests.post(url, files=file, headers=headers)
             if r.status_code != 200:
-                return r.json()["detail"]
+                return None, response.json()["detail"]
             pbar.set_description(
                 "{:.2f}/{:.2f} MB".format(
                     offset / 1024 / 1024, content_size / 1024 / 1024
@@ -150,4 +155,4 @@ class APIRepo:
         r = requests.post(
             url, json={"name": name, "description": description}, headers=headers
         )
-        return r
+        return response.json(), None

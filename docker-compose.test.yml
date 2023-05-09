@@ -23,6 +23,7 @@ services:
       - SECRET_ACCESS_KEY=12345678
       - S3_BUCKET=test
       - ADMIN_API_KEY=12345678
+      - S3_SSL=False
       - TZ=Europe/Madrid
     env_file: # auth0 credentials
       - .env
