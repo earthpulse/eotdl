@@ -14,3 +14,4 @@ RUN pip install requests
 RUN pip install auth0-python
 RUN pip install python-multipart 
 RUN pip install httpx
+RUN pip install boto3
