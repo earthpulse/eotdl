@@ -36,16 +36,21 @@ class APIRepo:
             path = str(Path.home()) + "/.etodl/datasets"
             os.makedirs(path, exist_ok=True)
         with requests.get(url, headers=headers, stream=True) as r:
+            print(r.headers)
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
-            block_size = 1024  # 1 Kibibyte
-            progress_bar = tqdm(total=total_size, unit="iB", unit_scale=True)
+            block_size = 1024
+            progress_bar = tqdm(
+                total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+            )
             filename = r.headers.get("content-disposition").split("filename=")[1][1:-1]
             path = f"{path}/{filename}"
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
                     progress_bar.update(len(chunk))
-                    f.write(chunk)
+                    if chunk:
+                        print(len(chunk))
+                        f.write(chunk)
             progress_bar.close()
             return path
 
