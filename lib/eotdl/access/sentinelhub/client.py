@@ -92,6 +92,8 @@ class SHClient():
         
         process_requests = list()
 
+        root_folder = parameters.data_folder
+
         for id, info in parameters.data_to_download.items():
             # We should distinct between the possible input formats
             if isinstance(info, tuple):
@@ -103,12 +105,11 @@ class SHClient():
             parameters.bounding_box = bbox
 
             # Create a different data folder for each request
-            data_folder = join(parameters.data_folder, f'{parameters.data_collection.api_id}_{id}')
+            _data_folder = join(root_folder, f'{parameters.data_collection.api_id}_{id}')
 
-            parameters.data_folder = data_folder
             for time in time_interval:
                 # Add the date to the data folder name, if it exists
-                data_folder = f'{data_folder}_{time[1]}' if time else data_folder
+                data_folder = f'{_data_folder}_{time[1]}' if time else _data_folder
                 # Add required parameters to the ParametersFeature, in order to
                 # pass it to the request data function
                 parameters.data_folder = data_folder

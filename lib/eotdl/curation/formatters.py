@@ -67,7 +67,12 @@ class SHBandsFormatter(Formatter):
             for band in range(1, raster.count + 1):   # the +1 allows the writing of the last band
                 single_band = raster.read(band)
 
-                band_name = f'B{str(band)}.tiff'
+                if band > 9:   # There is no band 10 but 11 and 12
+                    band += 1
+                band_n = str(band)
+                if len(band_n) == 1:   # Format the band number to 2 digits
+                    band_n = f'0{band_n}'
+                band_name = f'B{str(band_n)}.tiff'
                 ds_out = join(output_folder, band_name)
 
                 # Copy the metadata
@@ -109,6 +114,8 @@ class SHFolderFormatter(Formatter):
                 if len(split) >= 3:
                     date = split[2]
                     date_format = date.replace('-', '_')
+                else:
+                    date, date_format = None, None
 
                 # Get response tiff
                 _response_tiff = glob(f"{image_dir}/*/*.tiff")
