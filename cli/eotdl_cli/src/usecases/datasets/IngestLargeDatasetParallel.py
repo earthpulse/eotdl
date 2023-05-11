@@ -11,6 +11,7 @@ class IngestLargeDatasetParallel:
         description: str
         path: str = None
         user: dict
+        threads: int = 0
 
     class Outputs(BaseModel):
         dataset: dict
@@ -21,7 +22,11 @@ class IngestLargeDatasetParallel:
             raise Exception("Only zip files are allowed")
         self.logger("Ingesting dataset...")
         data, error = self.repo.ingest_large_dataset_parallel(
-            inputs.name, inputs.description, inputs.path, inputs.user["id_token"]
+            inputs.name,
+            inputs.description,
+            inputs.path,
+            inputs.user["id_token"],
+            inputs.threads,
         )
         if error:
             raise Exception(error)

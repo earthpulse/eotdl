@@ -61,7 +61,7 @@ def ingest(
     path: str,
     n: Optional[str] = None,
     d: Optional[str] = None,
-    p: Optional[bool] = False,
+    p: Optional[int] = 0,
 ):
     """
     Ingest a dataset
@@ -79,7 +79,7 @@ def ingest(
         if not n or not d:
             typer.confirm(f"Is the data correct?", abort=True)
         if p:
-            ingest_large_dataset_parallel(name, description, path, user, typer.echo)
+            ingest_large_dataset_parallel(name, description, path, user, p, typer.echo)
         else:
             ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")

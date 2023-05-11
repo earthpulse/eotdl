@@ -48,9 +48,11 @@ def ingest_large_dataset(name, description, path, user, logger):
     return outputs.dataset
 
 
-def ingest_large_dataset_parallel(name, description, path, user, logger):
+def ingest_large_dataset_parallel(name, description, path, user, p, logger):
     api_repo = APIRepo()
     ingest = IngestLargeDatasetParallel(api_repo, logger)
-    inputs = ingest.Inputs(name=name, description=description, path=path, user=user)
+    inputs = ingest.Inputs(
+        name=name, description=description, path=path, user=user, threads=p
+    )
     outputs = ingest(inputs)
     return outputs.dataset

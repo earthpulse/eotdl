@@ -44,8 +44,8 @@ You can ingest a dataset using the following CLI command:
 
 You will be prompted to provide a unique name for your dataset and a description. You can bypass this behaviour by providing the `--n` and `--d` flags.
 
-<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --n {'<'}dataset-name> --d {'<'}dataset-description> --y</Code></CLI>
+<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --n {'<'}dataset-name> --d {'<'}dataset-description></Code></CLI>
 
-For very large datasets, parallel ingestion can speed up the process with the `--p` flag.
+<!-- For very large datasets, parallel ingestion can speed up the process. Use the `--p` flag to indicate the number of threads to use (use `-1`` to use all).
 
-<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --p</Code></CLI>
+<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --p 4</Code></CLI> -->
