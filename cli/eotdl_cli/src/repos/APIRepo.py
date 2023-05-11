@@ -39,7 +39,7 @@ class APIRepo:
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
-            block_size = 1024 * 1024 * 100
+            block_size = 1024 * 1024 * 10
             progress_bar = tqdm(
                 total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
             )
