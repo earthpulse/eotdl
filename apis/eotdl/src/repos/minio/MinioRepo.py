@@ -49,7 +49,7 @@ class MinioRepo:
 
     async def data_stream(self, id):
         with self.client.get_object(self.bucket, self.get_object(id)) as stream:
-            for chunk in stream.stream(1024 * 1024 * 100):  # Stream in chunks of 100MB
+            for chunk in stream.stream(1024 * 1024 * 10):  # Stream in chunks of 10MB
                 yield chunk
 
     def object_info(self, id):
