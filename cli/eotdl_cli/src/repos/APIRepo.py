@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 from concurrent.futures import ThreadPoolExecutor
 import time
+import multiprocessing
 
 
 class APIRepo:
@@ -36,10 +37,9 @@ class APIRepo:
             path = str(Path.home()) + "/.etodl/datasets"
             os.makedirs(path, exist_ok=True)
         with requests.get(url, headers=headers, stream=True) as r:
-            print(r.headers)
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
-            block_size = 1024
+            block_size = 1024 * 1024 * 100
             progress_bar = tqdm(
                 total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
             )
@@ -49,7 +49,6 @@ class APIRepo:
                 for chunk in r.iter_content(block_size):
                     progress_bar.update(len(chunk))
                     if chunk:
-                        print(len(chunk))
                         f.write(chunk)
             progress_bar.close()
             return path
@@ -82,9 +81,11 @@ class APIRepo:
         upload_id,
         dataset_id,
         total_chunks,
+        threads,
     ):
         # Create thread pool executor
-        executor = ThreadPoolExecutor()
+        max_workers = threads if threads > 0 else multiprocessing.cpu_count()
+        executor = ThreadPoolExecutor(max_workers=max_workers)
 
         # Divide file into chunks and create tasks for each chunk
         offset = 0
@@ -138,7 +139,7 @@ class APIRepo:
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         url = self.url + "datasets/chunk"
-        chunk_size = 1024 * 1024 * 5  # 5 MiB
+        chunk_size = 1024 * 1024 * 100  # 100 MiB
         total_chunks = content_size // chunk_size
         return (
             content_size,
@@ -200,7 +201,7 @@ class APIRepo:
         pbar.close()
         return self.complete_upload(name, description, id_token, upload_id, dataset_id)
 
-    def ingest_large_dataset_parallel(self, name, description, path, id_token):
+    def ingest_large_dataset_parallel(self, name, description, path, id_token, threads):
         (
             content_size,
             chunk_size,
@@ -219,5 +220,6 @@ class APIRepo:
             upload_id,
             dataset_id,
             total_chunks,
+            threads,
         )
         return self.complete_upload(name, description, id_token, upload_id, dataset_id)
