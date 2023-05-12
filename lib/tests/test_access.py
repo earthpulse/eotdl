@@ -1,9 +1,24 @@
 import pytest
-from eotdl import EOTDLClient
+try:
+    from lib.eotdl import SHClient
+except ImportError:
+    from eotdl import SHClient
 
 
-def test_eotdl_client():
-    client = EOTDLClient(sh_client_id='2fdc33ba-43dd-4044-bcdf-e351f13befb6', 
-                     sh_client_secret='R2*pJLtWRW+KK+zSQj&vS8^0-NE&}-_so&r2t2Bo')
+def test_sh_client():
+    client = SHClient(sh_client_id='my_client_id', 
+                     sh_client_secret='my_client_secret')
     
-    assert client.sh_client_id is not None
+    assert client.config.sh_client_id is not None
+
+
+def test_search_available_sentinel_data():
+    pass
+
+
+def test_request_bulk_data():
+    pass
+
+
+def test_request_data():
+    pass

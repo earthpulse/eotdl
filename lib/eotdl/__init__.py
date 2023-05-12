@@ -11,4 +11,5 @@ from .tools import (stac_items_to_gdf,
                     generate_new_locations_bounding_boxes,
                     get_available_data_by_location)
 from .curation import (SHFolderFormatter, 
-                       STACGenerator)
+                       STACGenerator,
+                       format_time_acquired)
