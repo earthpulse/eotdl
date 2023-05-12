@@ -19,6 +19,7 @@ from shapely.geometry import Polygon, mapping
 from glob import glob
 
 from .utils import format_time_acquired
+from .extensions import type_stac_extensions_dict
 
 
 class STACGenerator:
@@ -41,53 +42,89 @@ class STACGenerator:
     }
         
     def __init__(self) -> None:
-        self.extensions_funcs: dict = {
-            'sentinel-1-grd': (self.add_sar_extension_to_object, self.add_sar_extension_to_object),
-            'sentinel-2-l2a': (self.add_eo_s2_extension_to_item, None),
-            'dem': None
-        }
+        self.extensions_dict: dict = type_stac_extensions_dict
         self.rasters_assets: list = None
 
-    def generate_stac_metadata(self, path: str, **kwargs) -> None:
+    def generate_stac_metadata(self, path: str, id: str, catalog_type: pystac.CatalogType = pystac.CatalogType.SELF_CONTAINED, **kwargs) -> None:
         """
+        Generate STAC metadata for a given directory containing the assets to generate metadata
+
+        :param path: path to the root directory 
+        :param kwargs: optional arguments. Possible values:
+            - description: description of the catalog
+            - keywords: keywords of the catalog
         """
         if 'catalog.json' in listdir(path):
             # Open the catalog.json as a pySTAC.Catalog object
             catalog = pystac.Catalog.from_file(f'{path}/catalog.json')
         else:
             # Create a new catalog
-            id = path.split('/')[-1]
+            title = kwargs.get('title', None)
             description = kwargs.get('description', None)
-            catalog = self.create_stac_catalog(id=id, description=description)
+            catalog = self.create_stac_catalog(id=id,
+                                               catalog_type=catalog_type, 
+                                               title=title,
+                                               description=description)
+            # Add the catalog to the root directory
+            catalog.normalize_hrefs(path)
+        
+        # catalog.save(catalog_type)
         
         # Get the list of directories in the path
         dirs = listdir(path)
 
-        return catalog
+        return catalog   # DEBUG
         
 
-    def create_stac_catalog(self, id: str, description: Optional[str] = None) -> pystac.Catalog:
+    def create_stac_catalog(self, id: str, **kwargs) -> pystac.Catalog:
         """
+        Create a STAC catalog
+
+        :param id: id of the catalog
+        :param kwargs: optional arguments. Possible values:
+            - description: description of the catalog
+            - keywords: keywords of the catalog
         """
+        description = kwargs.get('description', None)
+
         return pystac.Catalog(id=id, description=description)
+    
+    def update_stac_catalog(self, catalog: pystac.Catalog, **kwargs) -> pystac.Catalog:
+        """
+        """
+        # Update the catalog with the given arguments
+        pass
 
     def create_stac_collection(self):
         """
+        Create a STAC collection
+        """
+        pass
+
+    def update_stacl_collection(self, collection: pystac.Collection, **kwargs) -> pystac.Collection:
+        """
+        Update a STAC collection
         """
         pass
 
     def create_stac_item(self,
                         tiff_dir_path: str,
                         metadata_json: str,
-                        extensions: Optional[list] = None
+                        extensions: Optional[list|str] = None
                         ) -> pystac.Item:
         """
+        Create a STAC item from a directory containing the raster files and the metadata.json file
+
+        :param tiff_dir_path: path to the directory containing the raster files
+        :param metadata_json: path to the metadata.json file
+        :param extensions: list of extensions to add to the item
+        :return: pystac.Item object
         """
+        # Read the metadata.json associated with the raster file
+        # and obtain the required info
         with open(metadata_json, "r") as f:
             metadata = json.load(f)
 
-        # Read the metadata.json associated with the raster file
-        # and obtain the required info
         # Obtain the bounding box
         bbox = metadata['bounding-box']
         left, bottom, right, top = bbox
@@ -100,14 +137,24 @@ class STACGenerator:
         [right, bottom]
         ]))
 
+        # Obtain the raster type
+        type = metadata['type']
+
+        # Initialize properties
+        properties = dict()
+
         # Obtain the date acquired
         try:
             time_acquired = format_time_acquired(metadata["date-adquired"])
-        except KeyError:
-            return
-        
-        # Obtain the raster type
-        type = metadata['type']
+        except TypeError:
+            if type == 'dem':
+                # If it is DEM data we don't need to add the time acquired to the item
+                # But, we need to add the start and end date to the item
+                time_acquired = None
+                for key, item in self.extensions_dict['dem'].DEM_DATE_ACQUIRED.items():
+                    properties[key] = item
+            else:
+                raise TypeError(f"Error: {metadata_json} does not contain a valid date acquired")
         
         # Obtain the ID from the dir name
         id = tiff_dir_path.split('/')[-1]
@@ -116,17 +163,19 @@ class STACGenerator:
         item = pystac.Item(id=id,
                 geometry=geom,
                 bbox=bbox,
-                datetime = time_acquired,
-                properties={
-                })
+                datetime=time_acquired,
+                properties=properties)
         
         # Get an ordered list with the raster assets
         self.rasters_assets = glob(f'{tiff_dir_path}/*.tif*')
         self.rasters_assets.sort()
         
         # Add the required extensions to the item
-        item_ext_func, asset_ext_func = self.extensions_funcs[type]
-        item_ext_func(item)
+        if extensions:
+            if isinstance(extensions, str):
+                extensions = [extensions]
+            for extension in extensions:
+                self.extensions_dict[extension].add_extension_to_object(item)
 
         # Add the assets to the item
         for raster in self.rasters_assets:
@@ -137,41 +186,10 @@ class STACGenerator:
             # Add the asset to the item
             item.add_asset(title, asset)
             # Add the required extensions to the asset if required
-            asset_ext_func(asset) if asset_ext_func else None
+            if extensions:
+                if isinstance(extensions, str):
+                    extensions = [extensions]
+                for extension in extensions:
+                    self.extensions_dict[extension].add_extension_to_object(asset)
 
         return item
-
-    def add_sar_extension_to_object(self, obj: pystac.Item|pystac.Asset):
-        """
-        Add the SAR extension to a pystac.Item object or pystac.Asset object
-
-        :param obj: pystac.Item object or pystac.Asset object to add the extension
-        """
-        sar_ext = SarExtension.ext(obj, add_if_missing=True)
-        if isinstance(obj, pystac.Item):
-            polarizations=[Polarization.VV, Polarization.VH]
-        elif isinstance(obj, pystac.Asset):
-            polarizations_dict = {'VV': Polarization.VV, 'VH': Polarization.VH}
-            polarizations=[polarizations_dict[obj.title]]
-        sar_ext.apply(instrument_mode='EW', polarizations=polarizations, frequency_band=FrequencyBand.C, product_type='GRD')
-
-    def add_eo_s2_extension_to_item(self, item: pystac.Item):
-        """
-        """
-        if isinstance(item, pystac.Asset):
-            return
-        # Add EO extension
-        eo_ext = EOExtension.ext(item, add_if_missing=True)
-        # Add the existing bands from the rasters assets list
-        bands = list()
-        for raster in self.rasters_assets:
-            raster_name = raster.split('/')[-1]
-            band_name = raster_name.split('.')[0]
-            band = self.sentinel_2_bands_dict[band_name]
-            bands.append(band)
-        eo_ext.apply(bands=bands)
-        # Add common metadata
-        item.common_metadata.constellation = "Sentinel-2"
-        item.common_metadata.platform = "Sentinel-2"
-        item.common_metadata.instruments = ["Sentinel-2"]
-        item.common_metadata.gsd = 10   # Where to obtain it?

@@ -8,7 +8,13 @@ from dateutil import parser
 
 def format_time_acquired(dt: str|datetime) -> str:
     """
-    """
-    dt_str = parser.parse("2021-05-12").strftime('%Y-%m-%dT%H:%M:%S.%f')
+    Format the date time to the required format for STAC
     
-    return datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%f')
+    :param dt: date time to format
+    """
+    dt_str = parser.parse(dt).strftime('%Y-%m-%dT%H:%M:%S.%f')
+
+    # convert the string to datetime object
+    dt_obj = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%f')
+    
+    return dt_obj
