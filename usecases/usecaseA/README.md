@@ -44,7 +44,7 @@ A bash script that expects as inputs a file with paths of acquisition directorie
 i.e.,
 
 ```bash
-./run_extraction.sh <extracted_archive> <extracted_archive>_metadata.txt
+./run_extraction.sh list_of_acquisition_directories.txt acquisitions_metadata.txt
 ```
 
 As the archives are over 500GB each, iterating through them can be a long process.
