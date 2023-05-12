@@ -22,9 +22,9 @@ It is recommended to extract the list of acquisition samples for each archive pr
 
 i.e., the following:
 
-`bash
+```bash
 tar -tf <archive_name>.tar.gz | grep metadata.json | sed 's/metadata.json//' > list_of_acquisition_directories.txt
-`
+```
 
 is a valid way of listing all the directories in a text file, however there are numerous effective options even post archive extraction.
 
@@ -43,9 +43,9 @@ A bash script that expects as inputs a file with paths of acquisition directorie
 
 i.e.,
 
-`bash
+```bash
 ./run_extraction.sh <extracted_archive> <extracted_archive>_metadata.txt
-`
+```
 
 As the archives are over 500GB each, iterating through them can be a long process.
 
