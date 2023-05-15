@@ -20,6 +20,7 @@ from ..src.usecases.datasets import (
     retrieve_datasets_leaderboard,
     generate_upload_id,
     complete_multipart_upload,
+    update_dataset,
 )
 from .auth import get_current_user, key_auth
 
@@ -39,6 +40,20 @@ def ingest(
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, the maximum allowed is 1 GB. For larger dataset get in touch with us.")
     try:
         return ingest_dataset(file, name, description, user)
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.put("")
+def update(
+    dataset_id: str = Form(...),
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    try:
+        print(dataset_id, file.filename, file.size)
+        return update_dataset(file, dataset_id, user)
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -157,10 +172,24 @@ def start_large_dataset_upload(
 ):
     try:
         dataset_id, upload_id = generate_upload_id(
+            user,
             name,
             description,
-            user,
         )
+        return {"dataset_id": dataset_id, "upload_id": upload_id}
+    except Exception as e:
+        print(str(e))
+        logger.exception("datasets:upload_id")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/chunk/{id}", include_in_schema=False)
+def start_large_dataset_update(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id, upload_id = generate_upload_id(user=user, id=id)
         return {"dataset_id": dataset_id, "upload_id": upload_id}
     except Exception as e:
         print(str(e))
@@ -174,25 +203,25 @@ def ingest_large_dataset_chunk(
     file: UploadFile = File(...),
     user: User = Depends(get_current_user),
 ):
-    try:
-        upload_id = request.headers.get("upload-id", None)
-        part_number = int(request.headers.get("part-number", None))
-        dataset_id = request.headers.get("dataset-id", None)
-        ingest_dataset_chunk(
-            file.file,
-            part_number,
-            dataset_id,
-            upload_id,
-        )
-        return {"message": "done"}
-    except Exception as e:
-        logger.exception("datasets:ingest_large")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    upload_id = request.headers.get("upload-id", None)
+    part_number = int(request.headers.get("part-number", None))
+    dataset_id = request.headers.get("dataset-id", None)
+    ingest_dataset_chunk(
+        file.file,
+        part_number,
+        dataset_id,
+        upload_id,
+    )
+    return {"message": "done"}
+    # except Exception as e:
+    #     logger.exception("datasets:ingest_large")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 class CompleteBody(BaseModel):
-    name: str
-    description: str
+    name: Optional[str]
+    description: Optional[str]
 
 
 @router.post("/complete", include_in_schema=False)
@@ -201,13 +230,13 @@ def complete_large_dataset_upload(
     body: CompleteBody,
     user: User = Depends(get_current_user),
 ):
-    try:
-        upload_id = request.headers.get("upload-id", None)
-        dataset_id = request.headers.get("dataset-id", None)
-        dataset = complete_multipart_upload(
-            user, body.name, body.description, dataset_id, upload_id
-        )
-        return {"dataset": dataset}
-    except Exception as e:
-        logger.exception("datasets:ingest_large")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    upload_id = request.headers.get("upload-id", None)
+    dataset_id = request.headers.get("dataset-id", None)
+    dataset = complete_multipart_upload(
+        user, body.name, body.description, dataset_id, upload_id
+    )
+    return {"dataset": dataset}
+    # except Exception as e:
+    #     logger.exception("datasets:ingest_large")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
