@@ -13,6 +13,7 @@
 	import Sd from "svelte-material-icons/Sd.svelte";
 	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
+	import Update from "./Update.svelte";
 
 	export let data;
 
@@ -143,9 +144,13 @@
 				</div>
 			</span>
 			{#if $user}
-				<button class="btn btn-ghost btn-outline" on:click={download}
-					>Download</button
-				>
+				<span class="flex flex-row gap-3">
+					<button
+						class="btn btn-ghost btn-outline"
+						on:click={download}>Download</button
+					>
+					<Update dataset_id={data.dataset.id} />
+				</span>
 			{:else}
 				<p class="badge badge-warning p-3">Sign in to download</p>
 			{/if}

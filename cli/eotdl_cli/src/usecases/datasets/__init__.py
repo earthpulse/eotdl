@@ -4,4 +4,5 @@ from .main import (
     download_dataset,
     ingest_dataset,
     ingest_large_dataset,
+    update_dataset,
 )

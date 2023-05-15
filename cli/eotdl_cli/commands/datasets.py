@@ -2,7 +2,7 @@ import typer
 from src.usecases.datasets import (
     retrieve_datasets,
     download_dataset,
-    # ingest_dataset,
+    update_dataset,
     ingest_large_dataset,
     ingest_large_dataset_parallel,
 )
@@ -83,6 +83,25 @@ def ingest(
         else:
             ingest_large_dataset(name, description, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
+    except Exception as e:
+        typer.echo(e)
+
+
+@app.command()
+def update(
+    name: str,
+    path: str,
+):
+    """
+    Update a dataset
+
+    name: Name of the dataset
+    path: Path to dataset to ingest
+    """
+    try:
+        user = auth()
+        update_dataset(name, path, user, typer.echo)
+        typer.echo(f"Dataset {name} updated")
     except Exception as e:
         typer.echo(e)
 
