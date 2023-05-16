@@ -6,7 +6,7 @@
 	import BadgeWarning from "../../BadgeWarning.svelte";
 </script>
 
-<BadgeWarning>Currently only Q0 datasets are supported.</BadgeWarning>
+<BadgeWarning>Currently, only Q0 datasets (.zip files) are supported.</BadgeWarning>
 
 Learn more about the datasets [quality levels](/docs/datasets/quality).
 
@@ -14,7 +14,10 @@ Learn more about the datasets [quality levels](/docs/datasets/quality).
 
 You can upload your own datasets to the EOTDL platform. 
 
-The name of your dataset should be unique, so if you try to ingest a dataset with a name that already exists, the ingestion will fail.
+The following constraints apply to the dataset name:
+- It must be unique
+- It must be between 3 and 45 characters long
+- It can only contain alphanumeric characters and dashes∫
 
 Once a dataset is ingested, it cannot be deleted since other users may be using it in their own pipelines. However, you can update a dataset by ingesting a new version of it.
 

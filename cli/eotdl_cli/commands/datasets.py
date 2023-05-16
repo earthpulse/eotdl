@@ -76,8 +76,8 @@ def ingest(
         name = n or typer.prompt("Dataset name")
         description = d or typer.prompt("Description")
         # confirm
-        if not n or not d:
-            typer.confirm(f"Is the data correct?", abort=True)
+        # if not n or not d:
+        #     typer.confirm(f"Is the data correct?", abort=True)
         if p:
             ingest_large_dataset_parallel(name, description, path, user, p, typer.echo)
         else:
