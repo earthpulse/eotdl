@@ -1,17 +1,15 @@
 from pydantic import BaseModel
 
 
-class IngestLargeDatasetParallel:
+class UpdateDataset:
     def __init__(self, repo, logger):
         self.repo = repo
         self.logger = logger
 
     class Inputs(BaseModel):
         name: str
-        description: str
         path: str = None
         user: dict
-        threads: int = 0
 
     class Outputs(BaseModel):
         dataset: dict
@@ -20,13 +18,9 @@ class IngestLargeDatasetParallel:
         # allow only zip files
         if not inputs.path.endswith(".zip"):
             raise Exception("Only zip files are allowed")
-        self.logger("Ingesting dataset...")
-        data, error = self.repo.ingest_large_dataset_parallel(
-            inputs.name,
-            inputs.description,
-            inputs.path,
-            inputs.user["id_token"],
-            inputs.threads,
+        self.logger("Updating dataset...")
+        data, error = self.repo.update_dataset(
+            inputs.name, inputs.path, inputs.user["id_token"]
         )
         if error:
             raise Exception(error)

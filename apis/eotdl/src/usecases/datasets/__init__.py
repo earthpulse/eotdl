@@ -12,4 +12,5 @@ from .main import (
     edit_dataset,
     retrieve_datasets_leaderboard,
     complete_multipart_upload,
+    update_dataset,
 )

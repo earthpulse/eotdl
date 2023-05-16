@@ -5,6 +5,7 @@ from .DownloadDataset import DownloadDataset
 from .IngestDataset import IngestDataset
 from .IngestLargeDataset import IngestLargeDataset
 from .IngestLargeDatasetParallel import IngestLargeDatasetParallel
+from .UpdateDataset import UpdateDataset
 
 
 def retrieve_datasets():
@@ -48,9 +49,19 @@ def ingest_large_dataset(name, description, path, user, logger):
     return outputs.dataset
 
 
-def ingest_large_dataset_parallel(name, description, path, user, logger):
+def ingest_large_dataset_parallel(name, description, path, user, p, logger):
     api_repo = APIRepo()
     ingest = IngestLargeDatasetParallel(api_repo, logger)
-    inputs = ingest.Inputs(name=name, description=description, path=path, user=user)
+    inputs = ingest.Inputs(
+        name=name, description=description, path=path, user=user, threads=p
+    )
+    outputs = ingest(inputs)
+    return outputs.dataset
+
+
+def update_dataset(name, path, user, logger):
+    api_repo = APIRepo()
+    ingest = UpdateDataset(api_repo, logger)
+    inputs = ingest.Inputs(name=name, path=path, user=user)
     outputs = ingest(inputs)
     return outputs.dataset

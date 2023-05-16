@@ -1,5 +1,6 @@
 from ...repos import DBRepo, OSRepo, S3Repo
 from .IngestDataset import IngestDataset
+from .UpdateDataset import UpdateDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
 from .DownloadDataset import DownloadDataset
@@ -21,6 +22,17 @@ def ingest_dataset(file, name, description, user):
     ingest = IngestDataset(db_repo, os_repo)
     inputs = ingest.Inputs(
         name=name, file=file.file, size=file.size, uid=user.uid, description=description
+    )
+    outputs = ingest(inputs)
+    return outputs.dataset
+
+
+def update_dataset(file, dataset_id, user):
+    db_repo = DBRepo()
+    os_repo = OSRepo()
+    ingest = UpdateDataset(db_repo, os_repo)
+    inputs = ingest.Inputs(
+        file=file.file, size=file.size, uid=user.uid, dataset_id=dataset_id
     )
     outputs = ingest(inputs)
     return outputs.dataset
@@ -102,7 +114,7 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(name, description, user):
+def generate_upload_id(user, name=None, description=None, id=None):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -111,6 +123,7 @@ def generate_upload_id(name, description, user):
         uid=user.uid,
         name=name,
         description=description,
+        id=id,
     )
     outputs = generate(inputs)
     return outputs.dataset_id, outputs.upload_id
