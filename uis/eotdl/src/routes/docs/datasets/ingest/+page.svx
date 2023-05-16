@@ -17,7 +17,7 @@ You can upload your own datasets to the EOTDL platform.
 The following constraints apply to the dataset name:
 - It must be unique
 - It must be between 3 and 45 characters long
-- It can only contain alphanumeric characters and dashes∫
+- It can only contain alphanumeric characters and dashes.
 
 Once a dataset is ingested, it cannot be deleted since other users may be using it in their own pipelines. However, you can update a dataset by ingesting a new version of it.
 
