@@ -12,7 +12,7 @@ from ..errors import (
 def validate_name(
     name: str,
     regex: str = "^[^a-zA-Z]{1}|[^a-zA-Z0-9-]",
-    max_length: int = 15,
+    max_length: int = 45,
     min_length: int = 3,
 ) -> str:
     if re.findall(regex, name):
