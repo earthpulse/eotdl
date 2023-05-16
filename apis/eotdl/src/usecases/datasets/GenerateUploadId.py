@@ -2,7 +2,7 @@ from pydantic import BaseModel
 import typing
 
 from ...models import Dataset, User, Limits
-from ...errors import DatasetAlreadyExistsError, TierLimitError
+from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
 from typing import Optional
 
 
@@ -14,8 +14,9 @@ class GenerateUploadId:
 
     class Inputs(BaseModel):
         uid: str
-        name: str
-        description: str
+        name: str = None
+        description: str = None
+        id: str = None
 
     class Outputs(BaseModel):
         dataset_id: Optional[str] = None
@@ -39,15 +40,29 @@ class GenerateUploadId:
         # check if name already exists
         if self.db_repo.find_one_by_name("datasets", inputs.name):
             raise DatasetAlreadyExistsError()
-        # generate new dataset id and validate name, description
-        id = self.db_repo.generate_id()
-        Dataset(
-            uid=inputs.uid,
-            id=id,
-            name=inputs.name,
-            description=inputs.description,
-        )
+        # create new dataset
+        if inputs.id is None:
+            # generate new dataset id and validate name, description
+            id = self.db_repo.generate_id()
+            Dataset(
+                uid=inputs.uid,
+                id=id,
+                name=inputs.name,
+                description=inputs.description,
+            )
+            # generate multipart upload id
+            storage = self.os_repo.get_object(id)
+            upload_id = self.s3_repo.multipart_upload_id(storage)
+            return self.Outputs(dataset_id=id, upload_id=upload_id)
+        # update existing dataset
+        # check if user is owner
+        data = self.db_repo.retrieve("datasets", inputs.id, "id")
+        dataset = Dataset(**data)
+        if dataset.uid != inputs.uid:
+            raise UserUnauthorizedError()
         # generate multipart upload id
-        storage = self.os_repo.get_object(id)
-        upload_id = self.s3_repo.multipart_upload_id(storage)
-        return self.Outputs(dataset_id=id, upload_id=upload_id)
+        storage = self.os_repo.get_object(inputs.id)
+        upload_id = self.s3_repo.multipart_upload_id(
+            storage
+        )  # does this work if the file already exists ?
+        return self.Outputs(upload_id=upload_id)

@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 from concurrent.futures import ThreadPoolExecutor
 import time
+import multiprocessing
 
 
 class APIRepo:
@@ -38,14 +39,17 @@ class APIRepo:
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
-            block_size = 1024  # 1 Kibibyte
-            progress_bar = tqdm(total=total_size, unit="iB", unit_scale=True)
+            block_size = 1024 * 1024 * 10
+            progress_bar = tqdm(
+                total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+            )
             filename = r.headers.get("content-disposition").split("filename=")[1][1:-1]
             path = f"{path}/{filename}"
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
                     progress_bar.update(len(chunk))
-                    f.write(chunk)
+                    if chunk:
+                        f.write(chunk)
             progress_bar.close()
             return path
 
@@ -77,9 +81,11 @@ class APIRepo:
         upload_id,
         dataset_id,
         total_chunks,
+        threads,
     ):
         # Create thread pool executor
-        executor = ThreadPoolExecutor()
+        max_workers = threads if threads > 0 else multiprocessing.cpu_count()
+        executor = ThreadPoolExecutor(max_workers=max_workers)
 
         # Divide file into chunks and create tasks for each chunk
         offset = 0
@@ -133,7 +139,7 @@ class APIRepo:
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         url = self.url + "datasets/chunk"
-        chunk_size = 1024 * 1024 * 5  # 5 MiB
+        chunk_size = 1024 * 1024 * 100  # 100 MiB
         total_chunks = content_size // chunk_size
         return (
             content_size,
@@ -195,7 +201,7 @@ class APIRepo:
         pbar.close()
         return self.complete_upload(name, description, id_token, upload_id, dataset_id)
 
-    def ingest_large_dataset_parallel(self, name, description, path, id_token):
+    def ingest_large_dataset_parallel(self, name, description, path, id_token, threads):
         (
             content_size,
             chunk_size,
@@ -214,5 +220,63 @@ class APIRepo:
             upload_id,
             dataset_id,
             total_chunks,
+            threads,
         )
         return self.complete_upload(name, description, id_token, upload_id, dataset_id)
+
+    def update_dataset(self, name, path, id_token):
+        data, error = self.retrieve_dataset(name)
+        if error:
+            return None, error
+        # first call to get upload id
+        dataset_id = data["id"]
+        url = self.url + f"datasets/chunk/{dataset_id}"
+        response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
+        if response.status_code != 200:
+            return None, response.json()["detail"]
+        data = response.json()
+        _, upload_id = data["dataset_id"], data["upload_id"]
+        # print(dataset_id, upload_id)
+        # assert dataset_id is None
+        content_path = os.path.abspath(path)
+        content_size = os.stat(content_path).st_size
+        url = self.url + "datasets/chunk"
+        chunk_size = 1024 * 1024 * 100  # 100 MiB
+        total_chunks = content_size // chunk_size
+        headers = {
+            "Authorization": "Bearer " + id_token,
+            "Upload-Id": upload_id,
+            "Dataset-Id": dataset_id,
+        }
+        # upload chunks sequentially
+        pbar = tqdm(
+            self.read_in_chunks(open(content_path, "rb"), chunk_size),
+            total=total_chunks,
+        )
+        index = 0
+        for chunk in pbar:
+            offset = index + len(chunk)
+            headers["Part-Number"] = str(index // chunk_size + 1)
+            index = offset
+            file = {"file": chunk}
+            r = requests.post(url, files=file, headers=headers)
+            if r.status_code != 200:
+                return None, r.json()["detail"]
+            pbar.set_description(
+                "{:.2f}/{:.2f} MB".format(
+                    offset / 1024 / 1024, content_size / 1024 / 1024
+                )
+            )
+        pbar.close()
+        # complete upload
+        url = self.url + "datasets/complete"
+        r = requests.post(
+            url,
+            json={},
+            headers={
+                "Authorization": "Bearer " + id_token,
+                "Upload-Id": upload_id,
+                "Dataset-Id": dataset_id,
+            },
+        )
+        return r.json(), None
