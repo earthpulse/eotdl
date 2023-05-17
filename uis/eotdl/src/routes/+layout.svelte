@@ -24,9 +24,8 @@
     loading = false;
   };
 
-  // prerendered routes won't call hooks.server.js so the user info will not be retrieved
-  // check if id_token in cookies and fetch user info if so
-  $: if (browser && !data?.user) me();
+  // retrieve user info client-side from API
+  $: if (browser) me();
 </script>
 
 <main class="min-h-screen flex flex-col items-center justify-between">
