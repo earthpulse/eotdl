@@ -138,13 +138,13 @@ class SHFolderFormatter(Formatter):
                 # It will be used later for the STAC generation
                 generate_raster_metadata(response_tiff, dst_folder, date)
 
-                # Extract bands
+                # Copy the response tiff to the destination folder giving a name 
+                # indicating the mission
                 if 'sentinel-1' in image_dir:
-                    bands_formatter.extract_sentinel_1_bands(response_tiff, dst_folder)
+                    copyfile(response_tiff, join(dst_folder, 'SAR.tiff'))
                 elif 'sentinel-2' in image_dir:
-                    bands_formatter.extract_sentinel_2_bands(response_tiff, dst_folder)
+                    copyfile(response_tiff, join(dst_folder, 'SENTINEL-2.tiff'))
                 elif 'dem' in image_dir:
-                    # No need to extract bands for DEM data, just copy the file
                     copyfile(response_tiff, join(dst_folder, 'DEM.tiff'))
 
                 # Remove the old image folder
