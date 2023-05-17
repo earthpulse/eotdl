@@ -28,12 +28,14 @@ from .extensions import type_stac_extensions_dict
 class STACGenerator:
         
     def __init__(self) -> None:
+        self._image_format = None
         self._extensions_dict: dict = type_stac_extensions_dict
         self._stac_dataframe = None
 
     def generate_stac_metadata(self, 
                                path: str, 
                                id: str, 
+                               stac_dataframe: pd.DataFrame=None,
                                extensions: dict=None,
                                image_format: str='tiff',
                                catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
@@ -49,7 +51,11 @@ class STACGenerator:
             - description: description of the catalog
             - keywords: keywords of the catalog
         """
-        self._stac_dataframe = self.get_stac_dataframe(path, extensions, image_format)
+        self._image_format = image_format   # TODO put in init
+        if stac_dataframe is not None:
+            self._stac_dataframe = stac_dataframe
+        else:
+            self._stac_dataframe = self.get_stac_dataframe(path, extensions, self._image_format)
         
         if 'catalog.json' in listdir(path):
             # Open the catalog.json as a pySTAC.Catalog object
@@ -84,7 +90,6 @@ class STACGenerator:
         :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{image_format}', recursive=True)
-        images = sample(images, 50)
         labels, ixs = self._format_labels(images)
         exts = self._get_extensions_list_from_dict(labels, extensions)
 
@@ -119,21 +124,6 @@ class STACGenerator:
                 extensions_list.append(None)
 
         return extensions_list
-
-    def _check_directory_has_items(self, path: str) -> bool:
-        """
-        Check if a directory has items
-
-        :param path: path to the directory
-        :return: True if the directory has items, False otherwise
-        """
-        # Get the list of directories in the path
-        dirs = listdir(path)
-        # Check if the directory contains raster files. If it does, return True
-        if any([dir.endswith('.tif') for dir in dirs]) or any([dir.endswith('.tiff') for dir in dirs]):
-            return True
-        
-        return False
     
     def _get_collection_extent(self, path: str) -> pystac.Extent:
         """
@@ -159,13 +149,17 @@ class STACGenerator:
         # Get the bounding boxes of all the rasters in the path
         bboxes = list()
         # use glob
-        rasters = glob(f'{path}/**/*.tif*', recursive=True)
+        rasters = glob(f'{path}/**/*.{self._image_format}', recursive=True)
         for raster in rasters:
             with rasterio.open(raster) as ds:
                 bounds = ds.bounds
                 dst_crs = 'EPSG:4326'
-                left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
-                bbox = [left, bottom, right, top]
+                try:
+                    left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
+                    bbox = [left, bottom, right, top]
+                except rasterio.errors.CRSError:
+                    spatial_extent = pystac.SpatialExtent([[None, None, None, None]])
+                    return spatial_extent
                 bboxes.append(bbox)
         # Get the minimum and maximum values of the bounding boxes
         left = min([bbox[0] for bbox in bboxes])
@@ -224,12 +218,11 @@ class STACGenerator:
         # Update the catalog with the given arguments
         pass
 
-    def generate_stac_collection(self, path: str, parent_collection=None) -> pystac.Collection:
+    def generate_stac_collection(self, path: str) -> pystac.Collection:
         """
         Generate a STAC collection from a directory containing the assets to generate metadata
 
         :param path: path to the root directory
-        :param parent_collection: parent collection of the current collection
         """
         # Get the collection extent
         extent = self._get_collection_extent(path)
@@ -238,26 +231,13 @@ class STACGenerator:
                                         description='Collection',
                                         extent=extent)
         
-        # Iterate over every file in the current folder
-        for file in listdir(path):
-            if file.endswith('.tif') or file.endswith('.tiff'):
-                '''
-                item = self.create_stac_item(join(path, file))
+        for image in self._stac_dataframe.image:
+            # Check if the path of the image is a child of the path of the collection
+            if path in image:
+                # Create the item
+                item = self.create_stac_item(image)
+                # Add the item to the collection
                 collection.add_item(item)
-                '''
-        
-        # Iterate over every subfolder in the current folder
-        for subfolder in listdir(path):
-            if isdir(join(path, subfolder)):
-                print(subfolder)
-                # Create a subcollection for the current subfolder
-                subcollection = self.generate_stac_collection(join(path, subfolder), collection)
-                # Add the subcollection as a child of the current collection
-                collection.add_child(subcollection)
-        
-        # If the parent collection is not None, add the current collection as a child of the parent collection
-        if parent_collection is not None:
-            parent_collection.add_child(collection)
         
         # Return the collection
         return collection
@@ -293,18 +273,25 @@ class STACGenerator:
         with rasterio.open(raster_path) as ds:
             bounds = ds.bounds
             dst_crs = 'EPSG:4326'
-            left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
+            try:
+                left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
+            except rasterio.errors.CRSError:
+                left, bottom, right, top = None, None, None, None
 
         # Create bbox
         bbox = [left, bottom, right, top]
 
         # Create geojson feature
-        geom = mapping(Polygon([
-        [left, bottom],
-        [left, top],
-        [right, top],
-        [right, bottom]
-        ]))
+        # If the bounding box has no values, set the geometry to None
+        if not bbox[0] or not bbox[1] or not bbox[2] or not bbox[3]:
+            geom = None
+        else:
+            geom = mapping(Polygon([
+            [left, bottom],
+            [left, top],
+            [right, top],
+            [right, bottom]
+            ]))
 
         # Initialize properties
         properties = dict()
