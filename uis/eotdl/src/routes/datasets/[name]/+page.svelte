@@ -113,11 +113,11 @@
 	const like = () => {
 		if (!$user) return;
 		datasets.like(id, $id_token);
-		if (data.liked_datasets.includes(id)) {
-			data.liked_datasets = data.liked_datasets.filter((d) => d !== id);
+		if ($user.liked_datasets.includes(id)) {
+			$user.liked_datasets = $user.liked_datasets.filter((d) => d !== id);
 			data.dataset.likes = data.dataset.likes - 1;
 		} else {
-			data.liked_datasets = [...data.liked_datasets, id];
+			$user.liked_datasets = [...$user.liked_datasets, id];
 			data.dataset.likes = data.dataset.likes + 1;
 		}
 	};
@@ -163,7 +163,7 @@
 			<span class="flex flex-row gap-1">
 				<button on:click={like}
 					><HeartOutline
-						color={data.liked_datasets?.includes(id)
+						color={$user.liked_datasets?.includes(id)
 							? "red"
 							: "gray"}
 					/></button
