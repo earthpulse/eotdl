@@ -21,7 +21,7 @@ from datetime import datetime
 from shapely.geometry import Polygon, mapping
 from glob import glob
 
-from .utils import format_time_acquired
+from .utils import format_time_acquired, count_ocurrences
 from .extensions import type_stac_extensions_dict
 
 
@@ -32,10 +32,11 @@ class STACGenerator:
         self._extensions_dict: dict = type_stac_extensions_dict
         self._stac_dataframe = None
 
-    def generate_stac_metadata(self, 
-                               path: str, 
-                               id: str, 
-                               stac_dataframe: pd.DataFrame=None,
+    def generate_stac_metadata(self,
+                               stac_dataframe: pd.DataFrame,
+                               id: str,
+                               description: str,
+                               output: str = 'stac',                               
                                extensions: dict=None,
                                image_format: str='tiff',
                                catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
@@ -43,40 +44,33 @@ class STACGenerator:
         """
         Generate STAC metadata for a given directory containing the assets to generate metadata
 
-        :param path: path to the root directory 
+        :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
         :param id: id of the catalog
+        :param description: description of the catalog
+        :param output: output folder to write the catalog to
         :param extensions: dictionary with the extensions
         :param image_format: image format of the assets
         :param kwargs: optional arguments. Possible values:
             - description: description of the catalog
             - keywords: keywords of the catalog
         """
-        self._image_format = image_format   # TODO put in init
-        if stac_dataframe is not None:
-            self._stac_dataframe = stac_dataframe
-        else:
-            self._stac_dataframe = self.get_stac_dataframe(path, extensions, self._image_format)
+        self._image_format = image_format
+        self._stac_dataframe = stac_dataframe
         
-        if 'catalog.json' in listdir(path):
-            # Open the catalog.json as a pySTAC.Catalog object
-            catalog = pystac.Catalog.from_file(f'{path}/catalog.json')
-        else:
-            # Create an empty catalog
-            title = kwargs.get('title', None)
-            description = kwargs.get('description', None)
-            catalog = self.create_stac_catalog(id=id,
-                                               catalog_type=catalog_type, 
-                                               title=title,
-                                               description=description)
+        # Create an empty catalog
+        catalog = self.create_stac_catalog(id=id, description=description)
         
-        for folder in listdir(path):
-            if isdir(join(path, folder)):
-                collection = self.generate_stac_collection(join(path, folder))
-                catalog.add_child(collection)
+        # Add the collections to the catalog
+        collections = self._stac_dataframe.collection.unique()
+        for collection_path in collections:
+            # Generate the collection
+            collection = self.generate_stac_collection(collection_path)
+            # Add the collection to the catalog
+            catalog.add_child(collection)
         
         # Add the catalog to the root directory
-        catalog.normalize_hrefs('new_root')
-        # catalog.validate_all()   # TODO throwing error
+        catalog.normalize_hrefs(output)
+        # catalog.validate_all()
         catalog.save(catalog_type=catalog_type)
 
         return catalog   # DEBUG
@@ -90,12 +84,42 @@ class STACGenerator:
         :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{image_format}', recursive=True)
+        images = sample(images, 50)   # debug
         labels, ixs = self._format_labels(images)
         exts = self._get_extensions_list_from_dict(labels, extensions)
+        collections = self._get_images_common_prefix(images)
 
-        df = pd.DataFrame({'image': images, 'label': labels, 'ix': ixs, 'extensions': exts})
+        df = pd.DataFrame({'image': images, 'label': labels, 'ix': ixs, 'collection': collections, 'extensions': exts})
         
         return df
+    
+    def _get_images_common_prefix(self, images: list) -> list:
+        """
+        Get the common prefix of a list of images
+
+        :param images: list of images
+        """
+        images_common_prefix_dict = dict()
+
+        images_dirs = list(set([dirname(i) for i in images]))
+
+        for image in images_dirs:
+            path = image
+            common = False
+            while not common:
+                n = count_ocurrences(path, images_dirs)
+                if n > 1:
+                    images_common_prefix_dict[image] = path
+                    common = True
+                else:
+                    path = dirname(path)
+
+        images_common_prefix_list = list()
+        for i in images:
+            images_common_prefix_list.append(images_common_prefix_dict[dirname(i)])
+
+        return images_common_prefix_list
+    
     
     def _format_labels(self, images):
         """
@@ -199,7 +223,7 @@ class STACGenerator:
 
             return temporal_interval
 
-    def create_stac_catalog(self, id: str, **kwargs) -> pystac.Catalog:
+    def create_stac_catalog(self, id: str, description: str, params: dict=None) -> pystac.Catalog:
         """
         Create a STAC catalog
 
@@ -208,9 +232,10 @@ class STACGenerator:
             - description: description of the catalog
             - keywords: keywords of the catalog
         """
-        description = kwargs.get('description', None)
-
-        return pystac.Catalog(id=id, description=description)
+        if not params:
+            return pystac.Catalog(id=id, description=description)
+        else:
+            return pystac.Catalog(id=id, description=description, **params)
     
     def update_stac_catalog(self, catalog: pystac.Catalog, **kwargs) -> pystac.Catalog:
         """
