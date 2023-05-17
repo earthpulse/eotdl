@@ -26,3 +26,4 @@ tutorials/*md
 !test.zip
 .vscode
 kk
+xcube-geodb
