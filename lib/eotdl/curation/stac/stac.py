@@ -75,7 +75,7 @@ class STACGenerator:
 
         return catalog   # DEBUG
 
-    def get_stac_dataframe(self, path: str, extensions: dict=None, image_format: str='tiff') -> pd.DataFrame:
+    def get_stac_dataframe(self, path: str, bands: dict, extensions: dict=None, image_format: str='tiff') -> pd.DataFrame:
         """
         Get a dataframe with the STAC metadata of a given directory containing the assets to generate metadata
 
@@ -86,10 +86,16 @@ class STACGenerator:
         images = glob(str(path) + f'/**/*.{image_format}', recursive=True)
         images = sample(images, 50)   # debug
         labels, ixs = self._format_labels(images)
-        exts = self._get_extensions_list_from_dict(labels, extensions)
+        bands = self._get_items_list_from_dict(labels, bands)
+        exts = self._get_items_list_from_dict(labels, extensions)
         collections = self._get_images_common_prefix(images)
 
-        df = pd.DataFrame({'image': images, 'label': labels, 'ix': ixs, 'collection': collections, 'extensions': exts})
+        df = pd.DataFrame({'image': images, 
+                           'label': labels, 
+                           'ix': ixs, 
+                           'collection': collections, 
+                           'extensions': exts, 
+                           'bands': bands})
         
         return df
     
@@ -130,24 +136,21 @@ class STACGenerator:
         labels = [x.split('/')[-1].split('_')[0].split('.')[0] for x in images]
         ixs = [labels.index(x) for x in labels]
         return labels, ixs
-
-    def _get_extensions_list_from_dict(self, labels: list, extensions: dict) -> list:
+    
+    def _get_items_list_from_dict(self, labels: list, items: dict) -> list:
         """
-        Get the list of the extensions of every label from the extensions dictionary
-
-        :param extensions: dictionary with the extensions
         """
-        if not extensions:
+        if not items:
             # Create list of None with the same length as the labels list
             return [None for _ in labels]
-        extensions_list = list()
+        items_list = list()
         for label in labels:
-            if label in extensions.keys():
-                extensions_list.append(extensions[label])
+            if label in items.keys():
+                items_list.append(items[label])
             else:
-                extensions_list.append(None)
+                items_list.append(None)
 
-        return extensions_list
+        return items_list
     
     def _get_collection_extent(self, path: str) -> pystac.Extent:
         """
@@ -339,10 +342,6 @@ class STACGenerator:
                 datetime=time_acquired,
                 properties=properties)
         
-        # Get an ordered list with the raster assets
-        self.rasters_assets = glob(f'{tiff_dir_path}/*.tif*')
-        self.rasters_assets.sort()
-        
         # Get the item extension using the dataframe, from the raster path
         extensions = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['extensions'].values
         extensions = extensions[0] if extensions else None
@@ -355,6 +354,9 @@ class STACGenerator:
                 extension_obj.add_extension_to_object(item)
 
         # Add the assets to the item
+        # First of all, we need to get the image bands and extract them from the raster
+        # in order to create the assets
+        bands = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['bands'].values
         for raster in self.rasters_assets:
             href = raster.split('/')[-1]
             title = href.split('.')[-2]
