@@ -21,14 +21,17 @@
 	const load = async () => {
 		await datasets.retrieve(fetch);
 		leaderboard = await retrieveDatasetsLeaderboard(fetch);
-		if (data.user) {
-			liked_datasets = await retrieveLikedDatasets(fetch, $id_token);
-			liked_datasets = liked_datasets.map((dataset) => dataset.id);
-		}
 		loading = false;
 	};
 
 	$: if (browser) load();
+
+	const load2 = async () => {
+		liked_datasets = await retrieveLikedDatasets(fetch, $id_token);
+		liked_datasets = liked_datasets.map((dataset) => dataset.id);
+	};
+
+	$: if ($user) load2();
 
 	let selected_tags = [];
 
