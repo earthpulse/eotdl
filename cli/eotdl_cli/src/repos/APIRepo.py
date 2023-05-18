@@ -133,7 +133,7 @@ class APIRepo:
         url = self.url + "datasets/chunk?name=" + name + "&description=" + description
         response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
         if response.status_code != 200:
-            return None, response.json()["detail"]
+            raise Exception(response.json()["detail"])
         data = response.json()
         dataset_id, upload_id = data["dataset_id"], data["upload_id"]
         content_path = os.path.abspath(path)
@@ -162,6 +162,8 @@ class APIRepo:
                 "Dataset-Id": dataset_id,
             },
         )
+        if r.status_code != 200:
+            return None, r.json()["detail"]
         return r.json(), None
 
     def ingest_large_dataset(self, name, description, path, id_token):
