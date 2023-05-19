@@ -33,13 +33,21 @@ router = APIRouter(prefix="/datasets", tags=["datasets"])
 def ingest(
     file: UploadFile = File(...),
     name: str = Form(...),
+    author: str = Form(...),
+    link: str = Form(...),
+    license: str = Form(...),
+    tags: Optional[str] = Form(""),
     description: str = Form(...),
     user: User = Depends(get_current_user),
 ):
     # if file.size > 1000000000: # 1 GB
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, the maximum allowed is 1 GB. For larger dataset get in touch with us.")
     try:
-        return ingest_dataset(file, name, description, user)
+        # parse tags
+        tags = tags.split(",") if tags != "" else []
+        return ingest_dataset(
+            file, name, author, link, license, description, tags, user
+        )
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -48,12 +56,20 @@ def ingest(
 @router.put("")
 def update(
     dataset_id: str = Form(...),
-    file: UploadFile = File(...),
+    file: Optional[Union[UploadFile, None]] = File(None),
+    name: Optional[Union[str, None]] = Form(None),
+    author: Optional[Union[str, None]] = Form(None),
+    link: Optional[Union[str, None]] = Form(None),
+    license: Optional[Union[str, None]] = Form(None),
+    tags: Optional[str] = Form(""),
+    description: Optional[Union[str, None]] = Form(None),
     user: User = Depends(get_current_user),
 ):
     try:
-        print(dataset_id, file.filename, file.size)
-        return update_dataset(file, dataset_id, user)
+        tags = tags.split(",") if tags != "" else []
+        return update_dataset(
+            dataset_id, user, file, name, author, link, license, tags, description
+        )
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

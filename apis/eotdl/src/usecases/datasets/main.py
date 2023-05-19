@@ -16,23 +16,42 @@ from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
-def ingest_dataset(file, name, description, user):
+def ingest_dataset(file, name, author, link, license, description, tags, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestDataset(db_repo, os_repo)
     inputs = ingest.Inputs(
-        name=name, file=file.file, size=file.size, uid=user.uid, description=description
+        name=name,
+        file=file.file,
+        size=file.size,
+        uid=user.uid,
+        description=description,
+        author=author,
+        link=link,
+        license=license,
+        tags=tags,
     )
     outputs = ingest(inputs)
     return outputs.dataset
 
 
-def update_dataset(file, dataset_id, user):
+def update_dataset(
+    dataset_id, user, file, name, author, link, license, tags, description
+):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = UpdateDataset(db_repo, os_repo)
     inputs = ingest.Inputs(
-        file=file.file, size=file.size, uid=user.uid, dataset_id=dataset_id
+        file=file.file if file is not None else None,
+        size=file.size if file is not None else None,
+        uid=user.uid,
+        dataset_id=dataset_id,
+        name=name,
+        description=description,
+        author=author,
+        link=link,
+        license=license,
+        tags=tags,
     )
     outputs = ingest(inputs)
     return outputs.dataset

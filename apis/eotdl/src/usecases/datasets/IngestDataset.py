@@ -16,6 +16,10 @@ class IngestDataset:
         file: typing.Any
         size: int
         uid: str
+        author: str
+        link: str
+        license: str
+        tags: typing.List[str]
 
     class Outputs(BaseModel):
         dataset: Dataset
@@ -49,6 +53,10 @@ class IngestDataset:
             name=inputs.name,
             description=inputs.description,
             size=inputs.size,
+            author=inputs.author,
+            link=inputs.link,
+            license=inputs.license,
+            tags=inputs.tags,
         )
         self.db_repo.persist("datasets", dataset.dict(), id)
         # update user dataset count
