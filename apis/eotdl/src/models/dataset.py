@@ -42,6 +42,9 @@ class Dataset(BaseModel):
     downloads: int = 0
     quality: int = 0
     size: int = 0
+    author: str = ""
+    link: str = ""
+    license: str = ""
 
     @validator("name")
     def check_name_is_valid(cls, name):

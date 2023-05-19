@@ -84,7 +84,7 @@
 					placeholder="Filter by name"
 					bind:value={filterName}
 				/>
-				<span class="flex flew-row justify-between mt-1">
+				<span class="flex flew-row justify-between mt-1 mb-3">
 					<p
 						class="text-gray-400 hover:underline cursor-pointer text-sm"
 					>
@@ -96,7 +96,7 @@
 						/></button
 					>
 				</span>
-				<Ingest />
+				<Ingest tags={data?.tags} />
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags />
 		</div>

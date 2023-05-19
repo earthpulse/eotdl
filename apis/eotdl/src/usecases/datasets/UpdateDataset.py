@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import typing
+from typing import Union
 from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits
@@ -12,10 +13,16 @@ class UpdateDataset:
         self.os_repo = os_repo
 
     class Inputs(BaseModel):
-        file: typing.Any
-        size: int
+        file: Union[typing.Any, None]
+        size: Union[int, None]
         uid: str
         dataset_id: str
+        name: Union[str, None]
+        description: Union[str, None]
+        author: Union[str, None]
+        link: Union[str, None]
+        license: Union[str, None]
+        tags: Union[list, None]
 
     class Outputs(BaseModel):
         dataset: Dataset
@@ -44,18 +51,30 @@ class UpdateDataset:
         if dataset.uid != inputs.uid:
             raise UserUnauthorizedError()
         # update dataset
+        print("tags", inputs.tags)
         data.update(
             updatedAt=datetime.now(),
-            size=inputs.size,
+            size=inputs.size if inputs.size is not None else dataset.size,
+            name=inputs.name if inputs.name is not None else dataset.name,
+            description=inputs.description
+            if inputs.description is not None
+            else dataset.description,
+            author=inputs.author if inputs.author is not None else dataset.author,
+            link=inputs.link if inputs.link is not None else dataset.link,
+            license=inputs.license if inputs.license is not None else dataset.license,
+            tags=inputs.tags if inputs.tags is not None else dataset.tags,
         )
         updated_dataset = Dataset(**data)
         # save file in storage
-        self.os_repo.persist_file(inputs.file, inputs.dataset_id)  # no need to delete !
+        if inputs.file is not None:
+            self.os_repo.persist_file(
+                inputs.file, inputs.dataset_id
+            )  # no need to delete !
+            # report usage
+            usage = Usage.DatasetIngested(
+                uid=inputs.uid, payload={"dataset": inputs.dataset_id}
+            )
+            self.db_repo.persist("usage", usage.dict())
         # update dataset in db
         self.db_repo.update("datasets", inputs.dataset_id, updated_dataset.dict())
-        # report usage
-        usage = Usage.DatasetIngested(
-            uid=inputs.uid, payload={"dataset": inputs.dataset_id}
-        )
-        self.db_repo.persist("usage", usage.dict())
-        return self.Outputs(dataset=dataset)
+        return self.Outputs(dataset=updated_dataset)

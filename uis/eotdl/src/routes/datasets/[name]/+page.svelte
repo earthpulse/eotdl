@@ -4,12 +4,10 @@
 	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
-	import { goto } from "$app/navigation";
 	import { parseISO, formatDistanceToNow } from "date-fns";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 	import "../../../styles/dataset.css";
-	import TextEditor from "../TextEditor.svelte";
 	import Sd from "svelte-material-icons/Sd.svelte";
 	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
@@ -17,9 +15,17 @@
 
 	export let data;
 
-	$: ({ name, id, createdAt, uid, description, tags } = data.dataset);
-
-	$: content = description || "";
+	$: ({
+		name,
+		id,
+		createdAt,
+		description,
+		tags,
+		author,
+		link,
+		license,
+		size,
+	} = data.dataset);
 
 	let createWriteStream;
 	onMount(async () => {
@@ -62,52 +68,6 @@
 			.then((res) => {
 				alert(res.detail);
 			});
-
-		// this works but is slow with large files (no streaming)
-
-		// const response = await fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
-		// 	method: "GET",
-		// 	headers: {
-		// 		Authorization: `Bearer ${$id_token}`,
-		// 	},
-		// });
-		// const blob = await response.blob();
-		// const url = URL.createObjectURL(blob);
-		// const link = document.createElement("a");
-		// link.href = url;
-		// link.download = `${name}.zip`;
-		// document.body.appendChild(link);
-		// link.click();
-		// document.body.removeChild(link);
-	};
-
-	let newName,
-		newTags,
-		loading = false;
-	$: {
-		newTags = tags;
-	}
-	const edit = async () => {
-		loading = true;
-		try {
-			await datasets.edit(id, newName, content, newTags, $id_token);
-			document.getElementById("edit-dataset").checked = false;
-			data.dataset.tags = newTags;
-			data.dataset.name = newName || name;
-			data.dataset.description = content || description;
-			if (newName) goto(`/datasets/${newName}`, { replaceState: true });
-		} catch (e) {
-			alert(e.message);
-		}
-		loading = false;
-	};
-
-	const toggleTag = (tag) => {
-		if (newTags.includes(tag)) {
-			newTags = newTags.filter((t) => t !== tag);
-		} else {
-			newTags = [...newTags, tag];
-		}
 	};
 
 	const like = () => {
@@ -151,7 +111,17 @@
 						class="btn btn-ghost btn-outline"
 						on:click={download}>Download</button
 					>
-					<Update dataset_id={data.dataset.id} />
+					<Update
+						dataset_id={data.dataset.id}
+						tags={data.tags}
+						current_tags={tags}
+						bind:author={data.dataset.author}
+						bind:link={data.dataset.link}
+						bind:license={data.dataset.license}
+						bind:description={data.dataset.description}
+						bind:selected_tags={data.dataset.tags}
+						bind:size={data.dataset.size}
+					/>
 				</span>
 			{:else}
 				<p class="badge badge-warning p-3">Sign in to download</p>
@@ -178,70 +148,28 @@
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<Sd color="gray" size={20} />
-				<p>{formatFileSize(data.dataset.size)}</p>
+				<p>{formatFileSize(size)}</p>
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<CheckDecagramOutline color="gray" size={20} />
 				<p>Q{data.dataset.quality}</p>
 			</span>
 		</span>
-		{#if uid == $user?.uid}
-			<label
-				for="edit-dataset"
-				class="text-gray-400 cursor-pointer hover:underline">Edit</label
-			>
-		{/if}
 		<!-- <p class="py-10">{description}</p> -->
+		<div class="flex flex-col gap-2 bg-slate-100 p-3 rounded-md">
+			<p>Author: {author}</p>
+			<p>License: {license}</p>
+			<p>
+				Source: <a
+					href={link}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-green-200 hover:underline">{link}</a
+				>
+			</p>
+		</div>
 		<div class="content">
 			{@html description}
 		</div>
 	</div>
 </div>
-
-<input type="checkbox" id="edit-dataset" class="modal-toggle" />
-<label for="edit-dataset" class="modal cursor-pointer">
-	<label class="modal-box relative" for="">
-		<form on:submit|preventDefault={edit} class="flex flex-col gap-2">
-			<h3 class="text-lg font-bold">Edit dataset</h3>
-			<span>
-				<input
-					class="input input-bordered w-full"
-					type="text"
-					placeholder={name}
-					bind:value={newName}
-				/>
-				<p class="text-sm text-gray-400">*Name should be unique</p>
-			</span>
-			<TextEditor bind:content />
-			<span>
-				<h3>Select relevant tags:</h3>
-				<div class="flex flex-wrap gap-1">
-					{#each data.tags as tag}
-						<p
-							class="badge badge-outline cursor-pointer text-slate-400 text-xs {newTags.includes(
-								tag
-							) && 'badge-accent'}"
-							on:click={() => toggleTag(tag)}
-							on:keyup={() => {}}
-						>
-							{tag}
-						</p>
-					{/each}
-				</div>
-			</span>
-			<span class="self-end">
-				<label
-					for="edit-dataset"
-					class="btn btn-ghost btn-outline btn-error">Close</label
-				>
-				<button
-					class="btn btn-ghost btn-outline {loading && 'loading'}"
-					type="submit">Update</button
-				>
-			</span>
-		</form>
-	</label>
-</label>
-
-<style>
-</style>
