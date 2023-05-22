@@ -8,9 +8,23 @@
     class="footer p-10 bg-blue-500 flex flex-col md:flex-row justify-between"
 >
     <ul class="text-green-200">
-        <li><a href="/" class="hover:underline">Privacy Policy</a></li>
-        <li><a href="/" class="hover:underline">Terms & Conditions</a></li>
-        <li><a href="/" class="hover:underline">Cookies</a></li>
+        <li>
+            <a href="/PrivacyPolicy.pdf" class="hover:underline" target="_blank"
+                >Privacy Policy</a
+            >
+        </li>
+        <li>
+            <a
+                href="/TermsConditions.pdf"
+                class="hover:underline"
+                target="_blank">Terms & Conditions</a
+            >
+        </li>
+        <li>
+            <a href="/cookies" class="hover:underline" target="_blank"
+                >Cookies</a
+            >
+        </li>
     </ul>
     <div class="text-slate-100">
         <p>
@@ -26,7 +40,7 @@
         <div class="flex flex-col">
             <h2 class="opacity-30">Contact Us</h2>
             <a
-                href="/"
+                href="mailto:support@eotld.com"
                 class="border border-green-200 rounded-md p-1 text-center opacity-30 hover:opacity-100 mt-2"
                 >Contact</a
             >

@@ -8,4 +8,3 @@ export const load = async ({ fetch, params }) => {
 	};
 };
 
-export const prerender = true;

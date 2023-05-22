@@ -1,6 +1,2 @@
-<h1>Welcome to EOTDS</h1>
-<p>
-  Visit <a href="https://github.com/earthpulse/eotds"
-    >https://github.com/earthpulse/eotds</a
-  > to know more.
-</p>
+<h1>Welcome to SvelteKit</h1>
+<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>

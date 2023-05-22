@@ -10,25 +10,9 @@ export const handle = async ({ event, resolve }) => {
       console.log("unauthenticated");
       event.locals.user = null;
       event.locals.id_token = null;
-      if (event.url.pathname.startsWith("/api")) {
-        console.log("unauthenticated server-side api call, returning a 401");
-        return {
-          status: 401,
-          headers: {
-            "WWW-Authenticate": "Bearer",
-          },
-        };
-      }
     }
     event.locals.user = user;
   }
   const response = await resolve(event);
   return response;
-};
-
-export const getSession = (event) => {
-  return {
-    user: event.locals.user,
-    id_token: event.locals.id_token,
-  };
 };

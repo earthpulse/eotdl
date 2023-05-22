@@ -22,9 +22,9 @@ class Auth0Repo():
             'scope': 'openid profile email'
         }
         device_code_response = requests.post('https://{}/oauth/device/code'.format(self.domain), data=device_code_payload)
+        device_code_data = device_code_response.json()
         if device_code_response.status_code != 200:
             raise Exception('Error generating the device code')
-        device_code_data = device_code_response.json()
         return {
             'login_url': device_code_data['verification_uri_complete'],
             'code': device_code_data['device_code'],

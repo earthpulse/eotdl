@@ -1,1 +1,4 @@
-datasets
+# Datasets
+
+The main feature that EOTDL offers is a repository of Training Datasets (TDS). Users can explore available datasets and download them for 
+training ML models, for example. 

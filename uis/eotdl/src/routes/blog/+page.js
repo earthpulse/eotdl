@@ -16,5 +16,3 @@ export const load = async ({ fetch }) => {
 		tags
 	};
 };
-
-export const prerender = true;

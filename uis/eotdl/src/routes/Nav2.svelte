@@ -1,4 +1,7 @@
 <script>
+    import { user } from "$stores/auth";
+    export let loading;
+
     const links = [
         { href: "/", label: "Home" },
         { href: "/datasets", label: "Datasets" },
@@ -10,12 +13,13 @@
         // { href: "/", label: "Training" },
         { href: "/blog", label: "Blog" },
         // { href: "/", label: "Youtube" },
-        // { href: "/", label: "Discord" },
+    ];
+    const external_links = [
+        // { href: "/", label: "Youtube" },
+        { href: "https://discord.gg/hYxc5AJB92", label: "Discord" },
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
-
-    export let user;
 </script>
 
 <div class="grid place-items-center w-full">
@@ -28,30 +32,30 @@
             </li>
         {/each}
         <li>
-            {#if user}
+            {#if $user}
                 <a
-                    href="/api/auth/logout"
+                    href={loading ? "" : "/api/auth/logout"}
                     class="border-2 rounded-md px-2 hover:border-gray-300"
                     >Sign Out</a
                 >
             {:else}
                 <a
-                    href="/api/auth/login"
+                    href={loading ? "" : "/api/auth/login"}
                     class="border-2 rounded-md px-2 hover:border-gray-300"
                     >Sign In</a
                 >
             {/if}
         </li>
         <li>
-            <a href={user ? "/profile" : ""}>
+            <a href={$user ? "/profile" : ""}>
                 <div
-                    class="tooltip tooltip-bottom"
-                    data-tip={user ? "Profile" : "Sign in to view profile"}
+                    class={$user ? "tooltip tooltip-bottom" : ""}
+                    data-tip={$user ? "Profile" : "Profile"}
                 >
                     <div class="avatar">
                         <div class="w-10 rounded-full">
                             <img
-                                src={user?.picture || "/avatar.webp"}
+                                src={$user?.picture || "/avatar.webp"}
                                 alt="avatar"
                             />
                         </div>
@@ -87,11 +91,18 @@
                 {/each}
                 {#each secondary_links as link}
                     <li>
+                        <a href={link.href} class="hover:underline"
+                            >{link.label}</a
+                        >
+                    </li>
+                {/each}
+                {#each external_links as link}
+                    <li>
                         <a
                             href={link.href}
                             class="hover:underline"
                             target="_blank"
-                            rel="noreferrer">{link.label}</a
+                            rel="noopener noreferrer">{link.label}</a
                         >
                     </li>
                 {/each}
