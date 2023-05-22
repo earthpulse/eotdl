@@ -14,13 +14,31 @@
                 </tr>
             </thead>
             <tbody>
-                {#each leaderboard as user, i}
-                    <tr class={i % 2 && "active"}>
-                        <th>{i + 1}</th>
-                        <td>{user.name}</td>
-                        <td>{user.datasets}</td>
-                    </tr>
-                {/each}
+                {#if leaderboard?.length > 0}
+                    {#each leaderboard as user, i}
+                        <tr class={i % 2 && "active"}>
+                            <th>{i + 1}</th>
+                            <td><p class="w-[200px]">{user.name}</p></td>
+                            <td>{user.datasets}</td>
+                        </tr>
+                    {/each}
+                {:else}
+                    {#each [1, 2, 3, 4, 5] as _, i}
+                        <tr class={i % 2 && "active"}>
+                            <th>{i + 1}</th>
+                            <td
+                                ><div
+                                    class="animate-pulse bg-slate-100 p-3 rounded-xl w-[200px]"
+                                /></td
+                            >
+                            <td
+                                ><div
+                                    class="animate-pulse bg-slate-100 p-3 rounded-xl w-6"
+                                /></td
+                            >
+                        </tr>
+                    {/each}
+                {/if}
             </tbody>
         </table>
     </div>

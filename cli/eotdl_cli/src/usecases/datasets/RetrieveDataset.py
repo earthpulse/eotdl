@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
-class RetrieveDataset():
+
+class RetrieveDataset:
     def __init__(self, repo):
         self.repo = repo
 
@@ -11,9 +12,7 @@ class RetrieveDataset():
         dataset: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        response = self.repo.retrieve_dataset(inputs.name)
-        data = response.json()
-        if response.status_code == 200:
-            return self.Outputs(dataset=data)
-        raise Exception(data['detail'])
-        
+        data, error = self.repo.retrieve_dataset(inputs.name)
+        if error:
+            raise Exception(error)
+        return self.Outputs(dataset=data)

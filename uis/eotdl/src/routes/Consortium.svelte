@@ -3,11 +3,17 @@
 >
   <div>
     <h2 class="mb-10 text-2xl font-bold">Initiated By</h2>
-    <img src="/logos/philab-esa_logo.jpg" alt="ESA logo" class="h-[180px]" />
+    <img
+      src="/logos/philab-esa_logo.jpg"
+      alt="ESA logo"
+      class="h-[180px] m-auto sm:m-0"
+    />
   </div>
   <div>
     <h2 class="mb-10 text-2xl font-bold">Implemented By</h2>
-    <div class="flex flex-wrap gap-5 items-center">
+    <div
+      class="flex flex-wrap gap-5 items-center justify-center md:justify-start"
+    >
       <a href="https://earthpulse.ai/" target="_blank" rel="noreferrer">
         <img src="/logos/ep_logo.svg" alt="earthpulse logo" class="h-[70px]" />
       </a>

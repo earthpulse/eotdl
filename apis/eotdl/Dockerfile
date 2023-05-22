@@ -9,10 +9,9 @@ RUN pip install pytest-cov
 RUN pip install pydantic
 RUN pip install pymongo  
 RUN pip install minio  
-RUN pip install pyjwt[crypto]
+RUN pip install pyjwt
 RUN pip install requests
 RUN pip install auth0-python
 RUN pip install python-multipart 
-RUN pip install aiofiles
-
-WORKDIR /api
+RUN pip install httpx
+RUN pip install boto3

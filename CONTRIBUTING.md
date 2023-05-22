@@ -2,7 +2,7 @@
 
 ## DATASETS
 
-If you would like us to include a new dataset, create an issue with the following information and we'll take a look!
+If you would like us to include a new dataset, create an issue with the following information and we'll add it to the list.
 
 - **Name**: dataset name
 - **Size**: dataset size in Gigaytes

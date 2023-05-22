@@ -14,6 +14,8 @@ You can install the CLI using pip.
 
 To verify the installation you can run the `help` command, which will give you a list of all the available commands in the CLI.
 
+> The CLI works with Python >= 3.8
+
 <CLI><Code>eotdl-cli --help</Code></CLI> 
 
 
