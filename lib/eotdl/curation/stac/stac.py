@@ -3,6 +3,7 @@ Module for generating STAC metadata
 """
 
 import pandas as pd
+import numpy as np
 import json
 from typing import Optional
 import pystac
@@ -36,8 +37,7 @@ class STACGenerator:
                                stac_dataframe: pd.DataFrame,
                                id: str,
                                description: str,
-                               output: str = 'stac',                               
-                               extensions: dict=None,
+                               output_folder: str='stac',
                                image_format: str='tiff',
                                catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
                                **kwargs) -> None:
@@ -69,11 +69,9 @@ class STACGenerator:
             catalog.add_child(collection)
         
         # Add the catalog to the root directory
-        catalog.normalize_hrefs(output)
+        catalog.normalize_hrefs(output_folder)
         # catalog.validate_all()
         catalog.save(catalog_type=catalog_type)
-
-        return catalog   # DEBUG
 
     def get_stac_dataframe(self, path: str, bands: dict=None, extensions: dict=None, image_format: str='tiff') -> pd.DataFrame:
         """
@@ -107,7 +105,8 @@ class STACGenerator:
         """
         images_common_prefix_dict = dict()
 
-        images_dirs = list(set([dirname(i) for i in images]))
+        # images_dirs = list(set([dirname(i) for i in images]))
+        images_dirs = [dirname(i) for i in images]
 
         for image in images_dirs:
             path = image
@@ -187,8 +186,7 @@ class STACGenerator:
                 except rasterio.errors.CRSError:
                     spatial_extent = pystac.SpatialExtent([[None, None, None, None]])
                     return spatial_extent
-                finally:
-                    bboxes.append(bbox)
+                bboxes.append(bbox)
         # Get the minimum and maximum values of the bounding boxes
         try:
             left = min([bbox[0] for bbox in bboxes])
@@ -210,9 +208,7 @@ class STACGenerator:
         # Get all the metadata.json files in the path
         metadata_json_files = glob(f'{path}/**/*.json', recursive=True)
         if not metadata_json_files:
-            min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
-            max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
-            return pystac.TemporalExtent([min_date, max_date])   # TODO Unknown temporal interval
+            return self._get_unknow_temporal_interval()
         
         # Get the temporal interval of every metadata.json file
         temporal_intervals = list()
@@ -231,8 +227,19 @@ class STACGenerator:
             finally:
                 # Create the temporal interval
                 temporal_interval = pystac.TemporalExtent([min_date, max_date])
+        else:
+            return self._get_unknow_temporal_interval()
 
-            return temporal_interval
+        return temporal_interval
+    
+    def _get_unknow_temporal_interval(self) -> pystac.TemporalExtent:
+        """
+        Get an unknown temporal interval
+        """
+        min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
+        max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
+
+        return pystac.TemporalExtent([min_date, max_date])
 
     def create_stac_catalog(self, id: str, description: str, params: dict=None) -> pystac.Catalog:
         """
@@ -296,11 +303,7 @@ class STACGenerator:
         """
         Create a STAC item from a directory containing the raster files and the metadata.json file
 
-        :param tiff_dir_path: path to the directory containing the raster files
-        :param metadata_json: path to the metadata.json file
-        :param collection: pystac.Collection object
-        :param extensions: list of extensions to add to the item
-        :return: pystac.Item object
+        :param raster_path: path to the raster file
         """
         # Check if there is any metadata file in the directory associated to the raster file
         metadata = self._get_item_metadata(raster_path)
@@ -340,8 +343,9 @@ class STACGenerator:
             time_acquired = datetime.strptime('2000-01-01', '%Y-%m-%d')
         
         # Obtain the ID from the dir name
-        tiff_dir_path = dirname(raster_path)
-        id = tiff_dir_path.split('/')[-1]
+        # tiff_dir_path = dirname(raster_path)
+        # id = tiff_dir_path.split('/')[-1]
+        id = basename(raster_path).split('.')[0]
         
         # Instantiate pystac item
         item = pystac.Item(id=id,
@@ -366,36 +370,21 @@ class STACGenerator:
         # in order to create the assets
         bands = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['bands'].values
         bands = bands[0] if bands else None
-        with rasterio.open(raster_path) as raster:
-            # TODO control in DEM data
-            # TODO put this in a function
-            if not bands:
-                # If there is no bands, create a single band asset
-                single_band = raster.read(1)
-                band_name = f'{basename(raster_path)}.tiff'
-                output_band = join(dirname(raster_path), band_name)
-                # Copy the metadata
-                metadata = raster.meta.copy()
-                metadata.update({"count": 1})
-                # Write the band to the output folder
-                with rasterio.open(output_band, "w", **metadata) as dest:
-                    dest.write(single_band, 1)
-                # Instantiate pystac asset
-                asset = pystac.Asset(href=band_name, title=band_name, media_type=pystac.MediaType.GEOTIFF)
-                # Add the asset to the item
-                item.add_asset(band_name, asset)
-                # Add the required extensions to the asset if required
-                if extensions:
-                    if isinstance(extensions, str):
-                        extensions = [extensions]
-                    for extension in extensions:
-                        extension_obj = self._extensions_dict[extension]
-                        extension_obj.add_extension_to_object(asset)
-            else:
+        if not bands:
+            # If there is no bands, create a single band asset from the file, assuming thats a singleband raster
+            href = basename(raster_path)
+            title = basename(raster_path).split('.')[0]
+            asset = pystac.Asset(href=href, title=title, media_type=pystac.MediaType.GEOTIFF)
+        else:
+            with rasterio.open(raster_path, 'r') as raster:
+                # Get the name of the raster file without extension
+                raster_name = basename(raster_path).split('.')[0]
+                if isinstance(bands, str):
+                    bands = [bands]
                 for band in bands:
                     i = bands.index(band)
                     single_band = raster.read(i + 1)
-                    band_name = f'{band}.tiff'
+                    band_name = f'{raster_name}_{band}.{self._image_format}'
                     output_band = join(dirname(raster_path), band_name)
                     # Copy the metadata
                     metadata = raster.meta.copy()
