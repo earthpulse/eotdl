@@ -78,7 +78,7 @@
 	/>
 </svelte:head>
 
-<div class="w-full flex flex-col items-center">
+<div class="w-full flex flex-col items-center justify-between h-full grow">
 	<div
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
 	>
