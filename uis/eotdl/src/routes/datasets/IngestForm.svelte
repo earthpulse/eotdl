@@ -20,7 +20,7 @@
     $: selected_tags = current_tags;
     const ingest = async () => {
         if (files && files[0] && !validate_file(files[0])) return;
-        // if (link && !validate_link(link)) return;
+        if (link && !validate_link(link)) return;
         loading = true;
         try {
             await submit(
