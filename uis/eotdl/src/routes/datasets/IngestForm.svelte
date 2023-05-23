@@ -22,21 +22,21 @@
         if (files && files[0] && !validate_file(files[0])) return;
         if (link && !validate_link(link)) return;
         loading = true;
-        try {
-            await submit(
-                files ? files[0] : null,
-                name,
-                content,
-                author,
-                link,
-                license,
-                selected_tags
-            );
-            document.getElementById("ingest-dataset").checked = false;
-            name = "";
-        } catch (e) {
-            alert(e.message);
-        }
+        // try {
+        await submit(
+            files ? files[0] : null,
+            name,
+            content,
+            author,
+            link,
+            license,
+            selected_tags
+        );
+        document.getElementById("ingest-dataset").checked = false;
+        name = "";
+        // } catch (e) {
+        //     alert(e.message);
+        // }
         loading = false;
     };
 
