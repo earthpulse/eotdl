@@ -158,7 +158,7 @@
 			</span>
 		</span>
 		<!-- <p class="py-10">{description}</p> -->
-		<div class="flex flex-row gap-3">
+		<div class="grid grid-cols-[auto,410px] gap-3">
 			<div class="content">
 				{#if description}
 					{@html description}
@@ -166,38 +166,44 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<table class="table border-2 rounded-lg table-compact h-[100px]">
-				<tbody>
-					<tr>
-						<th class="w-[20px]">Author</th>
-						<td>{author || "-"}</td>
-					</tr>
-					<tr>
-						<th>License</th>
-						<td>{license || "-"}</td>
-					</tr>
-					<tr>
-						<th>Source</th>
-						<td>
-							{#if link}
-								<a
-									href={link}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="text-green-200 hover:underline"
-									>{link}</a
-								>
-							{:else}
-								-
-							{/if}
-						</td>
-					</tr>
-					<tr>
-						<th>Checksum (md5)</th>
-						<td>{checksum || "-"}</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="overflow-auto">
+				<table
+					class="table border-2 rounded-lg table-compact h-[100px]"
+				>
+					<tbody>
+						<tr>
+							<th class="w-[20px]">Author(s)</th>
+							<td>{author || "-"}</td>
+						</tr>
+						<tr>
+							<th>License</th>
+							<td>{license || "-"}</td>
+						</tr>
+						<tr>
+							<th>Source</th>
+							<td>
+								{#if link}
+									<a
+										href={link}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-green-200 hover:underline"
+										>{link.length > 30
+											? link.slice(0, 30) + "..."
+											: link}</a
+									>
+								{:else}
+									-
+								{/if}
+							</td>
+						</tr>
+						<tr>
+							<th>Checksum (md5)</th>
+							<td>{checksum || "-"}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>
