@@ -1,6 +1,7 @@
 <script>
     export let tags = [];
     export let selected_tags = [];
+    export let onToggleTag = () => {};
 
     const toggleTag = (tag) => {
         if (selected_tags.includes(tag)) {
@@ -8,6 +9,7 @@
         } else {
             selected_tags = [...selected_tags, tag];
         }
+        onToggleTag(selected_tags);
     };
 </script>
 

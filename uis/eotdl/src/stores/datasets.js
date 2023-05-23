@@ -3,7 +3,6 @@ import ingestDataset from "../lib/datasets/ingestDataset";
 import reuploadDataset from "../lib/datasets/reuploadDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
-import editDataset from "../lib/datasets/editDataset";
 import likeDataset from "../lib/datasets/likeDataset";
 
 const createDatasets = () => {

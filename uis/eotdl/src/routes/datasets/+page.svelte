@@ -15,19 +15,23 @@
 
 	let leaderboard,
 		loading = true;
+	let show_liked = false;
+	let selected_tags = [];
 
 	const load = async () => {
 		await datasets.retrieve(fetch);
 		leaderboard = await retrieveDatasetsLeaderboard(fetch);
 		loading = false;
+		show_liked = localStorage.getItem("show_liked") === "true";
+		filtered_datasets = JSON.parse(
+			localStorage.getItem("filtered_datasets")
+		);
+		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
 	};
 
 	$: if (browser) load();
 
-	let selected_tags = [];
-
 	let filterName = "";
-	let show_liked = false;
 	let filtered_datasets;
 	$: {
 		filtered_datasets = $datasets.data
@@ -56,6 +60,14 @@
 		currentPage * maxVisibleDatasets,
 		(currentPage + 1) * maxVisibleDatasets
 	);
+
+	const toggleLike = () => {
+		show_liked = $user && !show_liked;
+		localStorage.setItem("show_liked", show_liked);
+	};
+
+	const onToggleTag = (tags) =>
+		localStorage.setItem("selected_tags", JSON.stringify(tags));
 </script>
 
 <svelte:head>
@@ -90,7 +102,7 @@
 					>
 						advanced filtering
 					</p>
-					<button on:click={() => (show_liked = $user && !show_liked)}
+					<button on:click={toggleLike}
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
 						/></button
@@ -98,7 +110,7 @@
 				</span>
 				<Ingest tags={data?.tags} />
 			</div>
-			<Tags tags={data?.tags} bind:selected_tags />
+			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
