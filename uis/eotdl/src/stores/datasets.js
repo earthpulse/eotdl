@@ -27,6 +27,7 @@ const createDatasets = () => {
           dataset.id === id ? data : dataset
         ),
       }));
+      return data;
     },
     retrieve: async (fetch, limit=null) => {
       set({ loading: true });

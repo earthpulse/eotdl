@@ -14,6 +14,7 @@
 	export let link;
 	export let selected_tags;
 	export let size;
+	export let checksum;
 
 	const submit = async (
 		file,
@@ -24,7 +25,7 @@
 		_license,
 		_selected_tags
 	) => {
-		await datasets.reupload(
+		const data = await datasets.reupload(
 			dataset_id,
 			file,
 			name,
@@ -41,6 +42,7 @@
 		if (content) description = content;
 		if (file) size = file.size;
 		selected_tags = _selected_tags;
+		checksum = data.checksum;
 		if (name) goto(`/datasets/${name}`, { replaceState: true });
 	};
 </script>
