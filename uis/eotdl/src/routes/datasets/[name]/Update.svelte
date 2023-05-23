@@ -7,7 +7,7 @@
 	export let tags;
 	export let dataset_id;
 	export let current_tags;
-
+	export let name;
 	export let author;
 	export let license;
 	export let description;
@@ -54,6 +54,10 @@
 		text="EDIT"
 		{current_tags}
 		content={description}
+		{author}
+		{link}
+		{license}
+		{name}
 	>
 		<h3 class="text-lg font-bold">Edit dataset</h3>
 		<p>⚠ This operation will overwrite your current data!</p>
