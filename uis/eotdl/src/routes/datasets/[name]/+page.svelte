@@ -158,7 +158,7 @@
 			</span>
 		</span>
 		<!-- <p class="py-10">{description}</p> -->
-		<div class="grid grid-cols-[auto,410px] gap-3">
+		<div class="grid grid-cols-[auto,425px] gap-3">
 			<div class="content">
 				{#if description}
 					{@html description}
@@ -166,9 +166,9 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<div class="overflow-auto">
+			<div class="overflow-auto w-full">
 				<table
-					class="table border-2 rounded-lg table-compact h-[100px]"
+					class="table border-2 rounded-lg table-compact h-[100px] w-full"
 				>
 					<tbody>
 						<tr>
