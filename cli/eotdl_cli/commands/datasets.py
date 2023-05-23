@@ -31,7 +31,7 @@ def get(name: str, path: str = None):
     """
     try:
         user = auth()
-        dst_path = download_dataset(name, path, user)
+        dst_path = download_dataset(name, path, user, typer.echo)
         typer.echo(f"Dataset {name} downloaded to {dst_path}")
     except Exception as e:
         typer.echo(e)

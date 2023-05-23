@@ -193,7 +193,7 @@
 						</td>
 					</tr>
 					<tr>
-						<th>Checksum</th>
+						<th>Checksum (md5)</th>
 						<td>{checksum || "-"}</td>
 					</tr>
 				</tbody>
