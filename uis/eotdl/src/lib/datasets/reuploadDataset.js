@@ -7,7 +7,7 @@ export default async (dataset_id, file, name, content, author, link, license, ta
 	formData.append("dataset_id", dataset_id);
 	if (file) formData.append("file", file);
 	if(name) formData.append("name", name);
-	if (content) formData.append("content", content);
+	if (content) formData.append("description", content);
 	if (author) formData.append("author", author);
 	if (link) formData.append("link", link);
 	if (license) formData.append("license", license);

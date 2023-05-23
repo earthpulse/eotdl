@@ -32,6 +32,7 @@ const createDatasets = () => {
       set({ loading: true });
       try {
         const data = await retrieveDatasets(fetch, limit);
+        console.log(data)
         set({ loading: false, data });
       } catch (e) {
         set({ loading: false, error: e.message });
