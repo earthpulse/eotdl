@@ -158,7 +158,7 @@
 			</span>
 		</span>
 		<!-- <p class="py-10">{description}</p> -->
-		<div class="grid grid-cols-[2fr,1fr]">
+		<div class="flex flex-row gap-3">
 			<div class="content">
 				{#if description}
 					{@html description}
@@ -166,7 +166,7 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<table class="table w-full border-2 rounded-lg table-compact">
+			<table class="table border-2 rounded-lg table-compact h-[100px]">
 				<tbody>
 					<tr>
 						<th class="w-[20px]">Author</th>
