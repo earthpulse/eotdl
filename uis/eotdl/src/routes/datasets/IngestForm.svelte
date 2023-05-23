@@ -9,14 +9,16 @@
     export let text;
     export let required = false;
     export let current_tags = [];
+    export let name = "";
+    export let author = "";
+    export let link = "";
+    export let license = "";
+    export let content = "";
 
-    let content = "";
+    $: console.log(content);
+
     let loading = false;
-    let name = "",
-        author = "",
-        link = "",
-        license = "",
-        files = null;
+    let files = null;
     $: selected_tags = current_tags;
     const ingest = async () => {
         if (files && files[0] && !validate_file(files[0])) return;

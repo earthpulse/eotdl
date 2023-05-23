@@ -48,7 +48,13 @@
 </script>
 
 {#if $user}
-	<IngestForm {tags} {submit} text="EDIT" {current_tags}>
+	<IngestForm
+		{tags}
+		{submit}
+		text="EDIT"
+		{current_tags}
+		content={description}
+	>
 		<h3 class="text-lg font-bold">Edit dataset</h3>
 		<p>⚠ This operation will overwrite your current data!</p>
 	</IngestForm>
