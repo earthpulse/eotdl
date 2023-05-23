@@ -16,7 +16,7 @@ from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
-def ingest_dataset(file, name, author, link, license, description, tags, user):
+async def ingest_dataset(file, name, author, link, license, description, tags, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestDataset(db_repo, os_repo)
@@ -31,11 +31,11 @@ def ingest_dataset(file, name, author, link, license, description, tags, user):
         license=license,
         tags=tags,
     )
-    outputs = ingest(inputs)
+    outputs = await ingest(inputs)
     return outputs.dataset
 
 
-def update_dataset(
+async def update_dataset(
     dataset_id, user, file, name, author, link, license, tags, description
 ):
     db_repo = DBRepo()
@@ -53,7 +53,7 @@ def update_dataset(
         license=license,
         tags=tags,
     )
-    outputs = ingest(inputs)
+    outputs = await ingest(inputs)
     return outputs.dataset
 
 
@@ -133,7 +133,7 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, name=None, description=None, id=None):
+def generate_upload_id(user, name=None, id=None):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -141,7 +141,6 @@ def generate_upload_id(user, name=None, description=None, id=None):
     inputs = generate.Inputs(
         uid=user.uid,
         name=name,
-        description=description,
         id=id,
     )
     outputs = generate(inputs)
@@ -164,7 +163,7 @@ def ingest_dataset_chunk(
     return outputs.id, outputs.upload_id
 
 
-def complete_multipart_upload(user, name, description, dataset_id, upload_id):
+async def complete_multipart_upload(user, name, dataset_id, upload_id, checksum):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -172,9 +171,9 @@ def complete_multipart_upload(user, name, description, dataset_id, upload_id):
     inputs = complete.Inputs(
         uid=user.uid,
         name=name,
-        description=description,
         id=dataset_id,
         upload_id=upload_id,
+        checksum=checksum,
     )
-    outputs = complete(inputs)
+    outputs = await complete(inputs)
     return outputs.dataset

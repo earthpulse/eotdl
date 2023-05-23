@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from src.utils import calculate_checksum
 
 
 class UpdateDataset:
@@ -18,9 +19,12 @@ class UpdateDataset:
         # allow only zip files
         if not inputs.path.endswith(".zip"):
             raise Exception("Only zip files are allowed")
+        self.logger("Computing checksum...")
+        checksum = calculate_checksum(inputs.path)
+        self.logger(checksum)
         self.logger("Updating dataset...")
         data, error = self.repo.update_dataset(
-            inputs.name, inputs.path, inputs.user["id_token"]
+            inputs.name, inputs.path, inputs.user["id_token"], checksum
         )
         if error:
             raise Exception(error)

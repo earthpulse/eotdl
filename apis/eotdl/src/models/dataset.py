@@ -34,7 +34,8 @@ class Dataset(BaseModel):
     uid: str
     id: str
     name: str
-    description: str
+    checksum: str
+    description: str = ""
     tags: List[str] = []
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()

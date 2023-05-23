@@ -15,7 +15,6 @@ class GenerateUploadId:
     class Inputs(BaseModel):
         uid: str
         name: str = None
-        description: str = None
         id: str = None
 
     class Outputs(BaseModel):
@@ -48,7 +47,7 @@ class GenerateUploadId:
                 uid=inputs.uid,
                 id=id,
                 name=inputs.name,
-                description=inputs.description,
+                checksum="",  # mandatory but not used
             )
             # generate multipart upload id
             storage = self.os_repo.get_object(id)

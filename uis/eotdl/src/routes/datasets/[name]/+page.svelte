@@ -25,6 +25,7 @@
 		link,
 		license,
 		size,
+		checksum,
 	} = data.dataset);
 
 	let createWriteStream;
@@ -121,6 +122,7 @@
 						bind:description={data.dataset.description}
 						bind:selected_tags={data.dataset.tags}
 						bind:size={data.dataset.size}
+						bind:checksum={data.dataset.checksum}
 					/>
 				</span>
 			{:else}
@@ -156,20 +158,46 @@
 			</span>
 		</span>
 		<!-- <p class="py-10">{description}</p> -->
-		<div class="flex flex-col gap-2 bg-slate-100 p-3 rounded-md">
-			<p>Author: {author}</p>
-			<p>License: {license}</p>
-			<p>
-				Source: <a
-					href={link}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="text-green-200 hover:underline">{link}</a
-				>
-			</p>
-		</div>
-		<div class="content">
-			{@html description}
+		<div class="grid grid-cols-[2fr,1fr]">
+			<div class="content">
+				{#if description}
+					{@html description}
+				{:else}
+					<p class="italic">No description.</p>
+				{/if}
+			</div>
+			<table class="table w-full border-2 rounded-lg table-compact">
+				<tbody>
+					<tr>
+						<th class="w-[20px]">Author</th>
+						<td>{author || "-"}</td>
+					</tr>
+					<tr>
+						<th>License</th>
+						<td>{license || "-"}</td>
+					</tr>
+					<tr>
+						<th>Source</th>
+						<td>
+							{#if link}
+								<a
+									href={link}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-green-200 hover:underline"
+									>{link}</a
+								>
+							{:else}
+								-
+							{/if}
+						</td>
+					</tr>
+					<tr>
+						<th>Checksum</th>
+						<td>{checksum || "-"}</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>

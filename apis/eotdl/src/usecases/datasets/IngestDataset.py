@@ -3,6 +3,7 @@ import typing
 
 from ...models import Dataset, Usage, User, Limits
 from ...errors import DatasetAlreadyExistsError, TierLimitError
+from ...utils import calculate_checksum
 
 
 class IngestDataset:
@@ -24,7 +25,7 @@ class IngestDataset:
     class Outputs(BaseModel):
         dataset: Dataset
 
-    def __call__(self, inputs: Inputs) -> Outputs:
+    async def __call__(self, inputs: Inputs) -> Outputs:
         # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
@@ -46,6 +47,10 @@ class IngestDataset:
         id = self.db_repo.generate_id()
         # save file in storage
         self.os_repo.persist_file(inputs.file, id)
+        # calculate checksum
+        data_stream = self.os_repo.data_stream(id)
+        checksum = await calculate_checksum(data_stream)
+        print("checksum", checksum)
         # save dataset in db
         dataset = Dataset(
             uid=inputs.uid,
@@ -57,6 +62,7 @@ class IngestDataset:
             link=inputs.link,
             license=inputs.license,
             tags=inputs.tags,
+            checksum=checksum,
         )
         self.db_repo.persist("datasets", dataset.dict(), id)
         # update user dataset count
