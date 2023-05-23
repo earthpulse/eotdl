@@ -107,7 +107,7 @@
 				</div>
 			</span>
 			{#if $user}
-				<span class="flex flex-row gap-3">
+				<span class="flex flex-row gap-1">
 					<button
 						class="btn btn-ghost btn-outline"
 						on:click={download}>Download</button
@@ -116,6 +116,7 @@
 						dataset_id={data.dataset.id}
 						tags={data.tags}
 						current_tags={tags}
+						{name}
 						bind:author={data.dataset.author}
 						bind:link={data.dataset.link}
 						bind:license={data.dataset.license}
