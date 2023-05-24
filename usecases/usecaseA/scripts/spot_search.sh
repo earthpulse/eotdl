@@ -2,6 +2,20 @@
 # Script for querying the availability of SPOT images 
 # through the Sentinel-Hub API.
 # 
+#
+#	Argument $1: CSV file containing DATE;BBOX metadata for the SSL4EO-S12 dataset.
+#	Argument $2: Output file to generate with ID;ACQUISITIONID;DATETIME metadata for available SPOT images.
+#
+# NOTE: Expects a text file called 'credentials' with 2 rows that include Sentinel-Hub credentials.
+#
+#	First row is USERID
+# 	Second row is USERKEY
+#
+#	e.g.
+#		abcdfe
+#		xXx$3!xxxxXx^
+#
+
 
 URL="https://services.sentinel-hub.com/api/v1/dataimport/search";
 get_token() {
@@ -54,27 +68,68 @@ request () {
 
 end=$(date +%s);
 
+
+closest_date() {
+	
+	min=9999999
+	i=0
+	for date in $@;
+	do
+		datediff=$((($(date --date "$date" +%s) - $(date --date $datestr +%s))))
+		
+		if [[ datediff -lt $min ]]
+		then
+			min=$datediff
+			index=$i
+		fi
+
+		((i++));
+
+	done;
+
+	echo $index
+
+}
+
+
 while IFS= read -r row;
 do
 	datestr=${row%%;*};
 	bboxstr=${row##*;};
-	from=$(date --date "$datestr -2 days" +%Y-%m-%dT00:00:00Z);
-	to=$(date --date "$datestr +2 days" +%Y-%m-%dT00:00:00Z);
+	from=$(date --date "$datestr -3 days" +%Y-%m-%dT00:00:00Z);
+	to=$(date --date "$datestr +3 days" +%Y-%m-%dT00:00:00Z);
 	
-	# response=$(request "$bboxstr" $from $to)
-	response=$(request "$2" $from $to)
+	response=$(request "$bboxstr" $from $to)
+	# response=$(request "$3" $from $to)
 
 	totalResults="totalResults: $(echo $response | grep -oP "(?<=\"totalResults\":)\d*")"
-	ids=$(echo $response | grep -oP nothing)
 	
-	echo $response |
-	grep -oP "(?<=\"acquisitionDate\":)\"\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ\"" |
-	sed s/\"//g |
-	read -a dates
+	read -a ids < <(echo $response |
+		 	grep -oP "(?<=\"id\":)\"\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\"" |
+		 	sed s/\"//g | sed -z "s/\n/ /g")
 	
-	echo $response
-	echo $totalResults
-	echo ${dates[@]} ${dates[0]} ${dates[1]} ${#dates[@]}
+	read -a acq_ids < <(echo $response |
+        	  	    grep -oP "(?<=\"acquisitionIdentifier\":)\"\w*\"" |
+			    sed s/\"//g | sed -z "s/\n/ /g")
+	
+	read -a dates < <(echo $response |
+                          grep -oP "(?<=\"acquisitionDate\":)\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\"" |
+                          sed s/\"//g | sed -z "s/\n/ /g")	
+	
+	read -a centres < <(echo $response |
+                            grep -oP "(?<=\"geometryCentroid\":)\[[0-9\.\,\-]*\]" | sed -z "s/\n/ /g")
+
+	# echo $response
+	# echo $totalResults
+	
+	# declare -p dates
+	# declare -p ids
+	# declare -p acq_ids
+	# declare -p centres
+	
+	c=$(closest_date ${dates[@]})
+
+	echo "${ids[$c]};${acq_ids[$c]};$datestr;${dates[$c]}" >> $2
 
 	end=$(date +%s);
 	if [[ $((end-SHTOKENSTART)) -ge $SHTOKENEXPIRESIN ]]
@@ -84,8 +139,6 @@ do
 		export SHTOKENEXPIRESIN=$(echo $token_response | grep -oP "(?<=\"expires_in\":)\d*");
 		export SHTOKENSTART=$(date +%s);
 	fi
-
-	break;
 
 done < $1;
 
