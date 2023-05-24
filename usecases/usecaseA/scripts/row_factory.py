@@ -40,15 +40,15 @@ def S1(directory):
     last_x = dataset.RasterXSize - 1
     last_y = dataset.RasterYSize - 1
 
-    date = os.path.basename(directory).split('_')[4]
-    date = datetime.strptime(date, '%Y%m%dT%H%M%S')    
+    datestr = os.path.basename(directory).split('_')[4]
+    date = datetime.strptime(datestr, '%Y%m%dT%H%M%S')    
 
     bounding_box_lb_rt = [_x(geotran, 0, last_y),
                           _y(geotran, 0, last_y),
                           _x(geotran, last_x, 0),
                           _y(geotran, last_x, 0)]
     
-    print(date.date(), bounding_box_lb_rt, sep=';')
+    print(date.date(), bounding_box_lb_rt, directory, sep=';')
     return
 
 
@@ -73,10 +73,10 @@ def S2(directory):
                           _x(geotran, last_x, 0),
                           _y(geotran, last_x, 0)]
 
-    date = os.path.basename(directory).split('_')[0]
-    date = datetime.strptime(date, "%Y%m%dT%H%M%S")
+    datestr = os.path.basename(directory).split('_')[0]
+    date = datetime.strptime(datestr, "%Y%m%dT%H%M%S")
 
-    print(date.date(), bounding_box_lb_rt, sep=';')
+    print(date.date(), bounding_box_lb_rt, directory, sep=';')
     return
 
 
