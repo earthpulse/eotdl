@@ -39,7 +39,7 @@ Outputs a csv row with a date and bounding box formatted as `%Y-%m-%d` and `[low
 
 ## run\_extraction.sh
 
-A bash script that expects as inputs a file with paths of acquisition directories to process and the name of a file to output generated rows. It simply executes a background loop during which each acquisition directory row is passed to the row factory script and its output is appended to the provided output file.
+A bash script that expects as inputs a file with paths of acquisition directories to process and the name of a file to output generated rows. It simply executes a loop process  during which each acquisition directory row is passed to the row factory script and its output is appended to the provided output file.
 
 i.e.,
 
@@ -47,5 +47,5 @@ i.e.,
 ./run_extraction.sh list_of_acquisition_directories.txt acquisitions_metadata.txt
 ```
 
-As the archives are over 500GB each, iterating through them can be a long process.
+As the archives are over 500GB each, iterating through them can be a long process. Running in background and disowning is advised.
 
