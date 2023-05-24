@@ -112,19 +112,21 @@
 						class="btn btn-ghost btn-outline"
 						on:click={download}>Download</button
 					>
-					<Update
-						dataset_id={data.dataset.id}
-						tags={data.tags}
-						current_tags={tags}
-						{name}
-						bind:author={data.dataset.author}
-						bind:link={data.dataset.link}
-						bind:license={data.dataset.license}
-						bind:description={data.dataset.description}
-						bind:selected_tags={data.dataset.tags}
-						bind:size={data.dataset.size}
-						bind:checksum={data.dataset.checksum}
-					/>
+					{#if $user.uid == data.dataset.uid}
+						<Update
+							dataset_id={data.dataset.id}
+							tags={data.tags}
+							current_tags={tags}
+							{name}
+							bind:author={data.dataset.author}
+							bind:link={data.dataset.link}
+							bind:license={data.dataset.license}
+							bind:description={data.dataset.description}
+							bind:selected_tags={data.dataset.tags}
+							bind:size={data.dataset.size}
+							bind:checksum={data.dataset.checksum}
+						/>
+					{/if}
 				</span>
 			{:else}
 				<p class="badge badge-warning p-3">Sign in to download</p>
