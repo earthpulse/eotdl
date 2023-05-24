@@ -4,7 +4,7 @@
 # 
 #
 #	Argument $1: CSV file containing DATE;BBOX metadata for the SSL4EO-S12 dataset.
-#	Argument $2: Output file to generate with ID;ACQUISITIONID;DATETIME metadata for available SPOT images.
+#	Argument $2: Output file to generate CSV metadata for available SPOT images.
 #
 # NOTE: Expects a text file called 'credentials' with 2 rows that include Sentinel-Hub credentials.
 #
@@ -15,9 +15,18 @@
 #		abcdfe
 #		xXx$3!xxxxXx^
 #
+#
+#	Output columns:
+#	
+#		id: The id of the available image (to be used for ordering)
+#		acquisition_id: The acquisition identifier used by provider
+#		acquisition_time: The acquisition time of the available SPOT image
+#		original_date:	The date of the original dataset (acquisition_datetime is the closest to that)
+#		directory: The destination directory in the SSL4EO-S12 dataset
 
 
 URL="https://services.sentinel-hub.com/api/v1/dataimport/search";
+
 get_token() {
 	curl -s -X POST\
 		--url https://services.sentinel-hub.com/oauth/token\
@@ -91,9 +100,12 @@ closest_date() {
 
 }
 
+echo "id;acquisition_id;acquisition_time;original_date" > $2;
 
 while IFS= read -r row;
-do
+do	
+	directory=${row#*;};
+	row=${row%%;*};
 	datestr=${row%%;*};
 	bboxstr=${row##*;};
 	from=$(date --date "$datestr -3 days" +%Y-%m-%dT00:00:00Z);
@@ -129,7 +141,7 @@ do
 	
 	c=$(closest_date ${dates[@]})
 
-	echo "${ids[$c]};${acq_ids[$c]};$datestr;${dates[$c]}" >> $2
+	echo "${ids[$c]};${acq_ids[$c]};${dates[$c]};$datestr;$directory" >> $2
 
 	end=$(date +%s);
 	if [[ $((end-SHTOKENSTART)) -ge $SHTOKENEXPIRESIN ]]
