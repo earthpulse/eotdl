@@ -23,7 +23,7 @@
 #		acquisition_time: The acquisition time of the available SPOT image
 #		original_date:	The date of the original dataset (acquisition_datetime is the closest to that)
 #		directory: The destination directory in the SSL4EO-S12 dataset
-
+#		bbox: The bounding box used to perform spatial query
 
 URL="https://services.sentinel-hub.com/api/v1/dataimport/search";
 
@@ -100,17 +100,19 @@ closest_date() {
 
 }
 
-echo "id;acquisition_id;acquisition_time;original_date" > $2;
+echo "id;acquisition_id;acquisition_time;original_date;directory;bbox" > $2;
 
 while IFS= read -r row;
 do	
-	directory=${row#*;};
-	row=${row%%;*};
+	directory=${row##*;};
+	row=${row%;*};
 	datestr=${row%%;*};
 	bboxstr=${row##*;};
-	from=$(date --date "$datestr -3 days" +%Y-%m-%dT00:00:00Z);
-	to=$(date --date "$datestr +3 days" +%Y-%m-%dT00:00:00Z);
+	from=$(date --date "$datestr -1 year" +%Y-%m-%dT00:00:00Z);
+	to=$(date --date "$datestr +1 year" +%Y-%m-%dT00:00:00Z);
 	
+	# echo dir:$directory row:$row date:$datestr bbox:$bboxstr from:$from to:$to
+
 	response=$(request "$bboxstr" $from $to)
 	# response=$(request "$3" $from $to)
 
@@ -125,8 +127,8 @@ do
 			    sed s/\"//g | sed -z "s/\n/ /g")
 	
 	read -a dates < <(echo $response |
-                          grep -oP "(?<=\"acquisitionDate\":)\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\"" |
-                          sed s/\"//g | sed -z "s/\n/ /g")	
+                          grep -oP "(?<=\"acquisitionDate\":)\"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:[\d\.]{2,7}Z\"" |
+                          sed s/\"//g | sed -z "s/\n/ /g")
 	
 	read -a centres < <(echo $response |
                             grep -oP "(?<=\"geometryCentroid\":)\[[0-9\.\,\-]*\]" | sed -z "s/\n/ /g")
@@ -141,7 +143,7 @@ do
 	
 	c=$(closest_date ${dates[@]})
 
-	echo "${ids[$c]};${acq_ids[$c]};${dates[$c]};$datestr;$directory" >> $2
+	echo "${ids[$c]};${acq_ids[$c]};${dates[$c]};$datestr;$directory;$bboxstr" >> $2
 
 	end=$(date +%s);
 	if [[ $((end-SHTOKENSTART)) -ge $SHTOKENEXPIRESIN ]]
