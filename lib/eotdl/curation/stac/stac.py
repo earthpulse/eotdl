@@ -50,7 +50,7 @@ class STACGenerator:
                                id: str,
                                description: str,
                                output_folder: str='stac',
-                               params: dict={}) -> None:
+                               kwargs: dict={}) -> None:
         """
         Generate STAC metadata for a given directory containing the assets to generate metadata
 
@@ -255,7 +255,7 @@ class STACGenerator:
 
         return pystac.TemporalExtent([min_date, max_date])
 
-    def create_stac_catalog(self, id: str, description: str, params: dict={}) -> pystac.Catalog:
+    def create_stac_catalog(self, id: str, description: str, kwargs: dict={}) -> pystac.Catalog:
         """
         Create a STAC catalog
 
@@ -263,10 +263,7 @@ class STACGenerator:
         :param description: description of the catalog
         :param params: additional parameters
         """
-        if not params:
-            return pystac.Catalog(id=id, description=description)
-        else:
-            return pystac.Catalog(id=id, description=description, **params)
+        return pystac.Catalog(id=id, description=description, **kwargs)
 
     def generate_stac_collection(self, path: str) -> pystac.Collection:
         """
@@ -292,7 +289,7 @@ class STACGenerator:
         # Return the collection
         return collection
 
-    def create_stac_collection(self, id: str, description: str, extent: pystac.Extent, params: dict={}) -> pystac.Collection:
+    def create_stac_collection(self, id: str, description: str, extent: pystac.Extent, kwargs: dict={}) -> pystac.Collection:
         """
         Create a STAC collection
 
@@ -301,11 +298,11 @@ class STACGenerator:
         :param extent: extent of the collection
         :param params: additional parameters
         """
-        return pystac.Collection(id=id, description=description, extent=extent, **params)
+        return pystac.Collection(id=id, description=description, extent=extent, **kwargs)
 
     def create_stac_item(self,
                         raster_path: str,
-                        params: dict={}
+                        kwargs: dict={}
                         ) -> pystac.Item:
         """
         Create a STAC item from a directory containing the raster files and the metadata.json file
@@ -356,7 +353,7 @@ class STACGenerator:
                 bbox=bbox,
                 datetime=time_acquired,
                 properties=properties,
-                **params)
+                **kwargs)
         
         # Get the item extension using the dataframe, from the raster path
         extensions = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['extensions'].values
