@@ -19,11 +19,5 @@ def stac_items_to_gdf(items: ItemCollection) -> gpd.GeoDataFrame:
     for f in _features:
         if f not in features:
             features.append(f)
-            
-    # Add the location_id as a property, in order to retrieve it as a column 
-    # in the GeoDataFrame
-    for f in features:
-        location_id = f['id'].split('_')[3]
-        f['properties']['location_id'] = location_id
     
     return gpd.GeoDataFrame.from_features(features)

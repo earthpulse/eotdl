@@ -31,3 +31,12 @@ def count_ocurrences(text: str, text_list: list) -> int:
         if text in string:
             count += 1
     return count
+
+
+def convert_df_geom_to_shape(row):
+    from shapely.geometry import shape
+
+    geo = shape(row['geometry'])
+    wkt = geo.wkt
+    
+    return wkt
