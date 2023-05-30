@@ -21,18 +21,15 @@ class MongoRepo():
 
     def retrieve(self, collection, value=None, field='id', limit=None, sort=None, order=None):
         if value is None:
-            query = self.db[collection].find()
+            query = self.db[collection].find() # TODO: find_many if field is provided
             if sort is not None: query = query.sort(sort, order)
             if limit is not None: query = query.limit(limit)
             return list(query)
-        if field == '_id':
-            value = ObjectId(value)
+        if field == '_id': value = ObjectId(value)
         query = self.db[collection].find_one({field: value})
-        if sort is not None: query = query.sort(sort, order)
-        if limit is not None: query = query.limit(limit)
         return query
     
-    def retrieve_many(self, collection, values, field='id'):
+    def retrieve_many(self, collection, values, field='_id'):
         if field == '_id':
             values = [ObjectId(value) for value in values]
         return list(self.db[collection].find({field: {'$in': values}}))
@@ -40,8 +37,9 @@ class MongoRepo():
     def update(self, collection, id, data):
         return self.db[collection].update_one({'_id': ObjectId(id)}, {'$set': data})
 
-    def delete(self, collection, id):
-        return self.db[collection].delete_one({'_id': ObjectId(id)})
+    def delete(self, collection, value, field='id'):
+        if field == '_id': value = ObjectId(value)
+        return self.db[collection].delete_one({field: value})
 
     def retrieve_all(self, collection):
         return list(self.db[collection].find())
@@ -66,8 +64,10 @@ class MongoRepo():
             'timestamp': {'$gte': t0, '$lt': t0 + dt}
         }))
     
-    def find_top(self, collection, field, n=10):
-        return list(self.db[collection].find().sort(field, -1).limit(n))
+    def find_top(self, collection, field, n=None):
+        query = self.db[collection].find().sort(field, -1)
+        if n is not None: return list(query.limit(n))
+        return list(query)
     
     def append_to_list(self, collection, field1, value1, field2, value2):
         if field1 == '_id':

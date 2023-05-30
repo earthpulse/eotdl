@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import ingestDataset from "../lib/datasets/ingestDataset";
+import reuploadDataset from "../lib/datasets/reuploadDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
 import editDataset from "../lib/datasets/editDataset";
@@ -17,6 +18,14 @@ const createDatasets = () => {
       const data = await ingestDataset(file, name, description, token);
       update((current) => ({
         data: [...current.data, data],
+      }));
+    },
+    reupload: async (file, dataset_id, token) => {
+      const data = await reuploadDataset(file, dataset_id, token);
+      update((current) => ({
+        data: current.data.map((dataset) =>
+          dataset.id === id ? data : dataset
+        ),
       }));
     },
     retrieve: async (fetch, limit=null) => {

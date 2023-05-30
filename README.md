@@ -22,30 +22,45 @@ In order to run the API, you need to set the following environment variables:
 - `ACCESS_KEY_ID`: the access key ID of the S3 object storage
 - `SECRET_ACCESS_KEY`: the secret access key of the S3 object storage
 - `S3_BUCKET`: the name of the S3 bucket to store the datasets
+- `S3_SSL`: whether to use SSL to connect to the S3 object storage (optinal, True by default)
+- `S3_REGION`: the region of the S3 object storage
 - `AUTH0_DOMAIN`: the domain of the Auth0 tenant
 - `AUTH0_CLIENT_ID`: the client ID of the Auth0 application
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
-- `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
+- `TZ`: Your time zone (for example, `Europe/Madrid`. Optional, `UTC` by default)
+
+
+To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
+
+- `EOTDL_API_URL`: the URL of the API
 
 #### Running tests
 
 First, start docker
 
 ```
-docer-compose up -d
+docker-compose -f docker-compose.test.yml up -d
 ```
 
 Then, run the tests
 
 ```
-docker-compose exec eotdl-api pytest --cov .
+docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
+docker exec eotdl-cli-test poetry run pytest --cov cli --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with
 
 ```
-docker-compose exec eotdl-api ptw
+docker exec eotdl-api-test ptw api
+docker exec eotdl-cli-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
+
+#### Running the API
+
+```
+docker-compose up -d
+```
