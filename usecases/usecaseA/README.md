@@ -36,6 +36,8 @@ Used by run\_extraction.sh script.
 
 Outputs a csv row with a date and bounding box formatted as `%Y-%m-%d` and `[lower_left_x, lower_left_y, top_right_x, top_right_y]` respectively, as expected by the sentinel-hub api.
 
+Update: Included an output column of directory paths for sanity checks.
+
 
 ## run\_extraction.sh
 
@@ -48,4 +50,41 @@ i.e.,
 ```
 
 As the archives are over 500GB each, iterating through them can be a long process. Running in background and disowning is advised.
+
+
+## spot\_search.sh
+
+```bash
+#
+# Script for querying the availability of SPOT images 
+# through the Sentinel-Hub API.
+# 
+#
+#	Argument $1: CSV file containing DATE;BBOX metadata for the SSL4EO-S12 dataset.
+#	Argument $2: Output file to generate CSV metadata for available SPOT images.
+#
+# NOTE: Expects a text file called 'credentials' with 2 rows that include Sentinel-Hub credentials.
+#
+#	First row is USERID
+# 	Second row is USERKEY
+#
+#	e.g.
+#		abcdfe
+#		xXx$3!xxxxXx^
+#
+#
+#	Output columns:
+#	
+#		id: The id of the available image (to be used for ordering)
+#		acquisition_id: The acquisition identifier used by provider
+#		acquisition_time: The acquisition time of the available SPOT image
+#		original_date:	The date of the original dataset (acquisition_datetime is the closest to that)
+#		directory: The destination directory in the SSL4EO-S12 dataset
+#		bbox: The bounding box used to perform spatial query
+```
+
+Usage:
+```bash
+./spot_search.sh "<s1, s2c or s2a date,bounding_box,dir input list>" <output name>.csv
+```
 
