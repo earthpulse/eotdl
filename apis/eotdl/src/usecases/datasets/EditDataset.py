@@ -22,7 +22,7 @@ class EditDataset():
 
     def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset exists 
-        data = self.db_repo.retrieve('datasets', inputs.id)
+        data = self.db_repo.retrieve('datasets', inputs.id, '_id')
         if data is None:
             raise DatasetDoesNotExistError()
         dataset = Dataset(**data)
@@ -50,4 +50,4 @@ class EditDataset():
         )
         updated_dataset = Dataset(**updated_data)
         self.db_repo.update('datasets', inputs.id, updated_dataset.dict())
-        return self.Outputs(dataset=dataset)
+        return self.Outputs(dataset=updated_dataset)

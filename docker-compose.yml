@@ -31,7 +31,9 @@ services:
       - ACCESS_KEY_ID=eotdl
       - SECRET_ACCESS_KEY=12345678
       - S3_BUCKET=dev
+      - S3_SSL=False
       - ADMIN_API_KEY=12345678
+      - TZ=Europe/Madrid
     env_file: # auth0 credentials
       - .env
     volumes:
@@ -39,4 +41,4 @@ services:
       - ./lib/eotdl:/api/eotdl
     ports:
       - 8000:8000
-    command: uvicorn main:app --host 0.0.0.0 --reload
+    command: uvicorn api.main:app --host 0.0.0.0 --reload

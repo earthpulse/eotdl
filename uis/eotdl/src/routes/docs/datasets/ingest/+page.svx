@@ -6,19 +6,30 @@
 	import BadgeWarning from "../../BadgeWarning.svelte";
 </script>
 
-<BadgeWarning>Currently only Q0 datasets are supported.</BadgeWarning>
+<BadgeWarning>Currently, only Q0 datasets (.zip files) are supported.</BadgeWarning>
 
 Learn more about the datasets [quality levels](/docs/datasets/quality).
 
 # Ingest datasets
 
-You can upload your own datasets to the EOTDL platform.
+You can upload your own datasets to the EOTDL platform. 
+
+The following constraints apply to the dataset name:
+- It must be unique
+- It must be between 3 and 45 characters long
+- It can only contain alphanumeric characters and dashes.
+
+Once a dataset is ingested, it cannot be deleted since other users may be using it in their own pipelines. However, you can update a dataset by ingesting a new version of it.
+
+> ⚠ Up until versioning is not supported, this may also affect other users pipelines.
 
 ## User interface
 
 <UI>Use the INGEST button in the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> page.</UI>
 
 You'll need to be logged in to ingest datasets.
+
+Tou can use the `RE-UPLOAD` button of the dataset page to update the data.
 
 ## API 
 
@@ -35,6 +46,33 @@ You can ingest a dataset using the following API call:
 
 Where you will need the provide a unique `dataset-name` and `dataset-description`.
 
+> ⚠ These instructions work well for small datasets, but for the ingestion of large datasets (> 1 GB) we recommend using the CLI.
+
+In order to edit the name or description of a dataset, use the following call
+
+<Api><Code>curl -X 'PUT' \
+  'https://api.eotdl.com/datasets/{'<'}dataset-id>' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: multipart/form-data' \
+  -d '{'\{'}
+    "name": {'<'}dataset-name>,
+    "description": {'<'}dataset-description>,
+    "tags": {'<'}list-of-tags>
+  }'</Code></Api>
+
+The `name`, `description` and `tags` fields are optional. If you don't provide a field, it will not be updated.
+
+In order to update the dataset data, use the following call
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/datasets' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@{'<'}dataset-path>;type=application/zip' \
+  -F 'dataset_id={'<'}dataset-id>'</Code></Api>
+
 
 ## CLI 
 
@@ -42,4 +80,16 @@ You can ingest a dataset using the following CLI command:
 
 <CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path></Code></CLI>
 
-You will be prompted to provide a unique name for your dataset and a description.
+You will be prompted to provide a unique name for your dataset and a description. You can bypass this behaviour by providing the `--n` and `--d` flags.
+
+<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --n {'<'}dataset-name> --d {'<'}dataset-description></Code></CLI>
+
+<!-- For very large datasets, parallel ingestion can speed up the process. Use the `--p` flag to indicate the number of threads to use (use `-1` to use all).
+
+<CLI><Code>eotdl-cli datasets ingest {'<'}dataset-path> --p 4</Code></CLI>
+
+> ⚠ This feature may not work on all platforms, and may cause the ingestion to fail. If this happens, try again without the `--p` flag or a lower value. -->
+
+In order to update a dataset, use the following command
+
+<CLI><Code>eotdl-cli datasets update {'<'}dataset-name> {'<'}dataset-path></Code></CLI>

@@ -24,3 +24,6 @@ db
 docker-compose.prod.yml
 tutorials/*md
 credentials
+!test.zip
+.vscode
+kk

@@ -10,11 +10,14 @@
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 	import "../../../styles/dataset.css";
 	import TextEditor from "../TextEditor.svelte";
+	import Sd from "svelte-material-icons/Sd.svelte";
+	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
+	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
+	import Update from "./Update.svelte";
 
 	export let data;
 
-	$: ({ name, id, createdAt, uid, description, tags, likes, downloads } =
-		data.dataset);
+	$: ({ name, id, createdAt, uid, description, tags } = data.dataset);
 
 	$: content = description || "";
 
@@ -53,6 +56,7 @@
 								? writer.close()
 								: writer.write(value).then(pump)
 						);
+				data.dataset.downloads = data.dataset.downloads + 1;
 				return pump();
 			})
 			.then((res) => {
@@ -109,9 +113,15 @@
 	const like = () => {
 		if (!$user) return;
 		datasets.like(id, $id_token);
-		if (data.liked_datasets.includes(id))
-			data.liked_datasets = data.liked_datasets.filter((d) => d !== id);
-		else data.liked_datasets = [...data.liked_datasets, id];
+		if ($user?.liked_datasets.includes(id)) {
+			$user.liked_datasets = $user?.liked_datasets.filter(
+				(d) => d !== id
+			);
+			data.dataset.likes = data.dataset.likes - 1;
+		} else {
+			$user.liked_datasets = [...$user?.liked_datasets, id];
+			data.dataset.likes = data.dataset.likes + 1;
+		}
 	};
 </script>
 
@@ -136,9 +146,13 @@
 				</div>
 			</span>
 			{#if $user}
-				<button class="btn btn-ghost btn-outline" on:click={download}
-					>Download</button
-				>
+				<span class="flex flex-row gap-3">
+					<button
+						class="btn btn-ghost btn-outline"
+						on:click={download}>Download</button
+					>
+					<Update dataset_id={data.dataset.id} />
+				</span>
 			{:else}
 				<p class="badge badge-warning p-3">Sign in to download</p>
 			{/if}
@@ -151,16 +165,24 @@
 			<span class="flex flex-row gap-1">
 				<button on:click={like}
 					><HeartOutline
-						color={data.liked_datasets?.includes(id)
+						color={$user?.liked_datasets?.includes(id)
 							? "red"
 							: "gray"}
 					/></button
 				>
-				<p>{likes}</p>
+				<p>{data.dataset.likes}</p>
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<Download color="gray" size={20} />
-				<p>{downloads}</p>
+				<p>{data.dataset.downloads}</p>
+			</span>
+			<span class="flex flex-row items-center gap-1">
+				<Sd color="gray" size={20} />
+				<p>{formatFileSize(data.dataset.size)}</p>
+			</span>
+			<span class="flex flex-row items-center gap-1">
+				<CheckDecagramOutline color="gray" size={20} />
+				<p>Q{data.dataset.quality}</p>
 			</span>
 		</span>
 		{#if uid == $user?.uid}

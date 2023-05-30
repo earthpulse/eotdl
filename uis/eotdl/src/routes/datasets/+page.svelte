@@ -6,7 +6,6 @@
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
 	import retrieveDatasetsLeaderboard from "../../lib/datasets/retrieveDatasetsLeaderboard";
-	import retrieveLikedDatasets from "../../lib/datasets/retrieveLikedDatasets";
 	import Ingest from "./Ingest.svelte";
 	import Pagination from "./Pagination.svelte";
 	import Tags from "./Tags.svelte";
@@ -15,16 +14,11 @@
 	export let data;
 
 	let leaderboard,
-		liked_datasets = [],
 		loading = true;
 
 	const load = async () => {
 		await datasets.retrieve(fetch);
 		leaderboard = await retrieveDatasetsLeaderboard(fetch);
-		if (data.user) {
-			liked_datasets = await retrieveLikedDatasets(fetch, $id_token);
-			liked_datasets = liked_datasets.map((dataset) => dataset.id);
-		}
 		loading = false;
 	};
 
@@ -49,7 +43,7 @@
 			});
 		if (show_liked) {
 			filtered_datasets = filtered_datasets.filter((dataset) =>
-				liked_datasets.includes(dataset.id)
+				$user?.liked_datasets.includes(dataset.id)
 			);
 		}
 	}
@@ -117,7 +111,7 @@
 				{#each visible_datasets as dataset}
 					<Card
 						{dataset}
-						liked={liked_datasets.includes(dataset.id)}
+						liked={$user?.liked_datasets.includes(dataset.id)}
 					/>
 				{/each}
 			</div>

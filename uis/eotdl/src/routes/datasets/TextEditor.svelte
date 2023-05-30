@@ -1,7 +1,7 @@
 <script>
   import "../../styles/quill.snow.css";
   import { onMount } from "svelte";
-  import Quill from "quill";
+  // import Quill from "quill";
 
   export let options = {
     placeholder: "Description...",
@@ -19,7 +19,8 @@
   let a = "";
 
   let quillInstance;
-  onMount(() => {
+  onMount(async () => {
+    const Quill = (await import("quill")).default;
     if (quillInstance) return;
     const node = document.getElementById("editor");
     quillInstance = new Quill(node, options);
