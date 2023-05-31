@@ -7,6 +7,7 @@ import geopandas as gpd
 import pystac
 import json
 
+from xcube_geodb.core.geodb import GeoDBClient
 from geomet import wkt
 from os.path import join
 from os import makedirs
@@ -29,13 +30,21 @@ class STACDataFrame(gpd.GeoDataFrame):
     @classmethod
     def from_geodb(self,
                    server_url: str,
-                   server_port: int,
+                   server_port: int | str,
                    client_id: str,
-                   clien_secret: str,
-                   auth_aud: str):
+                   client_secret: str,
+                   auth_aud: str,
+                   collection: str,
+                   database: str=None):
         """
         """
-        pass
+        geodb_client = GeoDBClient(server_url=server_url, 
+                                   server_port=server_port, 
+                                   client_id=client_id, 
+                                   client_secret=client_secret, 
+                                   auth_aud=auth_aud)
+
+        return geodb_client.get_collection(collection, database=database)
     
     def to_geodb(self, 
                  server_url: str, 
@@ -47,7 +56,7 @@ class STACDataFrame(gpd.GeoDataFrame):
                  database: str=None):
         """
         """
-        pass
+        geodb_client = GeoDBClient(server_url, server_port, client_id, clien_secret, auth_aud)
 
     def to_stac_file(self, root_output_folder: str='output'):
         """
