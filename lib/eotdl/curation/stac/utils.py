@@ -2,8 +2,12 @@
 STAC utils
 """
 
+import pystac
+
 from datetime import datetime
 from dateutil import parser
+from pandas import isna
+from numpy import nan
 
 
 def format_time_acquired(dt: str|datetime) -> str:
@@ -34,9 +38,65 @@ def count_ocurrences(text: str, text_list: list) -> int:
 
 
 def convert_df_geom_to_shape(row):
+    """
+    Convert the geometry of a dataframe row to a shapely shape
+
+    :param row: row of a dataframe
+    """
     from shapely.geometry import shape
 
-    geo = shape(row['geometry'])
-    wkt = geo.wkt
+    if not isna(row['geometry']):
+        geo = shape(row['geometry'])
+        wkt = geo.wkt
+    else:
+        wkt = 'POLYGON EMPTY'
     
     return wkt
+
+
+def get_all_children(obj: pystac.STACObject) -> list:
+    """
+    Get all the children of a STAC object
+
+    :param obj: STAC object
+    """
+    children = []
+    
+    # Collections
+    collections = list(obj.get_collections())
+
+    for collection in collections:
+        children.append(collection.to_dict())
+
+    # Items
+    items = obj.get_items()
+    for item in items:
+        children.append(item.to_dict())
+
+    # Items from collections
+    for collection in collections:
+        items = collection.get_items()
+        for item in items:
+            children.append(item.to_dict())
+
+    return children
+
+
+stac_collection = {
+    'crs': 4326,
+    'properties': {
+                "type": "character varying",
+                "description": "character varying",
+                "extent": "character varying",
+                "license": "character varying",
+                "collection": "character varying",
+                "stac_version": "character varying",
+                "providers": "character varying",
+                "properties": "character varying",
+                "stac_id": "character varying",
+                "links": "character varying",
+                "assets": "character varying",
+                "bbox": "character varying",
+                "stac_extensions": "character varying"
+            }
+}
