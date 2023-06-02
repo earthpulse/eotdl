@@ -12,6 +12,7 @@ from geomet import wkt
 from os.path import join
 from os import makedirs
 
+from math import isnan
 from .utils import convert_df_geom_to_shape, stac_collection, get_all_children
 
 
@@ -95,20 +96,58 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         return stac_collection
 
-    def to_stac_file(self, root_output_folder: str='output'):
+    def to_stac(self, root_output_folder: str='output'):
         """
         """
         makedirs(root_output_folder, exist_ok=True)
-        for index, row in self.iterrows():
+        df = self.copy()
+
+        # First, create the collections and their folders
+        collections = dict()
+        collections_df = df[df['type'] == 'Collection']
+        for index, row in collections_df.iterrows():
+            stac_output_folder = join(root_output_folder, row['id'])
+            collections[row['id']] = stac_output_folder
+            makedirs(stac_output_folder, exist_ok=True)
+            row_json = row.to_dict()
+
+            # Remove the NaN values
+            # TODO meter en lista
+            keys_to_remove = list()
+            for k, v in row_json.items():
+                if isinstance(v, float) and isnan(v):
+                    keys_to_remove.append(k)
+            for key in keys_to_remove:
+                del row_json[key]
+            del row_json['geometry']
+
+            with open(join(stac_output_folder, f'collection.json'), 'w') as f:
+               json.dump(row_json, f)
+            
+        # Then, create the items and their folders
+        features_df = df[df['type'] == 'Feature']
+        for index, row in features_df.iterrows():
+            collection = row['collection']
+            stac_output_folder = join(collections[collection], row['id'])
+
             # Convert the geometry from WKT back to geojson
             row['geometry'] = row['geometry'].wkt
             row['geometry'] = wkt.loads(row['geometry'])
-            stac_output_folder = join(root_output_folder, row['id'])
             makedirs(stac_output_folder, exist_ok=True)
             row_json = row.to_dict()
+
+            # Remove the NaN values
+            # TODO meter en lista
+            keys_to_remove = list()
+            for k, v in row_json.items():
+                if isinstance(v, float) and isnan(v):
+                    keys_to_remove.append(k)
+            for key in keys_to_remove:
+                del row_json[key]
             
             with open(join(stac_output_folder, f'{row["id"]}.json'), 'w') as f:
                json.dump(row_json, f)
+
 
 def read_stac(stac_file: pystac.Catalog | pystac.Collection | str, 
               geometry_column: str='geometry') -> STACDataFrame:
