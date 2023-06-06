@@ -13,7 +13,7 @@ from os.path import join
 from os import makedirs
 
 from math import isnan
-from .utils import convert_df_geom_to_shape, stac_collection, get_all_children
+from .utils import convert_df_geom_to_shape, get_all_children
 
 
 class STACDataFrame(gpd.GeoDataFrame):
@@ -38,6 +38,15 @@ class STACDataFrame(gpd.GeoDataFrame):
                    collection: str,
                    database: str=None):
         """
+        Create a STACDataFrame from a GeoDB collection
+
+        :param server_url: GeoDB server url
+        :param server_port: GeoDB server port
+        :param client_id: GeoDB client id
+        :param client_secret: GeoDB client secret
+        :param auth_aud: GeoDB auth aud
+        :param collection: GeoDB collection
+        :param database: GeoDB database
         """
         geodb_client = GeoDBClient(server_url=server_url, 
                                    server_port=server_port, 
@@ -45,7 +54,9 @@ class STACDataFrame(gpd.GeoDataFrame):
                                    client_secret=client_secret, 
                                    auth_aud=auth_aud)
 
-        return geodb_client.get_collection(collection, database=database)
+        data = geodb_client.get_collection(collection, database=database)
+
+        return STACDataFrame(data, crs='EPSG:4326')
     
     def to_geodb(self, 
                  server_url: str, 
@@ -56,6 +67,15 @@ class STACDataFrame(gpd.GeoDataFrame):
                  collection: str,
                  database: str=None):
         """
+        Create a GeoDB collection from a STACDataFrame
+
+        :param server_url: GeoDB server url
+        :param server_port: GeoDB server port
+        :param client_id: GeoDB client id
+        :param client_secret: GeoDB client secret
+        :param auth_aud: GeoDB auth aud
+        :param collection: GeoDB collection
+        :param database: GeoDB database
         """
         geodb_client = GeoDBClient(server_url=server_url, 
                                    server_port=server_port, 
@@ -83,6 +103,9 @@ class STACDataFrame(gpd.GeoDataFrame):
 
     def _create_collection_structure(self, columns: list) -> dict:
         """
+        Create the schema structure of a GeoDB collection from a STACDataFrame
+
+        :param columns: columns of the STACDataFrame
         """
         stac_collection = {
             'crs': 4326,
@@ -92,37 +115,37 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         for column in columns:
             if column not in ('geometry', 'id'):
-                stac_collection['properties'][column] = 'character varying'
+                stac_collection['properties'][column] = 'json'
 
         return stac_collection
 
     def to_stac(self):
         """
+        Create a STAC catalog and children from a STACDataFrame
         """
         df = self.copy()
 
+        if 'id' in df.columns and 'stac_id' in df.columns:
+            id_column = 'stac_id'
+            stac_id_exists = True
+        else:
+            id_column = 'id'
+            stac_id_exists = False
+
         # First, create the catalog and its folder, if exists
         catalog_df = df[df['type'] == 'Catalog']
-        print(catalog_df)
 
         if catalog_df.empty:
             root_output_folder = 'output'
             makedirs(root_output_folder, exist_ok=True)
         else:
             for index, row in catalog_df.iterrows():
-                root_output_folder = row['id']
+                root_output_folder = row[id_column]
                 makedirs(root_output_folder, exist_ok=True)
                 row_json = row.to_dict()
 
-                # Remove the NaN values
-                # TODO meter en lista
-                keys_to_remove = list()
-                for k, v in row_json.items():
-                    if isinstance(v, float) and isnan(v):
-                        keys_to_remove.append(k)
-                for key in keys_to_remove:
-                    del row_json[key]
-                del row_json['geometry']
+                # Curate the json row
+                row_json = self.curate_json_row(row_json, stac_id_exists)
 
                 with open(join(root_output_folder, f'catalog.json'), 'w') as f:
                     json.dump(row_json, f)
@@ -131,20 +154,13 @@ class STACDataFrame(gpd.GeoDataFrame):
         collections = dict()
         collections_df = df[df['type'] == 'Collection']
         for index, row in collections_df.iterrows():
-            stac_output_folder = join(root_output_folder, row['id'])
-            collections[row['id']] = stac_output_folder
+            stac_output_folder = join(root_output_folder, row[id_column])
+            collections[row[id_column]] = stac_output_folder
             makedirs(stac_output_folder, exist_ok=True)
             row_json = row.to_dict()
 
-            # Remove the NaN values
-            # TODO meter en lista
-            keys_to_remove = list()
-            for k, v in row_json.items():
-                if isinstance(v, float) and isnan(v):
-                    keys_to_remove.append(k)
-            for key in keys_to_remove:
-                del row_json[key]
-            del row_json['geometry']
+            # Curate the json row
+            row_json = self.curate_json_row(row_json, stac_id_exists)
 
             with open(join(stac_output_folder, f'collection.json'), 'w') as f:
                json.dump(row_json, f)
@@ -153,7 +169,7 @@ class STACDataFrame(gpd.GeoDataFrame):
         features_df = df[df['type'] == 'Feature']
         for index, row in features_df.iterrows():
             collection = row['collection']
-            stac_output_folder = join(collections[collection], row['id'])
+            stac_output_folder = join(collections[collection], row[id_column])
 
             # Convert the geometry from WKT back to geojson
             row['geometry'] = row['geometry'].wkt
@@ -161,17 +177,40 @@ class STACDataFrame(gpd.GeoDataFrame):
             makedirs(stac_output_folder, exist_ok=True)
             row_json = row.to_dict()
 
-            # Remove the NaN values
-            # TODO meter en lista
-            keys_to_remove = list()
-            for k, v in row_json.items():
-                if isinstance(v, float) and isnan(v):
-                    keys_to_remove.append(k)
-            for key in keys_to_remove:
-                del row_json[key]
+            # Curate the json row
+            row_json = self.curate_json_row(row_json, stac_id_exists)
             
-            with open(join(stac_output_folder, f'{row["id"]}.json'), 'w') as f:
+            with open(join(stac_output_folder, f'{row_json["id"]}.json'), 'w') as f:
                json.dump(row_json, f)
+
+    def curate_json_row(self, row: dict, stac_id_exists: bool) -> dict:
+        """
+        Curate the json row of a STACDataFrame, in order to generate a valid STAC file
+
+        :param row: row of a STACDataFrame
+        :param stac_id_exists: if the stac_id column exists
+        """
+        keys_to_remove = list()
+
+        # Remove the created_at and modified_at columns, if the STACDataFrame comes from GeoDB
+        for i in 'created_at', 'modified_at':
+            if i in row.keys():
+                keys_to_remove.append(i)
+
+        # Rename the stac_id column to id, to avoid conflicts with the id column
+        if stac_id_exists:
+            row['id'] = row['stac_id']
+            del row['stac_id']
+
+        # Remove the NaN values and empty strings
+        for k, v in row.items():
+            if (isinstance(v, float) and isnan(v)) or v == '':
+                keys_to_remove.append(k)
+        for key in keys_to_remove:
+            del row[key]
+        del row['geometry']
+
+        return row
 
 
 def read_stac(stac_file: pystac.Catalog | pystac.Collection | str, 
