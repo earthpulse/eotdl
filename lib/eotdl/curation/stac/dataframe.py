@@ -96,13 +96,38 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         return stac_collection
 
-    def to_stac(self, root_output_folder: str='output'):
+    def to_stac(self):
         """
         """
-        makedirs(root_output_folder, exist_ok=True)
         df = self.copy()
 
-        # First, create the collections and their folders
+        # First, create the catalog and its folder, if exists
+        catalog_df = df[df['type'] == 'Catalog']
+        print(catalog_df)
+
+        if catalog_df.empty:
+            root_output_folder = 'output'
+            makedirs(root_output_folder, exist_ok=True)
+        else:
+            for index, row in catalog_df.iterrows():
+                root_output_folder = row['id']
+                makedirs(root_output_folder, exist_ok=True)
+                row_json = row.to_dict()
+
+                # Remove the NaN values
+                # TODO meter en lista
+                keys_to_remove = list()
+                for k, v in row_json.items():
+                    if isinstance(v, float) and isnan(v):
+                        keys_to_remove.append(k)
+                for key in keys_to_remove:
+                    del row_json[key]
+                del row_json['geometry']
+
+                with open(join(root_output_folder, f'catalog.json'), 'w') as f:
+                    json.dump(row_json, f)
+
+        # Second, create the collections and their folders, if exist
         collections = dict()
         collections_df = df[df['type'] == 'Collection']
         for index, row in collections_df.iterrows():
@@ -124,7 +149,7 @@ class STACDataFrame(gpd.GeoDataFrame):
             with open(join(stac_output_folder, f'collection.json'), 'w') as f:
                json.dump(row_json, f)
             
-        # Then, create the items and their folders
+        # Then, create the items and their folders, if exist
         features_df = df[df['type'] == 'Feature']
         for index, row in features_df.iterrows():
             collection = row['collection']
