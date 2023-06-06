@@ -62,6 +62,9 @@ def get_all_children(obj: pystac.STACObject) -> list:
     """
     children = []
     
+    # Append the current object to the list
+    children.append(obj.to_dict())
+
     # Collections
     collections = list(obj.get_collections())
 
