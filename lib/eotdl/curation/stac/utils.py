@@ -83,23 +83,3 @@ def get_all_children(obj: pystac.STACObject) -> list:
             children.append(item.to_dict())
 
     return children
-
-
-stac_collection = {
-    'crs': 4326,
-    'properties': {
-                "type": "character varying",
-                "description": "character varying",
-                "extent": "character varying",
-                "license": "character varying",
-                "collection": "character varying",
-                "stac_version": "character varying",
-                "providers": "character varying",
-                "properties": "character varying",
-                "stac_id": "character varying",
-                "links": "character varying",
-                "assets": "character varying",
-                "bbox": "character varying",
-                "stac_extensions": "character varying"
-            }
-}
