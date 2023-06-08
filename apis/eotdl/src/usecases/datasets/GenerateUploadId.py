@@ -3,7 +3,7 @@ import typing
 
 from ...models import Dataset, User, Limits, UploadingDataset
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
-from typing import Optional
+from typing import Optional, List
 
 
 class GenerateUploadId:
@@ -21,19 +21,25 @@ class GenerateUploadId:
     class Outputs(BaseModel):
         dataset_id: Optional[str] = None
         upload_id: Optional[str] = None
+        parts: Optional[List[int]] = []
 
     def __call__(self, inputs: Inputs) -> Outputs:
         # check if upload already exists
-        data = self.db_repo.find_one_by_user_and_value(
-            "uploading", inputs.uid, "checksum", inputs.checksum
-        )
+        if inputs.id is None:
+            data = self.db_repo.find_one_by_user_and_value(
+                "uploading", inputs.uid, "name", inputs.name
+            )
+        else:
+            data = self.db_repo.retrieve("uploading", inputs.id)
         if data:
             uploading = UploadingDataset(**data)
-            if uploading.checksum == inputs.checksum:
+            if uploading.checksum != inputs.checksum:
                 self.db_repo.delete("uploading", uploading.id)
             else:
                 return self.Outputs(
-                    dataset_id=uploading.id, upload_id=uploading.upload_id
+                    dataset_id=uploading.id,
+                    upload_id=uploading.upload_id,
+                    parts=uploading.parts,
                 )
         # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
@@ -86,5 +92,5 @@ class GenerateUploadId:
             name=dataset.name,
             checksum=inputs.checksum,
         )
-        self.db_repo.persist("uploading", uploading.dict(), id)
+        self.db_repo.persist("uploading", uploading.dict(), inputs.id)
         return self.Outputs(upload_id=upload_id)

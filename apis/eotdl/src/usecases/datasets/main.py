@@ -145,7 +145,7 @@ def generate_upload_id(user, checksum, name=None, id=None):
         id=id,
     )
     outputs = generate(inputs)
-    return outputs.dataset_id, outputs.upload_id
+    return outputs.dataset_id, outputs.upload_id, outputs.parts
 
 
 def ingest_dataset_chunk(

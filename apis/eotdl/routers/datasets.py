@@ -187,8 +187,8 @@ def start_large_dataset_upload(
     user: User = Depends(get_current_user),
 ):
     try:
-        dataset_id, upload_id = generate_upload_id(user, checksum, name)
-        return {"dataset_id": dataset_id, "upload_id": upload_id}
+        dataset_id, upload_id, parts = generate_upload_id(user, checksum, name)
+        return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
     except Exception as e:
         logger.exception("datasets:start_large_dataset_upload")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -197,11 +197,12 @@ def start_large_dataset_upload(
 @router.get("/chunk/{id}", include_in_schema=False)
 def start_large_dataset_update(
     id: str,
+    checksum: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        dataset_id, upload_id = generate_upload_id(user=user, id=id)
-        return {"dataset_id": dataset_id, "upload_id": upload_id}
+        dataset_id, upload_id, parts = generate_upload_id(user, checksum, id=id)
+        return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
     except Exception as e:
         logger.exception("datasets:start_large_dataset_update")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
