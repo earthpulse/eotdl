@@ -28,7 +28,7 @@ logging.basicConfig(
 async def root():
     return {
         "name": "eotdl",
-        "version": "2023.05.23",
+        "version": "2023.06.08",
         "description": "Earth Observation Training Data Lab",
         "contact": "support@eotdl.com",
     }
