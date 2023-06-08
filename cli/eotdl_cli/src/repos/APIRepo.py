@@ -66,10 +66,16 @@ class APIRepo:
         if response.status_code != 200:
             raise Exception(response.json()["detail"])
         data = response.json()
-        dataset_id, upload_id = data["dataset_id"], data["upload_id"]
-        return dataset_id, upload_id
+        dataset_id, upload_id, parts = (
+            data["dataset_id"],
+            data["upload_id"],
+            data["parts"] if "parts" in data else [],
+        )
+        return dataset_id, upload_id, parts
 
-    def ingest_large_dataset(self, path, chunk_size, upload_id, dataset_id, id_token):
+    def ingest_large_dataset(
+        self, path, chunk_size, upload_id, dataset_id, id_token, parts
+    ):
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         total_chunks = content_size // chunk_size
@@ -86,13 +92,15 @@ class APIRepo:
         )
         index = 0
         for chunk in pbar:
+            part = index // chunk_size + 1
             offset = index + len(chunk)
-            headers["Part-Number"] = str(index // chunk_size + 1)
             index = offset
-            file = {"file": chunk}
-            r = requests.post(url, files=file, headers=headers)
-            if r.status_code != 200:
-                return None, r.json()["detail"]
+            if part not in parts:
+                headers["Part-Number"] = str(part)
+                file = {"file": chunk}
+                r = requests.post(url, files=file, headers=headers)
+                if r.status_code != 200:
+                    return None, r.json()["detail"]
             pbar.set_description(
                 "{:.2f}/{:.2f} MB".format(
                     offset / 1024 / 1024, content_size / 1024 / 1024
@@ -116,23 +124,23 @@ class APIRepo:
         return r.json(), None
 
     def update_dataset(self, name, path, id_token, checksum):
+        # check that dataset exists
         data, error = self.retrieve_dataset(name)
         if error:
             return None, error
         # first call to get upload id
         dataset_id = data["id"]
-        url = self.url + f"datasets/chunk/{dataset_id}"
+        url = self.url + f"datasets/chunk/{dataset_id}?checksum={checksum}"
         response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
         if response.status_code != 200:
             return None, response.json()["detail"]
         data = response.json()
-        _, upload_id = data["dataset_id"], data["upload_id"]
-        # print(dataset_id, upload_id)
+        _, upload_id, parts = data["dataset_id"], data["upload_id"], data["parts"]
         # assert dataset_id is None
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         url = self.url + "datasets/chunk"
-        chunk_size = 1024 * 1024 * 100  # 100 MiB
+        chunk_size = 1024 * 1024 * 10  # 10 MiB
         total_chunks = content_size // chunk_size
         headers = {
             "Authorization": "Bearer " + id_token,
@@ -147,12 +155,14 @@ class APIRepo:
         index = 0
         for chunk in pbar:
             offset = index + len(chunk)
-            headers["Part-Number"] = str(index // chunk_size + 1)
+            part = index // chunk_size + 1
             index = offset
-            file = {"file": chunk}
-            r = requests.post(url, files=file, headers=headers)
-            if r.status_code != 200:
-                return None, r.json()["detail"]
+            if part not in parts:
+                headers["Part-Number"] = str(part)
+                file = {"file": chunk}
+                r = requests.post(url, files=file, headers=headers)
+                if r.status_code != 200:
+                    return None, r.json()["detail"]
             pbar.set_description(
                 "{:.2f}/{:.2f} MB".format(
                     offset / 1024 / 1024, content_size / 1024 / 1024

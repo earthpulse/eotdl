@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 
-from ...models import Dataset, Usage, User, Limits
+from ...models import Dataset, Usage, User, Limits, UploadingDataset
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
 from ...utils import calculate_checksum
 
@@ -38,6 +38,8 @@ class CompleteMultipartUpload:
                     limits.datasets.upload
                 )
             )
+        # delete uploading dataset (if something fails bellow will require new upload from scratch...)
+        self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
         # create new dataset
         if inputs.name is not None:
             # check if name already exists
@@ -47,7 +49,6 @@ class CompleteMultipartUpload:
             self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
             data_stream = self.os_repo.data_stream(inputs.id)
             checksum = await calculate_checksum(data_stream)
-            print("checksum", checksum)
             if checksum != inputs.checksum:
                 self.os_repo.delete(inputs.id)
                 raise Exception("Checksum mismatch. Dataset deleted.")
