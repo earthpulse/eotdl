@@ -60,54 +60,20 @@ class APIRepo:
                 break
             yield data
 
-    def prepare_large_upload(self, name, path, id_token):
-        # first call to get upload id
-        url = self.url + "datasets/chunk?name=" + name
+    def prepare_large_upload(self, name, id_token, checksum):
+        url = self.url + "datasets/chunk?name=" + name + "&checksum=" + checksum
         response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
         if response.status_code != 200:
             raise Exception(response.json()["detail"])
         data = response.json()
         dataset_id, upload_id = data["dataset_id"], data["upload_id"]
+        return dataset_id, upload_id
+
+    def ingest_large_dataset(self, path, chunk_size, upload_id, dataset_id, id_token):
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
-        url = self.url + "datasets/chunk"
-        chunk_size = 1024 * 1024 * 100  # 100 MiB
         total_chunks = content_size // chunk_size
-        return (
-            content_size,
-            chunk_size,
-            content_path,
-            url,
-            upload_id,
-            dataset_id,
-            total_chunks,
-        )
-
-    def complete_upload(self, name, id_token, upload_id, dataset_id, checksum):
-        url = self.url + "datasets/complete"
-        r = requests.post(
-            url,
-            json={"name": name, "checksum": checksum},
-            headers={
-                "Authorization": "Bearer " + id_token,
-                "Upload-Id": upload_id,
-                "Dataset-Id": dataset_id,
-            },
-        )
-        if r.status_code != 200:
-            return None, r.json()["detail"]
-        return r.json(), None
-
-    def ingest_large_dataset(self, name, path, id_token, checksum):
-        (
-            content_size,
-            chunk_size,
-            content_path,
-            url,
-            upload_id,
-            dataset_id,
-            total_chunks,
-        ) = self.prepare_large_upload(name, path, id_token)
+        url = self.url + "datasets/chunk"
         headers = {
             "Authorization": "Bearer " + id_token,
             "Upload-Id": upload_id,
@@ -133,7 +99,21 @@ class APIRepo:
                 )
             )
         pbar.close()
-        return self.complete_upload(name, id_token, upload_id, dataset_id, checksum)
+
+    def complete_upload(self, name, id_token, upload_id, dataset_id, checksum):
+        url = self.url + "datasets/complete"
+        r = requests.post(
+            url,
+            json={"name": name, "checksum": checksum},
+            headers={
+                "Authorization": "Bearer " + id_token,
+                "Upload-Id": upload_id,
+                "Dataset-Id": dataset_id,
+            },
+        )
+        if r.status_code != 200:
+            return None, r.json()["detail"]
+        return r.json(), None
 
     def update_dataset(self, name, path, id_token, checksum):
         data, error = self.retrieve_dataset(name)

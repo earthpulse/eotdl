@@ -133,13 +133,14 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, name=None, id=None):
+def generate_upload_id(user, checksum, name=None, id=None):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
     generate = GenerateUploadId(db_repo, os_repo, s3_repo)
     inputs = generate.Inputs(
         uid=user.uid,
+        checksum=checksum,
         name=name,
         id=id,
     )
@@ -155,7 +156,8 @@ def ingest_dataset_chunk(
 ):
     os_repo = OSRepo()
     s3_repo = S3Repo()
-    ingest = IngestDatasetChunk(os_repo, s3_repo)
+    db_repo = DBRepo()
+    ingest = IngestDatasetChunk(os_repo, s3_repo, db_repo)
     inputs = ingest.Inputs(
         chunk=chunk, id=id, upload_id=upload_id, part_number=part_number
     )

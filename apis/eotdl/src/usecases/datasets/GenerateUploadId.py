@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import typing
 
-from ...models import Dataset, User, Limits
+from ...models import Dataset, User, Limits, UploadingDataset
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
 from typing import Optional
 
@@ -14,6 +14,7 @@ class GenerateUploadId:
 
     class Inputs(BaseModel):
         uid: str
+        checksum: str
         name: str = None
         id: str = None
 
@@ -22,6 +23,18 @@ class GenerateUploadId:
         upload_id: Optional[str] = None
 
     def __call__(self, inputs: Inputs) -> Outputs:
+        # check if upload already exists
+        data = self.db_repo.find_one_by_user_and_value(
+            "uploading", inputs.uid, "checksum", inputs.checksum
+        )
+        if data:
+            uploading = UploadingDataset(**data)
+            if uploading.checksum == inputs.checksum:
+                self.db_repo.delete("uploading", uploading.id)
+            else:
+                return self.Outputs(
+                    dataset_id=uploading.id, upload_id=uploading.upload_id
+                )
         # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
@@ -43,15 +56,17 @@ class GenerateUploadId:
         if inputs.id is None:
             # generate new dataset id and validate name, description
             id = self.db_repo.generate_id()
-            Dataset(
-                uid=inputs.uid,
-                id=id,
-                name=inputs.name,
-                checksum="",  # mandatory but not used
-            )
             # generate multipart upload id
             storage = self.os_repo.get_object(id)
             upload_id = self.s3_repo.multipart_upload_id(storage)
+            uploading = UploadingDataset(
+                uid=inputs.uid,
+                id=id,
+                upload_id=upload_id,
+                name=inputs.name,
+                checksum=inputs.checksum,
+            )
+            self.db_repo.persist("uploading", uploading.dict(), id)
             return self.Outputs(dataset_id=id, upload_id=upload_id)
         # update existing dataset
         # check if user is owner
@@ -64,4 +79,12 @@ class GenerateUploadId:
         upload_id = self.s3_repo.multipart_upload_id(
             storage
         )  # does this work if the file already exists ?
+        uploading = UploadingDataset(
+            uid=inputs.uid,
+            id=inputs.id,
+            upload_id=upload_id,
+            name=dataset.name,
+            checksum=inputs.checksum,
+        )
+        self.db_repo.persist("uploading", uploading.dict(), id)
         return self.Outputs(upload_id=upload_id)
