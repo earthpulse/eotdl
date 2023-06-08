@@ -183,10 +183,11 @@ def delete(
 @router.get("/chunk", include_in_schema=False)
 def start_large_dataset_upload(
     name: str,
+    checksum: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        dataset_id, upload_id = generate_upload_id(user, name)
+        dataset_id, upload_id = generate_upload_id(user, checksum, name)
         return {"dataset_id": dataset_id, "upload_id": upload_id}
     except Exception as e:
         logger.exception("datasets:start_large_dataset_upload")
@@ -212,20 +213,20 @@ def ingest_large_dataset_chunk(
     file: UploadFile = File(...),
     user: User = Depends(get_current_user),
 ):
-    try:
-        upload_id = request.headers.get("upload-id", None)
-        part_number = int(request.headers.get("part-number", None))
-        dataset_id = request.headers.get("dataset-id", None)
-        ingest_dataset_chunk(
-            file.file,
-            part_number,
-            dataset_id,
-            upload_id,
-        )
-        return {"message": "done"}
-    except Exception as e:
-        logger.exception("datasets:ingest_large_dataset_chunk")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    upload_id = request.headers.get("upload-id", None)
+    part_number = int(request.headers.get("part-number", None))
+    dataset_id = request.headers.get("dataset-id", None)
+    ingest_dataset_chunk(
+        file.file,
+        part_number,
+        dataset_id,
+        upload_id,
+    )
+    return {"message": "done"}
+    # except Exception as e:
+    #     logger.exception("datasets:ingest_large_dataset_chunk")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 class CompleteBody(BaseModel):
