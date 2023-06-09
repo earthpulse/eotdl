@@ -31,7 +31,7 @@ class IngestLargeDataset:
             inputs.name, id_token, checksum
         )
         self.repo.ingest_large_dataset(
-            inputs.path, 1024 * 1024 * 10, upload_id, dataset_id, id_token, parts
+            inputs.path, 1024 * 1024 * 100, upload_id, dataset_id, id_token, parts
         )
         data, error = self.repo.complete_upload(
             inputs.name, id_token, upload_id, dataset_id, checksum

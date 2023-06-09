@@ -140,7 +140,7 @@ class APIRepo:
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
         url = self.url + "datasets/chunk"
-        chunk_size = 1024 * 1024 * 10  # 10 MiB
+        chunk_size = 1024 * 1024 * 100  # 100 MiB
         total_chunks = content_size // chunk_size
         headers = {
             "Authorization": "Bearer " + id_token,
