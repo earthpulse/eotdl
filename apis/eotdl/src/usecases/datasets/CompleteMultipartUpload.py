@@ -38,8 +38,6 @@ class CompleteMultipartUpload:
                     limits.datasets.upload
                 )
             )
-        # delete uploading dataset (if something fails bellow will require new upload from scratch...)
-        self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
         # create new dataset
         if inputs.name is not None:
             # check if name already exists
@@ -50,7 +48,8 @@ class CompleteMultipartUpload:
             data_stream = self.os_repo.data_stream(inputs.id)
             checksum = await calculate_checksum(data_stream)
             if checksum != inputs.checksum:
-                self.os_repo.delete(inputs.id)
+                # uncomment when everything is working
+                # self.os_repo.delete(inputs.id)
                 raise Exception("Checksum mismatch. Dataset deleted.")
             size = self.os_repo.get_size(inputs.id)
             dataset = Dataset(
@@ -69,6 +68,8 @@ class CompleteMultipartUpload:
                 uid=inputs.uid, payload={"dataset": inputs.id}
             )
             self.db_repo.persist("usage", usage.dict())
+            # delete uploading dataset (if something fails bellow will require new upload from scratch...)
+            self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
             return self.Outputs(dataset=dataset)
         # update existing dataset
         # check if user is owner
@@ -95,4 +96,6 @@ class CompleteMultipartUpload:
         # report usage
         usage = Usage.DatasetIngested(uid=inputs.uid, payload={"dataset": inputs.id})
         self.db_repo.persist("usage", usage.dict())
+        # delete uploading dataset (if something fails bellow will require new upload from scratch...)
+        self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
         return self.Outputs(dataset=dataset)
