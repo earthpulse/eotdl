@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from src.utils import calculate_checksum
 
 
 class IngestLargeDataset:
@@ -8,7 +9,6 @@ class IngestLargeDataset:
 
     class Inputs(BaseModel):
         name: str
-        description: str
         path: str = None
         user: dict
 
@@ -16,12 +16,25 @@ class IngestLargeDataset:
         dataset: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
+        data, error = self.repo.retrieve_dataset(inputs.name)
+        if data:
+            raise Exception("Dataset already exists")
         # allow only zip files
         if not inputs.path.endswith(".zip"):
             raise Exception("Only zip files are allowed")
+        self.logger("Computing checksum...")
+        checksum = calculate_checksum(inputs.path)
+        self.logger(checksum)
         self.logger("Ingesting dataset...")
-        data, error = self.repo.ingest_large_dataset(
-            inputs.name, inputs.description, inputs.path, inputs.user["id_token"]
+        id_token = inputs.user["id_token"]
+        dataset_id, upload_id, parts = self.repo.prepare_large_upload(
+            inputs.name, id_token, checksum
+        )
+        self.repo.ingest_large_dataset(
+            inputs.path, 1024 * 1024 * 100, upload_id, dataset_id, id_token, parts
+        )
+        data, error = self.repo.complete_upload(
+            inputs.name, id_token, upload_id, dataset_id, checksum
         )
         if error:
             raise Exception(error)

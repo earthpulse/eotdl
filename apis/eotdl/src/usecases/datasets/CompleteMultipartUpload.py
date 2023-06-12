@@ -2,8 +2,9 @@ from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 
-from ...models import Dataset, Usage, User, Limits
+from ...models import Dataset, Usage, User, Limits, UploadingDataset
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
+from ...utils import calculate_checksum
 
 
 class CompleteMultipartUpload:
@@ -15,14 +16,14 @@ class CompleteMultipartUpload:
     class Inputs(BaseModel):
         uid: str
         name: Union[str, None]
-        description: Union[str, None]
         id: str
         upload_id: str
+        checksum: str
 
     class Outputs(BaseModel):
         dataset: Dataset
 
-    def __call__(self, inputs: Inputs) -> Outputs:
+    async def __call__(self, inputs: Inputs) -> Outputs:
         # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
@@ -38,19 +39,25 @@ class CompleteMultipartUpload:
                 )
             )
         # create new dataset
-        if inputs.name is not None and inputs.description is not None:
+        if inputs.name is not None:
             # check if name already exists
             if self.db_repo.find_one_by_name("datasets", inputs.name):
                 raise DatasetAlreadyExistsError()
             storage = self.os_repo.get_object(inputs.id)
             self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
+            data_stream = self.os_repo.data_stream(inputs.id)
+            checksum = await calculate_checksum(data_stream)
+            if checksum != inputs.checksum:
+                # uncomment when everything is working
+                # self.os_repo.delete(inputs.id)
+                raise Exception("Checksum mismatch. Dataset deleted.")
             size = self.os_repo.get_size(inputs.id)
             dataset = Dataset(
                 uid=inputs.uid,
                 id=inputs.id,
                 name=inputs.name,
-                description=inputs.description,
                 size=size,
+                checksum=checksum,
             )
             # save dataset in db
             self.db_repo.persist("datasets", dataset.dict(), inputs.id)
@@ -61,6 +68,8 @@ class CompleteMultipartUpload:
                 uid=inputs.uid, payload={"dataset": inputs.id}
             )
             self.db_repo.persist("usage", usage.dict())
+            # delete uploading dataset (if something fails bellow will require new upload from scratch...)
+            self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
             return self.Outputs(dataset=dataset)
         # update existing dataset
         # check if user is owner
@@ -73,12 +82,20 @@ class CompleteMultipartUpload:
         self.s3_repo.complete_multipart_upload(
             storage, inputs.upload_id
         )  # will work if dataset exists?
+        data_stream = self.os_repo.data_stream(inputs.id)
+        checksum = await calculate_checksum(data_stream)
+        print("checksum", checksum)
+        if checksum != inputs.checksum:
+            self.os_repo.delete(inputs.id)
+            raise Exception("Checksum mismatch. Dataset deleted.")
         size = self.os_repo.get_size(inputs.id)
-        data.update(size=size, updatedAt=datetime.now())
+        data.update(size=size, checksum=checksum, updatedAt=datetime.now())
         updated_dataset = Dataset(**data)
         # save dataset in db
         self.db_repo.update("datasets", inputs.id, updated_dataset.dict())
         # report usage
         usage = Usage.DatasetIngested(uid=inputs.uid, payload={"dataset": inputs.id})
         self.db_repo.persist("usage", usage.dict())
+        # delete uploading dataset (if something fails bellow will require new upload from scratch...)
+        self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
         return self.Outputs(dataset=dataset)

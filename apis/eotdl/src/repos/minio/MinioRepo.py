@@ -47,9 +47,9 @@ class MinioRepo:
         object = self.get_object(id)
         return self.client.remove_object(self.bucket, object)
 
-    async def data_stream(self, id):
+    async def data_stream(self, id, chunk_size=1024 * 1024 * 10):
         with self.client.get_object(self.bucket, self.get_object(id)) as stream:
-            for chunk in stream.stream(1024 * 1024 * 10):  # Stream in chunks of 10MB
+            for chunk in stream.stream(chunk_size):
                 yield chunk
 
     def object_info(self, id):
