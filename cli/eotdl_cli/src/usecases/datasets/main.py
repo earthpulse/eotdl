@@ -24,37 +24,41 @@ def retrieve_dataset(name):
     return outputs.dataset
 
 
-def download_dataset(name, path, user):
-    dataset_id = retrieve_dataset(name)["id"]
+def download_dataset(name, path, user, logger):
+    dataset = retrieve_dataset(name)
+    dataset_id = dataset["id"]
+    checksum = dataset["checksum"]
     api_repo = APIRepo()
-    download = DownloadDataset(api_repo)
-    inputs = download.Inputs(dataset=dataset_id, path=path, user=user)
+    download = DownloadDataset(api_repo, logger)
+    inputs = download.Inputs(
+        dataset=dataset_id, checksum=checksum, path=path, user=user
+    )
     outputs = download(inputs)
     return outputs.dst_path
 
 
 def ingest_dataset(name, description, path, user, logger):
     api_repo = APIRepo()
-    ingest = IngestDataset(api_repo, logger)
+    ingest = IngestDataset(
+        api_repo,
+    )
     inputs = ingest.Inputs(name=name, description=description, path=path, user=user)
     outputs = ingest(inputs)
     return outputs.dataset
 
 
-def ingest_large_dataset(name, description, path, user, logger):
+def ingest_large_dataset(name, path, user, logger):
     api_repo = APIRepo()
     ingest = IngestLargeDataset(api_repo, logger)
-    inputs = ingest.Inputs(name=name, description=description, path=path, user=user)
+    inputs = ingest.Inputs(name=name, path=path, user=user)
     outputs = ingest(inputs)
     return outputs.dataset
 
 
-def ingest_large_dataset_parallel(name, description, path, user, p, logger):
+def ingest_large_dataset_parallel(name, path, user, p, logger):
     api_repo = APIRepo()
     ingest = IngestLargeDatasetParallel(api_repo, logger)
-    inputs = ingest.Inputs(
-        name=name, description=description, path=path, user=user, threads=p
-    )
+    inputs = ingest.Inputs(name=name, path=path, user=user, threads=p)
     outputs = ingest(inputs)
     return outputs.dataset
 

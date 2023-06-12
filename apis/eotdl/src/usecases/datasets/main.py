@@ -16,7 +16,7 @@ from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
-def ingest_dataset(file, name, author, link, license, description, tags, user):
+async def ingest_dataset(file, name, author, link, license, description, tags, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestDataset(db_repo, os_repo)
@@ -31,11 +31,11 @@ def ingest_dataset(file, name, author, link, license, description, tags, user):
         license=license,
         tags=tags,
     )
-    outputs = ingest(inputs)
+    outputs = await ingest(inputs)
     return outputs.dataset
 
 
-def update_dataset(
+async def update_dataset(
     dataset_id, user, file, name, author, link, license, tags, description
 ):
     db_repo = DBRepo()
@@ -53,7 +53,7 @@ def update_dataset(
         license=license,
         tags=tags,
     )
-    outputs = ingest(inputs)
+    outputs = await ingest(inputs)
     return outputs.dataset
 
 
@@ -133,19 +133,19 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, name=None, description=None, id=None):
+def generate_upload_id(user, checksum, name=None, id=None):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
     generate = GenerateUploadId(db_repo, os_repo, s3_repo)
     inputs = generate.Inputs(
         uid=user.uid,
+        checksum=checksum,
         name=name,
-        description=description,
         id=id,
     )
     outputs = generate(inputs)
-    return outputs.dataset_id, outputs.upload_id
+    return outputs.dataset_id, outputs.upload_id, outputs.parts
 
 
 def ingest_dataset_chunk(
@@ -156,7 +156,8 @@ def ingest_dataset_chunk(
 ):
     os_repo = OSRepo()
     s3_repo = S3Repo()
-    ingest = IngestDatasetChunk(os_repo, s3_repo)
+    db_repo = DBRepo()
+    ingest = IngestDatasetChunk(os_repo, s3_repo, db_repo)
     inputs = ingest.Inputs(
         chunk=chunk, id=id, upload_id=upload_id, part_number=part_number
     )
@@ -164,7 +165,7 @@ def ingest_dataset_chunk(
     return outputs.id, outputs.upload_id
 
 
-def complete_multipart_upload(user, name, description, dataset_id, upload_id):
+async def complete_multipart_upload(user, name, dataset_id, upload_id, checksum):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -172,9 +173,9 @@ def complete_multipart_upload(user, name, description, dataset_id, upload_id):
     inputs = complete.Inputs(
         uid=user.uid,
         name=name,
-        description=description,
         id=dataset_id,
         upload_id=upload_id,
+        checksum=checksum,
     )
-    outputs = complete(inputs)
+    outputs = await complete(inputs)
     return outputs.dataset

@@ -29,9 +29,9 @@
 </script>
 
 <main class="min-h-screen flex flex-col items-center justify-between">
-  <div class="w-full">
+  <div class="w-full h-full grow flex flex-col">
     <Nav />
-    <div class="relative">
+    <div class="relative grow flex flex-col">
       <slot />
       <div class="absolute top-0 left-0 w-full">
         <Nav2 {loading} />

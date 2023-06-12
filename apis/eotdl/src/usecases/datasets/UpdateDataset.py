@@ -5,6 +5,7 @@ from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits
 from ...errors import DatasetDoesNotExistError, TierLimitError, UserUnauthorizedError
+from ...utils import calculate_checksum
 
 
 class UpdateDataset:
@@ -27,7 +28,7 @@ class UpdateDataset:
     class Outputs(BaseModel):
         dataset: Dataset
 
-    def __call__(self, inputs: Inputs) -> Outputs:
+    async def __call__(self, inputs: Inputs) -> Outputs:
         # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
@@ -51,7 +52,6 @@ class UpdateDataset:
         if dataset.uid != inputs.uid:
             raise UserUnauthorizedError()
         # update dataset
-        print("tags", inputs.tags)
         data.update(
             updatedAt=datetime.now(),
             size=inputs.size if inputs.size is not None else dataset.size,
@@ -70,6 +70,9 @@ class UpdateDataset:
             self.os_repo.persist_file(
                 inputs.file, inputs.dataset_id
             )  # no need to delete !
+            data_stream = self.os_repo.data_stream(inputs.dataset_id)
+            checksum = await calculate_checksum(data_stream)
+            updated_dataset.checksum = checksum
             # report usage
             usage = Usage.DatasetIngested(
                 uid=inputs.uid, payload={"dataset": inputs.dataset_id}

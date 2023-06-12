@@ -9,34 +9,36 @@
     export let text;
     export let required = false;
     export let current_tags = [];
+    export let name = "";
+    export let author = "";
+    export let link = "";
+    export let license = "";
+    export let content = "";
 
-    let content = "";
+    $: console.log(content);
+
     let loading = false;
-    let name = "",
-        author = "",
-        link = "",
-        license = "",
-        files = null;
+    let files = null;
     $: selected_tags = current_tags;
     const ingest = async () => {
         if (files && files[0] && !validate_file(files[0])) return;
-        // if (link && !validate_link(link)) return;
+        if (link && !validate_link(link)) return;
         loading = true;
-        try {
-            await submit(
-                files ? files[0] : null,
-                name,
-                content,
-                author,
-                link,
-                license,
-                selected_tags
-            );
-            document.getElementById("ingest-dataset").checked = false;
-            name = "";
-        } catch (e) {
-            alert(e.message);
-        }
+        // try {
+        await submit(
+            files ? files[0] : null,
+            name,
+            content,
+            author,
+            link,
+            license,
+            selected_tags
+        );
+        document.getElementById("ingest-dataset").checked = false;
+        name = "";
+        // } catch (e) {
+        //     alert(e.message);
+        // }
         loading = false;
     };
 
@@ -72,7 +74,10 @@
 <input type="checkbox" id="ingest-dataset" class="modal-toggle" />
 <label for="ingest-dataset" class="modal cursor-pointer">
     <label class="modal-box relative" for="">
-        <form on:submit|preventDefault={ingest} class="flex flex-col gap-2">
+        <form
+            on:submit|preventDefault={ingest}
+            class="flex flex-col gap-2 text-sm"
+        >
             <slot />
             <input
                 type="file"
@@ -95,6 +100,7 @@
                 </CLI>
             {:else}
                 <span>
+                    <p>Name</p>
                     <input
                         class="input input-bordered w-full"
                         type="text"
@@ -105,6 +111,7 @@
                     <p class="text-sm text-gray-400">*Name should be unique</p>
                 </span>
                 <span>
+                    <p>Author</p>
                     <input
                         class="input input-bordered w-full"
                         type="text"
@@ -118,6 +125,7 @@
                     </p>
                 </span>
                 <span>
+                    <p>Link to source data</p>
                     <input
                         class="input input-bordered w-full"
                         type="text"
@@ -130,6 +138,7 @@
                     </p>
                 </span>
                 <span>
+                    <p>License</p>
                     <input
                         class="input input-bordered w-full"
                         type="text"
@@ -141,8 +150,9 @@
                         *Provide a license for the dataset.
                     </p>
                 </span>
+                <p>Description</p>
                 <TextEditor bind:content />
-                <p>Select the appropraite tags:</p>
+                <p>Select the appropriate tags:</p>
                 <div class="flex flex-wrap gap-1">
                     {#each tags as tag}
                         <p

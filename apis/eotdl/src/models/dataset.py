@@ -34,7 +34,8 @@ class Dataset(BaseModel):
     uid: str
     id: str
     name: str
-    description: str
+    checksum: str
+    description: str = ""
     tags: List[str] = []
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
@@ -45,6 +46,23 @@ class Dataset(BaseModel):
     author: str = ""
     link: str = ""
     license: str = ""
+
+    @validator("name")
+    def check_name_is_valid(cls, name):
+        if name is not None:
+            assert validate_name(name) == name
+        return name
+
+
+class UploadingDataset(BaseModel):
+    uid: str
+    id: str
+    upload_id: str
+    name: str
+    checksum: str
+    createdAt: datetime = datetime.now()
+    updatedAt: datetime = datetime.now()
+    parts: List[int] = []
 
     @validator("name")
     def check_name_is_valid(cls, name):
