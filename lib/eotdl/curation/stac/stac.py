@@ -4,15 +4,11 @@ Module for generating STAC metadata
 
 import pandas as pd
 import json
-from typing import Optional
 import pystac
-from pystac.extensions.sar import SarExtension
-from pystac.extensions.sar import FrequencyBand, Polarization
-from pystac.extensions.eo import Band, EOExtension
 from random import sample
 
 from os import listdir
-from os.path import join, isdir, basename, exists, dirname
+from os.path import join, basename, exists, dirname
 
 import rasterio
 from rasterio.warp import transform_bounds
@@ -21,40 +17,48 @@ from datetime import datetime
 from shapely.geometry import Polygon, mapping
 from glob import glob
 
+from stac_validator.stac_validator import StacValidate
+
+from .parsers import STACIdParser, StructuredParser
 from .utils import format_time_acquired, count_ocurrences
 from .extensions import type_stac_extensions_dict
 
 
 class STACGenerator:
         
-    def __init__(self) -> None:
-        self._image_format = None
+    def __init__(self, 
+                 image_format: str='tiff',
+                 catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
+                 item_parser: STACIdParser=StructuredParser
+                 ) -> None:
+        """
+        Initialize the STAC generator
+        
+        :param image_format: image format of the assets
+        :param catalog_type: type of the catalog
+        :param item_parser: parser to get the item ID
+        """
+        self._image_format = image_format
+        self._catalog_type = catalog_type
+        self._item_parser = item_parser()
         self._extensions_dict: dict = type_stac_extensions_dict
+        self._validator = StacValidate(extensions=True)
         self._stac_dataframe = None
 
     def generate_stac_metadata(self,
                                stac_dataframe: pd.DataFrame,
                                id: str,
                                description: str,
-                               output: str = 'stac',                               
-                               extensions: dict=None,
-                               image_format: str='tiff',
-                               catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
-                               **kwargs) -> None:
+                               output_folder: str='stac',
+                               kwargs: dict={}) -> None:
         """
         Generate STAC metadata for a given directory containing the assets to generate metadata
 
         :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
         :param id: id of the catalog
         :param description: description of the catalog
-        :param output: output folder to write the catalog to
-        :param extensions: dictionary with the extensions
-        :param image_format: image format of the assets
-        :param kwargs: optional arguments. Possible values:
-            - description: description of the catalog
-            - keywords: keywords of the catalog
+        :param output_folder: output folder to write the catalog to
         """
-        self._image_format = image_format
         self._stac_dataframe = stac_dataframe
         
         # Create an empty catalog
@@ -63,19 +67,24 @@ class STACGenerator:
         # Add the collections to the catalog
         collections = self._stac_dataframe.collection.unique()
         for collection_path in collections:
+            # TODO check if the items are directly under the root directory
             # Generate the collection
             collection = self.generate_stac_collection(collection_path)
             # Add the collection to the catalog
             catalog.add_child(collection)
         
         # Add the catalog to the root directory
-        catalog.normalize_hrefs(output)
-        # catalog.validate_all()
-        catalog.save(catalog_type=catalog_type)
+        catalog.normalize_hrefs(output_folder)
 
-        return catalog   # DEBUG
+        # Validate the catalog
+        try:
+            pystac.validation.validate(catalog)
+            catalog.save(catalog_type=self._catalog_type)
+        except pystac.STACValidationError as e:
+            print(f'Catalog validation error: {e}')
+            return
 
-    def get_stac_dataframe(self, path: str, bands: dict=None, extensions: dict=None, image_format: str='tiff') -> pd.DataFrame:
+    def get_stac_dataframe(self, path: str, bands: dict=None, extensions: dict=None) -> pd.DataFrame:
         """
         Get a dataframe with the STAC metadata of a given directory containing the assets to generate metadata
 
@@ -83,8 +92,8 @@ class STACGenerator:
         :param extensions: dictionary with the extensions
         :param image_format: image format of the assets
         """
-        images = glob(str(path) + f'/**/*.{image_format}', recursive=True)
-        images = sample(images, 50)   # debug
+        images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
+        images = sample(images, 50)   # TODO drop this line
         labels, ixs = self._format_labels(images)
         bands = self._get_items_list_from_dict(labels, bands)
         exts = self._get_items_list_from_dict(labels, extensions)
@@ -107,7 +116,7 @@ class STACGenerator:
         """
         images_common_prefix_dict = dict()
 
-        images_dirs = list(set([dirname(i) for i in images]))
+        images_dirs = [dirname(i) for i in images]
 
         for image in images_dirs:
             path = image
@@ -139,6 +148,10 @@ class STACGenerator:
     
     def _get_items_list_from_dict(self, labels: list, items: dict) -> list:
         """
+        Get a list of items from a dictionary
+
+        :param labels: list of labels
+        :param items: dictionary with the items
         """
         if not items:
             # Create list of None with the same length as the labels list
@@ -185,10 +198,9 @@ class STACGenerator:
                     left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
                     bbox = [left, bottom, right, top]
                 except rasterio.errors.CRSError:
-                    spatial_extent = pystac.SpatialExtent([[None, None, None, None]])
+                    spatial_extent = pystac.SpatialExtent([[0, 0, 0, 0]])
                     return spatial_extent
-                finally:
-                    bboxes.append(bbox)
+                bboxes.append(bbox)
         # Get the minimum and maximum values of the bounding boxes
         try:
             left = min([bbox[0] for bbox in bboxes])
@@ -197,7 +209,7 @@ class STACGenerator:
             top = max([bbox[3] for bbox in bboxes])
             spatial_extent = pystac.SpatialExtent([[left, bottom, right, top]])
         except ValueError:
-            spatial_extent = pystac.SpatialExtent([[None, None, None, None]])
+            spatial_extent = pystac.SpatialExtent([[0, 0, 0, 0]])
         finally:
             return spatial_extent
     
@@ -210,9 +222,7 @@ class STACGenerator:
         # Get all the metadata.json files in the path
         metadata_json_files = glob(f'{path}/**/*.json', recursive=True)
         if not metadata_json_files:
-            min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
-            max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
-            return pystac.TemporalExtent([min_date, max_date])   # TODO Unknown temporal interval
+            return self._get_unknow_temporal_interval()
         
         # Get the temporal interval of every metadata.json file
         temporal_intervals = list()
@@ -231,28 +241,29 @@ class STACGenerator:
             finally:
                 # Create the temporal interval
                 temporal_interval = pystac.TemporalExtent([min_date, max_date])
+        else:
+            return self._get_unknow_temporal_interval()
 
-            return temporal_interval
+        return temporal_interval
+    
+    def _get_unknow_temporal_interval(self) -> pystac.TemporalExtent:
+        """
+        Get an unknown temporal interval
+        """
+        min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
+        max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
 
-    def create_stac_catalog(self, id: str, description: str, params: dict=None) -> pystac.Catalog:
+        return pystac.TemporalExtent([min_date, max_date])
+
+    def create_stac_catalog(self, id: str, description: str, kwargs: dict={}) -> pystac.Catalog:
         """
         Create a STAC catalog
 
         :param id: id of the catalog
-        :param kwargs: optional arguments. Possible values:
-            - description: description of the catalog
-            - keywords: keywords of the catalog
+        :param description: description of the catalog
+        :param params: additional parameters
         """
-        if not params:
-            return pystac.Catalog(id=id, description=description)
-        else:
-            return pystac.Catalog(id=id, description=description, **params)
-    
-    def update_stac_catalog(self, catalog: pystac.Catalog, **kwargs) -> pystac.Catalog:
-        """
-        """
-        # Update the catalog with the given arguments
-        pass
+        return pystac.Catalog(id=id, description=description, **kwargs)
 
     def generate_stac_collection(self, path: str) -> pystac.Collection:
         """
@@ -278,29 +289,25 @@ class STACGenerator:
         # Return the collection
         return collection
 
-    def create_stac_collection(self, id: str, description: str, extent: pystac.Extent, **kwargs) -> pystac.Collection:
+    def create_stac_collection(self, id: str, description: str, extent: pystac.Extent, kwargs: dict={}) -> pystac.Collection:
         """
         Create a STAC collection
-        """
-        return pystac.Collection(id=id, description=description, extent=extent)
 
-    def update_stac_collection(self, collection: pystac.Collection, **kwargs) -> pystac.Collection:
+        :param id: id of the collection
+        :param description: description of the collection
+        :param extent: extent of the collection
+        :param params: additional parameters
         """
-        Update a STAC collection
-        """
-        pass
+        return pystac.Collection(id=id, description=description, extent=extent, **kwargs)
 
     def create_stac_item(self,
-                        raster_path: str
+                        raster_path: str,
+                        kwargs: dict={}
                         ) -> pystac.Item:
         """
         Create a STAC item from a directory containing the raster files and the metadata.json file
 
-        :param tiff_dir_path: path to the directory containing the raster files
-        :param metadata_json: path to the metadata.json file
-        :param collection: pystac.Collection object
-        :param extensions: list of extensions to add to the item
-        :return: pystac.Item object
+        :param raster_path: path to the raster file
         """
         # Check if there is any metadata file in the directory associated to the raster file
         metadata = self._get_item_metadata(raster_path)
@@ -312,22 +319,20 @@ class STACGenerator:
             try:
                 left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
             except rasterio.errors.CRSError:
-                left, bottom, right, top = None, None, None, None
+                # If the raster has no crs, set the bounding box to 0
+                left, bottom, right, top = 0, 0, 0, 0
 
         # Create bbox
         bbox = [left, bottom, right, top]
 
         # Create geojson feature
         # If the bounding box has no values, set the geometry to None
-        if not bbox[0] or not bbox[1] or not bbox[2] or not bbox[3]:
-            geom = None
-        else:
-            geom = mapping(Polygon([
-            [left, bottom],
-            [left, top],
-            [right, top],
-            [right, bottom]
-            ]))
+        geom = mapping(Polygon([
+        [left, bottom],
+        [left, top],
+        [right, top],
+        [right, bottom]
+        ]))
 
         # Initialize properties
         properties = dict()
@@ -339,16 +344,16 @@ class STACGenerator:
             # Set unknown date
             time_acquired = datetime.strptime('2000-01-01', '%Y-%m-%d')
         
-        # Obtain the ID from the dir name
-        tiff_dir_path = dirname(raster_path)
-        id = tiff_dir_path.split('/')[-1]
+        # Obtain the item ID. The approach depends on the item parser
+        id = self._item_parser.get_item_id(raster_path)
         
         # Instantiate pystac item
         item = pystac.Item(id=id,
                 geometry=geom,
                 bbox=bbox,
                 datetime=time_acquired,
-                properties=properties)
+                properties=properties,
+                **kwargs)
         
         # Get the item extension using the dataframe, from the raster path
         extensions = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['extensions'].values
@@ -366,36 +371,26 @@ class STACGenerator:
         # in order to create the assets
         bands = self._stac_dataframe[self._stac_dataframe['image'] == raster_path]['bands'].values
         bands = bands[0] if bands else None
-        with rasterio.open(raster_path) as raster:
-            # TODO control in DEM data
-            # TODO put this in a function
-            if not bands:
-                # If there is no bands, create a single band asset
-                single_band = raster.read(1)
-                band_name = f'{basename(raster_path)}.tiff'
-                output_band = join(dirname(raster_path), band_name)
-                # Copy the metadata
-                metadata = raster.meta.copy()
-                metadata.update({"count": 1})
-                # Write the band to the output folder
-                with rasterio.open(output_band, "w", **metadata) as dest:
-                    dest.write(single_band, 1)
-                # Instantiate pystac asset
-                asset = pystac.Asset(href=band_name, title=band_name, media_type=pystac.MediaType.GEOTIFF)
-                # Add the asset to the item
-                item.add_asset(band_name, asset)
-                # Add the required extensions to the asset if required
-                if extensions:
-                    if isinstance(extensions, str):
-                        extensions = [extensions]
-                    for extension in extensions:
-                        extension_obj = self._extensions_dict[extension]
-                        extension_obj.add_extension_to_object(asset)
-            else:
+        if not bands:
+            # If there is no bands, create a single band asset from the file, assuming thats a singleband raster
+            href = basename(raster_path)
+            title = basename(raster_path).split('.')[0]
+            asset = pystac.Asset(href=href, title=title, media_type=pystac.MediaType.GEOTIFF)
+        else:
+            with rasterio.open(raster_path, 'r') as raster:
+                # Get the name of the raster file without extension
+                raster_name = basename(raster_path).split('.')[0]
+                if isinstance(bands, str):
+                    bands = [bands]
                 for band in bands:
                     i = bands.index(band)
-                    single_band = raster.read(i + 1)
-                    band_name = f'{band}.tiff'
+                    try:
+                        single_band = raster.read(i + 1)
+                    except IndexError:
+                        # TODO put try here for IndexError: band index 2 out of range (not in (1,))
+                        # TODO control
+                        single_band = raster.read(1)
+                    band_name = f'{raster_name}_{band}.{self._image_format}'
                     output_band = join(dirname(raster_path), band_name)
                     # Copy the metadata
                     metadata = raster.meta.copy()
@@ -415,6 +410,7 @@ class STACGenerator:
                             extension_obj = self._extensions_dict[extension]
                             extension_obj.add_extension_to_object(asset)
 
+        
         return item
 
     def _get_item_metadata(self, raster_path: str) -> str:
