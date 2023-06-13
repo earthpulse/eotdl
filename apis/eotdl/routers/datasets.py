@@ -219,13 +219,7 @@ def ingest_large_dataset_chunk(
         part_number = int(request.headers.get("part-number", None))
         dataset_id = request.headers.get("dataset-id", None)
         checkusm = request.headers.get("checksum", None)
-        ingest_dataset_chunk(
-            file.file,
-            part_number,
-            dataset_id,
-            upload_id,
-            checkusm
-        )
+        ingest_dataset_chunk(file.file, part_number, dataset_id, upload_id, checkusm)
         return {"message": "done"}
     except Exception as e:
         logger.exception("datasets:ingest_large_dataset_chunk")
@@ -244,13 +238,13 @@ async def complete_large_dataset_upload(
     body: CompleteBody,
     user: User = Depends(get_current_user),
 ):
-    # try:
-    upload_id = request.headers.get("upload-id", None)
-    dataset_id = request.headers.get("dataset-id", None)
-    dataset = await complete_multipart_upload(
-        user, body.name, dataset_id, upload_id, body.checksum
-    )
-    return {"dataset": dataset}
-    # except Exception as e:
-    #     logger.exception("datasets:complete_large_dataset_upload")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        upload_id = request.headers.get("upload-id", None)
+        dataset_id = request.headers.get("dataset-id", None)
+        dataset = await complete_multipart_upload(
+            user, body.name, dataset_id, upload_id, body.checksum
+        )
+        return {"dataset": dataset}
+    except Exception as e:
+        logger.exception("datasets:complete_large_dataset_upload")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
