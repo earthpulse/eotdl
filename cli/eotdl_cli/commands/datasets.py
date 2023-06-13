@@ -51,7 +51,8 @@ def ingest(
     """
     try:
         user = auth()
-        # ingest_large_dataset_parallel(name, path, user, p, typer.echo)
+        # if p:
+        #     ingest_large_dataset_parallel(name, path, user, p, typer.echo)
         ingest_large_dataset(name, path, user, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:
