@@ -28,3 +28,9 @@ class DatasetAlreadyLikedError(Exception):
     message = "Dataset already liked"
     def __init__(self):
         super().__init__(self.message)
+
+
+class ChunkUploadChecksumMismatch(Exception):
+    message = "Checksum mismatch."
+    def __init__(self):
+        super().__init__(self.message)
