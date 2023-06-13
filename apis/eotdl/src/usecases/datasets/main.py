@@ -153,13 +153,14 @@ def ingest_dataset_chunk(
     part_number,
     id,
     upload_id,
+    checksum
 ):
     os_repo = OSRepo()
     s3_repo = S3Repo()
     db_repo = DBRepo()
     ingest = IngestDatasetChunk(os_repo, s3_repo, db_repo)
     inputs = ingest.Inputs(
-        chunk=chunk, id=id, upload_id=upload_id, part_number=part_number
+        chunk=chunk, id=id, upload_id=upload_id, part_number=part_number, checksum=checksum
     )
     outputs = ingest(inputs)
     return outputs.id, outputs.upload_id
