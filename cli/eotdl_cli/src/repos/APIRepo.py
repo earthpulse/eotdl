@@ -5,6 +5,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 import time
 import multiprocessing
+import hashlib
 
 
 class APIRepo:
@@ -73,11 +74,19 @@ class APIRepo:
         )
         return dataset_id, upload_id, parts
 
-    def ingest_large_dataset(
-        self, path, chunk_size, upload_id, dataset_id, id_token, parts
-    ):
+    def get_chunk_size(self, content_size):
+        # adapt chunk size to content size to avoid S3 limits (10000 parts, 500MB per part, 5TB per object)
+        chunk_size = 1024 * 1024 * 10  # 10 MB (up to 100 GB, 10000 parts)
+        if content_size >= 1024 * 1024 * 1024 * 100:  # 100 GB
+            chunk_size = 1024 * 1024 * 100  # 100 MB (up to 1 TB, 10000 parts)
+        elif content_size >= 1024 * 1024 * 1024 * 1000:  # 1 TB
+            chunk_size = 1024 * 1024 * 500  # 0.5 GB (up to 5 TB, 10000 parts)
+        return chunk_size
+
+    def ingest_large_dataset(self, path, upload_id, dataset_id, id_token, parts):
         content_path = os.path.abspath(path)
         content_size = os.stat(content_path).st_size
+        chunk_size = self.get_chunk_size(content_size)
         total_chunks = content_size // chunk_size
         url = self.url + "datasets/chunk"
         headers = {
@@ -97,6 +106,8 @@ class APIRepo:
             index = offset
             if part not in parts:
                 headers["Part-Number"] = str(part)
+                checksum = hashlib.md5(chunk).hexdigest()
+                headers["Checksum"] = checksum
                 file = {"file": chunk}
                 r = requests.post(url, files=file, headers=headers)
                 if r.status_code != 200:
@@ -184,82 +195,63 @@ class APIRepo:
             return None, r.json()["detail"]
         return r.json(), None
 
-    # def parallel_upload(
-    #     self,
-    #     content_size,
-    #     chunk_size,
-    #     content_path,
-    #     url,
-    #     id_token,
-    #     upload_id,
-    #     dataset_id,
-    #     total_chunks,
-    #     threads,
-    # ):
-    #     # Create thread pool executor
-    #     max_workers = threads if threads > 0 else multiprocessing.cpu_count()
-    #     executor = ThreadPoolExecutor(max_workers=max_workers)
+    def ingest_large_dataset_parallel(
+        self,
+        path,
+        upload_id,
+        dataset_id,
+        id_token,
+        parts,
+        threads,
+    ):
+        # Create thread pool executor
+        max_workers = threads if threads > 0 else multiprocessing.cpu_count()
+        executor = ThreadPoolExecutor(max_workers=max_workers)
 
-    #     # Divide file into chunks and create tasks for each chunk
-    #     offset = 0
-    #     tasks = []
-    #     while offset < content_size:
-    #         chunk_end = min(offset + chunk_size, content_size)
-    #         tasks.append((offset, chunk_end, str(offset // chunk_size + 1)))
-    #         offset = chunk_end
+        # Divide file into chunks and create tasks for each chunk
+        offset = 0
+        tasks = []
+        content_path = os.path.abspath(path)
+        content_size = os.stat(content_path).st_size
+        chunk_size = self.get_chunk_size(content_size)
+        total_chunks = content_size // chunk_size
+        while offset < content_size:
+            chunk_end = min(offset + chunk_size, content_size)
+            part = str(offset // chunk_size + 1)
+            if part not in parts:
+                tasks.append((offset, chunk_end, part))
+            offset = chunk_end
 
-    #     # Define the function that will upload each chunk
-    #     def upload_chunk(start, end, part):
-    #         # print(f"Uploading chunk {start} - {end}", part)
-    #         with open(content_path, "rb") as f:
-    #             f.seek(start)
-    #             chunk = f.read(end - start)
-    #         # headers["Part-Number"] = part
-    #         response = requests.post(
-    #             url,
-    #             files={"file": chunk},
-    #             headers={
-    #                 "Authorization": "Bearer " + id_token,
-    #                 "Upload-Id": upload_id,
-    #                 "Dataset-Id": dataset_id,
-    #                 "Part-Number": part,
-    #             },
-    #         )
-    #         if response.status_code != 200:
-    #             print(f"Failed to upload chunk {start} - {end}")
-    #         return response
+        # Define the function that will upload each chunk
+        def upload_chunk(start, end, part):
+            # print(f"Uploading chunk {start} - {end}", part)
+            with open(content_path, "rb") as f:
+                f.seek(start)
+                chunk = f.read(end - start)
+            checksum = hashlib.md5(chunk).hexdigest()
+            response = requests.post(
+                self.url + "datasets/chunk",
+                files={"file": chunk},
+                headers={
+                    "Authorization": "Bearer " + id_token,
+                    "Upload-Id": upload_id,
+                    "Dataset-Id": dataset_id,
+                    "Checksum": checksum,
+                    "Part-Number": str(part),
+                },
+            )
+            if response.status_code != 200:
+                print(f"Failed to upload chunk {start} - {end}")
+            return response
 
-    #     # Submit each task to the executor
-    #     with tqdm(total=total_chunks) as pbar:
-    #         futures = []
-    #         for task in tasks:
-    #             future = executor.submit(upload_chunk, *task)
-    #             future.add_done_callback(lambda p: pbar.update())
-    #             futures.append(future)
+        # Submit each task to the executor
+        with tqdm(total=total_chunks) as pbar:
+            futures = []
+            for task in tasks:
+                future = executor.submit(upload_chunk, *task)
+                future.add_done_callback(lambda p: pbar.update())
+                futures.append(future)
 
-    #         # Wait for all tasks to complete
-    #         for future in futures:
-    #             future.result()
-
-    # def ingest_large_dataset_parallel(self, name, description, path, id_token, threads):
-    #     (
-    #         content_size,
-    #         chunk_size,
-    #         content_path,
-    #         url,
-    #         upload_id,
-    #         dataset_id,
-    #         total_chunks,
-    #     ) = self.prepare_large_upload(name, description, path, id_token)
-    #     self.parallel_upload(
-    #         content_size,
-    #         chunk_size,
-    #         content_path,
-    #         url,
-    #         id_token,
-    #         upload_id,
-    #         dataset_id,
-    #         total_chunks,
-    #         threads,
-    #     )
-    #     return self.complete_upload(name, description, id_token, upload_id, dataset_id)
+            # Wait for all tasks to complete
+            for future in futures:
+                future.result()
