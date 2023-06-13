@@ -8,18 +8,18 @@ services:
     volumes:
       - ./data/mongo:/data/db
 
-  eotdl-minio:
-    image: minio/minio
-    container_name: eotdl-minio
-    ports:
-      - 9010:9000
-      - 9011:9001
-    volumes:
-      - ./data/minio:/data
-    environment:
-      - MINIO_ROOT_USER=eotdl
-      - MINIO_ROOT_PASSWORD=12345678
-    command: server /data --console-address ":9001"
+  # eotdl-minio:
+  #   image: minio/minio
+  #   container_name: eotdl-minio
+  #   ports:
+  #     - 9010:9000
+  #     - 9011:9001
+  #   volumes:
+  #     - ./data/minio:/data
+  #   environment:
+  #     - MINIO_ROOT_USER=eotdl
+  #     - MINIO_ROOT_PASSWORD=12345678
+  #   command: server /data --console-address ":9001"
 
   eotdl-api:
     build: ./apis/eotdl
@@ -27,11 +27,12 @@ services:
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
-      - S3_ENDPOINT=eotdl-minio:9000
-      - ACCESS_KEY_ID=eotdl
-      - SECRET_ACCESS_KEY=12345678
-      - S3_BUCKET=dev
-      - S3_SSL=False
+      - S3_ENDPOINT=s3.gra.perf.cloud.ovh.net
+      - ACCESS_KEY_ID=17ec6e7f7055472e82769b56caa15f1d
+      - SECRET_ACCESS_KEY=9fe2be8aa6364b8a985b6b918d89486f
+      - S3_BUCKET=eotdl
+      - S3_REGION=gra
+      - S3_SSL=True
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
     env_file: # auth0 credentials
@@ -40,5 +41,5 @@ services:
       - ./apis/eotdl:/api
       - ./lib/eotdl:/api/eotdl
     ports:
-      - 8000:8000
+      - 8001:8000
     command: uvicorn api.main:app --host 0.0.0.0 --reload
