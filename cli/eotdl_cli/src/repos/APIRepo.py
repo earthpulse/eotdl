@@ -100,6 +100,7 @@ class APIRepo:
             total=total_chunks,
         )
         index = 0
+        parts_checkusms = []
         for chunk in pbar:
             part = index // chunk_size + 1
             offset = index + len(chunk)
@@ -107,6 +108,7 @@ class APIRepo:
             if part not in parts:
                 headers["Part-Number"] = str(part)
                 checksum = hashlib.md5(chunk).hexdigest()
+                parts_checkusms.append(checksum)
                 headers["Checksum"] = checksum
                 file = {"file": chunk}
                 r = requests.post(url, files=file, headers=headers)
@@ -118,6 +120,7 @@ class APIRepo:
                 )
             )
         pbar.close()
+        return
 
     def complete_upload(self, name, id_token, upload_id, dataset_id, checksum):
         url = self.url + "datasets/complete"

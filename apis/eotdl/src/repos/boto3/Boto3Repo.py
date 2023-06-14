@@ -1,5 +1,6 @@
 from .client import get_client
 import os
+import hashlib
 
 
 class Boto3Repo:
@@ -40,13 +41,16 @@ class Boto3Repo:
             if is_truncated:
                 next_part_number_marker = response["NextPartNumberMarker"]
         sorted_parts = sorted(parts, key=lambda part: part["PartNumber"])
-        etags = [
+        parts = [
             {"PartNumber": part["PartNumber"], "ETag": part["ETag"]}
             for part in sorted_parts
         ]
-        return self.client.complete_multipart_upload(
+        response = self.client.complete_multipart_upload(
             Bucket=self.bucket,
             Key=storage,
-            MultipartUpload={"Parts": etags},
+            MultipartUpload={"Parts": parts},
             UploadId=upload_id,
-        )["ETag"]
+        )
+        # this is not the md5 checksum of the object, but a checksum of the parts checksums
+        checksum = response["ETag"].strip('"')
+        return checksum
