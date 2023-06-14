@@ -5,7 +5,7 @@ from ....src.utils import calculate_checksum
 class DownloadDataset:
     def __init__(self, repo, logger):
         self.repo = repo
-        self.logger = logger
+        self.logger = logger if logger else print
 
     class Inputs(BaseModel):
         dataset: str

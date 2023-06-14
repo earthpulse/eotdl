@@ -1,7 +1,5 @@
 from ..src.repos import AuthRepo, APIRepo
-from ..src.usecases.auth.IsLogged import IsLogged
-from ..src.usecases.auth.Auth import Auth
-from ..src.usecases.auth.Logout import Logout
+from ..src.usecases.auth import IsLogged, Auth, Logout
 
 
 def is_logged():
@@ -31,3 +29,12 @@ def generate_logout_url():
     inputs = _logout.Inputs()
     outputs = _logout(inputs)
     return outputs.logout_url
+
+
+# auth decorator
+def with_auth(func):
+    def wrapper(*args, **kwargs):
+        user = auth()
+        return func(*args, **kwargs, user=user)
+
+    return wrapper
