@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "eotdl-cli"
-version = "2023.06.13"
+version = "2023.06.14"
 description = ""
 authors = ["EarthPulse <it@earthpulse.es>"]
 license = "MIT"
