@@ -2,9 +2,9 @@
 
 This repository contains de source code of the [**Earth Observation Training Data Lab** (EOTDL)](https://eotdl.vercel.app/). It contains a set of Python libraries, APIs, CLIs and User Interfaces to explore, create, manage and share datasets and Machine Learning models for Earth Observations applications.
 
-## Library
+## Library and CLI
 
-The [eotdl library](./lib) contains the main functionality for creating datasets and models.
+The [eotdl library](./eotdl) contains the main functionality for creating datasets and models, as well as the CLI.
 
 ## APIs
 
@@ -47,14 +47,14 @@ Then, run the tests
 
 ```
 docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
-docker exec eotdl-cli-test poetry run pytest --cov cli --cov-report term-missing
+docker exec eotdl-test poetry run pytest --cov eotdl --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with
 
 ```
 docker exec eotdl-api-test ptw api
-docker exec eotdl-cli-test poetry run ptw
+docker exec eotdl-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
