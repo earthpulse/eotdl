@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class IngestDataset:
     def __init__(self, repo, logger):
         self.repo = repo
-        self.logger = logger
+        self.logger = logger if logger else print
 
     class Inputs(BaseModel):
         name: str

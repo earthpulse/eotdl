@@ -35,7 +35,7 @@ class APIRepo:
         url = self.url + "datasets/" + dataset_id + "/download"
         headers = {"Authorization": "Bearer " + id_token}
         if path is None:
-            path = str(Path.home()) + "/.etodl/datasets"
+            path = str(Path.home()) + "/.eotdl/datasets"
             os.makedirs(path, exist_ok=True)
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
@@ -46,6 +46,8 @@ class APIRepo:
             )
             filename = r.headers.get("content-disposition").split("filename=")[1][1:-1]
             path = f"{path}/{filename}"
+            if os.path.exists(path):
+                raise Exception("File already exists")
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
                     progress_bar.update(len(chunk))

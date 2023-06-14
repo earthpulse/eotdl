@@ -29,7 +29,6 @@ def get(name: str, path: str = None):
     path: Path to download the dataset to
     """
     try:
-        user = auth()
         dst_path = download_dataset(name, path, user, typer.echo)
         typer.echo(f"Dataset {name} downloaded to {dst_path}")
     except Exception as e:
@@ -49,10 +48,9 @@ def ingest(
     n: Name of the dataset
     """
     try:
-        user = auth()
         # if p:
         #     ingest_large_dataset_parallel(name, path, user, p, typer.echo)
-        ingest_large_dataset(name, path, user, typer.echo)
+        ingest_large_dataset(name, path, typer.echo)
         typer.echo(f"Dataset {name} ingested")
     except Exception as e:
         typer.echo(e)
@@ -70,8 +68,7 @@ def update(
     path: Path to dataset to ingest
     """
     try:
-        user = auth()
-        update_dataset(name, path, user, typer.echo)
+        update_dataset(name, path, typer.echo)
         typer.echo(f"Dataset {name} updated")
     except Exception as e:
         typer.echo(e)
