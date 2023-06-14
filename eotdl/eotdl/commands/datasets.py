@@ -29,7 +29,7 @@ def get(name: str, path: str = None):
     path: Path to download the dataset to
     """
     try:
-        dst_path = download_dataset(name, path, user, typer.echo)
+        dst_path = download_dataset(name, path, typer.echo)
         typer.echo(f"Dataset {name} downloaded to {dst_path}")
     except Exception as e:
         typer.echo(e)
