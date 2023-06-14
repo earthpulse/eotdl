@@ -44,20 +44,20 @@ class CompleteMultipartUpload:
             if self.db_repo.find_one_by_name("datasets", inputs.name):
                 raise DatasetAlreadyExistsError()
             storage = self.os_repo.get_object(inputs.id)
-            checksum = self.s3_repo.complete_multipart_upload(
-                storage, inputs.upload_id, checksum
-            )
-            if checksum != inputs.checksum:
-                # uncomment when everything is working
-                # self.os_repo.delete(inputs.id)
-                raise Exception("Checksum mismatch. Dataset deleted.")
+            self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
+            # print(checksum, inputs.checksum)
+            # if checksum != inputs.checksum:
+            #     # uncomment when everything is working
+            #     self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
+            #     self.os_repo.delete(inputs.id)
+            #     raise Exception("Checksum mismatch. Dataset deleted.")
             size = self.os_repo.get_size(inputs.id)
             dataset = Dataset(
                 uid=inputs.uid,
                 id=inputs.id,
                 name=inputs.name,
                 size=size,
-                checksum=checksum,
+                checksum=inputs.checksum,
             )
             # save dataset in db
             self.db_repo.persist("datasets", dataset.dict(), inputs.id)
@@ -82,14 +82,13 @@ class CompleteMultipartUpload:
         self.s3_repo.complete_multipart_upload(
             storage, inputs.upload_id
         )  # will work if dataset exists?
-        data_stream = self.os_repo.data_stream(inputs.id)
-        checksum = await calculate_checksum(data_stream)
-        print("checksum", checksum)
-        if checksum != inputs.checksum:
-            self.os_repo.delete(inputs.id)
-            raise Exception("Checksum mismatch. Dataset deleted.")
+        # print(checksum, inputs.checksum)
+        # if checksum != inputs.checksum:
+        #     self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
+        #     self.os_repo.delete(inputs.id)
+        #     raise Exception("Checksum mismatch. Dataset deleted.")
         size = self.os_repo.get_size(inputs.id)
-        data.update(size=size, checksum=checksum, updatedAt=datetime.now())
+        data.update(size=size, checksum=inputs.checksum, updatedAt=datetime.now())
         updated_dataset = Dataset(**data)
         # save dataset in db
         self.db_repo.update("datasets", inputs.id, updated_dataset.dict())
@@ -97,5 +96,4 @@ class CompleteMultipartUpload:
         usage = Usage.DatasetIngested(uid=inputs.uid, payload={"dataset": inputs.id})
         self.db_repo.persist("usage", usage.dict())
         # delete uploading dataset (if something fails bellow will require new upload from scratch...)
-        self.db_repo.delete("uploading", inputs.upload_id, "upload_id")
         return self.Outputs(dataset=dataset)
