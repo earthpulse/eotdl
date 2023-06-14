@@ -33,12 +33,12 @@ class Boto3Repo:
                 Bucket=self.bucket,
                 Key=storage,
                 UploadId=upload_id,
-                PartNumberMarker=next_part_number_marker
+                PartNumberMarker=next_part_number_marker,
             )
-            parts.extend(response['Parts'])
-            is_truncated = response['IsTruncated']
+            parts.extend(response["Parts"])
+            is_truncated = response["IsTruncated"]
             if is_truncated:
-                next_part_number_marker = response['NextPartNumberMarker']
+                next_part_number_marker = response["NextPartNumberMarker"]
         sorted_parts = sorted(parts, key=lambda part: part["PartNumber"])
         etags = [
             {"PartNumber": part["PartNumber"], "ETag": part["ETag"]}
@@ -49,5 +49,4 @@ class Boto3Repo:
             Key=storage,
             MultipartUpload={"Parts": etags},
             UploadId=upload_id,
-        )
-
+        )["ETag"]

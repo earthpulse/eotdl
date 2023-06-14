@@ -44,9 +44,9 @@ class CompleteMultipartUpload:
             if self.db_repo.find_one_by_name("datasets", inputs.name):
                 raise DatasetAlreadyExistsError()
             storage = self.os_repo.get_object(inputs.id)
-            self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
-            data_stream = self.os_repo.data_stream(inputs.id)
-            checksum = await calculate_checksum(data_stream)
+            checksum = self.s3_repo.complete_multipart_upload(
+                storage, inputs.upload_id, checksum
+            )
             if checksum != inputs.checksum:
                 # uncomment when everything is working
                 # self.os_repo.delete(inputs.id)
