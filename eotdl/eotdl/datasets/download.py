@@ -1,5 +1,5 @@
-from src.repos import APIRepo
-from src.usecases.datasets.DownloadDataset import DownloadDataset
+from ..src.repos import APIRepo
+from ..src.usecases.datasets.DownloadDataset import DownloadDataset
 from .retrieve import retrieve_dataset
 
 

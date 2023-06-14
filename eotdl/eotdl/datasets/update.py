@@ -1,5 +1,5 @@
-from src.repos import APIRepo
-from src.usecases.datasets.UpdateDataset import UpdateDataset
+from ..src.repos import APIRepo
+from ..src.usecases.datasets.UpdateDataset import UpdateDataset
 
 
 def update_dataset(name, path, user, logger):

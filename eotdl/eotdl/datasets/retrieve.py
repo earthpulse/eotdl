@@ -1,6 +1,6 @@
-from src.repos import APIRepo
-from src.usecases.datasets.RetrieveDatasets import RetrieveDatasets
-from src.usecases.datasets.RetrieveDataset import RetrieveDataset
+from ..src.repos import APIRepo
+from ..src.usecases.datasets.RetrieveDatasets import RetrieveDatasets
+from ..src.usecases.datasets.RetrieveDataset import RetrieveDataset
 
 
 def retrieve_datasets():

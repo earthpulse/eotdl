@@ -1,12 +1,12 @@
 import typer
-from datasets import (
+from ..datasets import (
     retrieve_datasets,
     download_dataset,
     update_dataset,
     ingest_large_dataset,
     # ingest_large_dataset_parallel,
 )
-from auth import auth
+from .auth import auth
 
 app = typer.Typer()
 
