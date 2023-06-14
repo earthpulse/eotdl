@@ -41,7 +41,7 @@ class IngestLargeDatasetParallel:
             parts,
             inputs.threads,
         )
-        self.logger("Computing checksum and comparing...")
+        self.logger("\nCompleting upload...")
         data, error = self.repo.complete_upload(
             inputs.name, id_token, upload_id, dataset_id, checksum
         )
