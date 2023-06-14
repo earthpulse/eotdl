@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.utils import calculate_checksum
+from ....src.utils import calculate_checksum
 
 
 class UpdateDataset:

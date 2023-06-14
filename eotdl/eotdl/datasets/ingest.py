@@ -1,6 +1,6 @@
-from src.repos import APIRepo
-from src.usecases.datasets.IngestDataset import IngestDataset
-from src.usecases.datasets.IngestLargeDataset import IngestLargeDataset
+from ..src.repos import APIRepo
+from ..src.usecases.datasets.IngestDataset import IngestDataset
+from ..src.usecases.datasets.IngestLargeDataset import IngestLargeDataset
 
 
 def ingest_q0(dataset, file):

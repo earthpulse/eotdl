@@ -1,6 +1,6 @@
 import typer
-from auth import is_logged, auth, generate_logout_url
-from src.errors.auth import LoginError
+from ..auth import is_logged, auth, generate_logout_url
+from ..src.errors.auth import LoginError
 
 app = typer.Typer()
 

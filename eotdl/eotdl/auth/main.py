@@ -1,7 +1,7 @@
-from src.repos import AuthRepo, APIRepo
-from src.usecases.auth.IsLogged import IsLogged
-from src.usecases.auth.Auth import Auth
-from src.usecases.auth.Logout import Logout
+from ..src.repos import AuthRepo, APIRepo
+from ..src.usecases.auth.IsLogged import IsLogged
+from ..src.usecases.auth.Auth import Auth
+from ..src.usecases.auth.Logout import Logout
 
 
 def is_logged():
