@@ -56,6 +56,20 @@ class APIRepo:
             progress_bar.close()
             return path
 
+    def ingest_file(self, file, dataset, id_token, checksum):
+        url = self.url + "datasets"
+        reponse = requests.post(
+            url,
+            files={"file": file},
+            data={
+                "name": dataset["name"],
+            },
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if reponse.status_code != 200:
+            return None, reponse.json()["detail"]
+        return reponse.json(), None
+
     def read_in_chunks(self, file_object, CHUNK_SIZE):
         while True:
             data = file_object.read(CHUNK_SIZE)

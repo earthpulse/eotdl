@@ -1,14 +1,34 @@
 import typer
+from pathlib import Path
+
 from ..datasets import (
     retrieve_datasets,
     download_dataset,
     update_dataset,
-    ingest_large_dataset,
+    ingest_file,
+    ingest_folder,
+    # ingest_large_dataset,
     # ingest_large_dataset_parallel,
 )
-from .auth import auth
 
 app = typer.Typer()
+
+
+@app.command()
+def ingest(path: Path, name: str):
+    """
+    Ingest a dataset
+
+    path: Path to dataset to ingest. Can be a file (.zip, .tar, .tar.gz, .csv, .txt, .json, .pdf, .md) or a directory (limited to 10 files, not recursive!)
+    n: Name of the dataset
+    """
+    try:
+        if path.is_dir():
+            ingest_folder(path, name, typer.echo)
+        else:
+            ingest_file(name, path, typer.echo)
+    except Exception as e:
+        typer.echo(e)
 
 
 @app.command()
@@ -31,27 +51,6 @@ def get(name: str, path: str = None):
     try:
         dst_path = download_dataset(name, path, typer.echo)
         typer.echo(f"Dataset {name} downloaded to {dst_path}")
-    except Exception as e:
-        typer.echo(e)
-
-
-@app.command()
-def ingest(
-    path: str,
-    name: str,
-    # p: Optional[int] = 0,
-):
-    """
-    Ingest a dataset
-
-    path: Path to dataset to ingest
-    n: Name of the dataset
-    """
-    try:
-        # if p:
-        #     ingest_large_dataset_parallel(name, path, user, p, typer.echo)
-        ingest_large_dataset(name, path, typer.echo)
-        typer.echo(f"Dataset {name} ingested")
     except Exception as e:
         typer.echo(e)
 
