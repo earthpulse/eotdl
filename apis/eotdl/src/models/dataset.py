@@ -30,11 +30,17 @@ def validate_description(
     return description
 
 
+class File(BaseModel):
+    name: str
+    size: int
+    checksum: str
+
+
 class Dataset(BaseModel):
     uid: str
     id: str
     name: str
-    checksum: str
+    files: List[File] = []
     description: str = ""
     tags: List[str] = []
     createdAt: datetime = datetime.now()
@@ -42,7 +48,6 @@ class Dataset(BaseModel):
     likes: int = 0
     downloads: int = 0
     quality: int = 0
-    size: int = 0
     author: str = ""
     link: str = ""
     license: str = ""

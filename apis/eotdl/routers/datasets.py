@@ -11,7 +11,7 @@ from ..src.usecases.datasets import (
     ingest_dataset_chunk,
     retrieve_liked_datasets,
     like_dataset,
-    ingest_dataset,
+    ingest_file,
     retrieve_datasets,
     retrieve_popular_datasets,
     retrieve_dataset_by_name,
@@ -32,11 +32,12 @@ router = APIRouter(prefix="/datasets", tags=["datasets"])
 @router.post("")
 async def ingest(
     file: UploadFile = File(...),
-    name: str = Form(...),
+    dataset: str = Form(...),
+    checksum: str = Form(...),
     user: User = Depends(get_current_user),
 ):
     try:
-        return await ingest_dataset(file, name, user)
+        return await ingest_file(file, dataset, checksum, user)
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -95,20 +96,21 @@ def retrieve_popular(limit: Union[int, None] = None):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/{id}/download")
+@router.get("/{id}/download/{file}")
 async def download(
     id: str,
+    file: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        data_stream, object_info, name = download_dataset(id, user)
+        data_stream, object_info, name = download_dataset(id, file, user)
         response_headers = {
-            "Content-Disposition": f'attachment; filename="{name}.zip"',
-            "Content-Type": "application/zip",
+            "Content-Disposition": f'attachment; filename="{name}"',
+            "Content-Type": object_info.content_type,
             "Content-Length": str(object_info.size),
         }
         return StreamingResponse(
-            data_stream(id),
+            data_stream(id, file),
             headers=response_headers,
             media_type=object_info.content_type,
         )

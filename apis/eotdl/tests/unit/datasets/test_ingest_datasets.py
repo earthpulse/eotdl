@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.IngestDataset import IngestDataset
+from ....src.usecases.datasets.IngestFile import IngestDataset
 
 
 def test_ingest_dataset_fails_if_tier_limits_surpassed():

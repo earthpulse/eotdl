@@ -4,29 +4,26 @@ from pathlib import Path
 from ..datasets import (
     retrieve_datasets,
     download_dataset,
-    update_dataset,
     ingest_file,
     ingest_folder,
-    # ingest_large_dataset,
-    # ingest_large_dataset_parallel,
 )
 
 app = typer.Typer()
 
 
 @app.command()
-def ingest(path: Path, name: str):
+def ingest(path: Path, dataset: str):
     """
-    Ingest a dataset
+    Ingest a file
 
-    path: Path to dataset to ingest. Can be a file (.zip, .tar, .tar.gz, .csv, .txt, .json, .pdf, .md) or a directory (limited to 10 files, not recursive!)
-    n: Name of the dataset
+    path: Path to file or folder. Can be a file (.zip, .tar, .tar.gz, .csv, .txt, .json, .pdf, .md) or a directory (limited to 10 files, not recursive!)
+    dataset: Name of the dataset
     """
     try:
         if path.is_dir():
-            ingest_folder(path, name, typer.echo)
+            ingest_folder(path, dataset, typer.echo)
         else:
-            ingest_file(name, path, typer.echo)
+            ingest_file(path, dataset, typer.echo)
     except Exception as e:
         typer.echo(e)
 
@@ -34,41 +31,24 @@ def ingest(path: Path, name: str):
 @app.command()
 def list():
     """
-    List all datasets
+    List all datasets and files
     """
     datasets = retrieve_datasets()
     typer.echo(datasets)
 
 
 @app.command()
-def get(name: str, path: str = None):
+def get(dataset: str, file: str = None, path: str = None):
     """
     Download a dataset
 
-    name: Name of the dataset
-    path: Path to download the dataset to
+    dataset: Name of the dataset
+    file: Name of the file to download (optional, if not provided, the whole dataset will be downloaded)
+    path: Path to download the dataset to (optional, if not provided, the dataset will be downloaded to ~/.eotdl/datasets)
     """
     try:
-        dst_path = download_dataset(name, path, typer.echo)
-        typer.echo(f"Dataset {name} downloaded to {dst_path}")
-    except Exception as e:
-        typer.echo(e)
-
-
-@app.command()
-def update(
-    name: str,
-    path: str,
-):
-    """
-    Update a dataset
-
-    name: Name of the dataset
-    path: Path to dataset to ingest
-    """
-    try:
-        update_dataset(name, path, typer.echo)
-        typer.echo(f"Dataset {name} updated")
+        dst_path = download_dataset(dataset, file, path, typer.echo)
+        typer.echo(f"Data available at {dst_path}")
     except Exception as e:
         typer.echo(e)
 

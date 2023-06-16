@@ -5,7 +5,7 @@ from .main import (
     retrieve_popular_datasets,
     like_dataset,
     retrieve_liked_datasets,
-    ingest_dataset,
+    ingest_file,
     retrieve_datasets,
     retrieve_dataset_by_name,
     download_dataset,

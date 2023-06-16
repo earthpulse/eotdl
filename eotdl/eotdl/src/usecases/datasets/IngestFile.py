@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import os
+import typing
 
 from ....src.utils import calculate_checksum
 
@@ -11,7 +12,7 @@ class IngestFile:
         self.logger = logger if logger else print
 
     class Inputs(BaseModel):
-        file: str
+        file: typing.Any
         dataset: str = None
         user: dict
 
@@ -19,30 +20,29 @@ class IngestFile:
         dataset: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        data, error = self.repo.retrieve_dataset(inputs.dataset)
-        if data:
-            raise Exception("Dataset already exists")
-        if not inputs.suffix in self.allowed_extensions:
+        # validate file extension
+        extension = os.path.splitext(inputs.file)[1]
+        if extension not in self.allowed_extensions:
             raise Exception(
-                "Only zip, tar, tar.gz, csv, txt, json, pdf, md files are allowed"
+                f"Only {', '.join(self.allowed_extensions)} files are allowed"
             )
         self.logger(f"Uploading file {inputs.file}...")
-        self.logger("Computing checksum...", end=" ")
+        self.logger("Computing checksum...")
         checksum = calculate_checksum(inputs.file)
         self.logger(checksum)
-        self.logger("Ingesting dataset...", end=" ")
+        self.logger("Ingesting dataset...")
         id_token = inputs.user["id_token"]
         filesize = os.path.getsize(inputs.file)
-        # samll file
+        # ingest small file
         if filesize < 1024 * 1024 * 16:  # 16 MB
             data, error = self.repo.ingest_file(
                 inputs.file, inputs.dataset, id_token, checksum
             )
-            self.logger("Done")
             if error:
                 raise Exception(error)
+            self.logger("Done")
             return self.Outputs(dataset=data)
-        # large file
+        # ingest large file
         dataset_id, upload_id, parts = self.repo.prepare_large_upload(
             inputs.file, id_token, checksum
         )

@@ -1,5 +1,5 @@
 from ...repos import DBRepo, OSRepo, S3Repo
-from .IngestDataset import IngestDataset
+from .IngestFile import IngestFile
 from .UpdateDataset import UpdateDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
@@ -16,14 +16,15 @@ from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
-async def ingest_dataset(file, name, user):
+async def ingest_file(file, dataset, checksum, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
-    ingest = IngestDataset(db_repo, os_repo)
+    ingest = IngestFile(db_repo, os_repo)
     inputs = ingest.Inputs(
-        name=name,
+        dataset=dataset,
         file=file,
         uid=user.uid,
+        checksum=checksum,
     )
     outputs = await ingest(inputs)
     return outputs.dataset
@@ -83,11 +84,11 @@ def retrieve_popular_datasets(limit):
     return outputs.datasets
 
 
-def download_dataset(id, user):
+def download_dataset(id, file, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     retrieve = DownloadDataset(db_repo, os_repo)
-    inputs = retrieve.Inputs(id=id, uid=user.uid)
+    inputs = retrieve.Inputs(id=id, file=file, uid=user.uid)
     outputs = retrieve(inputs)
     return outputs.data_stream, outputs.object_info, outputs.name
 
