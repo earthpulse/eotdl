@@ -2,8 +2,6 @@ from pydantic import BaseModel
 import os
 from pathlib import Path
 
-from ....src.utils import calculate_checksum
-
 
 class IngestFolder:
     def __init__(self, repo, ingest_file, allowed_extensions, logger):
@@ -35,7 +33,5 @@ class IngestFolder:
         for item in filtered_items:
             self.logger(f"{item.name}")
         for item in filtered_items:
-            data = self.ingest_file(
-                item, inputs.dataset, logger=self.logger, user=inputs.user
-            )
+            data = self.ingest_file(item, inputs.dataset, logger=self.logger)
         return self.Outputs(dataset=data)

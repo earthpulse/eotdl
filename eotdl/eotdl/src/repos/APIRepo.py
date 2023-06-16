@@ -31,12 +31,15 @@ class APIRepo:
             return response.json(), None
         return None, response.json()["detail"]
 
-    def download_dataset(self, dataset_id, id_token, path):
-        url = self.url + "datasets/" + dataset_id + "/download"
+    def download_file(self, dataset, dataset_id, file, id_token, path):
+        url = self.url + "datasets/" + dataset_id + "/download/" + file
         headers = {"Authorization": "Bearer " + id_token}
         if path is None:
-            path = str(Path.home()) + "/.eotdl/datasets"
+            path = str(Path.home()) + "/.eotdl/datasets/" + dataset
             os.makedirs(path, exist_ok=True)
+        path = f"{path}/{file}"
+        # if os.path.exists(path):
+        #     raise Exception("File already exists")
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
@@ -44,10 +47,6 @@ class APIRepo:
             progress_bar = tqdm(
                 total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
             )
-            filename = r.headers.get("content-disposition").split("filename=")[1][1:-1]
-            path = f"{path}/{filename}"
-            if os.path.exists(path):
-                raise Exception("File already exists")
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
                     progress_bar.update(len(chunk))
@@ -57,12 +56,12 @@ class APIRepo:
             return path
 
     def ingest_file(self, file, dataset, id_token, checksum):
-        url = self.url + "datasets"
         reponse = requests.post(
-            url,
-            files={"file": file},
+            self.url + "datasets",
+            files={"file": open(file, "rb")},
             data={
-                "name": dataset["name"],
+                "dataset": dataset,
+                "checksum": checksum,
             },
             headers={"Authorization": "Bearer " + id_token},
         )
