@@ -16,20 +16,14 @@ from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
 
 
-async def ingest_dataset(file, name, author, link, license, description, tags, user):
+async def ingest_dataset(file, name, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestDataset(db_repo, os_repo)
     inputs = ingest.Inputs(
         name=name,
-        file=file.file,
-        size=file.size,
+        file=file,
         uid=user.uid,
-        description=description,
-        author=author,
-        link=link,
-        license=license,
-        tags=tags,
     )
     outputs = await ingest(inputs)
     return outputs.dataset
@@ -148,19 +142,17 @@ def generate_upload_id(user, checksum, name=None, id=None):
     return outputs.dataset_id, outputs.upload_id, outputs.parts
 
 
-def ingest_dataset_chunk(
-    chunk,
-    part_number,
-    id,
-    upload_id,
-    checksum
-):
+def ingest_dataset_chunk(chunk, part_number, id, upload_id, checksum):
     os_repo = OSRepo()
     s3_repo = S3Repo()
     db_repo = DBRepo()
     ingest = IngestDatasetChunk(os_repo, s3_repo, db_repo)
     inputs = ingest.Inputs(
-        chunk=chunk, id=id, upload_id=upload_id, part_number=part_number, checksum=checksum
+        chunk=chunk,
+        id=id,
+        upload_id=upload_id,
+        part_number=part_number,
+        checksum=checksum,
     )
     outputs = ingest(inputs)
     return outputs.id, outputs.upload_id

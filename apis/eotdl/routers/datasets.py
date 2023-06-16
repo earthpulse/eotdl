@@ -33,21 +33,10 @@ router = APIRouter(prefix="/datasets", tags=["datasets"])
 async def ingest(
     file: UploadFile = File(...),
     name: str = Form(...),
-    author: str = Form(...),
-    link: str = Form(...),
-    license: str = Form(...),
-    tags: Optional[str] = Form(""),
-    description: str = Form(...),
     user: User = Depends(get_current_user),
 ):
-    # if file.size > 1000000000: # 1 GB
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="File size too large, the maximum allowed is 1 GB. For larger dataset get in touch with us.")
     try:
-        # parse tags
-        tags = tags.split(",") if tags != "" else []
-        return await ingest_dataset(
-            file, name, author, link, license, description, tags, user
-        )
+        return await ingest_dataset(file, name, user)
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
