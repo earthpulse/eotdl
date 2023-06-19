@@ -43,16 +43,13 @@ class IngestFile:
             self.logger("Done")
             return self.Outputs(dataset=data)
         # ingest large file
-        dataset_id, upload_id, parts = self.repo.prepare_large_upload(
-            inputs.file, id_token, checksum
+        upload_id, parts = self.repo.prepare_large_upload(
+            inputs.file, inputs.dataset, checksum, id_token
         )
-        self.repo.ingest_large_dataset(
-            inputs.file, upload_id, dataset_id, id_token, parts
-        )
+        print(upload_id, parts)
+        self.repo.ingest_large_dataset(inputs.file, upload_id, id_token, parts)
         self.logger("\nCompleting upload...")
-        data, error = self.repo.complete_upload(
-            inputs.name, id_token, upload_id, dataset_id, checksum
-        )
+        data, error = self.repo.complete_upload(id_token, upload_id)
         if error:
             raise Exception(error)
         self.logger("Done")

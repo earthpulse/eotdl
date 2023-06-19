@@ -59,18 +59,19 @@ class Dataset(BaseModel):
         return name
 
 
-class UploadingDataset(BaseModel):
+class UploadingFile(BaseModel):
     uid: str
     id: str
     upload_id: str
     name: str
+    dataset: str
     checksum: str
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     parts: List[int] = []
 
-    @validator("name")
-    def check_name_is_valid(cls, name):
-        if name is not None:
-            assert validate_name(name) == name
-        return name
+    @validator("dataset")
+    def check_name_is_valid(cls, dataset):
+        if dataset is not None:
+            assert validate_name(dataset) == dataset
+        return dataset

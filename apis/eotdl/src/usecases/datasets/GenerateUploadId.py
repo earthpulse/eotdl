@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import typing
 
-from ...models import Dataset, User, Limits, UploadingDataset
+from ...models import Dataset, User, Limits, UploadingFile
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
 from typing import Optional, List
 
@@ -15,29 +15,25 @@ class GenerateUploadId:
     class Inputs(BaseModel):
         uid: str
         checksum: str
-        name: str = None
-        id: str = None
+        name: str
+        dataset: str
 
     class Outputs(BaseModel):
-        dataset_id: Optional[str] = None
-        upload_id: Optional[str] = None
-        parts: Optional[List[int]] = []
+        upload_id: str
+        parts: List[int] = []
 
     def __call__(self, inputs: Inputs) -> Outputs:
         # check if upload already exists
-        if inputs.id is None:
-            data = self.db_repo.find_one_by_user_and_value(
-                "uploading", inputs.uid, "name", inputs.name
-            )
-        else:
-            data = self.db_repo.retrieve("uploading", inputs.id)
+        data = self.db_repo.find_one(
+            "uploading",
+            {"uid": inputs.uid, "name": inputs.name, "dataset": inputs.dataset},
+        )
         if data:
-            uploading = UploadingDataset(**data)
+            uploading = UploadingFile(**data)
             if uploading.checksum != inputs.checksum:
                 self.db_repo.delete("uploading", uploading.id)
             else:
                 return self.Outputs(
-                    dataset_id=uploading.id,
                     upload_id=uploading.upload_id,
                     parts=uploading.parts,
                 )
@@ -55,42 +51,23 @@ class GenerateUploadId:
                     limits.datasets.upload
                 )
             )
-        # check if name already exists
-        if self.db_repo.find_one_by_name("datasets", inputs.name):
+        # check if dataset already exists for other user
+        data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
+        if data and data["uid"] != inputs.uid:
             raise DatasetAlreadyExistsError()
-        # create new dataset
-        if inputs.id is None:
-            # generate new dataset id and validate name, description
-            id = self.db_repo.generate_id()
-            # generate multipart upload id
-            storage = self.os_repo.get_object(id)
-            upload_id = self.s3_repo.multipart_upload_id(storage)
-            uploading = UploadingDataset(
-                uid=inputs.uid,
-                id=id,
-                upload_id=upload_id,
-                name=inputs.name,
-                checksum=inputs.checksum,
-            )
-            self.db_repo.persist("uploading", uploading.dict(), id)
-            return self.Outputs(dataset_id=id, upload_id=upload_id)
-        # update existing dataset
-        # check if user is owner
-        data = self.db_repo.retrieve("datasets", inputs.id, "id")
-        dataset = Dataset(**data)
-        if dataset.uid != inputs.uid:
-            raise UserUnauthorizedError()
-        # generate multipart upload id
-        storage = self.os_repo.get_object(inputs.id)
+        # create new upload
+        id = self.db_repo.generate_id()
+        storage = self.os_repo.get_object(id, inputs.name)
         upload_id = self.s3_repo.multipart_upload_id(
             storage
         )  # does this work if the file already exists ?
-        uploading = UploadingDataset(
+        uploading = UploadingFile(
             uid=inputs.uid,
-            id=inputs.id,
+            id=id,
             upload_id=upload_id,
-            name=dataset.name,
+            dataset=inputs.dataset,
+            name=inputs.name,
             checksum=inputs.checksum,
         )
-        self.db_repo.persist("uploading", uploading.dict(), inputs.id)
+        self.db_repo.persist("uploading", uploading.dict(), uploading.id)
         return self.Outputs(upload_id=upload_id)

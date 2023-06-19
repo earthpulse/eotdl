@@ -76,18 +76,21 @@ class APIRepo:
                 break
             yield data
 
-    def prepare_large_upload(self, name, id_token, checksum):
-        url = self.url + "datasets/chunk?name=" + name + "&checksum=" + checksum
-        response = requests.get(url, headers={"Authorization": "Bearer " + id_token})
+    def prepare_large_upload(self, file, dataset, checksum, id_token):
+        filename = Path(file).name
+        response = requests.post(
+            self.url + "datasets/uploadId",
+            json={"name": filename, "checksum": checksum, "dataset": dataset},
+            headers={"Authorization": "Bearer " + id_token},
+        )
         if response.status_code != 200:
             raise Exception(response.json()["detail"])
         data = response.json()
-        dataset_id, upload_id, parts = (
-            data["dataset_id"],
+        upload_id, parts = (
             data["upload_id"],
             data["parts"] if "parts" in data else [],
         )
-        return dataset_id, upload_id, parts
+        return upload_id, parts
 
     def get_chunk_size(self, content_size):
         # adapt chunk size to content size to avoid S3 limits (10000 parts, 500MB per part, 5TB per object)
@@ -98,37 +101,31 @@ class APIRepo:
             chunk_size = 1024 * 1024 * 500  # 0.5 GB (up to 5 TB, 10000 parts)
         return chunk_size
 
-    def ingest_large_dataset(self, path, upload_id, dataset_id, id_token, parts):
-        content_path = os.path.abspath(path)
+    def ingest_large_dataset(self, file, upload_id, id_token, parts):
+        content_path = os.path.abspath(file)
         content_size = os.stat(content_path).st_size
         chunk_size = self.get_chunk_size(content_size)
         total_chunks = content_size // chunk_size
-        url = self.url + "datasets/chunk"
-        headers = {
-            "Authorization": "Bearer " + id_token,
-            "Upload-Id": upload_id,
-            "Dataset-Id": dataset_id,
-        }
         # upload chunks sequentially
         pbar = tqdm(
             self.read_in_chunks(open(content_path, "rb"), chunk_size),
             total=total_chunks,
         )
         index = 0
-        parts_checkusms = []
         for chunk in pbar:
             part = index // chunk_size + 1
             offset = index + len(chunk)
             index = offset
             if part not in parts:
-                headers["Part-Number"] = str(part)
                 checksum = hashlib.md5(chunk).hexdigest()
-                parts_checkusms.append(checksum)
-                headers["Checksum"] = checksum
-                file = {"file": chunk}
-                r = requests.post(url, files=file, headers=headers)
-                if r.status_code != 200:
-                    return None, r.json()["detail"]
+                response = requests.post(
+                    self.url + "datasets/chunk/" + upload_id,
+                    files={"file": chunk},
+                    data={"part_number": part, "checksum": checksum},
+                    headers={"Authorization": "Bearer " + id_token},
+                )
+                if response.status_code != 200:
+                    raise Exception(response.json()["detail"])
             pbar.set_description(
                 "{:.2f}/{:.2f} MB".format(
                     offset / 1024 / 1024, content_size / 1024 / 1024
@@ -137,16 +134,10 @@ class APIRepo:
         pbar.close()
         return
 
-    def complete_upload(self, name, id_token, upload_id, dataset_id, checksum):
-        url = self.url + "datasets/complete"
+    def complete_upload(self, id_token, upload_id):
         r = requests.post(
-            url,
-            json={"name": name, "checksum": checksum},
-            headers={
-                "Authorization": "Bearer " + id_token,
-                "Upload-Id": upload_id,
-                "Dataset-Id": dataset_id,
-            },
+            self.url + "datasets/complete/" + upload_id,
+            headers={"Authorization": "Bearer " + id_token},
         )
         if r.status_code != 200:
             return None, r.json()["detail"]

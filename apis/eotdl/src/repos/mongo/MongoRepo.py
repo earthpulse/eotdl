@@ -50,6 +50,9 @@ class MongoRepo:
     def retrieve_all(self, collection):
         return list(self.db[collection].find())
 
+    def find_one(self, collection, data):
+        return self.db[collection].find_one(data)
+
     def find_one_by_field(self, collection, field, value, limit):
         if limit is None:
             return self.db[collection].find_one({field: value})
