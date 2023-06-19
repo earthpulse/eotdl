@@ -171,47 +171,52 @@ def delete(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/chunk", include_in_schema=False)
+class UploadIdBody(BaseModel):
+    name: str
+    dataset: str
+    checksum: str
+
+
+@router.post("/uploadId", include_in_schema=False)
 def start_large_dataset_upload(
-    name: str,
-    checksum: str,
+    body: UploadIdBody,
     user: User = Depends(get_current_user),
 ):
-    try:
-        dataset_id, upload_id, parts = generate_upload_id(user, checksum, name)
-        return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
-    except Exception as e:
-        logger.exception("datasets:start_large_dataset_upload")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    upload_id, parts = generate_upload_id(user, body.checksum, body.name, body.dataset)
+    return {"upload_id": upload_id, "parts": parts}
+    # except Exception as e:
+    #     logger.exception("datasets:start_large_dataset_upload")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/chunk/{id}", include_in_schema=False)
-def start_large_dataset_update(
-    id: str,
-    checksum: str,
-    user: User = Depends(get_current_user),
-):
-    try:
-        dataset_id, upload_id, parts = generate_upload_id(user, checksum, id=id)
-        return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
-    except Exception as e:
-        logger.exception("datasets:start_large_dataset_update")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.get("/chunk/{id}", include_in_schema=False)
+# def start_large_dataset_update(
+#     id: str,
+#     checksum: str,
+#     user: User = Depends(get_current_user),
+# ):
+#     try:
+#         dataset_id, upload_id, parts = generate_upload_id(user, checksum, id=id)
+#         return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
+#     except Exception as e:
+#         logger.exception("datasets:start_large_dataset_update")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/chunk", include_in_schema=False)
+@router.post("/chunk/{upload_id}", include_in_schema=False)
 def ingest_large_dataset_chunk(
-    request: Request,
+    upload_id: str,
     file: UploadFile = File(...),
+    part_number: int = Form(...),
+    checksum: str = Form(...),
     user: User = Depends(get_current_user),
 ):
     try:
-        upload_id = request.headers.get("upload-id", None)
-        part_number = int(request.headers.get("part-number", None))
-        dataset_id = request.headers.get("dataset-id", None)
-        checkusm = request.headers.get("checksum", None)
-        ingest_dataset_chunk(file.file, part_number, dataset_id, upload_id, checkusm)
-        return {"message": "done"}
+        message = ingest_dataset_chunk(
+            file.file, part_number, upload_id, checksum, user
+        )
+        return {"message": message}
     except Exception as e:
         logger.exception("datasets:ingest_large_dataset_chunk")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -223,19 +228,14 @@ class CompleteBody(BaseModel):
     checksum: str
 
 
-@router.post("/complete", include_in_schema=False)
+@router.post("/complete/{upload_id}", include_in_schema=False)
 async def complete_large_dataset_upload(
-    request: Request,
-    body: CompleteBody,
+    upload_id: str,
     user: User = Depends(get_current_user),
 ):
-    try:
-        upload_id = request.headers.get("upload-id", None)
-        dataset_id = request.headers.get("dataset-id", None)
-        dataset = await complete_multipart_upload(
-            user, body.name, dataset_id, upload_id, body.checksum
-        )
-        return {"dataset": dataset}
-    except Exception as e:
-        logger.exception("datasets:complete_large_dataset_upload")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    dataset = await complete_multipart_upload(user, upload_id)
+    return {"dataset": dataset}
+    # except Exception as e:
+    #     logger.exception("datasets:complete_large_dataset_upload")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -45,12 +45,9 @@ class Boto3Repo:
             {"PartNumber": part["PartNumber"], "ETag": part["ETag"]}
             for part in sorted_parts
         ]
-        response = self.client.complete_multipart_upload(
+        return self.client.complete_multipart_upload(
             Bucket=self.bucket,
             Key=storage,
             MultipartUpload={"Parts": parts},
             UploadId=upload_id,
         )
-        # this is not the md5 checksum of the object, but a checksum of the parts checksums
-        checksum = response["ETag"].strip('"')
-        return checksum

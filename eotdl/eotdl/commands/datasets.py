@@ -16,7 +16,7 @@ def ingest(path: Path, dataset: str):
     """
     Ingest a file
 
-    path: Path to file or folder. Can be a file (.zip, .tar, .tar.gz, .csv, .txt, .json, .pdf, .md) or a directory (limited to 10 files, not recursive!)
+    path: Path to folder with data (limited to 10 files, not recursive!)
     dataset: Name of the dataset
     """
     try:

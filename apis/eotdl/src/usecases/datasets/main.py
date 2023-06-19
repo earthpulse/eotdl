@@ -128,7 +128,7 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, checksum, name=None, id=None):
+def generate_upload_id(user, checksum, name, dataset):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -137,39 +137,36 @@ def generate_upload_id(user, checksum, name=None, id=None):
         uid=user.uid,
         checksum=checksum,
         name=name,
-        id=id,
+        dataset=dataset,
     )
     outputs = generate(inputs)
-    return outputs.dataset_id, outputs.upload_id, outputs.parts
+    return outputs.upload_id, outputs.parts
 
 
-def ingest_dataset_chunk(chunk, part_number, id, upload_id, checksum):
+def ingest_dataset_chunk(chunk, part_number, upload_id, checksum, user):
     os_repo = OSRepo()
     s3_repo = S3Repo()
     db_repo = DBRepo()
     ingest = IngestDatasetChunk(os_repo, s3_repo, db_repo)
     inputs = ingest.Inputs(
         chunk=chunk,
-        id=id,
+        uid=user.uid,
         upload_id=upload_id,
         part_number=part_number,
         checksum=checksum,
     )
     outputs = ingest(inputs)
-    return outputs.id, outputs.upload_id
+    return outputs.message
 
 
-async def complete_multipart_upload(user, name, dataset_id, upload_id, checksum):
+async def complete_multipart_upload(user, upload_id):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
     complete = CompleteMultipartUpload(db_repo, os_repo, s3_repo)
     inputs = complete.Inputs(
         uid=user.uid,
-        name=name,
-        id=dataset_id,
         upload_id=upload_id,
-        checksum=checksum,
     )
     outputs = await complete(inputs)
     return outputs.dataset

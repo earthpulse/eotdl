@@ -2,7 +2,7 @@ from pydantic import BaseModel
 import typing
 from datetime import datetime
 
-from ...models import UploadingDataset
+from ...models import UploadingFile
 from ...errors import ChunkUploadChecksumMismatch
 
 
@@ -14,21 +14,20 @@ class IngestDatasetChunk:
 
     class Inputs(BaseModel):
         chunk: typing.Any
-        id: str
+        uid: str
         upload_id: str
         part_number: int
         checksum: str
 
     class Outputs(BaseModel):
-        id: str
-        upload_id: str
+        message: str
 
     def __call__(self, inputs: Inputs) -> Outputs:
         data = self.db_repo.retrieve("uploading", inputs.upload_id, "upload_id")
-        if not data:
+        if not data or data["uid"] != inputs.uid:
             raise Exception("Upload ID does not exist")
-        uploading = UploadingDataset(**data)
-        storage = self.os_repo.get_object(inputs.id)
+        uploading = UploadingFile(**data)
+        storage = self.os_repo.get_object(uploading.id, uploading.name)
         etag = self.s3_repo.store_chunk(
             inputs.chunk, storage, inputs.part_number, inputs.upload_id
         )
@@ -37,4 +36,4 @@ class IngestDatasetChunk:
         uploading.parts.append(inputs.part_number)
         uploading.updatedAt = datetime.now()
         self.db_repo.update("uploading", uploading.id, uploading.dict())
-        return self.Outputs(id=inputs.id, upload_id=inputs.upload_id)
+        return self.Outputs(message="Chunk uploaded")
