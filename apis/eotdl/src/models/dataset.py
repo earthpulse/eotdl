@@ -40,6 +40,7 @@ class Dataset(BaseModel):
     uid: str
     id: str
     name: str
+    size: int = 0
     files: List[File] = []
     description: str = ""
     tags: List[str] = []

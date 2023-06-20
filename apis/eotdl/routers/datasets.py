@@ -12,14 +12,14 @@ from ..src.usecases.datasets import (
     retrieve_dataset_by_name,
     retrieve_liked_datasets,
     retrieve_popular_datasets,
+    like_dataset,
+    retrieve_datasets_leaderboard,
+    generate_upload_id,
+    ingest_dataset_chunk,
+    complete_multipart_upload,
     # delete_dataset,
-    # ingest_dataset_chunk,
-    # like_dataset,
     # download_dataset,
     # edit_dataset,
-    # retrieve_datasets_leaderboard,
-    # generate_upload_id,
-    # complete_multipart_upload,
     # update_dataset,
 )
 from .auth import get_current_user, key_auth
@@ -72,6 +72,97 @@ def retrieve_popular(limit: Union[int, None] = None):
     except Exception as e:
         logger.exception("datasets:retrieve_popular")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.put("/{id}/like", include_in_schema=False)
+def like(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return like_dataset(id, user)
+    except Exception as e:
+        logger.exception("datasets:like")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/leaderboard", include_in_schema=False)
+def leaderboard():
+    try:
+        return retrieve_datasets_leaderboard()
+    except Exception as e:
+        logger.exception("datasets:leaderboard")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class UploadIdBody(BaseModel):
+    name: str
+    dataset: str
+    checksum: str
+
+
+@router.post("/uploadId", include_in_schema=False)
+def start_large_dataset_upload(
+    body: UploadIdBody,
+    user: User = Depends(get_current_user),
+):
+    # try:
+    upload_id, parts = generate_upload_id(user, body.checksum, body.name, body.dataset)
+    return {"upload_id": upload_id, "parts": parts}
+    # except Exception as e:
+    #     logger.exception("datasets:start_large_dataset_upload")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+# @router.get("/chunk/{id}", include_in_schema=False)
+# def start_large_dataset_update(
+#     id: str,
+#     checksum: str,
+#     user: User = Depends(get_current_user),
+# ):
+#     try:
+#         dataset_id, upload_id, parts = generate_upload_id(user, checksum, id=id)
+#         return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
+#     except Exception as e:
+#         logger.exception("datasets:start_large_dataset_update")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/chunk/{upload_id}", include_in_schema=False)
+def ingest_large_dataset_chunk(
+    upload_id: str,
+    file: UploadFile = File(...),
+    part_number: int = Form(...),
+    checksum: str = Form(...),
+    user: User = Depends(get_current_user),
+):
+    try:
+        message = ingest_dataset_chunk(
+            file.file, part_number, upload_id, checksum, user
+        )
+        return {"message": message}
+    except Exception as e:
+        logger.exception("datasets:ingest_large_dataset_chunk")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CompleteBody(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    checksum: str
+
+
+@router.post("/complete/{upload_id}", include_in_schema=False)
+async def complete_large_dataset_upload(
+    upload_id: str,
+    user: User = Depends(get_current_user),
+):
+    # try:
+    dataset = await complete_multipart_upload(user, upload_id)
+    return {"dataset": dataset}
+    # except Exception as e:
+    #     logger.exception("datasets:complete_large_dataset_upload")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 # @router.put("")
@@ -138,27 +229,6 @@ def retrieve_popular(limit: Union[int, None] = None):
 # #         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-# @router.put("/{id}/like", include_in_schema=False)
-# def like(
-#     id: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         return like_dataset(id, user)
-#     except Exception as e:
-#         logger.exception("datasets:like")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# @router.get("/leaderboard", include_in_schema=False)
-# def leaderboard():
-#     try:
-#         return retrieve_datasets_leaderboard()
-#     except Exception as e:
-#         logger.exception("datasets:leaderboard")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
 # @router.delete("/{name}", include_in_schema=False)
 # def delete(
 #     name: str,
@@ -169,73 +239,3 @@ def retrieve_popular(limit: Union[int, None] = None):
 #     except Exception as e:
 #         logger.exception("datasets:delete")
 #         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# class UploadIdBody(BaseModel):
-#     name: str
-#     dataset: str
-#     checksum: str
-
-
-# @router.post("/uploadId", include_in_schema=False)
-# def start_large_dataset_upload(
-#     body: UploadIdBody,
-#     user: User = Depends(get_current_user),
-# ):
-#     # try:
-#     upload_id, parts = generate_upload_id(user, body.checksum, body.name, body.dataset)
-#     return {"upload_id": upload_id, "parts": parts}
-#     # except Exception as e:
-#     #     logger.exception("datasets:start_large_dataset_upload")
-#     #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# # @router.get("/chunk/{id}", include_in_schema=False)
-# # def start_large_dataset_update(
-# #     id: str,
-# #     checksum: str,
-# #     user: User = Depends(get_current_user),
-# # ):
-# #     try:
-# #         dataset_id, upload_id, parts = generate_upload_id(user, checksum, id=id)
-# #         return {"dataset_id": dataset_id, "upload_id": upload_id, "parts": parts}
-# #     except Exception as e:
-# #         logger.exception("datasets:start_large_dataset_update")
-# #         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# @router.post("/chunk/{upload_id}", include_in_schema=False)
-# def ingest_large_dataset_chunk(
-#     upload_id: str,
-#     file: UploadFile = File(...),
-#     part_number: int = Form(...),
-#     checksum: str = Form(...),
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         message = ingest_dataset_chunk(
-#             file.file, part_number, upload_id, checksum, user
-#         )
-#         return {"message": message}
-#     except Exception as e:
-#         logger.exception("datasets:ingest_large_dataset_chunk")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# class CompleteBody(BaseModel):
-#     name: Optional[str]
-#     description: Optional[str]
-#     checksum: str
-
-
-# @router.post("/complete/{upload_id}", include_in_schema=False)
-# async def complete_large_dataset_upload(
-#     upload_id: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     # try:
-#     dataset = await complete_multipart_upload(user, upload_id)
-#     return {"dataset": dataset}
-#     # except Exception as e:
-#     #     logger.exception("datasets:complete_large_dataset_upload")
-#     #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

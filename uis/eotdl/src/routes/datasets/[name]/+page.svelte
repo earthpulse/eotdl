@@ -169,43 +169,62 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<div class="overflow-auto w-full">
-				<table
-					class="table border-2 rounded-lg table-compact h-[100px] w-full"
-				>
-					<tbody>
-						<tr>
-							<th class="w-[20px]">Author(s)</th>
-							<td>{author || "-"}</td>
-						</tr>
-						<tr>
-							<th>License</th>
-							<td>{license || "-"}</td>
-						</tr>
-						<tr>
-							<th>Source</th>
-							<td>
-								{#if link}
-									<a
-										href={link}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="text-green-200 hover:underline"
-										>{link.length > 30
-											? link.slice(0, 30) + "..."
-											: link}</a
-									>
-								{:else}
-									-
-								{/if}
-							</td>
-						</tr>
-						<tr>
-							<th>Checksum (md5)</th>
-							<td>{checksum || "-"}</td>
-						</tr>
-					</tbody>
-				</table>
+			<div class="flex flex-col gap-3">
+				<div class="overflow-auto w-full">
+					<table
+						class="table border-2 rounded-lg table-compact h-[100px] w-full"
+					>
+						<tbody>
+							<tr>
+								<th class="w-[20px]">Author(s)</th>
+								<td>{author || "-"}</td>
+							</tr>
+							<tr>
+								<th>License</th>
+								<td>{license || "-"}</td>
+							</tr>
+							<tr>
+								<th>Source</th>
+								<td>
+									{#if link}
+										<a
+											href={link}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="text-green-200 hover:underline"
+											>{link.length > 30
+												? link.slice(0, 30) + "..."
+												: link}</a
+										>
+									{:else}
+										-
+									{/if}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<p>Files:</p>
+				<div class="overflow-auto w-full">
+					<table
+						class="table border-2 rounded-lg table-compact h-[100px] w-full"
+					>
+						<tbody>
+							<tr>
+								<th>Name</th>
+								<th>Size</th>
+								<th>Checksum (SHA1)</th>
+							</tr>
+							{#each data.dataset.files as file}
+								<tr>
+									<td>{file.name}</td>
+									<td>{formatFileSize(file.size)}</td>
+									<td class="text-xs">{file.checksum}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
