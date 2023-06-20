@@ -1,6 +1,7 @@
 from .client import get_client
 import os
 from datetime import timedelta
+import hashlib
 
 
 class MinioRepo:
@@ -13,12 +14,12 @@ class MinioRepo:
     def get_object(self, dataset_id, file_name):
         return f"{dataset_id}/{file_name}"
 
-    def persist_file(self, file, dataset_id):
-        object = self.get_object(dataset_id, file.filename)
+    def persist_file(self, file, dataset_id, filename):
+        object = self.get_object(dataset_id, filename)
         return self.client.put_object(
             self.bucket,
             object,
-            file.file,
+            file,
             length=-1,
             part_size=10 * 1024 * 1024,
         )
@@ -67,3 +68,10 @@ class MinioRepo:
     #     return self.client.initiate_multipart_upload(
     #         self.bucket, self.get_object(id)
     #     ).upload_id
+
+    async def calculate_checksum(self, dataset_id, file_name):
+        data_stream = data_stream.clone(dataset_id, file_name)
+        sha1_hash = hashlib.sha1()
+        async for chunk in data_stream:
+            sha1_hash.update(chunk)
+        return sha1_hash.hexdigest()

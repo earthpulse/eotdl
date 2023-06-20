@@ -5,7 +5,6 @@ from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits
 from ...errors import DatasetDoesNotExistError, TierLimitError, UserUnauthorizedError
-from ...utils import calculate_checksum
 
 
 class UpdateDataset:
@@ -70,8 +69,9 @@ class UpdateDataset:
             self.os_repo.persist_file(
                 inputs.file, inputs.dataset_id
             )  # no need to delete !
-            data_stream = self.os_repo.data_stream(inputs.dataset_id)
-            checksum = await calculate_checksum(data_stream)
+            checksum = await self.os_repo.calculate_checksum(
+                inputs.dataset_id, updated_dataset.name
+            )
             updated_dataset.checksum = checksum
             # report usage
             usage = Usage.DatasetIngested(
