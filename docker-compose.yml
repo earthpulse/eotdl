@@ -40,5 +40,5 @@ services:
       - ./apis/eotdl:/api
       - ./eotdl/eotdl:/api/eotdl
     ports:
-      - 8000:8000
+      - 8010:8000
     command: uvicorn api.main:app --host 0.0.0.0 --reload

@@ -1,9 +1,8 @@
 from pydantic import BaseModel
-import typing
 
-from ...models import Dataset, User, Limits, UploadingFile
-from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
-from typing import Optional, List
+from ...models import User, Limits, UploadingFile, Dataset
+from ...errors import DatasetAlreadyExistsError, TierLimitError
+from typing import List
 
 
 class GenerateUploadId:
@@ -30,31 +29,50 @@ class GenerateUploadId:
         )
         if data:
             uploading = UploadingFile(**data)
+            # abort if trying to resume existing upload with a different file
             if uploading.checksum != inputs.checksum:
                 self.db_repo.delete("uploading", uploading.id)
-            else:
+            else:  # resume upload
                 return self.Outputs(
                     upload_id=uploading.upload_id,
                     parts=uploading.parts,
                 )
-        # check if user can ingest dataset
+        # check if dataset already exists
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        usage = self.db_repo.find_in_time_range(
-            "usage", inputs.uid, "dataset_ingested", "type"
-        )
-        if len(usage) + 1 >= limits.datasets.upload:
-            raise TierLimitError(
-                "You cannot ingest more than {} datasets per day".format(
-                    limits.datasets.upload
-                )
-            )
-        # check if dataset already exists for other user
         data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
-        if data and data["uid"] != inputs.uid:
-            raise DatasetAlreadyExistsError()
+        if data:
+            dataset = Dataset(**data)
+            # error if dataset already exists for another user
+            if dataset.uid != inputs.uid:
+                raise DatasetAlreadyExistsError()
+            # check if user can ingest file
+            if (
+                len(dataset.files) + 1 >= limits.datasets.files
+                and inputs.name not in dataset.files
+            ):
+                raise TierLimitError(
+                    "You cannot have more than {} files".format(limits.datasets.files)
+                )
+        else:  # first upload to new dataset
+            # check if user can ingest dataset
+            usage = self.db_repo.find_in_time_range(
+                "usage", inputs.uid, "dataset_ingested", "type"
+            )
+            if len(usage) + 1 >= limits.datasets.upload:
+                raise TierLimitError(
+                    "You cannot ingest more than {} datasets per day".format(
+                        limits.datasets.upload
+                    )
+                )
+            if user.dataset_count + 1 >= limits.datasets.count:
+                raise TierLimitError(
+                    "You cannot have more than {} datasets".format(
+                        limits.datasets.count
+                    )
+                )
         # create new upload
         id = self.db_repo.generate_id()
         storage = self.os_repo.get_object(id, inputs.name)

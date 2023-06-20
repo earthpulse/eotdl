@@ -70,7 +70,7 @@ class MinioRepo:
     #     ).upload_id
 
     async def calculate_checksum(self, dataset_id, file_name):
-        data_stream = data_stream.clone(dataset_id, file_name)
+        data_stream = self.data_stream(dataset_id, file_name)
         sha1_hash = hashlib.sha1()
         async for chunk in data_stream:
             sha1_hash.update(chunk)

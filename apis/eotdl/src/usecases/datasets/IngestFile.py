@@ -74,7 +74,7 @@ class IngestFile:
                 "You cannot have more than {} files".format(limits.datasets.files)
             )
         # save file in storage
-        self.os_repo.persist_file(inputs.file, dataset.id, inputs.file.filename)
+        self.os_repo.persist_file(inputs.file.file, dataset.id, inputs.file.filename)
         # calculate checksum
         checksum = await self.os_repo.calculate_checksum(
             dataset.id, inputs.file.filename
@@ -84,11 +84,16 @@ class IngestFile:
             if len(dataset.files) == 0:
                 self.db_repo.delete("datasets", dataset.id)
             raise Exception("Checksum does not match")
-        if inputs.file.filename in [f.name for f in dataset.files]:
+        if inputs.file.filename in [f.name for f in dataset.files]:  # update file
+            current_file = [f for f in dataset.files if f.name == inputs.file.filename][
+                0
+            ]
+            dataset.size -= current_file.size
             dataset.files = [f for f in dataset.files if f.name != inputs.file.filename]
         dataset.files.append(
             File(name=inputs.file.filename, size=inputs.file.size, checksum=checksum)
         )
+        dataset.size += inputs.file.size
         if new_dataset:
             self.db_repo.persist("datasets", dataset.dict(), dataset.id)
             self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
