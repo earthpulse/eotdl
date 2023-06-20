@@ -4,8 +4,10 @@ RUN pip install --upgrade pip
 RUN pip install fastapi
 RUN pip install uvicorn
 RUN pip install pytest  
+RUN pip install pytest-asyncio
 RUN pip install pytest-watch  
 RUN pip install pytest-cov
+RUN pip install pytest-mock
 RUN pip install pydantic
 RUN pip install pymongo  
 RUN pip install minio  

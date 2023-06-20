@@ -30,28 +30,6 @@ async def ingest_file(file, dataset, checksum, user):
     return outputs.dataset
 
 
-async def update_dataset(
-    dataset_id, user, file, name, author, link, license, tags, description
-):
-    db_repo = DBRepo()
-    os_repo = OSRepo()
-    ingest = UpdateDataset(db_repo, os_repo)
-    inputs = ingest.Inputs(
-        file=file.file if file is not None else None,
-        size=file.size if file is not None else None,
-        uid=user.uid,
-        dataset_id=dataset_id,
-        name=name,
-        description=description,
-        author=author,
-        link=link,
-        license=license,
-        tags=tags,
-    )
-    outputs = await ingest(inputs)
-    return outputs.dataset
-
-
 def retrieve_datasets(limit):
     db_repo = DBRepo()
     retrieve = RetrieveDatasets(db_repo)
@@ -169,4 +147,26 @@ async def complete_multipart_upload(user, upload_id):
         upload_id=upload_id,
     )
     outputs = await complete(inputs)
+    return outputs.dataset
+
+
+async def update_dataset(
+    dataset_id, user, file, name, author, link, license, tags, description
+):
+    db_repo = DBRepo()
+    os_repo = OSRepo()
+    ingest = UpdateDataset(db_repo, os_repo)
+    inputs = ingest.Inputs(
+        file=file.file if file is not None else None,
+        size=file.size if file is not None else None,
+        uid=user.uid,
+        dataset_id=dataset_id,
+        name=name,
+        description=description,
+        author=author,
+        link=link,
+        license=license,
+        tags=tags,
+    )
+    outputs = await ingest(inputs)
     return outputs.dataset

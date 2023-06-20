@@ -4,7 +4,6 @@ from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits, UploadingFile, File
 from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
-from ...utils import calculate_checksum
 
 
 class CompleteMultipartUpload:
@@ -59,9 +58,8 @@ class CompleteMultipartUpload:
         self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
         object_info = self.os_repo.object_info(dataset.id, uploading.name)
         # calculate checksum
-        data_stream = self.os_repo.data_stream(dataset.id, uploading.name)
-        checksum = await calculate_checksum(
-            data_stream
+        checksum = await self.os_repo.calculate_checksum(
+            dataset.id, uploading.name
         )  # con md5 fallaba para large files, a ver si con sha1 va mejor
         if checksum != uploading.checksum:
             self.os_repo.delete_file(dataset.id, uploading.name)

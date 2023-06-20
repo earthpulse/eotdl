@@ -3,8 +3,11 @@ import typing
 from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits, File
-from ...errors import DatasetAlreadyExistsError, TierLimitError
-from ...utils import calculate_checksum
+from ...errors import (
+    DatasetAlreadyExistsError,
+    TierLimitError,
+    DatasetDoesNotExistError,
+)
 
 
 class IngestFile:
@@ -23,15 +26,15 @@ class IngestFile:
 
     async def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset exists
+        data = self.db_repo.retrieve("users", inputs.uid, "uid")
+        user = User(**data)
+        data = self.db_repo.find_one_by_name("tiers", user.tier)
+        limits = Limits(**data["limits"])
         data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
         new_dataset = False
         if not data:
             new_dataset = True
             # check if user can ingest dataset
-            data = self.db_repo.retrieve("users", inputs.uid, "uid")
-            user = User(**data)
-            data = self.db_repo.find_one_by_name("tiers", user.tier)
-            limits = Limits(**data["limits"])
             usage = self.db_repo.find_in_time_range(
                 "usage", inputs.uid, "dataset_ingested", "type"
             )
@@ -39,6 +42,12 @@ class IngestFile:
                 raise TierLimitError(
                     "You cannot ingest more than {} datasets per day".format(
                         limits.datasets.upload
+                    )
+                )
+            if user.dataset_count + 1 >= limits.datasets.count:
+                raise TierLimitError(
+                    "You cannot have more than {} datasets".format(
+                        limits.datasets.count
                     )
                 )
             # check if name already exists
@@ -53,11 +62,23 @@ class IngestFile:
                 name=inputs.dataset,
             )
         dataset = Dataset(**data)
+        # check user owns dataset
+        if dataset.uid != inputs.uid:
+            raise DatasetDoesNotExistError()
+        # check if user can ingest file
+        if (
+            len(dataset.files) + 1 >= limits.datasets.files
+            and inputs.file.filename not in dataset.files
+        ):
+            raise TierLimitError(
+                "You cannot have more than {} files".format(limits.datasets.files)
+            )
         # save file in storage
-        self.os_repo.persist_file(inputs.file, dataset.id)
+        self.os_repo.persist_file(inputs.file, dataset.id, inputs.file.filename)
         # calculate checksum
-        data_stream = self.os_repo.data_stream(dataset.id, inputs.file.filename)
-        checksum = await calculate_checksum(data_stream)
+        checksum = await self.os_repo.calculate_checksum(
+            dataset.id, inputs.file.filename
+        )
         if checksum != inputs.checksum:
             self.os_repo.delete_file(dataset.id, inputs.file.name)
             if len(dataset.files) == 0:
