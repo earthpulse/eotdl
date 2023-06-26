@@ -151,14 +151,11 @@ async def complete_multipart_upload(user, upload_id):
 
 
 async def update_dataset(
-    dataset_id, user, file, name, author, link, license, tags, description
+    dataset_id, user, name, author, link, license, tags, description
 ):
     db_repo = DBRepo()
-    os_repo = OSRepo()
-    ingest = UpdateDataset(db_repo, os_repo)
+    ingest = UpdateDataset(db_repo)
     inputs = ingest.Inputs(
-        file=file.file if file is not None else None,
-        size=file.size if file is not None else None,
         uid=user.uid,
         dataset_id=dataset_id,
         name=name,
