@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import typing
+from typing import Union
 from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits, File
@@ -19,7 +20,7 @@ class IngestFile:
         dataset: str
         file: typing.Any
         uid: str
-        checksum: str
+        checksum: Union[str, None]
 
     class Outputs(BaseModel):
         dataset: Dataset
@@ -79,7 +80,7 @@ class IngestFile:
         checksum = await self.os_repo.calculate_checksum(
             dataset.id, inputs.file.filename
         )
-        if checksum != inputs.checksum:
+        if inputs.checksum and checksum != inputs.checksum:
             self.os_repo.delete_file(dataset.id, inputs.file.name)
             if len(dataset.files) == 0:
                 self.db_repo.delete("datasets", dataset.id)

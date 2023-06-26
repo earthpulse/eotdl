@@ -1,9 +1,10 @@
 import { writable } from "svelte/store";
-import ingestDataset from "../lib/datasets/ingestDataset";
-import reuploadDataset from "../lib/datasets/reuploadDataset";
+import ingestFile from "../lib/datasets/ingestFile";
+import updateDataset from "../lib/datasets/updateDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
 import likeDataset from "../lib/datasets/likeDataset";
+
 
 const createDatasets = () => {
   const { subscribe, set, update } = writable({
@@ -13,14 +14,25 @@ const createDatasets = () => {
   });
   return {
     subscribe,
-    ingest: async (file, name, description, author, link, license, tags, token) => {
-      const data = await ingestDataset(file, name,  author, link, license, description, tags, token);
-      update((current) => ({
-        data: [...current.data, data],
-      }));
+    ingest: async (file, name, token) => {
+      const data = await ingestFile(file, name, token);
+      update((current) => {
+        const datasetExists = current.data.find((dataset) => dataset.id === data.id)
+        console.log(current)
+        console.log(datasetExists)
+        if (datasetExists) {
+          return {
+            data: current.data.map((dataset) => dataset.id === data.id ? data : dataset)
+          }
+        }
+        return {
+          data: [data, ...current.data],
+        }
+      });
+      return data
     },
-    reupload: async (dataset_id, file, name, content, author, link, license, tags, token) => {
-      const data = await reuploadDataset(dataset_id, file, name, content, author, link, license, tags, token);
+    update: async (dataset_id, name, content, author, link, license, tags, token) => {
+      const data = await updateDataset(dataset_id, name, content, author, link, license, tags, token);
       update((current) => ({
         data: current.data.map((dataset) => 
            dataset.id === dataset_id ? data : dataset          

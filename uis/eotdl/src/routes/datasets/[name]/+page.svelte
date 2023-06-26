@@ -25,22 +25,22 @@
 		link,
 		license,
 		size,
-		checksum,
+		files,
 	} = data.dataset);
 
 	let createWriteStream;
-	onMount(async () => {
-		if (browser) {
-			// only works in browser
-			const streamsaver = await import("streamsaver");
-			createWriteStream = streamsaver.createWriteStream;
-		}
-	});
+	const load = async () => {
+		await datasets.retrieve(fetch);
+		// only works in browser
+		const streamsaver = await import("streamsaver");
+		createWriteStream = streamsaver.createWriteStream;
+	};
 
-	const download = async () => {
+	$: if (browser) load();
+
+	const download = async (fileName) => {
 		// seems to work, but not sure if it will with large datasets (need to test)
-		const fileName = `${name}.zip`;
-		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
+		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${$id_token}`,
@@ -108,10 +108,6 @@
 			</span>
 			{#if $user}
 				<span class="flex flex-row gap-1">
-					<button
-						class="btn btn-ghost btn-outline"
-						on:click={download}>Download</button
-					>
 					{#if $user.uid == data.dataset.uid}
 						<Update
 							dataset_id={data.dataset.id}
@@ -124,7 +120,7 @@
 							bind:description={data.dataset.description}
 							bind:selected_tags={data.dataset.tags}
 							bind:size={data.dataset.size}
-							bind:checksum={data.dataset.checksum}
+							bind:files={data.dataset.files}
 						/>
 					{/if}
 				</span>
@@ -204,20 +200,32 @@
 						</tbody>
 					</table>
 				</div>
-				<p>Files:</p>
+				<p>Files ({files.length}):</p>
 				<div class="overflow-auto w-full">
 					<table
 						class="table border-2 rounded-lg table-compact h-[100px] w-full"
 					>
 						<tbody>
 							<tr>
-								<th>Name</th>
+								<th> Name </th>
 								<th>Size</th>
 								<th>Checksum (SHA1)</th>
 							</tr>
-							{#each data.dataset.files as file}
+							{#each files as file}
 								<tr>
-									<td>{file.name}</td>
+									<td class="flex flex-row gap-1">
+										{#if $user}
+											<button
+												on:click={() =>
+													download(file.name)}
+												><Download
+													color="gray"
+													size={20}
+												/></button
+											>
+										{/if}
+										{file.name}
+									</td>
 									<td>{formatFileSize(file.size)}</td>
 									<td class="text-xs">{file.checksum}</td>
 								</tr>

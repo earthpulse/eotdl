@@ -14,10 +14,10 @@
 	export let link;
 	export let selected_tags;
 	export let size;
-	export let checksum;
+	export let files;
 
 	const submit = async (
-		file,
+		_files,
 		name,
 		content,
 		_author,
@@ -25,9 +25,14 @@
 		_license,
 		_selected_tags
 	) => {
-		const data = await datasets.reupload(
+		const current = $datasets.data.find((d) => d.id == dataset_id);
+		if (_files?.length > 0)
+			for (var i = 0; i < _files.length; i++) {
+				await datasets.ingest(_files[i], current.name, $id_token);
+			}
+		if (current.name == name) name = null;
+		const data = await datasets.update(
 			dataset_id,
-			file,
 			name,
 			content,
 			_author,
@@ -40,9 +45,9 @@
 		if (_link) link = _link;
 		if (_license) license = _license;
 		if (content) description = content;
-		if (file) size = file.size;
+		size = data.size;
+		files = data.files;
 		selected_tags = _selected_tags;
-		checksum = data.checksum;
 		if (name) goto(`/datasets/${name}`, { replaceState: true });
 	};
 </script>
@@ -60,6 +65,9 @@
 		{name}
 	>
 		<h3 class="text-lg font-bold">Edit dataset</h3>
-		<p>⚠ This operation will overwrite your current data!</p>
+		<p>
+			⚠ You can overwrite existing files by uploading a new file with the
+			same name.
+		</p>
 	</IngestForm>
 {/if}
