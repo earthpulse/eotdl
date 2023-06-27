@@ -23,7 +23,7 @@ class Boto3Repo:
             PartNumber=part,  # (offset // CHUNK_SIZE) + 1,
             UploadId=upload_id,  # request.headers.get("upload_id"),
         )
-        return response["ETag"]
+        return response["ETag"].strip('"')
 
     def complete_multipart_upload(self, storage, upload_id):
         parts = []
