@@ -3,39 +3,42 @@ from unittest import mock
 
 from eotdl.src.usecases.datasets.RetrieveDatasets import RetrieveDatasets
 from eotdl.src.usecases.datasets.RetrieveDataset import RetrieveDataset
-from eotdl.src.usecases.datasets.DownloadDataset import DownloadDataset
-from eotdl.src.usecases.datasets.IngestDataset import IngestDataset
-from eotdl.src.usecases.datasets.IngestLargeDataset import IngestLargeDataset
 
 
 def test_retrieve_datasets():
     repo = mock.Mock()
     retrieve = RetrieveDatasets(repo)
     inputs = RetrieveDatasets.Inputs()
-    repo.retrieve_datasets.return_value = [{"name": "test1"}, {"name": "test2"}]
+    repo.retrieve_datasets.return_value = [
+        {"name": "test1", "files": [{"name": "test11"}]},
+        {"name": "test2", "files": [{"name": "test21"}, {"name": "test22"}]},
+    ]
     outputs = retrieve(inputs)
     repo.retrieve_datasets.assert_called_once()
-    assert outputs.datasets == ["test1", "test2"]
+    assert outputs.datasets == {
+        "test1": ["test11"],
+        "test2": ["test21", "test22"],
+    }
 
 
-# def test_retrieve_dataset():
-#     repo = mock.Mock()
-#     retrieve = RetrieveDataset(repo)
-#     inputs = RetrieveDataset.Inputs(name="test")
-#     repo.retrieve_dataset.return_value = {"name": "test"}, None
-#     outputs = retrieve(inputs)
-#     assert outputs.dataset == {"name": "test"}
-#     repo.retrieve_dataset.assert_called_once_with("test")
+def test_retrieve_dataset():
+    repo = mock.Mock()
+    retrieve = RetrieveDataset(repo)
+    inputs = RetrieveDataset.Inputs(name="test")
+    repo.retrieve_dataset.return_value = {"name": "test"}, None
+    outputs = retrieve(inputs)
+    assert outputs.dataset == {"name": "test"}
+    repo.retrieve_dataset.assert_called_once_with("test")
 
 
-# def test_retrieve_dataset_fails():
-#     repo = mock.Mock()
-#     retrieve = RetrieveDataset(repo)
-#     inputs = RetrieveDataset.Inputs(name="test")
-#     repo.retrieve_dataset.return_value = None, "error"
-#     with pytest.raises(Exception):
-#         retrieve(inputs)
-#     repo.retrieve_dataset.assert_called_once_with("test")
+def test_retrieve_dataset_fails():
+    repo = mock.Mock()
+    retrieve = RetrieveDataset(repo)
+    inputs = RetrieveDataset.Inputs(name="test")
+    repo.retrieve_dataset.return_value = None, "error"
+    with pytest.raises(Exception):
+        retrieve(inputs)
+    repo.retrieve_dataset.assert_called_once_with("test")
 
 
 # def test_download_dataset():
