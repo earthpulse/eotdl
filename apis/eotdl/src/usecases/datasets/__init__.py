@@ -9,7 +9,6 @@ from .main import (
     retrieve_datasets,
     retrieve_dataset_by_name,
     download_dataset,
-    edit_dataset,
     retrieve_datasets_leaderboard,
     complete_multipart_upload,
     update_dataset,

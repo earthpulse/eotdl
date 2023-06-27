@@ -4,7 +4,6 @@ from .UpdateDataset import UpdateDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
 from .DownloadDataset import DownloadDataset
-from .EditDataset import EditDataset
 from .RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 from ..tags import retrieve_tags
 from .LikeDataset import LikeDataset
@@ -69,16 +68,6 @@ def download_dataset(id, file, user):
     inputs = retrieve.Inputs(id=id, file=file, uid=user.uid)
     outputs = retrieve(inputs)
     return outputs.data_stream, outputs.object_info, outputs.name
-
-
-def edit_dataset(id, name, description, tags, user):
-    db_repo = DBRepo()
-    edit = EditDataset(db_repo, retrieve_tags)
-    inputs = edit.Inputs(
-        id=id, name=name, description=description, tags=tags, uid=user.uid
-    )
-    outputs = edit(inputs)
-    return outputs.dataset
 
 
 def retrieve_datasets_leaderboard():

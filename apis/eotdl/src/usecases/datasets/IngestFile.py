@@ -8,6 +8,7 @@ from ...errors import (
     DatasetAlreadyExistsError,
     TierLimitError,
     DatasetDoesNotExistError,
+    ChecksumMismatch,
 )
 
 
@@ -84,7 +85,7 @@ class IngestFile:
             self.os_repo.delete_file(dataset.id, inputs.file.name)
             if len(dataset.files) == 0:
                 self.db_repo.delete("datasets", dataset.id)
-            raise Exception("Checksum does not match")
+            raise ChecksumMismatch()
         if inputs.file.filename in [f.name for f in dataset.files]:  # update file
             current_file = [f for f in dataset.files if f.name == inputs.file.filename][
                 0

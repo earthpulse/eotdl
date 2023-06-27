@@ -28,7 +28,7 @@ class UpdateDataset:
     class Outputs(BaseModel):
         dataset: Dataset
 
-    async def __call__(self, inputs: Inputs) -> Outputs:
+    def __call__(self, inputs: Inputs) -> Outputs:
         # retrieve dataset
         data = self.db_repo.retrieve("datasets", inputs.dataset_id, "id")
         if data is None:

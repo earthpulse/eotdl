@@ -214,7 +214,8 @@ def delete(
     isAdmin: bool = Depends(key_auth),
 ):
     try:
-        return delete_dataset(name)
+        message = delete_dataset(name)
+        return {"message": message}
     except Exception as e:
         logger.exception("datasets:delete")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

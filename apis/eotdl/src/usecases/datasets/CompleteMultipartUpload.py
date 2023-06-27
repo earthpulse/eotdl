@@ -3,7 +3,13 @@ from typing import Union
 from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits, UploadingFile, File
-from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
+from ...errors import (
+    DatasetAlreadyExistsError,
+    TierLimitError,
+    UserUnauthorizedError,
+    UploadIdDoesNotExist,
+    ChecksumMismatch,
+)
 
 
 class CompleteMultipartUpload:
@@ -26,18 +32,18 @@ class CompleteMultipartUpload:
             {"uid": inputs.uid, "upload_id": inputs.upload_id},
         )
         if not data:
-            raise Exception("Upload not found.")
+            raise UploadIdDoesNotExist()
         uploading = UploadingFile(**data)
         # check if dataset exists
+        data = self.db_repo.retrieve("users", inputs.uid, "uid")
+        user = User(**data)
+        data = self.db_repo.find_one_by_name("tiers", user.tier)
+        limits = Limits(**data["limits"])
         data = self.db_repo.find_one_by_name("datasets", uploading.dataset)
         new_dataset = False
         if not data:
             new_dataset = True
             # check if user can ingest dataset
-            data = self.db_repo.retrieve("users", inputs.uid, "uid")
-            user = User(**data)
-            data = self.db_repo.find_one_by_name("tiers", user.tier)
-            limits = Limits(**data["limits"])
             usage = self.db_repo.find_in_time_range(
                 "usage", inputs.uid, "dataset_ingested", "type"
             )
@@ -54,6 +60,17 @@ class CompleteMultipartUpload:
                 name=uploading.dataset,
             )
         dataset = Dataset(**data)
+        # check if user owns dataset
+        if dataset.uid != inputs.uid:
+            raise DatasetAlreadyExistsError()
+        # check files limit
+        if (
+            len(dataset.files) + 1 > limits.datasets.files
+            and uploading.name not in dataset.files
+        ):
+            raise TierLimitError(
+                "You cannot have more than {} files".format(limits.datasets.files)
+            )
         storage = self.os_repo.get_object(dataset.id, uploading.name)
         self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
         object_info = self.os_repo.object_info(dataset.id, uploading.name)
@@ -65,7 +82,7 @@ class CompleteMultipartUpload:
             self.os_repo.delete_file(dataset.id, uploading.name)
             if len(dataset.files) == 0:
                 self.db_repo.delete("datasets", dataset.id)
-            raise Exception("Checksum does not match")
+            raise ChecksumMismatch()
         if uploading.name in [f.name for f in dataset.files]:
             dataset.files = [f for f in dataset.files if f.name != uploading.name]
         dataset.files.append(
