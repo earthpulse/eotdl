@@ -71,6 +71,7 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
 @router.get("/me")
 def me(user: User = Depends(get_current_user)):
     try:
+        print("ieeepa")
         return retrieve_user(user)
     except Exception as e:
         logger.exception("me")
