@@ -139,9 +139,7 @@ async def complete_multipart_upload(user, upload_id):
     return outputs.dataset
 
 
-async def update_dataset(
-    dataset_id, user, name, author, link, license, tags, description
-):
+def update_dataset(dataset_id, user, name, author, link, license, tags, description):
     db_repo = DBRepo()
     ingest = UpdateDataset(db_repo)
     inputs = ingest.Inputs(
@@ -154,5 +152,5 @@ async def update_dataset(
         license=license,
         tags=tags,
     )
-    outputs = await ingest(inputs)
+    outputs = ingest(inputs)
     return outputs.dataset

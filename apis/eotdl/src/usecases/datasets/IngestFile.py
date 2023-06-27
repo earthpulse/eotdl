@@ -46,7 +46,7 @@ class IngestFile:
                         limits.datasets.upload
                     )
                 )
-            if user.dataset_count + 1 >= limits.datasets.count:
+            if user.dataset_count + 1 > limits.datasets.count:
                 raise TierLimitError(
                     "You cannot have more than {} datasets".format(
                         limits.datasets.count
@@ -69,7 +69,7 @@ class IngestFile:
             raise DatasetDoesNotExistError()
         # check if user can ingest file
         if (
-            len(dataset.files) + 1 >= limits.datasets.files
+            len(dataset.files) + 1 > limits.datasets.files
             and inputs.file.filename not in dataset.files
         ):
             raise TierLimitError(

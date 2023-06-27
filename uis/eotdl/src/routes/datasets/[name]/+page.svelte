@@ -1,7 +1,6 @@
 <script>
 	import { user, id_token } from "$stores/auth";
 	import { PUBLIC_EOTDL_API } from "$env/static/public";
-	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
 	import { parseISO, formatDistanceToNow } from "date-fns";

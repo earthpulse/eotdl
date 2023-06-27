@@ -8,6 +8,7 @@ from ...errors import (
     DatasetDoesNotExistError,
     DatasetAlreadyExistsError,
     UserUnauthorizedError,
+    InvalidTagError,
 )
 
 
@@ -42,6 +43,13 @@ class UpdateDataset:
             data2 = self.db_repo.find_one_by_name("datasets", inputs.name)
             if data2:
                 raise DatasetAlreadyExistsError()
+        # validate tags
+        if inputs.tags:
+            tags_data = self.db_repo.retrieve("tags")
+            tags = [tag["name"] for tag in tags_data]
+            for tag in inputs.tags:
+                if tag not in tags:
+                    raise InvalidTagError()
         # update dataset
         data.update(
             updatedAt=datetime.now(),
