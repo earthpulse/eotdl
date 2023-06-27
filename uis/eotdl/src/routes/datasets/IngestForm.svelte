@@ -115,7 +115,7 @@
             <CLI>
                 The file size limit is 1GB. Please, use the CLI to ingest larger
                 files:
-                <Code>eotdl-cli datasets ingest {`<dataset-path>`}</Code>
+                <Code>eotdl datasets ingest {`<dataset-path>`}</Code>
                 Instruction to install the CLI
                 <a
                     class="text-green-200 hover:underline"

@@ -15,6 +15,27 @@
 
 Some of the operations within EOTDL require authentication.
 
+## CLI
+
+You can authenticate in the CLI with the `auth` command.
+
+<CLI><Code>eotdl auth --help</Code></CLI>
+
+Executing the `login` command will return a URL that you can visit to authenticate. After authentication, your credentials will be stored locally. This enables future commands to be executed without having to authenticate again (at least while the credentials are valid).
+
+<CLI><Code>eotdl auth login</Code></CLI>
+
+
+You can logout by either deleting the credentials file or by executing the `logout` command. 
+
+<CLI><Code>eotdl-cli auth logout</Code></CLI>
+
+You will receive a logout url that you can visit in case you want to authenticate with a different account.
+
+## Library
+
+<BadgeWarning>🚧 Not implemented yet</BadgeWarning>
+
 ## API
 
 The interactive documentation is available at [https://api.eotdl.com/docs](https://api.eotdl.com/docs).
@@ -39,25 +60,10 @@ If you want to use a different account in the future, you will have to visit the
   '{api_url}/auth/logout' \
   -H 'accept: application/json'</Code></Api>
 
-## CLI
 
-You can authenticate in the CLI with the command `auth`.
-
-<CLI><Code>eotdl-cli auth login</Code></CLI>
-
-Executing the `login` command will return a URL that you can visit to authenticate. After authentication, your credentials will be stored locally. This enables future commands to be executed without having to authenticate again (at least while the credentials are valid).
-
-You can logout by either deleting the credentials file or by executing the `logout` command. 
-
-<CLI><Code>eotdl-cli auth logout</Code></CLI>
-
-You will receive a logout url that you can visit in case you want to authenticate with a different account.
-
-## Library
-
-<BadgeWarning>Not implemented yet</BadgeWarning>
 
 ## UI 
 
 In order to authenticate through the user interface, you just have to click on the `Sign In` button in the top right corner. You will be redirected to the authentication page. After authentication, you will be redirected back to the application.
+
 To logout, you can click on the `Sign Out` button that will appear instead.

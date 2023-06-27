@@ -77,7 +77,7 @@
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-5 h-full grow"
 	>
 		<a class="text-3xl font-bold hover:underline" href="/docs"
-			>Documentation</a
+			>Documentation (v0.1)</a
 		>
 		<div class="grid grid-cols-1 sm:grid-cols-[200px,auto] h-full grow">
 			<div class="list pr-3">

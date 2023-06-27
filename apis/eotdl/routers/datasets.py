@@ -38,6 +38,8 @@ async def ingest(
     user: User = Depends(get_current_user),
 ):
     try:
+        if file.size > 1000000000:  # 1GB
+            raise Exception("File too large, please use the CLI to upload large files.")
         return await ingest_file(file, dataset, checksum, user)
     except Exception as e:
         logger.exception("datasets:ingest")
@@ -187,13 +189,13 @@ class UpdateBody(BaseModel):
 
 
 @router.put("/{id}")
-async def update(
+def update(
     id: str,
     body: UpdateBody,
     user: User = Depends(get_current_user),
 ):
     try:
-        return await update_dataset(
+        return update_dataset(
             id,
             user,
             body.name,
