@@ -24,6 +24,7 @@ services:
   eotdl-api:
     build: ./apis/eotdl
     container_name: eotdl-api
+    # platform: linux/amd64
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
@@ -34,7 +35,7 @@ services:
       - S3_SSL=False
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
-    env_file: # auth0 credentials
+    env_file: # auth0 and geodb credentials
       - .env
     volumes:
       - ./apis/eotdl:/api
