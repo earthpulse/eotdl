@@ -56,6 +56,6 @@ def ingest_folder(folder, dataset, logger=None, user=None):
 #     return ingest_large_dataset(dataset, path)
 
 
-# def ingest_q1(dataset, stac_catalog):
-#     print("holas")
-#     return
+def ingest_q1(dataset, stac_catalog):
+    print("holas")
+    return
