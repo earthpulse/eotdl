@@ -35,6 +35,7 @@ services:
       - S3_SSL=False
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
+      - API_BASE_URL=http://localhost:8010 # used to generate file urls
     env_file: # auth0 and geodb credentials
       - .env
     volumes:

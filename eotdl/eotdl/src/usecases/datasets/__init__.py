@@ -5,3 +5,4 @@ from .RetrieveDataset import RetrieveDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .IngestFile import IngestFile
 from .IngestFolder import IngestFolder
+from .IngestSTAC import IngestSTAC

@@ -12,4 +12,7 @@ from .main import (
     retrieve_datasets_leaderboard,
     complete_multipart_upload,
     update_dataset,
+    ingest_file_url,
+    ingest_stac,
+    download_stac,
 )

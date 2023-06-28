@@ -6,11 +6,13 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 import multiprocessing
 import hashlib
+import geopandas as gpd
 
 
 class APIRepo:
     def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
         self.url = url
+        # print(self.url)
 
     def login(self):
         return requests.get(self.url + "auth/login")
@@ -55,14 +57,21 @@ class APIRepo:
             progress_bar.close()
             return path
 
-    def ingest_file(self, file, dataset, id_token, checksum):
+    def ingest_file(self, file, dataset, id_token, checksum=None):
         reponse = requests.post(
             self.url + "datasets",
             files={"file": open(file, "rb")},
-            data={
-                "dataset": dataset,
-                "checksum": checksum,
-            },
+            data={"dataset": dataset},
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if reponse.status_code != 200:
+            return None, reponse.json()["detail"]
+        return reponse.json(), None
+
+    def ingest_file_url(self, file, dataset, id_token):
+        reponse = requests.post(
+            self.url + "datasets/url",
+            json={"dataset": dataset, "url": file},
             headers={"Authorization": "Bearer " + id_token},
         )
         if reponse.status_code != 200:
@@ -264,3 +273,21 @@ class APIRepo:
             # Wait for all tasks to complete
             for future in futures:
                 future.result()
+
+    def ingest_stac(self, stac_json, dataset, id_token):
+        reponse = requests.post(
+            self.url + "datasets/stac",
+            json={"dataset": dataset, "stac": stac_json},
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if reponse.status_code != 200:
+            return None, reponse.json()["detail"]
+        return reponse.json(), None
+
+    def download_stac(self, dataset_id, id_token):
+        url = self.url + "datasets/" + dataset_id + "/download"
+        headers = {"Authorization": "Bearer " + id_token}
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return None, response.json()["detail"]
+        return gpd.GeoDataFrame.from_features(response.json()["features"]), None

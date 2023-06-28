@@ -65,7 +65,7 @@ def test_update_dataset_fails_if_new_name_aready_exists(user, dataset):
 
 def test_update_dataset(user, dataset):
     db_repo = mock.Mock()
-    db_repo.retrieve.return_value = dataset
+    db_repo.retrieve.side_effect = [dataset, ["test-tag"]]
     db_repo.find_one_by_name.return_value = None
     update = UpdateDataset(db_repo)
     inputs = UpdateDataset.Inputs(
@@ -82,6 +82,7 @@ def test_update_dataset(user, dataset):
     db_repo.update.assert_called_once_with(
         "datasets", dataset["id"], outputs.dataset.dict()
     )
+    db_repo.retrieve.side_effect = [dataset, ["test-tag"]]
     inputs = UpdateDataset.Inputs(
         dataset_id=dataset["id"],
         uid=user["uid"],
@@ -95,6 +96,7 @@ def test_update_dataset(user, dataset):
     assert outputs.dataset.license == ""
     assert outputs.dataset.tags == []
     assert outputs.dataset.link == ""
+    db_repo.retrieve.side_effect = [dataset, [{"name": "test-tag"}]]
     inputs = UpdateDataset.Inputs(
         dataset_id=dataset["id"],
         uid=user["uid"],
