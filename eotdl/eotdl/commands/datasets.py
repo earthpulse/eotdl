@@ -6,6 +6,7 @@ from ..datasets import (
     download_dataset,
     ingest_file,
     ingest_folder,
+    ingest_stac,
 )
 
 app = typer.Typer()
@@ -21,7 +22,10 @@ def ingest(path: Path, dataset: str):
     """
     try:
         if path.is_dir():
-            ingest_folder(path, dataset, typer.echo)
+            if "catalog.json" in [f.name for f in path.iterdir()]:
+                ingest_stac(str(path) + "/catalog.json", dataset, typer.echo)
+            else:
+                ingest_folder(path, dataset, typer.echo)
         else:
             ingest_file(path, dataset, typer.echo)
     except Exception as e:

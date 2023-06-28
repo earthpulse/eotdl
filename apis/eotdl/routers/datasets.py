@@ -4,10 +4,13 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional, Union
 import logging
+import json
 
 from ..src.models import User
 from ..src.usecases.datasets import (
     ingest_file,
+    ingest_file_url,
+    ingest_stac,
     retrieve_datasets,
     retrieve_dataset_by_name,
     retrieve_liked_datasets,
@@ -20,12 +23,31 @@ from ..src.usecases.datasets import (
     download_dataset,
     update_dataset,
     delete_dataset,
+    download_stac,
 )
 from .auth import get_current_user, key_auth
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
+
+
+class IngestSTACBody(BaseModel):
+    stac: dict  # json as string
+    dataset: str
+
+
+@router.post("/stac")
+async def ingest_stac_catalog(
+    body: IngestSTACBody,
+    user: User = Depends(get_current_user),
+):
+    # try:
+    # stac = json.loads(body.stac)
+    return ingest_stac(body.stac, body.dataset, user)
+    # except Exception as e:
+    #     logger.exception("datasets:ingest_url")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.post("")
@@ -40,7 +62,38 @@ async def ingest(
     try:
         if file.size > 1000000000:  # 1GB
             raise Exception("File too large, please use the CLI to upload large files.")
-        return await ingest_file(file, dataset, checksum, user)
+        dataset_id, dataset_name, file_name = await ingest_file(
+            file, dataset, checksum, user
+        )
+        return {
+            "dataset_id": dataset_id,
+            "dataset_name": dataset_name,
+            "file_name": file_name,
+        }
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class IngestURLBody(BaseModel):
+    url: str
+    dataset: str
+
+
+@router.post("/url")
+async def ingest_url(
+    body: IngestURLBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id, dataset_name, file_name = await ingest_file_url(
+            body.url, body.dataset, user
+        )
+        return {
+            "dataset_id": dataset_id,
+            "dataset_name": dataset_name,
+            "file_name": file_name,
+        }
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -174,6 +227,18 @@ async def download(
             headers=response_headers,
             media_type=object_info.content_type,
         )
+    except Exception as e:
+        logger.exception("datasets:download")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/{id}/download")
+async def download(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return download_stac(id, user)
     except Exception as e:
         logger.exception("datasets:download")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

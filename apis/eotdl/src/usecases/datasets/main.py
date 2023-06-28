@@ -1,5 +1,6 @@
-from ...repos import DBRepo, OSRepo, S3Repo
+from ...repos import DBRepo, OSRepo, S3Repo, GeoDBRepo
 from .IngestFile import IngestFile
+from .IngestFileURL import IngestFileURL
 from .UpdateDataset import UpdateDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
@@ -13,6 +14,9 @@ from .IngestDatasetChunk import IngestDatasetChunk
 from .DeleteDataset import DeleteDataset
 from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
+from .IngestQ1Dataset import IngestQ1Dataset
+from .IngestSTAC import IngestSTAC
+from .DownloadDatasetSTAC import DownloadDatasetSTAC
 
 
 async def ingest_file(file, dataset, checksum, user):
@@ -26,6 +30,30 @@ async def ingest_file(file, dataset, checksum, user):
         checksum=checksum,
     )
     outputs = await ingest(inputs)
+    return outputs.dataset_id, outputs.dataset_name, outputs.file_name
+
+
+async def ingest_file_url(file, dataset, user):
+    db_repo, os_repo = DBRepo(), OSRepo()
+    ingest = IngestFileURL(db_repo, os_repo)
+    inputs = ingest.Inputs(
+        dataset=dataset,
+        file=file,
+        uid=user.uid,
+    )
+    outputs = await ingest(inputs)
+    return outputs.dataset_id, outputs.dataset_name, outputs.file_name
+
+
+def ingest_stac(stac, dataset, user):
+    db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo()
+    ingest = IngestSTAC(db_repo, os_repo, geodb_repo)
+    inputs = ingest.Inputs(
+        dataset=dataset,
+        stac=stac,
+        uid=user.uid,
+    )
+    outputs = ingest(inputs)
     return outputs.dataset
 
 
@@ -68,6 +96,14 @@ def download_dataset(id, file, user):
     inputs = retrieve.Inputs(id=id, file=file, uid=user.uid)
     outputs = retrieve(inputs)
     return outputs.data_stream, outputs.object_info, outputs.name
+
+
+def download_stac(dataset_id, user):
+    db_repo, geodb_repo = DBRepo(), GeoDBRepo()
+    retrieve = DownloadDatasetSTAC(db_repo, geodb_repo)
+    inputs = retrieve.Inputs(dataset_id=dataset_id, uid=user.uid)
+    outputs = retrieve(inputs)
+    return outputs.stac
 
 
 def retrieve_datasets_leaderboard():
@@ -154,3 +190,15 @@ def update_dataset(dataset_id, user, name, author, link, license, tags, descript
     )
     outputs = ingest(inputs)
     return outputs.dataset
+
+
+def ingest_q1_dataset(dataset, uid):
+    db_repo = DBRepo()
+    geodb_repo = GeoDBRepo()
+    ingest = IngestQ1Dataset(db_repo)
+    inputs = ingest.Inputs(
+        dataset=dataset,
+        uid=uid,
+    )
+    outputs = ingest(inputs)
+    return outputs.message
