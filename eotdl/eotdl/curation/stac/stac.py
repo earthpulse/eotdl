@@ -7,7 +7,7 @@ import json
 import pystac
 from random import sample
 
-from os import listdir
+from os import listdir, remove
 from os.path import join, basename, exists, dirname
 
 import rasterio
@@ -93,7 +93,6 @@ class STACGenerator:
         :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
-        images = sample(images, 50)   # TODO drop this line
         labels, ixs = self._format_labels(images)
         bands = self._get_items_list_from_dict(labels, bands)
         exts = self._get_items_list_from_dict(labels, extensions)
@@ -229,7 +228,9 @@ class STACGenerator:
         for metadata_json_file in metadata_json_files:
             with open(metadata_json_file, 'r') as f:
                 metadata = json.load(f)
+            # Append the temporal interval to the list as a datetime object
             temporal_intervals.append(metadata['date-adquired']) if metadata['date-adquired'] else None
+            
         if temporal_intervals:   # TODO control in DEM data
             try:
                 # Get the minimum and maximum values of the temporal intervals
@@ -240,11 +241,9 @@ class STACGenerator:
                 max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
             finally:
                 # Create the temporal interval
-                temporal_interval = pystac.TemporalExtent([min_date, max_date])
+                return pystac.TemporalExtent([(min_date, max_date)])
         else:
             return self._get_unknow_temporal_interval()
-
-        return temporal_interval
     
     def _get_unknow_temporal_interval(self) -> pystac.TemporalExtent:
         """
@@ -253,7 +252,7 @@ class STACGenerator:
         min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
         max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
 
-        return pystac.TemporalExtent([min_date, max_date])
+        return pystac.TemporalExtent([(min_date, max_date)])
 
     def create_stac_catalog(self, id: str, description: str, kwargs: dict={}) -> pystac.Catalog:
         """
@@ -388,9 +387,8 @@ class STACGenerator:
                         single_band = raster.read(i + 1)
                     except IndexError:
                         # TODO put try here for IndexError: band index 2 out of range (not in (1,))
-                        # TODO control
                         single_band = raster.read(1)
-                    band_name = f'{raster_name}_{band}.{self._image_format}'
+                    band_name = f'{band}.{self._image_format}'
                     output_band = join(dirname(raster_path), band_name)
                     # Copy the metadata
                     metadata = raster.meta.copy()
@@ -410,6 +408,13 @@ class STACGenerator:
                             extension_obj = self._extensions_dict[extension]
                             extension_obj.add_extension_to_object(asset)
 
+        # Remove the raster file if there are bands
+        # remove(raster_path) if bands else None   # TODO uncomment to remove the raster file
+
+        # TODO we need to control how to manage the band extraction. If we extract the bands and then
+        # TODO remove the raster file, we will have a problem when we generate again the metadata,
+        # TODO because there will be several rasters in the same directory and then the common_path (collection)
+        # TODO will be wrong. We need to think how to manage this situation
         
         return item
 
