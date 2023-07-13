@@ -87,6 +87,22 @@ class STACGenerator:
         except pystac.STACValidationError as e:
             print(f'Catalog validation error: {e}')
             return
+        
+    def cut_images(self, images_list: list|tuple) -> list:
+        """
+        # TODO poner en otro archivo
+        
+        """
+        dirnames = list()
+        images = list()
+
+        for image in images_list:
+            dir = dirname(image)
+            if dir not in dirnames:
+                dirnames.append(dir)
+                images.append(image)
+
+        return images
 
     def get_stac_dataframe(self, path: str, bands: dict=None, extensions: dict=None) -> pd.DataFrame:
         """
@@ -97,7 +113,8 @@ class STACGenerator:
         :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
-        images = sample(images, 50)
+        if self._assets_generator.type == 'Extracted':
+            images = self.cut_images(images)
         labels, ixs = self._format_labels(images)
         bands = self._get_items_list_from_dict(labels, bands)
         exts = self._get_items_list_from_dict(labels, extensions)
@@ -406,7 +423,7 @@ class STACGenerator:
         # TODO count .tiff files in the directory
         # TODO function to check if the assets are already extracted
         # TODO Check if the assets are already extracted
-        if True:
+        if self._assets_generator.type != 'None':
             # Extract the assets from the raster file
             assets = self._assets_generator.extract_assets(item_info)
         else:

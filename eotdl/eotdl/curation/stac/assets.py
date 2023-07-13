@@ -2,7 +2,9 @@
 Module for STAC Asset Generators
 '''
 
+from os import remove, listdir
 from os.path import dirname, join, basename
+from ..metadata import remove_raster_metadata
 
 import pandas as pd
 import rasterio
@@ -10,6 +12,8 @@ import pystac
 
 
 class STACAssetGenerator:
+
+    type = 'None'
     
     def __init__(self):
         pass
@@ -30,6 +34,8 @@ class STACAssetGenerator:
 
 
 class BandsAssetGenerator(STACAssetGenerator):
+
+    type = 'Bands'
 
     def __init__(self) -> None:
         super().__init__()
@@ -69,4 +75,32 @@ class BandsAssetGenerator(STACAssetGenerator):
                     # Instantiate pystac asset and append it to the list
                     asset_list.append(pystac.Asset(href=band_name, title=band, media_type=pystac.MediaType.GEOTIFF))
 
+            # Remove the original raster file and its metadata
+            remove(raster_path)
+            remove_raster_metadata(dirname(raster_path))
+
             return asset_list
+
+
+class ExtractedAssets(STACAssetGenerator):
+
+    type = 'Extracted'
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def extract_assets(self, obj_info: pd.DataFrame):
+        """
+        Get all the files with the same extension as the image file as assets
+        """
+        asset_list = []
+        # File path
+        raster_path = obj_info["image"].values[0]
+        raster_dir = dirname(raster_path)
+        # Get the files with the same extension as the image file
+        files = [f for f in listdir(raster_dir) if f.endswith(raster_path.split('.')[-1])]
+        # Instantiate pystac asset and append it to the list
+        for file in files:
+            asset_list.append(pystac.Asset(href=file, title=basename(file), media_type=pystac.MediaType.GEOTIFF))
+
+        return asset_list
