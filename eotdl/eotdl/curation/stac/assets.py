@@ -2,7 +2,7 @@
 Module for STAC Asset Generators
 '''
 
-from os.path import dirname, join
+from os.path import dirname, join, basename
 
 import pandas as pd
 import rasterio
@@ -14,13 +14,19 @@ class STACAssetGenerator:
     def __init__(self):
         pass
 
-    def extract_assets(self):
+    def extract_assets(self, obj_info: pd.DataFrame):
         """
         Extract the assets from the raster file
 
         :param raster_path: path to the raster file
         """
-        return None
+        # If there is no bands, create a single band asset from the file, assuming thats a singleband raster
+        raster_path = obj_info["image"].values[0]
+        href = basename(raster_path)
+        title = basename(raster_path).split('.')[0]
+        asset = pystac.Asset(href=href, title=title, media_type=pystac.MediaType.GEOTIFF)
+
+        return [asset]
 
 
 class BandsAssetGenerator(STACAssetGenerator):
@@ -40,7 +46,7 @@ class BandsAssetGenerator(STACAssetGenerator):
         # Bands
         bands = obj_info["bands"].values
         bands = bands[0] if bands else None
-        
+
         if bands:
             with rasterio.open(raster_path, 'r') as raster:
                 if isinstance(bands, str):
@@ -63,4 +69,4 @@ class BandsAssetGenerator(STACAssetGenerator):
                     # Instantiate pystac asset and append it to the list
                     asset_list.append(pystac.Asset(href=band_name, title=band, media_type=pystac.MediaType.GEOTIFF))
 
-        return asset_list
+            return asset_list

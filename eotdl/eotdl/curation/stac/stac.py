@@ -22,7 +22,7 @@ from stac_validator.stac_validator import StacValidate
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
 from .utils import format_time_acquired, count_ocurrences
-from .extensions import type_stac_extensions_dict
+from .extensions import type_stac_extensions_dict, SUPPORTED_EXTENSIONS
 
 
 class STACGenerator:
@@ -395,11 +395,15 @@ class STACGenerator:
             if isinstance(extensions, str):
                 extensions = [extensions]
             for extension in extensions:
-                extension_obj = self._extensions_dict[extension]
-                extension_obj.add_extension_to_object(item, item_info)
+                if extension not in SUPPORTED_EXTENSIONS:
+                    raise ValueError(f'Extension {extension} not supported')
+                else:
+                    extension_obj = self._extensions_dict[extension]
+                    extension_obj.add_extension_to_object(item, item_info)
 
         # Add the assets to the item
         # TODO First of all, check if we have to extract the assets from the raster file
+        # TODO count .tiff files in the directory
         # TODO function to check if the assets are already extracted
         # TODO Check if the assets are already extracted
         if True:
@@ -419,8 +423,11 @@ class STACGenerator:
                         if isinstance(extensions, str):
                             extensions = [extensions]
                         for extension in extensions:
-                            extension_obj = self._extensions_dict[extension]
-                            extension_obj.add_extension_to_object(asset, item_info)
+                            if extension not in SUPPORTED_EXTENSIONS:
+                                raise ValueError(f'Extension {extension} not supported')
+                            else:
+                                extension_obj = self._extensions_dict[extension]
+                                extension_obj.add_extension_to_object(asset, item_info)
         
         return item
 
