@@ -14,6 +14,9 @@ import rasterio
 import pandas as pd
 
 
+SUPPORTED_EXTENSIONS = ('eo', 'sar')
+
+
 class STACExtensionObject:
     def __init__(self) -> None:
         super().__init__()
@@ -29,30 +32,6 @@ class STACExtensionObject:
         :param obj: object to add the extension
         """
         pass
-
-    def extract_asset(self, 
-                      raster,
-                      band: str, 
-                      band_index: int,
-                      raster_path: str
-                      ) -> pystac.Asset:
-        """
-        """
-        raster_format = raster_path.split('.')[-1]   # Will be used later to save the bands files
-        try:
-            single_band = raster.read(band_index)
-        except IndexError:
-            single_band = raster.read(1)
-        band_name = f'{band}.{raster_format}'
-        output_band = join(dirname(raster_path), band_name)
-        # Copy the metadata
-        metadata = raster.meta.copy()
-        metadata.update({"count": 1})
-        # Write the band to the output folder
-        with rasterio.open(output_band, "w", **metadata) as dest:
-            dest.write(single_band, 1)
-        # Instantiate pystac asset
-        return pystac.Asset(href=band_name, title=band, media_type=pystac.MediaType.GEOTIFF)
 
 
 class SarExtensionObject(STACExtensionObject):
@@ -72,9 +51,9 @@ class SarExtensionObject(STACExtensionObject):
         """
         # Add SAR extension to the item
         sar_ext = SarExtension.ext(obj, add_if_missing=True)
-        if isinstance(obj, pystac.Item):
+        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.polarizations_dict.keys()):
             polarizations = self.polarizations
-        elif isinstance(obj, pystac.Asset):
+        elif isinstance(obj, pystac.Asset) and obj.title in self.polarizations_dict.keys():
             polarizations = [self.polarizations_dict[obj.title]]
         sar_ext.apply(
             instrument_mode="EW",
@@ -169,7 +148,7 @@ class EOS2ExtensionObject(STACExtensionObject):
         # Add EO extension
         eo_ext = EOExtension.ext(obj, add_if_missing=True)
         # Add common metadata
-        if isinstance(obj, pystac.Item):
+        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.bands_dict.keys()):
             obj.common_metadata.constellation = "Sentinel-2"
             obj.common_metadata.platform = "Sentinel-2"
             obj.common_metadata.instruments = ["Sentinel-2"]
