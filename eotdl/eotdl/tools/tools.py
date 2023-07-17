@@ -38,8 +38,11 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         images_count_list.append(dates.count())
         images_dates_list.append(dates.tolist())
 
-    data = {'location_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
+    data = {'location_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list, 'geometry': [None] * len(uniques_location_id)}
     gdf_dates_per_aoi = gpd.GeoDataFrame.from_dict(data)
+
+    # Set the geometry of the GeoDataFrame as the bounding box of the location
+    gdf_dates_per_aoi['geometry'] = gdf_dates_per_aoi['location_id'].apply(lambda x: gdf[gdf['location_id'] == x]['geometry'].iloc[0])
 
     return gdf_dates_per_aoi
 
