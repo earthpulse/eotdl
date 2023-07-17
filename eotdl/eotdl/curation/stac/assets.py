@@ -5,6 +5,7 @@ Module for STAC Asset Generators
 from os import remove, listdir
 from os.path import dirname, join, basename
 from ..metadata import remove_raster_metadata
+from pathlib import Path
 
 import pandas as pd
 import rasterio
@@ -26,9 +27,8 @@ class STACAssetGenerator:
         """
         # If there is no bands, create a single band asset from the file, assuming thats a singleband raster
         raster_path = obj_info["image"].values[0]
-        href = basename(raster_path)
         title = basename(raster_path).split('.')[0]
-        asset = pystac.Asset(href=href, title=title, media_type=pystac.MediaType.GEOTIFF)
+        asset = pystac.Asset(href=Path(raster_path).as_posix(), title=title, media_type=pystac.MediaType.GEOTIFF, roles=['data'])
 
         return [asset]
 
