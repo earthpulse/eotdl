@@ -40,6 +40,9 @@ class Dataset(BaseModel):
     uid: str
     id: str
     name: str
+    authors: List[str]
+    source: str
+    license: str
     size: int = 0
     files: List[File] = []
     description: str = ""
@@ -49,15 +52,18 @@ class Dataset(BaseModel):
     likes: int = 0
     downloads: int = 0
     quality: int = 0
-    author: str = ""
-    link: str = ""
-    license: str = ""
 
     @validator("name")
     def check_name_is_valid(cls, name):
         if name is not None:
             assert validate_name(name) == name
         return name
+
+    @validator("source")
+    def check_source_is_url(cls, source):
+        if not source.startswith("http") and not source.startswith("https"):
+            raise ValueError("source must be a valid url")
+        return source
 
 
 class UploadingFile(BaseModel):
@@ -70,9 +76,3 @@ class UploadingFile(BaseModel):
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     parts: List[int] = []
-
-    @validator("dataset")
-    def check_name_is_valid(cls, dataset):
-        if dataset is not None:
-            assert validate_name(dataset) == dataset
-        return dataset

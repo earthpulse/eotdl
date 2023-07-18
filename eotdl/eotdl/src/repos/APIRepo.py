@@ -24,6 +24,16 @@ class APIRepo:
         response = requests.get(self.url + "auth/logout")
         return response.json()["logout_url"]
 
+    def create_dataset(self, metadata, id_token):
+        response = requests.post(
+            self.url + "datasets",
+            json=metadata,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
+
     def retrieve_datasets(self):
         return requests.get(self.url + "datasets").json()
 
@@ -57,11 +67,11 @@ class APIRepo:
             progress_bar.close()
             return path
 
-    def ingest_file(self, file, dataset, id_token, checksum=None):
+    def ingest_file(self, file, dataset_id, id_token, checksum=None):
         reponse = requests.post(
-            self.url + "datasets",
+            self.url + "datasets/" + dataset_id,
             files={"file": open(file, "rb")},
-            data={"dataset": dataset},
+            data={"checksum": checksum} if checksum else None,
             headers={"Authorization": "Bearer " + id_token},
         )
         if reponse.status_code != 200:
@@ -85,11 +95,11 @@ class APIRepo:
                 break
             yield data
 
-    def prepare_large_upload(self, file, dataset, checksum, id_token):
+    def prepare_large_upload(self, file, dataset_id, checksum, id_token):
         filename = Path(file).name
         response = requests.post(
-            self.url + "datasets/uploadId",
-            json={"name": filename, "checksum": checksum, "dataset": dataset},
+            self.url + f"datasets/{dataset_id}/uploadId",
+            json={"name": filename, "checksum": checksum},
             headers={"Authorization": "Bearer " + id_token},
         )
         if response.status_code != 200:

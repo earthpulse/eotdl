@@ -4,7 +4,6 @@ from pathlib import Path
 from ..datasets import (
     retrieve_datasets,
     download_dataset,
-    ingest_file,
     ingest_folder,
     ingest_stac,
 )
@@ -13,20 +12,24 @@ app = typer.Typer()
 
 
 @app.command()
-def ingest(path: Path, dataset: str):
+def ingest(
+    path: Path,
+    f: bool = typer.Option(False, "--f", help="Force ingest even if file exists"),
+    d: bool = typer.Option(False, "--d", help="Delete files not in the dataset"),
+):
     """
     Ingest a dataset
 
     path: Path to folder with the dataset
-    dataset: Name of the dataset
     """
     try:
         if not path.is_dir():
-            typer.abort("Path must be a folder")
+            typer.echo("Path must be a folder")
+            return
         if "catalog.json" in [f.name for f in path.iterdir()]:
-            ingest_stac(str(path) + "/catalog.json", dataset, typer.echo)
+            ingest_stac(str(path) + "/catalog.json", typer.echo)
         else:
-            ingest_folder(path, dataset, typer.echo)
+            ingest_folder(path, f, d, typer.echo)
     except Exception as e:
         typer.echo(e)
 

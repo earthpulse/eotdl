@@ -14,6 +14,7 @@ allowed_extensions = [
     ".json",
     ".pdf",
     ".md",
+    ".yml",
 ]
 
 
@@ -24,20 +25,20 @@ def ingest_q1(dataset, stac_catalog):
 
 @with_auth
 def ingest_file(
-    file, dataset, logger=None, allowed_extensions=allowed_extensions, user=None
+    file, dataset_id, logger=None, allowed_extensions=allowed_extensions, user=None
 ):
     api_repo = APIRepo()
     ingest = IngestFile(api_repo, allowed_extensions, logger)
-    inputs = ingest.Inputs(file=file, dataset=dataset, user=user)
+    inputs = ingest.Inputs(file=file, dataset_id=dataset_id, user=user)
     outputs = ingest(inputs)
     return outputs.data
 
 
 @with_auth
-def ingest_folder(folder, dataset, logger=None, user=None):
+def ingest_folder(folder, force, delete, logger=None, user=None):
     api_repo = APIRepo()
     ingest = IngestFolder(api_repo, ingest_file, allowed_extensions, logger)
-    inputs = ingest.Inputs(folder=folder, dataset=dataset, user=user)
+    inputs = ingest.Inputs(folder=folder, user=user, force=force, delete=delete)
     outputs = ingest(inputs)
     return outputs.dataset
 

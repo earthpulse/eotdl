@@ -1,4 +1,5 @@
-from ...repos import DBRepo, OSRepo, S3Repo, GeoDBRepo
+from ...repos import DBRepo, OSRepo, S3Repo  # , GeoDBRepo
+from .CreateDataset import CreateDataset
 from .IngestFile import IngestFile
 from .IngestFileURL import IngestFileURL
 from .UpdateDataset import UpdateDataset
@@ -19,12 +20,22 @@ from .IngestSTAC import IngestSTAC
 from .DownloadDatasetSTAC import DownloadDatasetSTAC
 
 
-async def ingest_file(file, dataset, checksum, user):
+def create_dataset(user, name, authors, source, license):
+    db_repo = DBRepo()
+    create = CreateDataset(db_repo)
+    inputs = CreateDataset.Inputs(
+        uid=user.uid, name=name, authors=authors, source=source, license=license
+    )
+    outputs = create(inputs)
+    return outputs.dataset_id
+
+
+async def ingest_file(file, dataset_id, checksum, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestFile(db_repo, os_repo)
     inputs = ingest.Inputs(
-        dataset=dataset,
+        dataset_id=dataset_id,
         file=file,
         uid=user.uid,
         checksum=checksum,
@@ -46,15 +57,16 @@ async def ingest_file_url(file, dataset, user):
 
 
 def ingest_stac(stac, dataset, user):
-    db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo()
-    ingest = IngestSTAC(db_repo, os_repo, geodb_repo)
-    inputs = ingest.Inputs(
-        dataset=dataset,
-        stac=stac,
-        uid=user.uid,
-    )
-    outputs = ingest(inputs)
-    return outputs.dataset
+    pass
+    # db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo()
+    # ingest = IngestSTAC(db_repo, os_repo, geodb_repo)
+    # inputs = ingest.Inputs(
+    #     dataset=dataset,
+    #     stac=stac,
+    #     uid=user.uid,
+    # )
+    # outputs = ingest(inputs)
+    # return outputs.dataset
 
 
 def retrieve_datasets(limit):
@@ -131,7 +143,7 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, checksum, name, dataset):
+def generate_upload_id(user, checksum, name, dataset_id):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -140,7 +152,7 @@ def generate_upload_id(user, checksum, name, dataset):
         uid=user.uid,
         checksum=checksum,
         name=name,
-        dataset=dataset,
+        dataset_id=dataset_id,
     )
     outputs = generate(inputs)
     return outputs.upload_id, outputs.parts

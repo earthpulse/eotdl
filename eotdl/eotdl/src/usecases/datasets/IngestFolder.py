@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 import os
 from pathlib import Path
+import yaml
+from ...models import Metadata
 
 
 class IngestFolder:
@@ -12,13 +14,15 @@ class IngestFolder:
 
     class Inputs(BaseModel):
         folder: Path
-        dataset: str = None
         user: dict
+        force: bool = False
+        delete: bool = False
 
     class Outputs(BaseModel):
         dataset: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
+        # validate folder
         self.logger("Uploading directory (only files, not recursive)")
         items = list(inputs.folder.glob("*"))
         filtered_items = [item for item in items if item.is_file()]
@@ -29,9 +33,44 @@ class IngestFolder:
             raise Exception("No files found in directory")
         if len(filtered_items) > 10:
             raise Exception("Too many files in directory, limited to 10")
+        if "metadata.yml" not in [item.name for item in filtered_items]:
+            raise Exception("metadata.yml not found in directory")
+        # load metadata
+        metadata = yaml.safe_load(
+            open(inputs.folder.joinpath("metadata.yml"), "r").read()
+        )
+        metadata = Metadata(**metadata)
+        # remove metadata.yml from files
+        filtered_items = [
+            item for item in filtered_items if item.name != "metadata.yml"
+        ]
+        # create dataset
+        data, error = self.repo.create_dataset(metadata.dict(), inputs.user["id_token"])
+        # dataset may already exists, but if user is owner continue ingesting files
+        current_files = []
+        if error:
+            data, error = self.repo.retrieve_dataset(metadata.name)
+            if data["uid"] != inputs.user["sub"]:
+                raise Exception(error)
+            data["dataset_id"] = data["id"]
+            current_files = [item["name"] for item in data["files"]]
+            if len(current_files) > 0 and not inputs.force:
+                self.logger(
+                    "The following files already exists and will not be uploaded (use --f to force re-upload):"
+                )
+                for item in current_files:
+                    self.logger(f"{item}")
+                filtered_items = [
+                    item for item in filtered_items if item.name not in current_files
+                ]
+            # TODO: delete current_files that are not in filtered_items if --delete
+        dataset_id = data["dataset_id"]
+        # upload files
+        if len(filtered_items) == 0:
+            raise Exception("No files to upload")
         self.logger("The following files will be uploaded:")
         for item in filtered_items:
             self.logger(f"{item.name}")
         for item in filtered_items:
-            data = self.ingest_file(item, inputs.dataset, logger=self.logger)
+            data = self.ingest_file(item, dataset_id, logger=self.logger)
         return self.Outputs(dataset=data)
