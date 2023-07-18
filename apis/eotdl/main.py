@@ -23,12 +23,14 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
+VERSION = "2023.07.18"
+
 
 @app.get("/", name="home", include_in_schema=False)
 async def root():
     return {
         "name": "eotdl",
-        "version": "2023.06.14",
+        "version": VERSION,
         "description": "Earth Observation Training Data Lab",
         "contact": "support@eotdl.com",
     }
