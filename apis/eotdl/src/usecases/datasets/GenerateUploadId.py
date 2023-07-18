@@ -58,7 +58,7 @@ class GenerateUploadId:
             )
         # create new upload
         id = self.db_repo.generate_id()
-        storage = self.os_repo.get_object(id, inputs.name)
+        storage = self.os_repo.get_object(dataset.id, inputs.name)
         upload_id = self.s3_repo.multipart_upload_id(
             storage
         )  # does this work if the file already exists ?

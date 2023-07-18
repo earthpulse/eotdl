@@ -7,8 +7,6 @@ class Boto3Repo:
     def __init__(self):
         self.client = get_client()
         self.bucket = os.environ["S3_BUCKET"]
-        # if not self.client.bucket_exists(self.bucket):
-        #     self.client.make_bucket(self.bucket)
 
     def multipart_upload_id(self, storage):
         return self.client.create_multipart_upload(Bucket=self.bucket, Key=storage)[
@@ -16,6 +14,7 @@ class Boto3Repo:
         ]
 
     def store_chunk(self, data, storage, part, upload_id):
+        print(storage, part, upload_id)
         response = self.client.upload_part(
             Body=data,
             Bucket=self.bucket,
@@ -26,6 +25,7 @@ class Boto3Repo:
         return response["ETag"].strip('"')
 
     def complete_multipart_upload(self, storage, upload_id):
+        print(storage, upload_id)
         parts = []
         next_part_number_marker = 0
         is_truncated = True
