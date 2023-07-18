@@ -8,10 +8,10 @@
 	export let dataset_id;
 	export let current_tags;
 	export let name;
-	export let author;
+	export let authors;
 	export let license;
 	export let description;
-	export let link;
+	export let source;
 	export let selected_tags;
 	export let size;
 	export let files;

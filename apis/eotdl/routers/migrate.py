@@ -3,10 +3,13 @@ import logging
 import os
 from minio.commonconfig import CopySource
 import hashlib
+from boto3.s3.transfer import TransferConfig
 
 from .auth import key_auth
 from ..src.repos.mongo.client import get_db
 from ..src.repos.minio.client import get_client
+from ..src.repos.boto3.client import get_client as get_boto3_client
+from ..src.repos.boto3 import Boto3Repo
 
 
 router = APIRouter(prefix="/migrate", tags=["migrate"])
@@ -20,6 +23,7 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
     db = get_db()
     collections = db.list_collection_names()
     s3 = get_client()
+    boto = get_boto3_client()  # Boto3Repo()
     # create a backup of the changed collections
     collection_name = "users-bck"
     if not collection_name in collections:
@@ -62,9 +66,29 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
             )
         if not "files" in dataset:
             new_object_name = f"{dataset_id}/{name}.zip"
-            s3.copy_object(
-                bucket, new_object_name, CopySource(bucket, f"{dataset_id}.zip")
-            )
+            print(f"{dataset_id}.zip")
+            if size < 1024 * 1024 * 5:
+                # minio errors when copying files larger than 5GB
+                s3.copy_object(
+                    bucket, new_object_name, CopySource(bucket, f"{dataset_id}.zip")
+                )
+            else:
+                config = TransferConfig(multipart_threshold=5 * 1024 * 1024)  # 5Mb
+                copy_source = {"Bucket": bucket, "Key": f"{dataset_id}.zip"}
+                boto.copy(copy_source, bucket, new_object_name, Config=config)
+                # need to do a multipart upload
+                # upload_id = boto.multipart_upload_id(new_object_name)
+                # part = 1
+                # with s3.get_object(bucket, f"{dataset_id}.zip") as stream:
+                #     for chunk in stream.stream(1024 * 1024 * 1024):  # 1GB
+                #         boto.store_chunk(
+                #             chunk,
+                #             new_object_name,
+                #             part,
+                #             upload_id,
+                #         )
+                #         part += 1
+                # boto.complete_multipart_upload(new_object_name, upload_id)
             # compute new sha1 checksum
             sha1_hash = hashlib.sha1()
             with s3.get_object(bucket, new_object_name) as stream:
