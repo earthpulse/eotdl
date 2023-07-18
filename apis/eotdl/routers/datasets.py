@@ -11,6 +11,7 @@ from ..src.usecases.datasets import (
     ingest_file,
     ingest_file_url,
     ingest_stac,
+    create_dataset,
     retrieve_datasets,
     retrieve_dataset_by_name,
     retrieve_liked_datasets,
@@ -32,38 +33,59 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/datasets", tags=["datasets"])
 
 
-class IngestSTACBody(BaseModel):
-    stac: dict  # json as string
-    dataset: str
+# class IngestSTACBody(BaseModel):
+#     stac: dict  # json as string
+#     dataset: str
 
 
-@router.post("/stac")
-async def ingest_stac_catalog(
-    body: IngestSTACBody,
-    user: User = Depends(get_current_user),
-):
-    # try:
-    # stac = json.loads(body.stac)
-    return ingest_stac(body.stac, body.dataset, user)
-    # except Exception as e:
-    #     logger.exception("datasets:ingest_url")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.post("/stac")
+# async def ingest_stac_catalog(
+#     body: IngestSTACBody,
+#     user: User = Depends(get_current_user),
+# ):
+#     # try:
+#     # stac = json.loads(body.stac)
+#     return ingest_stac(body.stac, body.dataset, user)
+#     # except Exception as e:
+#     #     logger.exception("datasets:ingest_url")
+#     #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CreateDatasetBody(BaseModel):
+    name: str
+    authors: List[str]
+    source: str
+    license: str
 
 
 @router.post("")
+def create(
+    metadata: CreateDatasetBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id = create_dataset(
+            user, metadata.name, metadata.authors, metadata.source, metadata.license
+        )
+        return {"dataset_id": dataset_id}
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/{dataset_id}")
 async def ingest(
+    dataset_id: str,
     file: UploadFile = File(...),
-    dataset: str = Form(...),
-    checksum: str = Form(
-        None
-    ),  # optional since from browser cannot compute checksum easily
+    # optional since from browser cannot compute checksum easily
+    checksum: str = Form(None),
     user: User = Depends(get_current_user),
 ):
     try:
         if file.size > 1000000000:  # 1GB
             raise Exception("File too large, please use the CLI to upload large files.")
         dataset_id, dataset_name, file_name = await ingest_file(
-            file, dataset, checksum, user
+            file, dataset_id, checksum, user
         )
         return {
             "dataset_id": dataset_id,
@@ -153,18 +175,18 @@ def leaderboard():
 
 class UploadIdBody(BaseModel):
     name: str
-    dataset: str
     checksum: str
 
 
-@router.post("/uploadId", include_in_schema=False)
+@router.post("/{dataset_id}/uploadId", include_in_schema=False)
 def start_large_dataset_upload(
+    dataset_id: str,
     body: UploadIdBody,
     user: User = Depends(get_current_user),
 ):
     try:
         upload_id, parts = generate_upload_id(
-            user, body.checksum, body.name, body.dataset
+            user, body.checksum, body.name, dataset_id
         )
         return {"upload_id": upload_id, "parts": parts}
     except Exception as e:

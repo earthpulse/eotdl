@@ -15,4 +15,5 @@ from .main import (
     ingest_file_url,
     ingest_stac,
     download_stac,
+    create_dataset,
 )

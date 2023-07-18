@@ -1,6 +1,7 @@
-FROM continuumio/miniconda3
+FROM python:3.8
+# FROM continuumio/miniconda3
 
-RUN conda install -c conda-forge xcube_geodb
+# RUN conda install -c conda-forge xcube_geodb
 
 RUN pip install --upgrade pip 
 RUN pip install fastapi
@@ -21,3 +22,4 @@ RUN pip install httpx
 RUN pip install boto3
 RUN pip install pystac
 RUN pip install stac_validator
+RUN pip install geopandas

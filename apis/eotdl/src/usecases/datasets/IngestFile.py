@@ -18,7 +18,7 @@ class IngestFile:
         self.os_repo = os_repo
 
     class Inputs(BaseModel):
-        dataset: str
+        dataset_id: str
         file: typing.Any
         uid: str
         checksum: Union[str, None]
@@ -36,42 +36,15 @@ class IngestFile:
 
     async def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset exists
+        data = self.db_repo.retrieve("datasets", inputs.dataset_id)
+        if not data:
+            raise DatasetDoesNotExistError()
+        dataset = Dataset(**data)
+        # check if user can ingest file
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
-        new_dataset = False
-        if not data:
-            new_dataset = True
-            # check if user can ingest dataset
-            usage = self.db_repo.find_in_time_range(
-                "usage", inputs.uid, "dataset_ingested", "type"
-            )
-            if len(usage) + 1 >= limits.datasets.upload:
-                raise TierLimitError(
-                    "You cannot ingest more than {} datasets per day".format(
-                        limits.datasets.upload
-                    )
-                )
-            if user.dataset_count + 1 > limits.datasets.count:
-                raise TierLimitError(
-                    "You cannot have more than {} datasets".format(
-                        limits.datasets.count
-                    )
-                )
-            # check if name already exists
-            if self.db_repo.find_one_by_name("datasets", inputs.dataset):
-                raise DatasetAlreadyExistsError()
-            # generate new id
-            id = self.db_repo.generate_id()
-            # save dataset in db
-            data = dict(
-                uid=inputs.uid,
-                id=id,
-                name=inputs.dataset,
-            )
-        dataset = Dataset(**data)
         # check user owns dataset
         if dataset.uid != inputs.uid:
             raise DatasetDoesNotExistError()
@@ -99,12 +72,8 @@ class IngestFile:
         file_size = self.os_repo.object_info(dataset.id, filename).size
         dataset.files.append(File(name=filename, size=file_size, checksum=checksum))
         dataset.size += file_size
-        if new_dataset:
-            self.db_repo.persist("datasets", dataset.dict(), dataset.id)
-            self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
-        else:
-            dataset.updatedAt = datetime.now()
-            self.db_repo.update("datasets", dataset.id, dataset.dict())
+        dataset.updatedAt = datetime.now()
+        self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage
         usage = Usage.FileIngested(
             uid=inputs.uid,

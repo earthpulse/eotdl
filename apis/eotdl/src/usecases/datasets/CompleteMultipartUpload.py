@@ -4,9 +4,8 @@ from datetime import datetime
 
 from ...models import Dataset, Usage, User, Limits, UploadingFile, File
 from ...errors import (
-    DatasetAlreadyExistsError,
+    DatasetDoesNotExistError,
     TierLimitError,
-    UserUnauthorizedError,
     UploadIdDoesNotExist,
     ChecksumMismatch,
 )
@@ -35,34 +34,17 @@ class CompleteMultipartUpload:
             raise UploadIdDoesNotExist()
         uploading = UploadingFile(**data)
         # check if dataset exists
+        data = self.db_repo.retrieve("datasets", uploading.dataset)
+        if not data:
+            raise DatasetDoesNotExistError()
+        dataset = Dataset(**data)
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        data = self.db_repo.find_one_by_name("datasets", uploading.dataset)
-        new_dataset = False
-        if not data:
-            new_dataset = True
-            # check if user can ingest dataset
-            usage = self.db_repo.find_in_time_range(
-                "usage", inputs.uid, "dataset_ingested", "type"
-            )
-            if len(usage) + 1 >= limits.datasets.upload:
-                raise TierLimitError(
-                    "You cannot ingest more than {} datasets per day".format(
-                        limits.datasets.upload
-                    )
-                )
-            # save dataset in db
-            data = dict(
-                uid=inputs.uid,
-                id=uploading.id,  # error porque ya existe este id en uploading???? si si, borrar antes
-                name=uploading.dataset,
-            )
-        dataset = Dataset(**data)
         # check if user owns dataset
-        if dataset.uid != inputs.uid:
-            raise DatasetAlreadyExistsError()
+        if inputs.uid != dataset.uid:
+            raise DatasetDoesNotExistError()
         # check files limit
         if (
             len(dataset.files) + 1 > limits.datasets.files
@@ -88,12 +70,8 @@ class CompleteMultipartUpload:
         dataset.files.append(
             File(name=uploading.name, size=object_info.size, checksum=checksum)
         )
-        if new_dataset:
-            self.db_repo.persist("datasets", dataset.dict(), dataset.id)
-            self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
-        else:
-            dataset.updatedAt = datetime.now()
-            self.db_repo.update("datasets", dataset.id, dataset.dict())
+        dataset.updatedAt = datetime.now()
+        self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage
         usage = Usage.FileIngested(
             uid=inputs.uid,
