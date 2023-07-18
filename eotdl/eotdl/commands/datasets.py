@@ -15,19 +15,18 @@ app = typer.Typer()
 @app.command()
 def ingest(path: Path, dataset: str):
     """
-    Ingest a file
+    Ingest a dataset
 
-    path: Path to folder with data (limited to 10 files, not recursive!)
+    path: Path to folder with the dataset
     dataset: Name of the dataset
     """
     try:
-        if path.is_dir():
-            if "catalog.json" in [f.name for f in path.iterdir()]:
-                ingest_stac(str(path) + "/catalog.json", dataset, typer.echo)
-            else:
-                ingest_folder(path, dataset, typer.echo)
+        if not path.is_dir():
+            typer.abort("Path must be a folder")
+        if "catalog.json" in [f.name for f in path.iterdir()]:
+            ingest_stac(str(path) + "/catalog.json", dataset, typer.echo)
         else:
-            ingest_file(path, dataset, typer.echo)
+            ingest_folder(path, dataset, typer.echo)
     except Exception as e:
         typer.echo(e)
 
