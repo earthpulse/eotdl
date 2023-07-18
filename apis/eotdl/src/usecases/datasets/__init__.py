@@ -16,4 +16,5 @@ from .main import (
     ingest_stac,
     download_stac,
     create_dataset,
+    delete_dataset_file,
 )

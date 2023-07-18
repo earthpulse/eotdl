@@ -2,9 +2,10 @@ from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
 
-class Tier(Enum):
-    FREE = 'free'
-    DEV = 'dev'
+
+class Tier(str, Enum):
+    FREE = "free"
+    DEV = "dev"
 
 
 class User(BaseModel):
@@ -15,10 +16,9 @@ class User(BaseModel):
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     dataset_count: int = 0
-    model_count: int = 0
+    models_count: int = 0
     tier: Tier = Tier.FREE
     liked_datasets: list = []
 
-    class Config:
-       use_enum_values = True
-
+    # class Config:
+    #     use_enum_values = True

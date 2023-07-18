@@ -49,21 +49,43 @@ class IngestFolder:
         # dataset may already exists, but if user is owner continue ingesting files
         current_files = []
         if error:
-            data, error = self.repo.retrieve_dataset(metadata.name)
-            if data["uid"] != inputs.user["sub"]:
+            data, error2 = self.repo.retrieve_dataset(metadata.name)
+            if error2:
                 raise Exception(error)
+            if data["uid"] != inputs.user["sub"]:
+                raise Exception("Dataset already exists.")
             data["dataset_id"] = data["id"]
             current_files = [item["name"] for item in data["files"]]
             if len(current_files) > 0 and not inputs.force:
                 self.logger(
-                    "The following files already exists and will not be uploaded (use --f to force re-upload):"
+                    "The following files already exist and will not be uploaded (use --f to force re-upload):"
                 )
                 for item in current_files:
                     self.logger(f"{item}")
-                filtered_items = [
-                    item for item in filtered_items if item.name not in current_files
-                ]
             # TODO: delete current_files that are not in filtered_items if --delete
+            hanged_files = [
+                file
+                for file in current_files
+                if file not in [item.name for item in filtered_items]
+            ]
+            if len(hanged_files) > 0:
+                self.logger(
+                    "The following files are no longer in your dataset (use --d to delete):"
+                )
+                for item in hanged_files:
+                    self.logger(f"{item}")
+                    if inputs.delete:
+                        self.logger(f"Deleting file {item}...")
+                        _, error = self.repo.delete_file(
+                            data["dataset_id"], item, inputs.user["id_token"]
+                        )
+                        if error:
+                            self.logger(error)
+                        else:
+                            self.logger("Done")
+            filtered_items = [
+                item for item in filtered_items if item.name not in current_files
+            ]
         dataset_id = data["dataset_id"]
         # upload files
         if len(filtered_items) == 0:
