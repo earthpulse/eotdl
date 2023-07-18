@@ -20,8 +20,8 @@
 		createdAt,
 		description,
 		tags,
-		author,
-		link,
+		authors,
+		source,
 		license,
 		size,
 		files,
@@ -113,8 +113,8 @@
 							tags={data.tags}
 							current_tags={tags}
 							{name}
-							bind:author={data.dataset.author}
-							bind:link={data.dataset.link}
+							bind:authors={data.dataset.authors}
+							bind:source={data.dataset.link}
 							bind:license={data.dataset.license}
 							bind:description={data.dataset.description}
 							bind:selected_tags={data.dataset.tags}
@@ -172,7 +172,7 @@
 						<tbody>
 							<tr>
 								<th class="w-[20px]">Author(s)</th>
-								<td>{author || "-"}</td>
+								<td>{authors.join(", ") || "-"}</td>
 							</tr>
 							<tr>
 								<th>License</th>
@@ -181,15 +181,15 @@
 							<tr>
 								<th>Source</th>
 								<td>
-									{#if link}
+									{#if source}
 										<a
-											href={link}
+											href={source}
 											target="_blank"
 											rel="noopener noreferrer"
 											class="text-green-200 hover:underline"
-											>{link.length > 30
-												? link.slice(0, 30) + "..."
-												: link}</a
+											>{source.length > 30
+												? source.slice(0, 30) + "..."
+												: source}</a
 										>
 									{:else}
 										-
