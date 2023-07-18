@@ -46,12 +46,7 @@ class APIRepo:
     def download_file(self, dataset, dataset_id, file, id_token, path):
         url = self.url + "datasets/" + dataset_id + "/download/" + file
         headers = {"Authorization": "Bearer " + id_token}
-        if path is None:
-            path = str(Path.home()) + "/.eotdl/datasets/" + dataset
-            os.makedirs(path, exist_ok=True)
         path = f"{path}/{file}"
-        # if os.path.exists(path):
-        #     raise Exception("File already exists")
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))

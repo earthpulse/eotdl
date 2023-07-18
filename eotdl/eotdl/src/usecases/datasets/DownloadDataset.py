@@ -3,7 +3,6 @@ from ....src.utils import calculate_checksum
 from ....curation.stac import STACDataFrame
 from pathlib import Path
 import os
-from shapely.geometry import Polygon
 
 
 class DownloadDataset:
@@ -33,6 +32,11 @@ class DownloadDataset:
 
     def __call__(self, inputs: Inputs) -> Outputs:
         dataset = self.retrieve_dataset(inputs.dataset)
+        if inputs.path is None:
+            download_path = str(Path.home()) + "/.eotdl/datasets/" + inputs.dataset
+        else:
+            download_path = inputs.path + "/" + inputs.dataset
+        os.makedirs(download_path, exist_ok=True)
         if dataset["quality"] == 0:
             if inputs.file:
                 files = [f for f in dataset["files"] if f["name"] == inputs.file]
@@ -45,7 +49,7 @@ class DownloadDataset:
                     dataset["id"],
                     inputs.file,
                     files[0]["checksum"],
-                    inputs.path,
+                    download_path,
                     inputs.user,
                 )
                 return self.Outputs(dst_path=dst_path)
@@ -55,7 +59,7 @@ class DownloadDataset:
                     dataset["id"],
                     file["name"],
                     file["checksum"],
-                    inputs.path,
+                    download_path,
                     inputs.user,
                 )
             return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))

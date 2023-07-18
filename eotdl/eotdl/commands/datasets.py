@@ -44,7 +44,11 @@ def list():
 
 
 @app.command()
-def get(dataset: str, file: str = None, path: str = None):
+def get(
+    dataset: str,
+    path: str = None,
+    file: str = None,
+):
     """
     Download a dataset
 
