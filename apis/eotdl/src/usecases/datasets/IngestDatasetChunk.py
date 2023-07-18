@@ -27,7 +27,7 @@ class IngestDatasetChunk:
         if not data or data["uid"] != inputs.uid:
             raise UploadIdDoesNotExist()
         uploading = UploadingFile(**data)
-        storage = self.os_repo.get_object(uploading.id, uploading.name)
+        storage = self.os_repo.get_object(uploading.dataset, uploading.name)
         checksum = self.s3_repo.store_chunk(
             inputs.chunk, storage, inputs.part_number, inputs.upload_id
         )
