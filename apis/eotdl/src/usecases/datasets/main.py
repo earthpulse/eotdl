@@ -18,6 +18,7 @@ from .CompleteMultipartUpload import CompleteMultipartUpload
 from .IngestQ1Dataset import IngestQ1Dataset
 from .IngestSTAC import IngestSTAC
 from .DownloadDatasetSTAC import DownloadDatasetSTAC
+from .DeleteDatasetFile import DeleteDatasetFile
 
 
 def create_dataset(user, name, authors, source, license):
@@ -205,12 +206,26 @@ def update_dataset(dataset_id, user, name, author, link, license, tags, descript
 
 
 def ingest_q1_dataset(dataset, uid):
+    pass
+    # db_repo = DBRepo()
+    # geodb_repo = GeoDBRepo()
+    # ingest = IngestQ1Dataset(db_repo)
+    # inputs = ingest.Inputs(
+    #     dataset=dataset,
+    #     uid=uid,
+    # )
+    # outputs = ingest(inputs)
+    # return outputs.message
+
+
+def delete_dataset_file(user, dataset_id, file_name):
     db_repo = DBRepo()
-    geodb_repo = GeoDBRepo()
-    ingest = IngestQ1Dataset(db_repo)
-    inputs = ingest.Inputs(
-        dataset=dataset,
-        uid=uid,
+    os_repo = OSRepo()
+    delete = DeleteDatasetFile(db_repo, os_repo)
+    inputs = delete.Inputs(
+        uid=user.uid,
+        dataset_id=dataset_id,
+        file_name=file_name,
     )
-    outputs = ingest(inputs)
+    outputs = delete(inputs)
     return outputs.message

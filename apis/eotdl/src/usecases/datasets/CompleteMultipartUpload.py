@@ -71,6 +71,7 @@ class CompleteMultipartUpload:
             File(name=uploading.name, size=object_info.size, checksum=checksum)
         )
         dataset.updatedAt = datetime.now()
+        dataset.size = dataset.size + object_info.size
         self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage
         usage = Usage.FileIngested(

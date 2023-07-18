@@ -25,6 +25,7 @@ from ..src.usecases.datasets import (
     update_dataset,
     delete_dataset,
     download_stac,
+    delete_dataset_file,
 )
 from .auth import get_current_user, key_auth
 
@@ -304,6 +305,20 @@ def delete(
 ):
     try:
         message = delete_dataset(name)
+        return {"message": message}
+    except Exception as e:
+        logger.exception("datasets:delete")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.delete("/{dataset_id}/file/{file_name}")
+def delete(
+    dataset_id: str,
+    file_name: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        message = delete_dataset_file(user, dataset_id, file_name)
         return {"message": message}
     except Exception as e:
         logger.exception("datasets:delete")

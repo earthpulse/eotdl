@@ -223,66 +223,14 @@ class APIRepo:
             return None, r.json()["detail"]
         return r.json(), None
 
-    def ingest_large_dataset_parallel(
-        self,
-        path,
-        upload_id,
-        dataset_id,
-        id_token,
-        parts,
-        threads,
-    ):
-        # Create thread pool executor
-        max_workers = threads if threads > 0 else multiprocessing.cpu_count()
-        executor = ThreadPoolExecutor(max_workers=max_workers)
-
-        # Divide file into chunks and create tasks for each chunk
-        offset = 0
-        tasks = []
-        content_path = os.path.abspath(path)
-        content_size = os.stat(content_path).st_size
-        chunk_size = self.get_chunk_size(content_size)
-        total_chunks = content_size // chunk_size
-        while offset < content_size:
-            chunk_end = min(offset + chunk_size, content_size)
-            part = str(offset // chunk_size + 1)
-            if part not in parts:
-                tasks.append((offset, chunk_end, part))
-            offset = chunk_end
-
-        # Define the function that will upload each chunk
-        def upload_chunk(start, end, part):
-            # print(f"Uploading chunk {start} - {end}", part)
-            with open(content_path, "rb") as f:
-                f.seek(start)
-                chunk = f.read(end - start)
-            checksum = hashlib.md5(chunk).hexdigest()
-            response = requests.post(
-                self.url + "datasets/chunk",
-                files={"file": chunk},
-                headers={
-                    "Authorization": "Bearer " + id_token,
-                    "Upload-Id": upload_id,
-                    "Dataset-Id": dataset_id,
-                    "Checksum": checksum,
-                    "Part-Number": str(part),
-                },
-            )
-            if response.status_code != 200:
-                print(f"Failed to upload chunk {start} - {end}")
-            return response
-
-        # Submit each task to the executor
-        with tqdm(total=total_chunks) as pbar:
-            futures = []
-            for task in tasks:
-                future = executor.submit(upload_chunk, *task)
-                future.add_done_callback(lambda p: pbar.update())
-                futures.append(future)
-
-            # Wait for all tasks to complete
-            for future in futures:
-                future.result()
+    def delete_file(self, dataset_id, file_name, id_token):
+        response = requests.delete(
+            self.url + "datasets/" + dataset_id + "/file/" + file_name,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code != 200:
+            return None, response.json()["detail"]
+        return response.json(), None
 
     def ingest_stac(self, stac_json, dataset, id_token):
         reponse = requests.post(
