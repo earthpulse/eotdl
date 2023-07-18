@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-import typing
+from typing import List
 from typing import Union
 from datetime import datetime
 
@@ -21,8 +21,8 @@ class UpdateDataset:
         dataset_id: str
         name: Union[str, None]
         description: Union[str, None]
-        author: Union[str, None]
-        link: Union[str, None]
+        authors: Union[List[str], None]
+        source: Union[str, None]
         license: Union[str, None]
         tags: Union[list, None]
 
@@ -57,8 +57,8 @@ class UpdateDataset:
             description=inputs.description
             if inputs.description is not None
             else dataset.description,
-            author=inputs.author if inputs.author is not None else dataset.author,
-            link=inputs.link if inputs.link is not None else dataset.link,
+            authors=inputs.authors if inputs.authors is not None else dataset.authors,
+            source=inputs.source if inputs.source is not None else dataset.source,
             license=inputs.license if inputs.license is not None else dataset.license,
             tags=inputs.tags if inputs.tags is not None else dataset.tags,
         )

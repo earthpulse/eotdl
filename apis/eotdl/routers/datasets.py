@@ -103,23 +103,23 @@ class IngestURLBody(BaseModel):
     dataset: str
 
 
-@router.post("/url")
-async def ingest_url(
-    body: IngestURLBody,
-    user: User = Depends(get_current_user),
-):
-    try:
-        dataset_id, dataset_name, file_name = await ingest_file_url(
-            body.url, body.dataset, user
-        )
-        return {
-            "dataset_id": dataset_id,
-            "dataset_name": dataset_name,
-            "file_name": file_name,
-        }
-    except Exception as e:
-        logger.exception("datasets:ingest")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.post("/url")
+# async def ingest_url(
+#     body: IngestURLBody,
+#     user: User = Depends(get_current_user),
+# ):
+#     try:
+#         dataset_id, dataset_name, file_name = await ingest_file_url(
+#             body.url, body.dataset, user
+#         )
+#         return {
+#             "dataset_id": dataset_id,
+#             "dataset_name": dataset_name,
+#             "file_name": file_name,
+#         }
+#     except Exception as e:
+#         logger.exception("datasets:ingest")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("")
@@ -255,24 +255,24 @@ async def download(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/{id}/download")
-async def download(
-    id: str,
-    user: User = Depends(get_current_user),
-):
-    try:
-        return download_stac(id, user)
-    except Exception as e:
-        logger.exception("datasets:download")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.get("/{id}/download")
+# async def download(
+#     id: str,
+#     user: User = Depends(get_current_user),
+# ):
+#     try:
+#         return download_stac(id, user)
+#     except Exception as e:
+#         logger.exception("datasets:download")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 class UpdateBody(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     tags: Optional[List[str]] = None
-    author: Optional[str] = None
-    link: Optional[str] = None
+    authors: Optional[List[str]] = None
+    source: Optional[str] = None
     license: Optional[str] = None
 
 
@@ -287,8 +287,8 @@ def update(
             id,
             user,
             body.name,
-            body.author,
-            body.link,
+            body.authors,
+            body.source,
             body.license,
             body.tags,
             body.description,
