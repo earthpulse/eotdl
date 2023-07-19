@@ -56,19 +56,21 @@ class CompleteMultipartUpload:
         storage = self.os_repo.get_object(dataset.id, uploading.name)
         self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
         object_info = self.os_repo.object_info(dataset.id, uploading.name)
-        # calculate checksum
-        checksum = await self.os_repo.calculate_checksum(
-            dataset.id, uploading.name
-        )  # con md5 fallaba para large files, a ver si con sha1 va mejor
-        if checksum != uploading.checksum:
-            self.os_repo.delete_file(dataset.id, uploading.name)
-            if len(dataset.files) == 0:
-                self.db_repo.delete("datasets", dataset.id)
-            raise ChecksumMismatch()
+        # # calculate checksum (too expensive for big files)
+        # checksum = await self.os_repo.calculate_checksum(
+        #     dataset.id, uploading.name
+        # )
+        # if checksum != uploading.checksum:
+        #     self.os_repo.delete_file(dataset.id, uploading.name)
+        #     if len(dataset.files) == 0:
+        #         self.db_repo.delete("datasets", dataset.id)
+        #     raise ChecksumMismatch()
         if uploading.name in [f.name for f in dataset.files]:
             dataset.files = [f for f in dataset.files if f.name != uploading.name]
         dataset.files.append(
-            File(name=uploading.name, size=object_info.size, checksum=checksum)
+            File(
+                name=uploading.name, size=object_info.size, checksum=uploading.checksum
+            )
         )
         dataset.updatedAt = datetime.now()
         dataset.size = dataset.size + object_info.size
