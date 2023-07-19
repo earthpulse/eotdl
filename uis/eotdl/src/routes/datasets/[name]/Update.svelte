@@ -41,7 +41,7 @@
 			_selected_tags,
 			$id_token
 		);
-		if (_author) authors = _authors;
+		if (_authors) authors = _authors;
 		if (_source) source = _source;
 		if (_license) license = _license;
 		if (content) description = content;

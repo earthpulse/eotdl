@@ -2,7 +2,7 @@
   import Code from "../docs/components/Code.svelte";
   import CLI from "../docs/components/CLI.svelte";
   import TextEditor from "./TextEditor.svelte";
-  import formatFileSize from "../../lib/datasets/formatFileSize.js";
+  // import formatFileSize from "../../lib/datasets/formatFileSize.js";
 
   export let tags;
   export let submit;
@@ -25,24 +25,25 @@
     if (source && !validate_source(source)) return;
     loading = true;
     try {
+      if (authors instanceof Array) authors = authors.join(",");
       await submit(
         files,
         name,
         content,
-        authors,
+        authors.split(","),
         source,
         license,
         selected_tags
       );
       document.getElementById("ingest-dataset").checked = false;
-      name = "";
-      authors = "";
-      source = "";
-      license = "";
-      content = "";
-      files = null;
-      input.value = ""; // reset files in input
-      selected_tags = [];
+      // name = "";
+      // authors = "";
+      // source = "";
+      // license = "";
+      // content = "";
+      // files = null;
+      // input.value = ""; // reset files in input
+      // selected_tags = [];
     } catch (e) {
       // alert(e.message);
       error = e.message;
@@ -85,8 +86,8 @@
 
   const reset = () => {
     name = "";
-    author = "";
-    link = "";
+    authors = "";
+    source = "";
     license = "";
     content = "";
     files = null;
@@ -125,13 +126,13 @@
         >
       </CLI>
     {:else}
-      {#if files?.length > 0}
+      <!-- {#if files?.length > 0}
         {#each files as file}
           <p class="text-sm text-gray-400">
             {file.name} ({formatFileSize(file.size)})
           </p>
         {/each}
-      {/if}
+      {/if} -->
       <span>
         <p>Name</p>
         <input
@@ -144,11 +145,11 @@
         <p class="text-sm text-gray-400">*Name should be unique</p>
       </span>
       <span>
-        <p>Author</p>
+        <p>Authors (use comma for multiple authors)</p>
         <input
           class="input input-bordered w-full"
           type="text"
-          placeholder="Dataset author"
+          placeholder="Dataset authors"
           {required}
           bind:value={authors}
         />
@@ -166,7 +167,7 @@
           bind:value={source}
         />
         <p class="text-sm text-gray-400">
-          *Link to the original source of the data (if available).
+          *Link to the original source of the data.
         </p>
       </span>
       <span>
@@ -199,10 +200,8 @@
     {/if}
 
     <span class="self-end">
-      <label
-        for="ingest-dataset"
-        on:click={reset}
-        class="btn btn-ghost btn-outline btn-error">Close</label
+      <label for="ingest-dataset" class="btn btn-ghost btn-outline btn-error"
+        >Close</label
       >
       <button
         class="btn btn-ghost btn-outline {loading && 'loading'}"

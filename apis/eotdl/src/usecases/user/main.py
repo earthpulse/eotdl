@@ -7,7 +7,6 @@ from ...repos import DBRepo
 
 
 def persist_user(data: dict) -> User:
-    print("uepa", data)
     repo = DBRepo()
     persist_user = PersistUser(repo)
     inputs = PersistUser.Inputs(data=data)

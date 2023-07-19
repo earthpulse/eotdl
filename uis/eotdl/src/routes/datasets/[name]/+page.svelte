@@ -114,7 +114,7 @@
 							current_tags={tags}
 							{name}
 							bind:authors={data.dataset.authors}
-							bind:source={data.dataset.link}
+							bind:source={data.dataset.source}
 							bind:license={data.dataset.license}
 							bind:description={data.dataset.description}
 							bind:selected_tags={data.dataset.tags}

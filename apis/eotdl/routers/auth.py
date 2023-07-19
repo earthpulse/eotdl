@@ -56,7 +56,6 @@ def get_current_user(token: str = Depends(token_auth_scheme)):
         return None
     try:
         data = parse_token(token.credentials)
-        print(data)
         return persist_user(data)
     except Exception as e:
         logger.exception("get_current_user")
