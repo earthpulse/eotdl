@@ -62,7 +62,6 @@ class IngestFolder:
                 )
                 for item in current_files:
                     self.logger(f"{item}")
-            # TODO: delete current_files that are not in filtered_items if --delete
             hanged_files = [
                 file
                 for file in current_files
@@ -83,9 +82,10 @@ class IngestFolder:
                             self.logger(error)
                         else:
                             self.logger("Done")
-            filtered_items = [
-                item for item in filtered_items if item.name not in current_files
-            ]
+            if not inputs.force:
+                filtered_items = [
+                    item for item in filtered_items if item.name not in current_files
+                ]
         dataset_id = data["dataset_id"]
         # upload files
         if len(filtered_items) == 0:
