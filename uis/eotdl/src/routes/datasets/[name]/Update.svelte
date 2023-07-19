@@ -20,8 +20,8 @@
 		_files,
 		name,
 		content,
-		_author,
-		_link,
+		_authors,
+		_source,
 		_license,
 		_selected_tags
 	) => {
@@ -35,14 +35,14 @@
 			dataset_id,
 			name,
 			content,
-			_author,
-			_link,
+			_authors,
+			_source,
 			_license,
 			_selected_tags,
 			$id_token
 		);
-		if (_author) author = _author;
-		if (_link) link = _link;
+		if (_author) authors = _authors;
+		if (_source) source = _source;
 		if (_license) license = _license;
 		if (content) description = content;
 		size = data.size;
@@ -59,8 +59,8 @@
 		text="EDIT"
 		{current_tags}
 		content={description}
-		{author}
-		{link}
+		{authors}
+		{source}
 		{license}
 		{name}
 	>

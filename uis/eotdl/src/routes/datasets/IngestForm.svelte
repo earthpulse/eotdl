@@ -10,8 +10,8 @@
   export let required = false;
   export let current_tags = [];
   export let name;
-  export let author;
-  export let link;
+  export let authors;
+  export let source;
   export let license;
   export let content;
 
@@ -22,14 +22,22 @@
   let error = null;
   $: selected_tags = current_tags;
   const ingest = async () => {
-    if (link && !validate_link(link)) return;
+    if (source && !validate_source(source)) return;
     loading = true;
     try {
-      await submit(files, name, content, author, link, license, selected_tags);
+      await submit(
+        files,
+        name,
+        content,
+        authors,
+        source,
+        license,
+        selected_tags
+      );
       document.getElementById("ingest-dataset").checked = false;
       name = "";
-      author = "";
-      link = "";
+      authors = "";
+      source = "";
       license = "";
       content = "";
       files = null;
@@ -42,7 +50,7 @@
     loading = false;
   };
 
-  const validate_link = (link) => {
+  const validate_source = (link) => {
     if (!link.startsWith("http://") && !link.startsWith("https://")) {
       alert("Link should start with http:// or https://");
       return false;
@@ -142,7 +150,7 @@
           type="text"
           placeholder="Dataset author"
           {required}
-          bind:value={author}
+          bind:value={authors}
         />
         <p class="text-sm text-gray-400">
           *If you are not the author, provide the correct attribution
@@ -155,7 +163,7 @@
           type="text"
           placeholder="Link to source data"
           {required}
-          bind:value={link}
+          bind:value={source}
         />
         <p class="text-sm text-gray-400">
           *Link to the original source of the data (if available).
