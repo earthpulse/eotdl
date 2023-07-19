@@ -64,6 +64,16 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
                 {"_id": dataset["_id"]},
                 {"$unset": {"checksum": ""}},
             )
+        if not "authors" in dataset or dataset["authors"] == [""]:
+            db["datasets"].update_one(
+                {"_id": dataset["_id"]},
+                {"$set": {"authors": ["-"]}},
+            )
+        if not "license" in dataset or dataset["license"] == "":
+            db["datasets"].update_one(
+                {"_id": dataset["_id"]},
+                {"$set": {"license": "-"}},
+            )
         if not "files" in dataset:
             new_object_name = f"{dataset_id}/{name}.zip"
             print(f"{dataset_id}.zip")
