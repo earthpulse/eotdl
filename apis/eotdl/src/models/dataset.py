@@ -61,8 +61,9 @@ class Dataset(BaseModel):
 
     @validator("source")
     def check_source_is_url(cls, source):
-        if not source.startswith("http") and not source.startswith("https"):
-            raise ValueError("source must be a valid url")
+        if source != "" and source is not None:
+            if not source.startswith("http") and not source.startswith("https"):
+                raise ValueError("source must be a valid url")
         return source
 
 

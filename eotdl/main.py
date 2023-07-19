@@ -1,7 +1,7 @@
 import typer
 from eotdl.cli import app
 
-__version__ = "2023.07.18"
+__version__ = "2023.07.19"
 
 
 def version():
