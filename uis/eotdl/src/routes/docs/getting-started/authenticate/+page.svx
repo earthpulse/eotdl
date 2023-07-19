@@ -28,7 +28,7 @@ Executing the `login` command will return a URL that you can visit to authentica
 
 You can logout by either deleting the credentials file or by executing the `logout` command. 
 
-<CLI><Code>eotdl-cli auth logout</Code></CLI>
+<CLI><Code>eotdl auth logout</Code></CLI>
 
 You will receive a logout url that you can visit in case you want to authenticate with a different account.
 

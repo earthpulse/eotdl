@@ -8,7 +8,7 @@ from ..auth import with_auth
 allowed_extensions = [
     ".zip",
     ".tar",
-    ".tar.gz",
+    ".gz",
     ".csv",
     ".txt",
     ".json",
