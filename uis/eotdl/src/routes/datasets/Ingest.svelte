@@ -9,17 +9,17 @@
         files,
         name,
         content,
-        author,
-        link,
+        authors,
+        source,
         license,
         selected_tags
     ) => {
         if (
             !name ||
             files?.length == 0 ||
-            !author ||
+            authors.length == 0 ||
             !license ||
-            !link ||
+            !source ||
             !content ||
             content.length == 0
         )
@@ -31,15 +31,22 @@
         );
         if (datasetExists)
             throw new Error("Dataset already exists, choose a different name");
+        const dataset_id = await datasets.create(
+            name,
+            authors,
+            source,
+            license,
+            $id_token
+        );
         for (var i = 0; i < files.length; i++) {
-            data = await datasets.ingest(files[i], name, $id_token);
+            data = await datasets.ingest(dataset_id, files[i], $id_token, name);
         }
         await datasets.update(
-            data.id,
+            dataset_id,
             null,
             content,
-            author,
-            link,
+            authors,
+            source,
             license,
             selected_tags,
             $id_token
