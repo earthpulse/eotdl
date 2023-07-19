@@ -73,6 +73,7 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
                     bucket, new_object_name, CopySource(bucket, f"{dataset_id}.zip")
                 )
             else:
+                # quizás tengo que poner aquí un if en el caso que ya lo haya copiado pero no haya calculado checksum
                 config = TransferConfig(multipart_threshold=5 * 1024 * 1024)  # 5Mb
                 copy_source = {"Bucket": bucket, "Key": f"{dataset_id}.zip"}
                 boto.copy(copy_source, bucket, new_object_name, Config=config)
