@@ -136,7 +136,7 @@ def extract_image_date_in_folder(raster_path: str, pattern: str):
 
     if case:
         date = case[0]
-        formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
+        formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}T00:00:00.000Z"
         return formatted_date
     
     return None
