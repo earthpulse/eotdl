@@ -7,7 +7,9 @@ from .access import (SHClient,
                      EvalScripts,
                      sentinel_1_download_parameters,
                      sentinel_2_download_parameters,
-                     dem_download_parameters)
+                     dem_download_parameters,
+                     AirbusClient,
+                     get_airbus_access_token)
 from .tools import (stac_items_to_gdf,
                     get_images_by_location,
                     calculate_average_coordinates_distance,
