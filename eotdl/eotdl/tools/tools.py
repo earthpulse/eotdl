@@ -12,9 +12,11 @@ import rasterio
 import re
 from shapely.geometry import box
 import datetime
+from os.path import exists
+import json
 
 
-def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def get_images_by_location(gdf: gpd.GeoDataFrame, path: str) -> gpd.GeoDataFrame:
     """
     Generate a GeoDataFrame with the available images for each location in the dataset. 
 
@@ -47,6 +49,38 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf_dates_per_aoi
 
 
+def generate_location_payload(gdf: gpd.GeoDataFrame, path: str) -> dict:
+    """
+    Generate a dictionary with the location payload of the locations in the GeoDataFrame, 
+    such as the bounding box and the time interval to search for available data.
+    """
+    payload_cache = f"{path}/location_payload.json"
+    if exists(payload_cache):
+        # Read as dict
+        with open(payload_cache, 'r') as f:
+            payload = json.load(f)
+        return payload
+    
+    bbox_date_by_location = dict()
+    for i, row in gdf.iterrows():
+        n = 0
+        # Get list from dates_list column
+        dates_list = list(row['dates_list'])
+        for date in dates_list:
+            bbox_date_by_location[row[f'location_id'] + '_' + str(n)] = {
+                'bounding_box': row['geometry'].bounds,
+                # Convert str to datetime
+                'time_interval': (date, date)
+            }
+            n += 1
+
+    # Save to json
+    with open(payload_cache, 'w') as f:
+        json.dump(bbox_date_by_location, f)
+
+    return bbox_date_by_location
+
+
 sentinel_parameters = {'sentinel-1': sentinel_1_search_parameters,
                        'sentinel-2': sentinel_2_search_parameters}
 
@@ -55,6 +89,7 @@ def get_available_data_by_location(search_data: dict,
                                    eotdl_client: SHClient,
                                    sentinel_mission: str
                                    ) -> list:
+    # TODO put in data access
     """
     Search and return a dict with the available Sentinel data for a dict with given locations and a time intervals.
 
@@ -101,7 +136,16 @@ def get_available_data_by_location(search_data: dict,
     return available_data, not_available_data
 
 
-def get_tarfile_image_info(tar, pattern: str = r"\d{8}T\d{6}", level: int = 2):
+def get_tarfile_image_info(tar, path: str, pattern: str = r"\d{8}T\d{6}", level: int = 2):
+    """
+    """
+    gdf_cache = f"{path}/tarfile_images_info.csv"
+    if exists(gdf_cache):
+        images_gdf = gpd.read_file(gdf_cache,
+                                   GEOM_POSSIBLE_NAMES="geometry", 
+                                   KEEP_GEOM_COLUMNS="NO")
+        return images_gdf
+    
     images_df = pd.DataFrame()
     with tarfile.open(tar, 'r:gz') as tar:
         rasters = [i for i in tar.getnames() if i.endswith(".tif") or i.endswith(".tiff")]
@@ -121,6 +165,10 @@ def get_tarfile_image_info(tar, pattern: str = r"\d{8}T\d{6}", level: int = 2):
     images_gdf = images_gdf.drop(columns=["bbox"])
     # Set crs
     images_gdf = images_gdf.set_crs(epsg=4326)
+    # Sort by location_id
+    images_gdf = images_gdf.sort_values(by=["location_id"])
+    # Save to csv
+    images_gdf.to_csv(gdf_cache, index=False)
 
     return images_gdf
 
@@ -136,7 +184,8 @@ def extract_image_date_in_folder(raster_path: str, pattern: str):
 
     if case:
         date = case[0]
-        formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}T00:00:00.000Z"
+        # Convert date to format YYYY-MM-DDT00:00:00.000Z as datetime object
+        formatted_date = datetime.datetime.strptime(date, '%Y%m%dT%H%M%S').strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         return formatted_date
     
     return None
@@ -170,3 +219,55 @@ def create_time_slots(start_date: datetime.datetime, end_date: datetime.datetime
     slots = [(edges[i], edges[i + 1]) for i in range(len(edges) - 1)]
 
     return slots
+
+
+def expand_time_interval(time_interval: list|tuple, format: str='%Y-%m-%dT%H:%M:%S.%fZ') -> list:
+    """
+    """
+    start_date = time_interval[0]
+    end_date = time_interval[1]
+
+    if isinstance(start_date, str):
+        start_date = datetime.datetime.strptime(start_date, format)
+    if isinstance(end_date, str):
+        end_date = datetime.datetime.strptime(end_date, format)
+
+    # Add one day to start date and remove one day to end date
+    new_start_date = start_date - datetime.timedelta(days=1)
+    new_end_date = end_date + datetime.timedelta(days=1)
+
+    # Convert to string
+    new_start_date = new_start_date.strftime(format)
+    new_end_date = new_end_date.strftime(format)
+
+    return new_start_date, new_end_date
+
+
+def format_product_location_payload(location_payload: dict,
+                                    images_response: dict,
+                                    all_info: bool = False
+                                    ) -> dict:
+    """
+    """
+    for id, info in location_payload.items():
+        # Add new key to the dictionary
+        if all_info:
+            location_payload[id]['image'] = images_response[id] if id in images_response else None
+        else:
+            location_payload[id]['image'] = images_response[id]['properties']['id'] if id in images_response else None
+
+    return location_payload
+
+
+def bbox_to_coordinates(bounding_box: list) -> list:
+    """
+    """
+    polygon_coordinates = [
+        (bounding_box[0], bounding_box[1]),  # bottom left
+        (bounding_box[0], bounding_box[3]),  # top left
+        (bounding_box[2], bounding_box[3]),  # top right
+        (bounding_box[2], bounding_box[1]),  # bottom right
+        (bounding_box[0], bounding_box[1])   # back to bottom left
+    ]
+
+    return polygon_coordinates
