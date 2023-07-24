@@ -113,7 +113,6 @@ class STACGenerator:
         :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
-        images = sample(images, 50)
         if self._assets_generator.type == 'Extracted':
             images = self.cut_images(images)
         labels, ixs = self._format_labels(images)

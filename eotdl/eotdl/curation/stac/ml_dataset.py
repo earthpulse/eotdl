@@ -1,12 +1,14 @@
 """Implements the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`."""
 
 import traceback
+import random
 
 import pystac
 from pystac.extensions.base import ExtensionManagementMixin
 from pystac import STACValidationError
 from shutil import rmtree
 from os.path import dirname
+from pystac.cache import ResolvedObjectCache
 
 from typing import Any, Dict, List, Tuple
 
@@ -36,6 +38,7 @@ class MLDatasetExtension(
     """
 
     def __init__(self, catalog: pystac.Catalog):
+        super().__init__(id=catalog.id, description=catalog.description)
         self.catalog = catalog
         self.id = catalog.id
         self.description = catalog.description
@@ -45,6 +48,7 @@ class MLDatasetExtension(
         self.links = catalog.links
         self.splits = []
         self.quality_metrics = []
+        self._resolved_objects = ResolvedObjectCache()
         
     def apply(
         self, name: str = None
@@ -157,6 +161,49 @@ class MLDatasetExtension(
         for metric in metrics:
             self.add_metric(metric)
 
+    def create_and_add_split(self,
+                                  catalog: pystac.Catalog,
+                                  items: List[pystac.Item],
+                                  split: str,
+                                  **kwargs) -> None:
+        """
+        """
+        split_catalog = self.ext(pystac.Catalog(id=f'{catalog.id}-{split.lower()}', description=f"{split} split"), add_if_missing=True)
+        for key, value in kwargs.items():
+            setattr(split_catalog, key, value)
+        split_catalog.type = split
+        catalog.add_children_to_catalog(split_catalog, items)
+        catalog.add_child(split_catalog)
+
+        split = pystac.Link(
+            rel=pystac.RelType.CHILD,
+            target=split_catalog.get_self_href(),
+            media_type=pystac.MediaType.JSON,
+            title=split,
+        )
+        self.add_split(split)
+
+    def add_children_to_catalog(self,
+                                catalog: pystac.Catalog,
+                                items: List[pystac.Item],
+                                ) -> None:
+        """
+
+        """
+        # TODO recalculate collection extent
+        collections = dict()
+        for item in items:
+            # Get the collection of the item
+            collection = item.get_collection()
+            if collection.id not in collections:
+                collections[collection.id] = pystac.Collection(id=collection.id, 
+                                                               description=collection.description, 
+                                                               extent=collection.extent)
+            collections[collection.id].add_item(item)
+            # TODO items path should be the same as before
+        for collection in collections.values():
+            catalog.add_child(collection)
+
     @classmethod
     def ext(cls, obj: pystac.Catalog, add_if_missing: bool = False) -> "MLDatasetExtension":
         if isinstance(obj, pystac.Catalog):
@@ -168,7 +215,11 @@ class MLDatasetExtension(
             )
 
 
-def add_ml_extension(catalog: pystac.Catalog, destination: str = None, **kwargs) -> None:
+def add_ml_extension(catalog: pystac.Catalog, 
+                     destination: str = None,  
+                     splits: bool = False,
+                     split_proportions: List[int] = (80, 10, 10),
+                     **kwargs) -> None:
     """
     Adds the ML Dataset extension to a STAC catalog.
 
@@ -195,6 +246,17 @@ def add_ml_extension(catalog: pystac.Catalog, destination: str = None, **kwargs)
     for key, value in kwargs.items():
         setattr(catalog_ml_dataset, key, value)
 
+    # Make splits if requested
+    if splits:
+        train_size, test_size, val_size = split_proportions
+        make_splits(catalog_ml_dataset, 
+                    train_size=train_size, 
+                    test_size=test_size,
+                    val_size=val_size,
+                    **kwargs)
+        # Normalize the ref on the same folder
+        catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
+
     try:
         catalog_ml_dataset.validate()
         if not destination:
@@ -204,3 +266,58 @@ def add_ml_extension(catalog: pystac.Catalog, destination: str = None, **kwargs)
     except STACValidationError as error:
         # Return full callback
         traceback.print_exc()
+
+
+def make_splits(catalog: MLDatasetExtension,
+                train_size: int,
+                test_size: int,
+                val_size: int = 0,
+                verbose: bool = True,
+                **kwargs
+                ) -> None:
+    """
+    Makes the splits of the dataset.
+
+    Args:
+        catalog : The STAC catalog to add the extension to.
+        train_size : The percentage of the dataset to use for training.
+        test_size : The percentage of the dataset to use for testing.
+        val_size : The percentage of the dataset to use for validation.
+        verbose : Whether to print the sizes of the splits.
+    """
+    if train_size + test_size + val_size != 100:
+        raise ValueError("The sum of the splits must be 100")
+    
+    items = [item for item in catalog.get_all_items()]
+
+    # Calculate indices to split the items
+    length = len(items)
+    idx_train = int(train_size/100 * length)
+    idx_test = int(test_size/100 * length)
+    if val_size:
+        idx_val = int(val_size/100 * length)
+
+    if verbose:
+        print(f"Total size: {length}")
+        print(f"Train size: {idx_train}")
+        print(f"Test size: {idx_test}")
+        if val_size:
+            print(f"Validation size: {idx_val}")
+
+    # Make sure the items are shuffled
+    random.shuffle(items)
+
+    # Split the items
+    train_items = items[:idx_train]
+    test_items = items[idx_train:idx_train+idx_test]
+    if val_size:
+        val_items = items[idx_train+idx_test:idx_train+idx_test+idx_val]
+
+    # Create the subcatalogs
+    for split_type, split_data in zip(["Training", "Test", "Validation"], [train_items, test_items, val_items]):
+        catalog.create_and_add_split(catalog, split_data, split_type, **kwargs)
+        
+    # Remove collections from the root catalog
+    for collection in catalog.get_children():
+        if collection.STAC_OBJECT_TYPE == pystac.STACObjectType.COLLECTION:
+            catalog.remove_child(collection.id)
