@@ -181,6 +181,7 @@ class AirbusClient():
 
         while days <= max_days:
             response = self.search_image(bounding_box, time_interval)
+            # TODO meter try, on error hacer una llamada cada x tiempo para no llegar al límite
             total_results = response['totalResults']
 
             if total_results > 0:
