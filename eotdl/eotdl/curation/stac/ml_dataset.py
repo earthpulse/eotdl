@@ -162,10 +162,10 @@ class MLDatasetExtension(
             self.add_metric(metric)
 
     def create_and_add_split(self,
-                                  catalog: pystac.Catalog,
-                                  items: List[pystac.Item],
-                                  split: str,
-                                  **kwargs) -> None:
+                            catalog: pystac.Catalog,
+                            items: List[pystac.Item],
+                            split: str,
+                            **kwargs) -> None:
         """
         """
         split_catalog = self.ext(pystac.Catalog(id=f'{catalog.id}-{split.lower()}', description=f"{split} split"), add_if_missing=True)
@@ -190,7 +190,6 @@ class MLDatasetExtension(
         """
 
         """
-        # TODO recalculate collection extent
         collections = dict()
         for item in items:
             # Get the collection of the item
@@ -200,8 +199,10 @@ class MLDatasetExtension(
                                                                description=collection.description, 
                                                                extent=collection.extent)
             collections[collection.id].add_item(item)
-            # TODO items path should be the same as before
         for collection in collections.values():
+            # Recalculate the extent of the collection with the new items
+            collection_items = [item for item in collection.get_all_items()]
+            collection.extent = pystac.Extent.from_items(collection_items)
             catalog.add_child(collection)
 
     @classmethod
@@ -297,6 +298,7 @@ def make_splits(catalog: MLDatasetExtension,
     if val_size:
         idx_val = int(val_size/100 * length)
 
+    print('Generating splits...')
     if verbose:
         print(f"Total size: {length}")
         print(f"Train size: {idx_train}")
@@ -321,3 +323,5 @@ def make_splits(catalog: MLDatasetExtension,
     for collection in catalog.get_children():
         if collection.STAC_OBJECT_TYPE == pystac.STACObjectType.COLLECTION:
             catalog.remove_child(collection.id)
+
+    print('Success!')
