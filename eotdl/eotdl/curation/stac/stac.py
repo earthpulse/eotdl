@@ -6,6 +6,7 @@ import pandas as pd
 import json
 import pystac
 from random import sample
+from tqdm import tqdm
 
 from os import listdir, remove
 from os.path import join, basename, exists, dirname
@@ -17,19 +18,17 @@ from datetime import datetime
 from shapely.geometry import Polygon, mapping
 from glob import glob
 
-from stac_validator.stac_validator import StacValidate
-
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
 from .utils import format_time_acquired, count_ocurrences
-from .extensions import type_stac_extensions_dict, SUPPORTED_EXTENSIONS
+from .extensions import type_stac_extensions_dict, SUPPORTED_EXTENSIONS, LabelExtensionObject
 
 
 class STACGenerator:
         
     def __init__(self, 
                  image_format: str='tiff',
-                 catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED, 
+                 catalog_type: pystac.CatalogType=pystac.CatalogType.SELF_CONTAINED,
                  item_parser: STACIdParser=StructuredParser,
                  assets_generator: STACAssetGenerator=STACAssetGenerator
                  ) -> None:
@@ -46,13 +45,12 @@ class STACGenerator:
         self._item_parser = item_parser()
         self._assets_generator = assets_generator()
         self._extensions_dict: dict = type_stac_extensions_dict
-        self._validator = StacValidate(extensions=True)
-        self._stac_dataframe = None
+        self._stac_dataframe = pd.DataFrame()
 
     def generate_stac_metadata(self,
-                               stac_dataframe: pd.DataFrame,
                                id: str,
                                description: str,
+                               stac_dataframe: pd.DataFrame = None,
                                output_folder: str='stac',
                                kwargs: dict={}) -> None:
         """
@@ -63,7 +61,9 @@ class STACGenerator:
         :param description: description of the catalog
         :param output_folder: output folder to write the catalog to
         """
-        self._stac_dataframe = stac_dataframe
+        self._stac_dataframe = stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
+        if self._stac_dataframe.empty:
+            raise ValueError('No STAC dataframe provided')
         
         # Create an empty catalog
         catalog = self.create_stac_catalog(id=id, description=description)
@@ -81,6 +81,7 @@ class STACGenerator:
         catalog.normalize_hrefs(output_folder)
 
         # Validate the catalog
+        print('Validating and saving catalog...')
         try:
             pystac.validation.validate(catalog)
             catalog.save(catalog_type=self._catalog_type)
@@ -104,7 +105,12 @@ class STACGenerator:
 
         return images
 
-    def get_stac_dataframe(self, path: str, bands: dict=None, extensions: dict=None) -> pd.DataFrame:
+    def get_stac_dataframe(self, 
+                           path: str, 
+                           collections: str|dict='source',
+                           bands: dict=None, 
+                           extensions: dict=None
+                           ) -> pd.DataFrame:
         """
         Get a dataframe with the STAC metadata of a given directory containing the assets to generate metadata
 
@@ -115,17 +121,25 @@ class STACGenerator:
         images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
         if self._assets_generator.type == 'Extracted':
             images = self.cut_images(images)
+
         labels, ixs = self._format_labels(images)
-        bands = self._get_items_list_from_dict(labels, bands)
-        exts = self._get_items_list_from_dict(labels, extensions)
-        collections = self._get_images_common_prefix(images)
+        bands_values = self._get_items_list_from_dict(labels, bands)
+        extensions_values = self._get_items_list_from_dict(labels, extensions)
+
+        if collections == 'source':
+            # List of path with the same value repeated as many times as the number of images
+            collections_values = [join(path, 'source') for i in range(len(images))]
+        else:
+            collections_values = self._get_items_list_from_dict(labels, collections)
 
         df = pd.DataFrame({'image': images, 
                            'label': labels, 
                            'ix': ixs, 
-                           'collection': collections, 
-                           'extensions': exts, 
-                           'bands': bands})
+                           'collection': collections_values, 
+                           'extensions': extensions_values, 
+                           'bands': bands_values})
+        
+        self._stac_dataframe = df
         
         return df
     
@@ -155,7 +169,6 @@ class STACGenerator:
             images_common_prefix_list.append(images_common_prefix_dict[dirname(i)])
 
         return images_common_prefix_list
-    
     
     def _format_labels(self, images):
         """
@@ -291,6 +304,13 @@ class STACGenerator:
         max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
 
         return pystac.TemporalExtent([(min_date, max_date)])
+    
+    def _get_unknow_extent(self) -> pystac.Extent:
+        """
+        """
+        return pystac.Extent(spatial=pystac.SpatialExtent([[0, 0, 0, 0]]),
+                                   temporal=pystac.TemporalExtent([(datetime.strptime('2000-01-01', '%Y-%m-%d'), 
+                                                                    datetime.strptime('2023-12-31', '%Y-%m-%d'))]))
 
     def create_stac_catalog(self, id: str, description: str, kwargs: dict={}) -> pystac.Catalog:
         """
@@ -311,31 +331,20 @@ class STACGenerator:
         # Get the collection extent
         extent = self._get_collection_extent(path)
         # Create the collection
-        collection = pystac.Collection(id=basename(path),
+        collection_id = basename(path)
+        collection = pystac.Collection(id=collection_id,
                                         description='Collection',
                                         extent=extent)
         
-        for image in self._stac_dataframe.image:
-            # Check if the path of the image is a child of the path of the collection
-            if path in image:
-                # Create the item
-                item = self.create_stac_item(image)
-                # Add the item to the collection
-                collection.add_item(item)
+        print(f'Generating {collection_id} collection...')
+        for image in tqdm(self._stac_dataframe[self._stac_dataframe['collection'] == path]['image']):
+            # Create the item
+            item = self.create_stac_item(image)
+            # Add the item to the collection
+            collection.add_item(item)
 
         # Return the collection
         return collection
-
-    def create_stac_collection(self, id: str, description: str, extent: pystac.Extent, kwargs: dict={}) -> pystac.Collection:
-        """
-        Create a STAC collection
-
-        :param id: id of the collection
-        :param description: description of the collection
-        :param extent: extent of the collection
-        :param params: additional parameters
-        """
-        return pystac.Collection(id=id, description=description, extent=extent, **kwargs)
 
     def create_stac_item(self,
                         raster_path: str,
@@ -365,10 +374,10 @@ class STACGenerator:
         # Create geojson feature
         # If the bounding box has no values, set the geometry to None
         geom = mapping(Polygon([
-        [left, bottom],
-        [left, top],
-        [right, top],
-        [right, bottom]
+            [left, bottom],
+            [left, top],
+            [right, top],
+            [right, bottom]
         ]))
 
         # Initialize pySTAC item parameters
@@ -419,10 +428,6 @@ class STACGenerator:
                     extension_obj.add_extension_to_object(item, item_info)
 
         # Add the assets to the item
-        # TODO First of all, check if we have to extract the assets from the raster file
-        # TODO count .tiff files in the directory
-        # TODO function to check if the assets are already extracted
-        # TODO Check if the assets are already extracted
         assets = self._assets_generator.extract_assets(item_info)
 
         # Add the assets to the item
@@ -440,6 +445,9 @@ class STACGenerator:
                             else:
                                 extension_obj = self._extensions_dict[extension]
                                 extension_obj.add_extension_to_object(asset, item_info)
+
+        item.set_self_href(join(dirname(raster_path), f'{id}.json'))
+        item.make_asset_hrefs_relative()
         
         return item
 
@@ -470,3 +478,78 @@ class STACGenerator:
             metadata = json.load(f)
         
         return metadata
+
+    def generate_stac_labels(self,
+                             catalog: pystac.Catalog|str,
+                             stac_dataframe: pd.DataFrame = None,
+                             collection: pystac.Collection|str = None
+                             ) -> None:
+        """
+        """
+        self._stac_dataframe = stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
+        if self._stac_dataframe.empty:
+            raise ValueError('No STAC dataframe provided, please provide a STAC dataframe or generate it with <get_stac_dataframe> method')
+        if isinstance(catalog, str):
+            catalog = pystac.Catalog.from_file(catalog)
+
+        # Add the labels collection to the catalog
+        # If exists a source collection, get it extent
+        source_collection = catalog.get_child('source')
+        if source_collection:
+            extent = source_collection.extent
+            source_items = source_collection.get_all_items()
+        else:
+            if not collection:
+                raise ValueError('No source collection provided, please provide a source collection')
+            extent = self._get_unknow_extent()
+        
+        # Create the labels collection and add it to the catalog if it does not exist
+        # If it exists, remove it
+        collection = pystac.Collection(id='labels',
+                                        description='Labels',
+                                        extent=extent)
+        if collection.id in [c.id for c in catalog.get_children()]:
+            catalog.remove_child(collection.id)
+        catalog.add_child(collection)
+
+        # Generate the labels items
+        print('Generating labels collection...')
+        for source_item in tqdm(source_items):
+            source_item.make_asset_hrefs_absolute()
+            # Get assets hrefs
+            assets = source_item.assets
+            assets_hrefs = [assets[asset].href for asset in assets]
+            # Supose the first asset href is enough if assets_hrefs is a list
+            asset_href = assets_hrefs[0] if isinstance(assets_hrefs, list) else assets_hrefs
+            # Restore the relative paths
+            source_item.make_asset_hrefs_relative()
+            # Get the label of the item
+            label = self._stac_dataframe[self._stac_dataframe['image'] == asset_href]['label'].values[0]
+            # Create the label item
+            # TODO put kwargs
+            label_item = LabelExtensionObject.add_extension_to_item(source_item,
+                                                                      href=asset_href,
+                                                                      label_names=['label'],
+                                                                      label_classes=[[label]],
+                                                                      label_properties=['label'],
+                                                                      label_description='Item label',
+                                                                      label_methods=['manual'],
+                                                                      label_tasks=['classification'],
+                                                                      label_type='vector')
+
+            collection.add_item(label_item)
+
+        # Add the extension to the collection
+        # TODO put in kwargs
+        LabelExtensionObject.add_extension_to_collection(collection,
+                                                         label_names=['label'],
+                                                         label_classes=[self._stac_dataframe.label.unique().tolist()],
+                                                         label_type='vector')
+
+        # Validate and save the catalog
+        try:
+            pystac.validation.validate(catalog)
+            catalog.save(catalog_type=self._catalog_type)
+        except pystac.STACValidationError as e:
+            print(f'Catalog validation error: {e}')
+            return
