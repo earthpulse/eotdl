@@ -6,6 +6,7 @@ import pystac
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
 from pystac.extensions.eo import Band, EOExtension
+from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 from typing import Union
 from os.path import basename, join, dirname
 from os import remove
@@ -175,6 +176,91 @@ class DEMExtensionObject(STACExtensionObject):
 
     def __init__(self) -> None:
         super().__init__()
+
+
+class LabelExtensionObject(STACExtensionObject):
+    def __init__(self) -> None:
+        super().__init__()
+
+    @classmethod
+    def add_extension_to_item(
+        self, 
+        obj: pystac.Item,
+        href: str,
+        label_names: list[str],
+        label_classes: list[str],
+        label_properties: list,
+        label_description: str,
+        label_methods: list,
+        label_tasks: list[str],
+        label_type: str
+    ) -> Union[pystac.Item, pystac.Asset]:
+        """
+        Add the extension to the given object
+
+        :param obj: object to add the extension
+        """
+        label_item = pystac.Item(id=obj.id,
+                                     geometry=obj.geometry,
+                                     bbox=obj.bbox,
+                                     properties=dict(),
+                                     datetime=obj.datetime
+                                    )
+        
+        # Add the label extension to the item
+        LabelExtension.add_to(label_item)
+
+        # Access the label extension
+        label_ext = LabelExtension.ext(label_item)
+
+        # Add the label classes
+        for name, classes in zip(label_names, label_classes):
+            label_classes = LabelClasses.create(
+                name=name,
+                classes=classes,
+                )
+            label_ext.label_classes = [label_classes]
+
+        # Add the label properties
+        label_ext.label_properties = label_properties
+        # Add the label description
+        label_ext.label_description = label_description
+        # Add the label methods
+        label_ext.label_methods = label_methods
+        # Add the label type
+        label_ext.label_type = label_type
+        # Add the label tasks
+        label_ext.label_tasks = label_tasks
+        # Add the source
+        label_ext.add_source(obj)
+        # Set self href
+        label_item.set_self_href(join(dirname(href), f'{obj.id}.json'))
+
+        return label_item
+    
+    @classmethod
+    def add_extension_to_collection(
+            self,
+            obj: pystac.Collection,
+            label_names: list[str],
+            label_classes: list[list|tuple],
+            label_type: str
+    ) -> None:
+        """
+        """
+        # Add the label extension to the collection
+        label_ext = SummariesLabelExtension(obj)
+
+        # Add the label classes
+        for name, classes in zip(label_names, label_classes):
+            label_classes = LabelClasses.create(
+                name=name,
+                classes=classes,
+                )
+            label_ext.label_classes = [label_classes]
+
+        # Add the label type
+        label_ext.label_type = label_type
 
 
 type_stac_extensions_dict = {

@@ -12,6 +12,15 @@ import rasterio
 import pystac
 
 
+MEDIA_TYPES_DICT = {
+    'tif': pystac.MediaType.GEOTIFF,
+    'tiff': pystac.MediaType.GEOTIFF,
+    'png': pystac.MediaType.PNG,
+    'jpg': pystac.MediaType.JPEG,
+    'jpeg': pystac.MediaType.JPEG,
+}
+
+
 class STACAssetGenerator:
 
     type = 'None'
@@ -28,7 +37,12 @@ class STACAssetGenerator:
         # If there is no bands, create a single band asset from the file, assuming thats a singleband raster
         raster_path = obj_info["image"].values[0]
         title = basename(raster_path).split('.')[0]
-        asset = pystac.Asset(href=Path(raster_path).as_posix(), title=title, media_type=pystac.MediaType.GEOTIFF, roles=['data'])
+        # Get the file extension
+        raster_format = raster_path.split('.')[-1]
+        asset = pystac.Asset(href=Path(raster_path).as_posix(), 
+                             title=title, 
+                             media_type=MEDIA_TYPES_DICT[raster_format], 
+                             roles=['data'])
 
         return [asset]
 
@@ -47,7 +61,7 @@ class BandsAssetGenerator(STACAssetGenerator):
         :param raster_path: path to the raster file
         """
         asset_list = []
-        # File pathw
+        # File path
         raster_path = obj_info["image"].values[0]
         # Bands
         bands = obj_info["bands"].values
@@ -73,7 +87,9 @@ class BandsAssetGenerator(STACAssetGenerator):
                     with rasterio.open(output_band, "w", **metadata) as dest:
                         dest.write(single_band, 1)
                     # Instantiate pystac asset and append it to the list
-                    asset_list.append(pystac.Asset(href=band_name, title=band, media_type=pystac.MediaType.GEOTIFF))
+                    asset_list.append(pystac.Asset(href=output_band, 
+                                                   title=band, 
+                                                   media_type=MEDIA_TYPES_DICT[raster_format]))
 
             # Remove the original raster file and its metadata
             remove(raster_path)
@@ -101,6 +117,10 @@ class ExtractedAssets(STACAssetGenerator):
         files = [f for f in listdir(raster_dir) if f.endswith(raster_path.split('.')[-1])]
         # Instantiate pystac asset and append it to the list
         for file in files:
-            asset_list.append(pystac.Asset(href=file, title=basename(file), media_type=pystac.MediaType.GEOTIFF))
+            # Get the file extension
+            raster_format = file.split('.')[-1]
+            asset_list.append(pystac.Asset(href=join(raster_dir, file), 
+                                           title=basename(file), 
+                                           media_type=MEDIA_TYPES_DICT[raster_format]))
 
         return asset_list
