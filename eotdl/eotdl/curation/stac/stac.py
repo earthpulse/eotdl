@@ -85,6 +85,7 @@ class STACGenerator:
         try:
             pystac.validation.validate(catalog)
             catalog.save(catalog_type=self._catalog_type)
+            print('Success!')
         except pystac.STACValidationError as e:
             print(f'Catalog validation error: {e}')
             return
@@ -130,7 +131,7 @@ class STACGenerator:
             # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, 'source') for i in range(len(images))]
         else:
-            collections_values = self._get_items_list_from_dict(labels, collections)
+            collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
 
         df = pd.DataFrame({'image': images, 
                            'label': labels, 
@@ -199,31 +200,29 @@ class STACGenerator:
 
         return items_list
     
-    def _get_collection_extent(self, path: str) -> pystac.Extent:
+    def _get_collection_extent(self, rasters: list[str]) -> pystac.Extent:
         """
         Get the extent of a collection
         
         :param path: path to the directory
         """
         # Get the spatial extent of the collection
-        spatial_extent = self._get_collection_spatial_extent(path)
+        spatial_extent = self._get_collection_spatial_extent(rasters)
         # Get the temporal interval of the collection
-        temporal_interval = self._get_collection_temporal_interval(path)
+        temporal_interval = self._get_collection_temporal_interval(rasters)
         # Create the Extent object
         extent = pystac.Extent(spatial=spatial_extent, temporal=temporal_interval)
 
         return extent
     
-    def _get_collection_spatial_extent(self, path: str) -> pystac.SpatialExtent:
+    def _get_collection_spatial_extent(self, rasters: list[str]) -> pystac.SpatialExtent:
         """
         Get the spatial extent of a collection
 
         :param path: path to the directory
         """
-        # Get the bounding boxes of all the rasters in the path
+        # Get the bounding boxes of all the given rasters
         bboxes = list()
-        # use glob
-        rasters = glob(f'{path}/**/*.{self._image_format}', recursive=True)
         for raster in rasters:
             with rasterio.open(raster) as ds:
                 bounds = ds.bounds
@@ -247,14 +246,17 @@ class STACGenerator:
         finally:
             return spatial_extent
     
-    def _get_collection_temporal_interval(self, path: str) -> pystac.TemporalExtent:
+    def _get_collection_temporal_interval(self, rasters: list[str]) -> pystac.TemporalExtent:
         """
         Get the temporal interval of a collection
 
         :param path: path to the directory
         """
-        # Get all the metadata.json files in the path
-        metadata_json_files = glob(f'{path}/**/*.json', recursive=True)
+        # Get all the metadata.json files in the directory of all the given rasters
+        metadata_json_files = list()
+        for raster in rasters:
+            metadata_json_files += glob(f'{dirname(raster)}/*.json', recursive=True)
+
         if not metadata_json_files:
             return self._get_unknow_temporal_interval()   # If there is no metadata, set a generic temporal interval
         
@@ -322,22 +324,24 @@ class STACGenerator:
         """
         return pystac.Catalog(id=id, description=description, **kwargs)
 
-    def generate_stac_collection(self, path: str) -> pystac.Collection:
+    def generate_stac_collection(self, collection_path: str) -> pystac.Collection:
         """
         Generate a STAC collection from a directory containing the assets to generate metadata
 
         :param path: path to the root directory
         """
+        # Get the images of the collection, as they are needed to obtain the collection extent
+        collection_images = self._stac_dataframe[self._stac_dataframe['collection'] == collection_path]['image']
         # Get the collection extent
-        extent = self._get_collection_extent(path)
+        extent = self._get_collection_extent(collection_images)
         # Create the collection
-        collection_id = basename(path)
+        collection_id = basename(collection_path)
         collection = pystac.Collection(id=collection_id,
                                         description='Collection',
                                         extent=extent)
         
         print(f'Generating {collection_id} collection...')
-        for image in tqdm(self._stac_dataframe[self._stac_dataframe['collection'] == path]['image']):
+        for image in tqdm(collection_images):
             # Create the item
             item = self.create_stac_item(image)
             # Add the item to the collection
