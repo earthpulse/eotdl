@@ -248,6 +248,8 @@ class LabelExtensionObject(STACExtensionObject):
     ) -> None:
         """
         """
+        LabelExtension.add_to(obj)
+        
         # Add the label extension to the collection
         label_ext = SummariesLabelExtension(obj)
 
