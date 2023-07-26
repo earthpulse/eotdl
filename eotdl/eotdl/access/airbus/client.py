@@ -2,11 +2,16 @@
 Module for managing the Airbus configuration and data access
 """
 
-import requests
-
-from .url import AirbusURL
-from ...tools.tools import expand_time_interval, bbox_to_coordinates
 import json
+import requests
+from requests.exceptions import ConnectTimeout, ReadTimeout
+from urllib3.exceptions import TimeoutError
+import time
+
+from os.path import join, exists
+from .url import AirbusURL
+from .utils import get_airbus_access_token
+from ...tools.tools import expand_time_interval, bbox_to_coordinates
 
 
 class AirbusClient():
@@ -16,16 +21,24 @@ class AirbusClient():
 
   def __init__(self, 
                access_token: str,
+               api_key: str,
                ) -> None:
     """
-    :param sh_client_id: User's OAuth client ID for Sentinel Hub service.
-    :param sh_client_secret: User's OAuth client secret for Sentinel Hub service.
+    Constructor
+
+    Params
+    ----------
+    access_token: str
+        Access token
+    api_key: str
+        API key
     """
     self.airbus_access_token = access_token
+    self._api_key = api_key
 
   def get_product_price(self,
                         product_id: str, 
-                        bounding_box: tuple
+                        coordinates: tuple
                         ) -> dict:
     """
     Get product price
@@ -34,16 +47,16 @@ class AirbusClient():
     ----------
     product_id: str
         Product ID
-    bounding_box: tuple
-        Bounding box
+    coordinates: tuple
+        Polygon coordinates
 
     Returns
     ----------
     dict
         Product price
     """
-    if (isinstance(bounding_box, tuple) or isinstance(bounding_box, list)) and len(bounding_box) == 4:
-      bounding_box = bbox_to_coordinates(bounding_box)
+    if (isinstance(coordinates, tuple) or isinstance(coordinates, list)) and len(coordinates) == 4:
+      coordinates = bbox_to_coordinates(coordinates)
 
     headers = {
         'Authorization':  f'Bearer {self.airbus_access_token}',
@@ -63,7 +76,7 @@ class AirbusClient():
           "aoi": {
             "type": "Polygon",
             "coordinates": [
-              bounding_box
+              coordinates
             ]
           }
         }
@@ -116,7 +129,8 @@ class AirbusClient():
   
   def search_image(self,
                    bounding_box: tuple|list,
-                   acquisition_date: tuple|list
+                   acquisition_date: tuple|list,
+                   timeout: int = 10
                    ) -> dict:
     """
     Search image
@@ -135,7 +149,6 @@ class AirbusClient():
     """
     if isinstance(acquisition_date, tuple) or isinstance(acquisition_date, list):
       acquisition_date = "[" + ",".join(acquisition_date) + "]"
-
     if (isinstance(bounding_box, tuple) or isinstance(bounding_box, list)) and len(bounding_box) == 4:
       bounding_box = ",".join(str(num) for num in bounding_box)
 
@@ -148,9 +161,15 @@ class AirbusClient():
         'cache-control': "no-cache",
         }
 
-    response = requests.request("GET", AirbusURL.SEARCH, headers=headers, params=querystring, verify=False)
-
-    return response.json()
+    try:
+      response = requests.request("GET", AirbusURL.SEARCH, headers=headers, params=querystring, verify=False, timeout=timeout)
+      return response.json()
+    except json.decoder.JSONDecodeError:
+      print('JSONDecodeError')
+      print(response)
+    except ReadTimeout:
+      print("ReadTimeout")
+      print(response)
 
   def search_images_close_in_time(self,
                                   payload_dict: dict,
@@ -174,14 +193,30 @@ class AirbusClient():
         maintain track of the location
     """
     responses = dict()
+    if path:
+      responses_path = join(path, 'airbus_images_response.json')
+      if exists(responses_path):
+        with open(responses_path, 'r') as f:
+          responses = json.load(f)
 
     for location_id, location_info in list(payload_dict.items()):
         bounding_box, time_interval = location_info['bounding_box'], location_info['time_interval']
         days = 1
 
+        if location_id in responses:
+          continue
+
         while days <= max_days:
-            response = self.search_image(bounding_box, time_interval)
-            # TODO meter try, on error hacer una llamada cada x tiempo para no llegar al límite
+            try:
+              response = self.search_image(bounding_box, time_interval)
+            except ConnectTimeout or TimeoutError:
+              # Wait 5 seconds and try again
+              time.sleep(5)
+              # Restart the connection
+              self.airbus_access_token = get_airbus_access_token(self._api_key)
+              # Continue with the search
+              response = self.search_image(bounding_box, time_interval)
+
             total_results = response['totalResults']
 
             if total_results > 0:
@@ -192,13 +227,19 @@ class AirbusClient():
                     response['features'] = [response['features'][0]]
                 responses[location_id] = response['features'][0]
                 if path:
-                  # TODO dont add what already exists
-                  with open(f'{path}/airbus_images_response.json', 'w') as f:
+                  with open(responses_path, 'w') as f:
                     json.dump(responses, f)
                 break
 
             time_interval = expand_time_interval(time_interval)
             days += 1
+
+        # If no image is found, we add a None value to the dictionary
+        if total_results == 0:
+          responses[location_id] = None
+          if path:
+            with open(responses_path, 'w') as f:
+              json.dump(responses, f)
 
     return responses
 
