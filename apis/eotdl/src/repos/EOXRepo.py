@@ -25,9 +25,7 @@ class EOXRepo:
         for service in services:
             data["serviceName"] = service.value
             print(data)
-            response = requests.post(
-                self.provisionings_url, headers=headers, data=json.dumps(data)
-            )
+            response = requests.post(self.provisionings_url, headers=headers, data=data)
             if response.status_code != 201:
                 print("ERROR", response.text)
                 errors.append(response.text)
