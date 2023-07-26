@@ -10,6 +10,8 @@ from ..src.usecases.user import (
     persist_user,
     update_user,
     retrieve_user,
+    accept_user_terms_and_conditions,
+    retrieve_user_credentials,
 )
 from ..src.usecases.auth import (
     generate_login_url,
@@ -104,7 +106,29 @@ def update_user_data(
     user: User = Depends(get_current_user),
 ):
     try:
-        return update_user(user, data)
+        return update_user(user, data.dict())
+    except Exception as e:
+        logger.exception("auth.update")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/accept", include_in_schema=False)
+def accept_terms_and_contitions(
+    user: User = Depends(get_current_user),
+):
+    try:
+        return accept_user_terms_and_conditions(user)
+    except Exception as e:
+        logger.exception("auth.update")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.post("/credentials", include_in_schema=False)
+def retrieve_credentials(
+    user: User = Depends(get_current_user),
+):
+    try:
+        return retrieve_user_credentials(user)
     except Exception as e:
         logger.exception("auth.update")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
