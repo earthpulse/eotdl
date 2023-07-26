@@ -1,6 +1,7 @@
 <script>
 	import updateProfile from "$lib/auth/updateProfile";
 	import TermsAndConditions from "./TermsAndConditions.svelte";
+	import Credentials from "./Credentials.svelte";
 
 	export let data;
 
@@ -47,6 +48,7 @@
 			</div>
 		</div>
 		<TermsAndConditions />
+		<Credentials />
 	</div>
 </div>
 
