@@ -63,16 +63,14 @@ def generate_location_payload(gdf: gpd.GeoDataFrame, path: str) -> dict:
     
     bbox_date_by_location = dict()
     for i, row in gdf.iterrows():
-        n = 0
         # Get list from dates_list column
         dates_list = list(row['dates_list'])
         for date in dates_list:
-            bbox_date_by_location[row[f'location_id'] + '_' + str(n)] = {
+            bbox_date_by_location[row[f'location_id']] = {
                 'bounding_box': row['geometry'].bounds,
                 # Convert str to datetime
                 'time_interval': (date, date)
             }
-            n += 1
 
     # Save to json
     with open(payload_cache, 'w') as f:
@@ -136,15 +134,16 @@ def get_available_data_by_location(search_data: dict,
     return available_data, not_available_data
 
 
-def get_tarfile_image_info(tar, path: str, pattern: str = r"\d{8}T\d{6}", level: int = 2):
+def get_tarfile_image_info(tar, path: str = None, pattern: str = r"\d{8}T\d{6}", level: int = 2):
     """
     """
-    gdf_cache = f"{path}/tarfile_images_info.csv"
-    if exists(gdf_cache):
-        images_gdf = gpd.read_file(gdf_cache,
-                                   GEOM_POSSIBLE_NAMES="geometry", 
-                                   KEEP_GEOM_COLUMNS="NO")
-        return images_gdf
+    if path:
+        gdf_cache = f"{path}/tarfile_images_info.csv"
+        if exists(gdf_cache):
+            images_gdf = gpd.read_file(gdf_cache,
+                                    GEOM_POSSIBLE_NAMES="geometry", 
+                                    KEEP_GEOM_COLUMNS="NO")
+            return images_gdf
     
     images_df = pd.DataFrame()
     with tarfile.open(tar, 'r:gz') as tar:
@@ -153,9 +152,12 @@ def get_tarfile_image_info(tar, path: str, pattern: str = r"\d{8}T\d{6}", level:
             r = tar.extractfile(raster)
             bbox = get_image_bbox(r)
             date = extract_image_date_in_folder(raster, pattern)
+            date_formatted = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
             id = extract_image_id_in_folder(raster, level)
             # Use pd.concat to append to dataframe
-            images_df = pd.concat([images_df, pd.DataFrame({"location_id": [id], "datetime": [date], "bbox": [bbox]})])
+            images_df = pd.concat([images_df, pd.DataFrame({"location_id": [f'{id}_{date_formatted}'], 
+                                                            "datetime": [date], 
+                                                            "bbox": [bbox]})])
 
     # Clean duplicates
     images_df = images_df.drop_duplicates(subset=["location_id", "datetime"])
@@ -167,8 +169,9 @@ def get_tarfile_image_info(tar, path: str, pattern: str = r"\d{8}T\d{6}", level:
     images_gdf = images_gdf.set_crs(epsg=4326)
     # Sort by location_id
     images_gdf = images_gdf.sort_values(by=["location_id"])
-    # Save to csv
-    images_gdf.to_csv(gdf_cache, index=False)
+    if path:
+        # Save to csv
+        images_gdf.to_csv(gdf_cache, index=False)
 
     return images_gdf
 
@@ -177,6 +180,12 @@ def get_image_bbox(raster: tarfile.ExFileObject|str):
     with rasterio.open(raster) as src:
         bbox = src.bounds
     return bbox
+
+
+def get_image_resolution(raster: tarfile.ExFileObject|str):
+    with rasterio.open(raster) as src:
+        resolution = src.res
+    return resolution
 
 
 def extract_image_date_in_folder(raster_path: str, pattern: str):
@@ -254,7 +263,7 @@ def format_product_location_payload(location_payload: dict,
         if all_info:
             location_payload[id]['image'] = images_response[id] if id in images_response else None
         else:
-            location_payload[id]['image'] = images_response[id]['properties']['id'] if id in images_response else None
+            location_payload[id]['image'] = images_response[id]['properties']['id'] if images_response[id] else None
 
     return location_payload
 
