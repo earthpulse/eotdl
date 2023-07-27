@@ -9,7 +9,7 @@ from urllib3.exceptions import TimeoutError
 import time
 
 from os.path import join, exists
-from .url import AirbusURL
+from .parameters import *
 from .utils import get_airbus_access_token
 from ...tools.tools import expand_time_interval, bbox_to_coordinates
 
@@ -36,9 +36,31 @@ class AirbusClient():
     self.airbus_access_token = access_token
     self._api_key = api_key
 
+  def get_total_products_price(self,
+                               payload: dict,
+                               all_info: bool = False
+                               ) -> dict:
+    """
+    """
+    if all_info:
+      response = list()
+    else:
+      response = 0
+    
+    for location_id, location_data in payload.items():
+      product_id = location_data['image']
+      if id:
+          price_response = self.get_product_price(product_id, location_data['bounding_box'])
+          response += price_response['price']['credits'] if not all_info else response.append(price_response)
+
+    return response
+
   def get_product_price(self,
                         product_id: str, 
-                        coordinates: tuple
+                        coordinates: tuple,
+                        product_type: AirbusProductType = AirbusProductType.MULTISPECTRAL,
+                        image_format: AirbusImageFormat = AirbusImageFormat.GEOTIFF,
+                        processing: AirbusRadiometricProcessing = AirbusRadiometricProcessing.REFLECTANCE
                         ) -> dict:
     """
     Get product price
@@ -49,6 +71,13 @@ class AirbusClient():
         Product ID
     coordinates: tuple
         Polygon coordinates
+    product_type: AirbusProductType
+        Product type
+    image_format: AirbusImageFormat
+        Image format
+    processing: AirbusRadiometricProcessing
+        Radiometric processing
+    Types are defined at parameters.py
 
     Returns
     ----------
@@ -64,13 +93,15 @@ class AirbusClient():
         'Cache-Control': "no-cache",
         }
     
+    # TODO make productType, imageformat and processing configurable with paramters controlled by classes like
+    # TODO AirbusProductType.multiSpectral, AirbusImageFormat.geotiff, AirbusProcessing
     payload = {
-      "kind": "order.product",
+      "kind": "order.data.product",
       "products": [
         {
-          "productType": "multiSpectral",
-          "radiometricProcessing": "REFLECTANCE",
-          "imageFormat": "image/geotiff",
+          "productType": product_type,
+          "radiometricProcessing": processing,
+          "imageFormat": image_format,
           "crsCode": "urn:ogc:def:crs:EPSG::4326",
           "id": product_id,
           "aoi": {
@@ -88,7 +119,10 @@ class AirbusClient():
   
   def place_product_order(self,
                           product_id: str,
-                          bounding_box: tuple,
+                          coordinates: tuple,
+                          product_type: AirbusProductType = AirbusProductType.MULTISPECTRAL,
+                          image_format: AirbusImageFormat = AirbusImageFormat.GEOTIFF,
+                          processing: AirbusRadiometricProcessing = AirbusRadiometricProcessing.REFLECTANCE
                           ) -> dict:
     """
     Place product order
@@ -99,22 +133,37 @@ class AirbusClient():
         Product ID
     bounding_box: tuple
         Bounding box
+    product_type: AirbusProductType
+        Product type
+    image_format: AirbusImageFormat
+        Image format
+    processing: AirbusRadiometricProcessing
+        Radiometric processing
+    Types are defined at parameters.py
 
     Returns
     ----------
     dict
         Order data
     """
+    if (isinstance(coordinates, tuple) or isinstance(coordinates, list)) and len(coordinates) == 4:
+      coordinates = bbox_to_coordinates(coordinates)
+    
     payload = {
       "kind": "order.data.product",
       "products": [
         {
-          "productType": "bundle",
-          "radiometricProcessing": "REFLECTANCE",
-          "imageFormat": "image/jp2",
+          "productType": product_type,
+          "radiometricProcessing": processing,
+          "imageFormat": image_format,
           "crsCode": "urn:ogc:def:crs:EPSG::4326",
           "id": product_id,
-          "bbox": bounding_box
+          "aoi": {
+            "type": "Polygon",
+            "coordinates": [
+              coordinates
+            ]
+          }
         }
       ]
     }
@@ -141,6 +190,8 @@ class AirbusClient():
         Bounding box
     acquisition_date: tuple|list
         Acquisition date
+    timeout: int
+        Timeout
       
     Returns
     ----------
@@ -273,3 +324,16 @@ class AirbusClient():
         product_payload_without_image[id] = info
     
     return product_payload_with_image, product_payload_without_image
+
+  def get_all_order_status(self):
+    """
+    """
+    headers = {
+    'Authorization': f"Bearer {self.airbus_access_token}",
+    'Content-Type': "application/json",
+    'Cache-Control': "no-cache",
+    }
+
+    response = requests.request("GET", AirbusURL.ALL_ORDERS_STATUS, headers=headers)
+
+    return response.text
