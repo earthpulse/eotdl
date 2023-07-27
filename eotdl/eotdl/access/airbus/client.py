@@ -51,7 +51,10 @@ class AirbusClient():
       product_id = location_data['image']
       if id:
           price_response = self.get_product_price(product_id, location_data['bounding_box'])
-          response += price_response['price']['credits'] if not all_info else response.append(price_response)
+          if all_info:
+            response.append(price_response)
+          else:
+            response += price_response['price']['credits']
 
     return response
 
@@ -329,11 +332,35 @@ class AirbusClient():
     """
     """
     headers = {
-    'Authorization': f"Bearer {self.airbus_access_token}",
-    'Content-Type': "application/json",
-    'Cache-Control': "no-cache",
+      'Authorization': f"Bearer {self.airbus_access_token}",
+      'Content-Type': "application/json",
+      'Cache-Control': "no-cache",
     }
 
     response = requests.request("GET", AirbusURL.ALL_ORDERS_STATUS, headers=headers)
 
     return response.text
+
+  def get_account_information(self):
+    """
+    """
+    headers = {
+      'Authorization': f"Bearer {self.airbus_access_token}",
+      'Content-Type': "application/json",
+      'Cache-Control': "no-cache",
+    }
+
+    response = requests.request("GET", AirbusURL.ACCOUNT, headers=headers)
+
+    return response.json()
+
+  def get_user_roles(self):
+    """
+    """
+    headers = {
+      'Authorization': f"Bearer {self.airbus_access_token}"
+    }
+
+    response = requests.request("GET", AirbusURL.ROLES, headers=headers)
+
+    return response.json()
