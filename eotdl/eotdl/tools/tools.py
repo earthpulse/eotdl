@@ -10,13 +10,14 @@ import pandas as pd
 import tarfile
 import rasterio
 import re
-from shapely.geometry import box
+from shapely.geometry import box, Polygon
+from pyproj import Transformer
 import datetime
 from os.path import exists
 import json
 
 
-def get_images_by_location(gdf: gpd.GeoDataFrame, path: str) -> gpd.GeoDataFrame:
+def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
     """
     Generate a GeoDataFrame with the available images for each location in the dataset. 
 
@@ -40,16 +41,14 @@ def get_images_by_location(gdf: gpd.GeoDataFrame, path: str) -> gpd.GeoDataFrame
         images_count_list.append(dates.count())
         images_dates_list.append(dates.tolist())
 
-    data = {'location_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list, 'geometry': [None] * len(uniques_location_id)}
-    gdf_dates_per_aoi = gpd.GeoDataFrame.from_dict(data)
+    images_dates_list.sort()   # Sort the list of dates
+    data = {'location_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
+    df_dates_per_aoi = pd.DataFrame.from_dict(data)
 
-    # Set the geometry of the GeoDataFrame as the bounding box of the location
-    gdf_dates_per_aoi['geometry'] = gdf_dates_per_aoi['location_id'].apply(lambda x: gdf[gdf['location_id'] == x]['geometry'].iloc[0])
-
-    return gdf_dates_per_aoi
+    return df_dates_per_aoi
 
 
-def generate_location_payload(gdf: gpd.GeoDataFrame, path: str) -> dict:
+def generate_location_payload(gdf: gpd.GeoDataFrame|pd.Dataframe, path: str) -> dict:
     """
     Generate a dictionary with the location payload of the locations in the GeoDataFrame, 
     such as the bounding box and the time interval to search for available data.
@@ -66,7 +65,10 @@ def generate_location_payload(gdf: gpd.GeoDataFrame, path: str) -> dict:
         # Get list from dates_list column
         dates_list = list(row['dates_list'])
         for date in dates_list:
-            bbox_date_by_location[row[f'location_id']] = {
+            location_id = row['location_id']
+            date_formatted = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
+            location_id_formatted = f'{location_id}_{date_formatted}'
+            bbox_date_by_location[location_id_formatted] = {
                 'bounding_box': row['geometry'].bounds,
                 # Convert str to datetime
                 'time_interval': (date, date)
@@ -141,8 +143,10 @@ def get_tarfile_image_info(tar, path: str = None, pattern: str = r"\d{8}T\d{6}",
         gdf_cache = f"{path}/tarfile_images_info.csv"
         if exists(gdf_cache):
             images_gdf = gpd.read_file(gdf_cache,
-                                    GEOM_POSSIBLE_NAMES="geometry", 
-                                    KEEP_GEOM_COLUMNS="NO")
+                                       GEOM_POSSIBLE_NAMES="geometry", 
+                                       KEEP_GEOM_COLUMNS="NO")
+            images_gdf.set_crs(epsg=4326, inplace=True)
+            
             return images_gdf
     
     images_df = pd.DataFrame()
@@ -155,14 +159,16 @@ def get_tarfile_image_info(tar, path: str = None, pattern: str = r"\d{8}T\d{6}",
             date_formatted = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
             id = extract_image_id_in_folder(raster, level)
             # Use pd.concat to append to dataframe
-            images_df = pd.concat([images_df, pd.DataFrame({"location_id": [f'{id}_{date_formatted}'], 
+            images_df = pd.concat([images_df, pd.DataFrame({"location_id": [id], 
                                                             "datetime": [date], 
                                                             "bbox": [bbox]})])
 
     # Clean duplicates
     images_df = images_df.drop_duplicates(subset=["location_id", "datetime"])
     # Convert to geodataframe
-    images_gdf = gpd.GeoDataFrame(images_df, geometry=images_df["bbox"].apply(lambda x: box(x[0], x[1], x[2], x[3])))
+    images_gdf = gpd.GeoDataFrame(images_df, 
+                                  crs='EPSG:4326',
+                                  geometry=images_df["bbox"].apply(lambda x: box(x[0], x[1], x[2], x[3])))
     # Drop bbox column
     images_gdf = images_gdf.drop(columns=["bbox"])
     # Set crs
@@ -280,3 +286,61 @@ def bbox_to_coordinates(bounding_box: list) -> list:
     ]
 
     return polygon_coordinates
+
+
+def bbox_to_polygon(bounding_box: list) -> Polygon:
+    """
+    """
+    polygon = box(bounding_box[0], bounding_box[1], bounding_box[2], bounding_box[3])
+
+    return polygon
+
+
+from_4326_transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')
+from_3857_transformer = Transformer.from_crs('EPSG:3857', 'EPSG:4326')
+
+
+def bbox_from_centroid(x: int|float, 
+                       y: int|float,
+                       pixel_size: int|float,
+                       width: int|float,
+                       height: int|float
+                       ) -> list:
+    """
+    Generate a bounding box from a centroid, pixel size and image dimensions.
+
+    Params
+    ------
+    x: int|float
+        x coordinate of the centroid
+    y: int|float
+        y coordinate of the centroid
+    pixel_size: int|float
+        pixel size of the image, in meters
+    width: int|float
+        image width, in pixels
+    height: int|float
+        image height, in pixels
+
+    Returns
+    -------
+    bounding_box: list
+        list with the bounding box coordinates
+    """
+    width_m = width * pixel_size
+    heigth_m = height * pixel_size
+
+    # Transform the centroid coordinates to meters
+    centroid_m = from_4326_transformer.transform(x, y)
+
+    # Calculate the bounding box coordinates
+    min_x = centroid_m[0] - width_m / 2
+    min_y = centroid_m[1] - heigth_m / 2
+    max_x = centroid_m[0] + width_m / 2
+    max_y = centroid_m[1] + heigth_m / 2
+
+    # Convert the bounding box coordinates back to degrees
+    min_x, min_y = from_3857_transformer.transform(min_x, min_y)
+    max_x, max_y = from_3857_transformer.transform(max_x, max_y)
+
+    return [min_y, min_x, max_y, max_x]
