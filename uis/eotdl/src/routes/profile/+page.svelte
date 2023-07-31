@@ -48,7 +48,7 @@
 			</div>
 		</div>
 		<TermsAndConditions />
-		<Credentials />
+		<Credentials {data} />
 	</div>
 </div>
 

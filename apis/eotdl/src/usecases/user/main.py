@@ -46,4 +46,4 @@ def retrieve_user_credentials(user):
     retrieve = RetrieveCredentials(repo, eox_repo)
     inputs = RetrieveCredentials.Inputs(uid=user.uid, email=user.email)
     outputs = retrieve(inputs)
-    return outputs.user
+    return outputs.credentials
