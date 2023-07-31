@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from ..src.repos import APIRepo
 from ..src.usecases.datasets import IngestFile, IngestFolder, IngestSTAC
@@ -18,9 +18,13 @@ allowed_extensions = [
 ]
 
 
-def ingest_q1(dataset, stac_catalog):
-    print("hola")
-    return
+def ingest_dataset(path, f=False, d=False, logger=print):
+    path = Path(path)
+    if not path.is_dir():
+        raise Exception("Path must be a folder")
+    if "catalog.json" in [f.name for f in path.iterdir()]:
+        return ingest_stac(path / "catalog.json", logger)
+    return ingest_folder(path, f, d, logger)
 
 
 @with_auth
@@ -44,9 +48,9 @@ def ingest_folder(folder, force, delete, logger=None, user=None):
 
 
 @with_auth
-def ingest_stac(stac_catalog, dataset, logger=None, user=None):
+def ingest_stac(stac_catalog, logger=None, user=None):
     api_repo = APIRepo()
     ingest = IngestSTAC(api_repo, ingest_file, allowed_extensions)
-    inputs = ingest.Inputs(stac_catalog=stac_catalog, dataset=dataset, user=user)
+    inputs = ingest.Inputs(stac_catalog=stac_catalog, user=user)
     outputs = ingest(inputs)
     return outputs.dataset

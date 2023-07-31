@@ -5,7 +5,7 @@ from ..auth import with_auth
 
 
 @with_auth
-def download_dataset(dataset, file, path=None, logger=None, user=None):
+def download_dataset(dataset, file=None, path=None, logger=None, user=None):
     api_repo = APIRepo()
     download = DownloadDataset(api_repo, retrieve_dataset, logger)
     inputs = download.Inputs(dataset=dataset, file=file, path=path, user=user)
