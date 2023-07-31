@@ -24,8 +24,8 @@ class EOXRepo:
         errors = []
         for service in services:
             data["serviceName"] = service.value
-            print(data)
             response = requests.post(self.provisionings_url, headers=headers, data=data)
+            print(response.status_code)
             if response.status_code != 201:
                 print("ERROR", response.text)
                 errors.append(response.text)
@@ -37,19 +37,17 @@ class EOXRepo:
             return None, error
         headers = {"X-Vault-Token": token}
         response = requests.get(f"{self.vault_url}/eotdl/data/{email}", headers=headers)
-        print(response.json())
         if response.status_code != 200:
-            return response.json(), None
-        return None, response.json()
+            return None, response.json()
+        return response.json()["data"]["data"], None
 
     def get_vault_token(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(
+        response = requests.post(
             f"{self.vault_url}/auth/approle/login",
             headers=headers,
-            data={"role_id": self.vault_role_id, "secret_id": self.vault_secret_id},
+            json={"role_id": self.vault_role_id, "secret_id": self.vault_secret_id},
         )
-        print("TOKEN", response.json())
         if response.status_code != 200:
-            return response.json()["client_token"], None
-        return None, response.json()
+            return None, response.json()
+        return response.json()["auth"]["client_token"], None

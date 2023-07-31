@@ -34,5 +34,5 @@ class AcceptTermsAndConditions:
             updatedAt=datetime.now(),
         )
         user = User(**data)
-        # self.db_repo.update("users", data["_id"], user.dict())
+        self.db_repo.update("users", data["_id"], user.dict())
         return self.Outputs(user=user)

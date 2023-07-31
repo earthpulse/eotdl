@@ -123,7 +123,7 @@ def accept_terms_and_contitions(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/credentials", include_in_schema=False)
+@router.get("/credentials", include_in_schema=False)
 def retrieve_credentials(
     user: User = Depends(get_current_user),
 ):
