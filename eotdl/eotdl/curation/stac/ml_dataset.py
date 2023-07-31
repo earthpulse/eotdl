@@ -4,13 +4,26 @@ import traceback
 import random
 
 import pystac
-from pystac.extensions.base import ExtensionManagementMixin
+from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
+from pystac.utils import StringEnum
 from pystac import STACValidationError
 from shutil import rmtree
 from os.path import dirname
 from pystac.cache import ResolvedObjectCache
+from pystac.extensions.hooks import ExtensionHooks
+from typing import (Any, 
+                    Dict,
+                    List, 
+                    Tuple, 
+                    Generic, 
+                    TypeVar,
+                    Union, 
+                    Set)
 
-from typing import Any, Dict, List, Tuple
+T = TypeVar("T", 
+            pystac.Item, 
+            pystac.Collection, 
+            pystac.Catalog)
 
 
 SCHEMA_URI: str = "https://raw.githubusercontent.com/earthpulse/ml-dataset/main/json-schema/schema.json"
@@ -18,23 +31,24 @@ PREFIX: str = "ml-dataset:"
 
 
 class MLDatasetExtension(
-    pystac.Catalog, ExtensionManagementMixin[pystac.Catalog]
+    pystac.Catalog,
+    Generic[T],
+    PropertiesExtension,
+    ExtensionManagementMixin[Union[pystac.Item, pystac.Collection, pystac.Catalog]],
 ):
-    
-    catalog: pystac.Catalog
-    """The :class:`~pystac.Catalog` being extended."""
+    """An abstract class that can be used to extend the properties of a
+    :class:`~pystac.Collection`, :class:`~pystac.Item`, or :class:`~pystac.Catalog` with
+    properties from the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`. This class is
+    generic over the type of STAC Object to be extended (e.g. :class:`~pystac.Item`,
+    :class:`~pystac.Asset`).
 
-    properties: Dict[str, Any]
-    """The :class:`~pystac.Catalog` extra fields, including extension properties."""
+    To create a concrete instance of :class:`MLDatasetExtension`, use the
+    :meth:`MLDatasetExtension.ext` method. For example:
 
-    links: List[pystac.Link]
-    """The list of :class:`~pystac.Link` objects associated with the
-    :class:`~pystac.Catalog` being extended, including links added by this extension.
-    """
+    .. code-block:: python
 
-    splits: List[pystac.Link]
-    """The list of :class:`~pystac.Link` objects associated with the root
-    :class:`~pystac.Catalog` representing the splits of the dataset.
+       >>> item: pystac.Item = ...
+       >>> ml_ext = MLDatasetExtension.ext(item)
     """
 
     def __init__(self, catalog: pystac.Catalog):
@@ -46,8 +60,6 @@ class MLDatasetExtension(
         self.stac_extensions = catalog.stac_extensions if catalog.stac_extensions else []
         self.extra_fields = self.properties = catalog.extra_fields if catalog.extra_fields else {}
         self.links = catalog.links
-        self.splits = []
-        self.quality_metrics = []
         self._resolved_objects = ResolvedObjectCache()
         
     def apply(
@@ -112,7 +124,7 @@ class MLDatasetExtension(
         self.extra_fields[f'{PREFIX}version'] = v
     
     @property
-    def splits(self) -> List[pystac.Link]:
+    def splits(self) -> List[str]:
         return self._splits
 
     @splits.setter
@@ -122,26 +134,6 @@ class MLDatasetExtension(
     @classmethod
     def get_schema_uri(cls) -> str:
         return SCHEMA_URI
-    
-    def add_split(self, split: pystac.Link) -> None:
-        """Add a split to this object's set of splits.
-
-        Args:
-             split : The split to add.
-        """
-        split.set_owner(self)
-        split_js = split.to_dict()
-        if split_js not in self.extra_fields[f'{PREFIX}splits']:
-            self.extra_fields[f'{PREFIX}splits'].append(split_js)
-
-    def add_splits(self, splits: List[pystac.Link]) -> None:
-        """Add a list of splits to this object's set of splits.
-
-        Args:
-             splits : The splits to add.
-        """
-        for split in splits:
-            self.add_split(split)
 
     def add_metric(self, metric: dict) -> None:
         """Add a metric to this object's set of metrics.
@@ -160,28 +152,6 @@ class MLDatasetExtension(
         """
         for metric in metrics:
             self.add_metric(metric)
-
-    def create_and_add_split(self,
-                            catalog: pystac.Catalog,
-                            items: List[pystac.Item],
-                            split: str,
-                            **kwargs) -> None:
-        """
-        """
-        split_catalog = self.ext(pystac.Catalog(id=f'{catalog.id}-{split.lower()}', description=f"{split} split"), add_if_missing=True)
-        for key, value in kwargs.items():
-            setattr(split_catalog, key, value)
-        split_catalog.type = split
-        catalog.add_children_to_catalog(split_catalog, items)
-        catalog.add_child(split_catalog)
-
-        split = pystac.Link(
-            rel=pystac.RelType.CHILD,
-            target=split_catalog.get_self_href(),
-            media_type=pystac.MediaType.JSON,
-            title=split,
-        )
-        self.add_split(split)
 
     def add_children_to_catalog(self,
                                 catalog: pystac.Catalog,
@@ -206,19 +176,87 @@ class MLDatasetExtension(
             catalog.add_child(collection)
 
     @classmethod
-    def ext(cls, obj: pystac.Catalog, add_if_missing: bool = False) -> "MLDatasetExtension":
+    def ext(cls, obj: T, add_if_missing: bool = False) -> "MLDatasetExtension":
+        """Extends the given STAC Object with properties from the 
+        :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`.
+
+        This extension can be applied to instances of :class:`~pystac.Catalog`,
+        :class:`~pystac.Collection` or :class:`~pystac.Item`.
+
+        Raises:
+            pystac.ExtensionTypeError : If an invalid object type is passed.
+        """
         if isinstance(obj, pystac.Catalog):
             cls.validate_has_extension(obj, add_if_missing)
             return MLDatasetExtension(obj)
+        if isinstance(obj, pystac.Collection):
+            cls.validate_has_extension(obj, add_if_missing)
+            return CollectionMLDatasetExtension(obj)
+        elif isinstance(obj, pystac.Item):
+            cls.validate_has_extension(obj, add_if_missing)
+            return ItemMLDatasetExtension(obj)
         else:
-            raise pystac.ExtensionTypeError(
-                f"MLDatasetExtension does not apply to type '{type(obj).__name__}'"
-            )
+            raise pystac.ExtensionTypeError(cls._ext_error_message(obj))
 
 
-def add_ml_extension(catalog: pystac.Catalog, 
+class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
+    """A concrete implementation of :class:`MLDatasetExtension` on an
+    :class:`~pystac.Collection` that extends the properties of the Collection to include
+    properties defined in the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`.
+
+    This class should generally not be instantiated directly. Instead, call
+    :meth:`MLDatasetExtension.ext` on an :class:`~pystac.Collection` to extend it.
+    """
+
+    collection: pystac.Collection
+    properties: Dict[str, Any]
+
+    def __init__(self, collection: pystac.Collection):
+        self.collection = collection
+        self.properties = collection.extra_fields
+
+    def __repr__(self) -> str:
+        return "<CollectionMLDatasetExtension Item id={}>".format(self.collection.id)
+
+
+
+class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
+    """A concrete implementation of :class:`MLDatasetExtension` on an
+    :class:`~pystac.Item` that extends the properties of the Item to include properties
+    defined in the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`.
+
+    This class should generally not be instantiated directly. Instead, call
+    :meth:`MLDatasetExtension.ext` on an :class:`~pystac.Item` to extend it.
+    """
+
+    item: pystac.Item
+    properties: Dict[str, Any]
+
+    def __init__(self, item: pystac.Item):
+        self.item = item
+        self.properties = item.properties
+
+    def __repr__(self) -> str:
+        return "<ItemMLDatasetExtension Item id={}>".format(self.item.id)
+
+
+class MLDatasetExtensionHooks(ExtensionHooks):
+    schema_uri: str = SCHEMA_URI
+    prev_extension_ids: Set[str] = set()
+    stac_object_types = {
+        pystac.STACObjectType.CATALOG,
+        pystac.STACObjectType.COLLECTION,
+        pystac.STACObjectType.ITEM,
+    }
+
+
+STORAGE_EXTENSION_HOOKS: ExtensionHooks = MLDatasetExtensionHooks()
+
+
+def add_ml_extension(catalog: pystac.Catalog|str, 
                      destination: str = None,  
-                     splits: bool = False,
+                     make_splits: bool = False,
+                     splits_names: list = ('Training', 'Validation', 'Test'),
                      split_proportions: List[int] = (80, 10, 10),
                      **kwargs) -> None:
     """
@@ -227,7 +265,8 @@ def add_ml_extension(catalog: pystac.Catalog,
     Args:
         catalog : The STAC catalog to add the extension to.
         destination : The destination path to save the catalog to.
-
+        splits : The splits to make.
+        split_proportions : The proportions of the splits.
     """
     if not isinstance(catalog, pystac.Catalog) and isinstance(catalog, str):
         catalog = pystac.read_file(catalog)
@@ -241,6 +280,7 @@ def add_ml_extension(catalog: pystac.Catalog,
     # Get all items to generate the new catalog
     # TODO check why is this necessary to not delete items and collections
     items = catalog.get_all_items()
+
     for i in items:
         pass
 
@@ -248,18 +288,19 @@ def add_ml_extension(catalog: pystac.Catalog,
         setattr(catalog_ml_dataset, key, value)
 
     # Make splits if requested
-    if splits:
-        train_size, test_size, val_size = split_proportions
-        make_splits(catalog_ml_dataset, 
-                    train_size=train_size, 
-                    test_size=test_size,
-                    val_size=val_size,
-                    **kwargs)
-        # Normalize the ref on the same folder
-        catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
+    if make_splits:
+        catalog_ml_dataset.splits = splits_names
+        # train_size, test_size, val_size = split_proportions
+        # make_splits(catalog_ml_dataset, 
+        #             train_size=train_size, 
+        #             test_size=test_size,
+        #             val_size=val_size,
+        #             **kwargs)
+        # # Normalize the ref on the same folder
+        # catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
 
     try:
-        catalog_ml_dataset.validate()
+        # catalog_ml_dataset.validate()   # TODO validate
         if not destination:
             destination = dirname(catalog.get_self_href())
             rmtree(destination)   # Remove the old catalog and replace it with the new one
