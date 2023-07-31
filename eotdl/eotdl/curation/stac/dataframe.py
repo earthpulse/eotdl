@@ -12,6 +12,7 @@ from os import makedirs
 from typing import Union
 from math import isnan
 from .utils import convert_df_geom_to_shape, get_all_children
+from pathlib import Path
 
 
 class STACDataFrame(gpd.GeoDataFrame):
@@ -119,7 +120,7 @@ class STACDataFrame(gpd.GeoDataFrame):
 
 
 def read_stac(
-    stac_file: Union[pystac.Catalog, pystac.Collection, str],
+    stac_file: Union[pystac.Catalog, pystac.Collection, str, Path],
     geometry_column: str = "geometry",
 ) -> STACDataFrame:
     """
@@ -128,7 +129,7 @@ def read_stac(
     :param stac_file: STAC file to read
     :param geometry_column: name of the geometry column
     """
-    if isinstance(stac_file, str):
+    if isinstance(stac_file, str) or isinstance(stac_file, Path):
         stac_file = pystac.read_file(stac_file)
     children = get_all_children(stac_file)
 

@@ -2,17 +2,14 @@ import requests
 from tqdm import tqdm
 from pathlib import Path
 import os
-from concurrent.futures import ThreadPoolExecutor
-import time
-import multiprocessing
 import hashlib
 import geopandas as gpd
 
 
 class APIRepo:
-    def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
+    # def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
+    def __init__(self, url=os.getenv("EOTDL_API_URL", "http://localhost:8010/")):
         self.url = url
-        # print(self.url)
 
     def login(self):
         return requests.get(self.url + "auth/login")

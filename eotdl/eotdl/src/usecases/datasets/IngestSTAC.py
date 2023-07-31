@@ -1,6 +1,8 @@
 from pydantic import BaseModel
-from ....curation.stac import STACDataFrame
 import json
+from pathlib import Path
+
+from ....curation.stac import STACDataFrame
 
 
 class IngestSTAC:
@@ -10,8 +12,7 @@ class IngestSTAC:
         self.allowed_extensions = allowed_extensions
 
     class Inputs(BaseModel):
-        stac_catalog: str
-        dataset: str
+        stac_catalog: Path
         user: dict
 
     class Outputs(BaseModel):
@@ -20,6 +21,9 @@ class IngestSTAC:
     def __call__(self, inputs: Inputs) -> Outputs:
         # load the STAC catalog as a STACsetFrame
         df = STACDataFrame.from_stac_file(inputs.stac_catalog)
+        catalog = df[df["type"] == "Catalog"]
+        assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
+        dataset = catalog.id.iloc[0]
         # upload all assets to EOTDL
         for row in df.dropna(subset=["assets"]).iterrows():
             # for asset in df.assets.dropna().values[:10]:
