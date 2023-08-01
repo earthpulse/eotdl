@@ -4,8 +4,9 @@ import traceback
 import random
 
 import pystac
+from tqdm import tqdm
 from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
-from pystac.utils import StringEnum
+from pystac.extensions.label import LabelExtension
 from pystac import STACValidationError
 from shutil import rmtree
 from os.path import dirname
@@ -34,7 +35,7 @@ class MLDatasetExtension(
     pystac.Catalog,
     Generic[T],
     PropertiesExtension,
-    ExtensionManagementMixin[Union[pystac.Item, pystac.Collection, pystac.Catalog]],
+    ExtensionManagementMixin[Union[pystac.item.Item, pystac.collection.Collection, pystac.catalog.Catalog]],
 ):
     """An abstract class that can be used to extend the properties of a
     :class:`~pystac.Collection`, :class:`~pystac.Item`, or :class:`~pystac.Catalog` with
@@ -51,6 +52,17 @@ class MLDatasetExtension(
        >>> ml_ext = MLDatasetExtension.ext(item)
     """
 
+    catalog: pystac.Catalog
+    """The :class:`~pystac.Catalog` being extended."""
+
+    properties: Dict[str, Any]
+    """The :class:`~pystac.Catalog` extra fields, including extension properties."""
+
+    links: List[pystac.Link]
+    """The list of :class:`~pystac.Link` objects associated with the
+    :class:`~pystac.Catalog` being extended, including links added by this extension.
+    """
+
     def __init__(self, catalog: pystac.Catalog):
         super().__init__(id=catalog.id, description=catalog.description)
         self.catalog = catalog
@@ -60,6 +72,7 @@ class MLDatasetExtension(
         self.stac_extensions = catalog.stac_extensions if catalog.stac_extensions else []
         self.extra_fields = self.properties = catalog.extra_fields if catalog.extra_fields else {}
         self.links = catalog.links
+        self.quality_metrics = []
         self._resolved_objects = ResolvedObjectCache()
         
     def apply(
@@ -108,8 +121,16 @@ class MLDatasetExtension(
         self.extra_fields[f'{PREFIX}annotations-type'] = v
 
     @property
+    def splits(self) -> List[str]:
+        return self._splits
+
+    @splits.setter
+    def splits(self, v: dict) -> None:
+        self.extra_fields[f'{PREFIX}splits'] = v
+
+    @property
     def quality_metrics(self) -> List[dict]:
-        return self._quality
+        return self._quality_metrics
 
     @quality_metrics.setter
     def quality_metrics(self, v: dict) -> None:
@@ -122,19 +143,11 @@ class MLDatasetExtension(
     @version.setter
     def version(self, v: str) -> None:
         self.extra_fields[f'{PREFIX}version'] = v
-    
-    @property
-    def splits(self) -> List[str]:
-        return self._splits
-
-    @splits.setter
-    def splits(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}splits'] = v
 
     @classmethod
     def get_schema_uri(cls) -> str:
         return SCHEMA_URI
-
+    
     def add_metric(self, metric: dict) -> None:
         """Add a metric to this object's set of metrics.
 
@@ -153,30 +166,8 @@ class MLDatasetExtension(
         for metric in metrics:
             self.add_metric(metric)
 
-    def add_children_to_catalog(self,
-                                catalog: pystac.Catalog,
-                                items: List[pystac.Item],
-                                ) -> None:
-        """
-
-        """
-        collections = dict()
-        for item in items:
-            # Get the collection of the item
-            collection = item.get_collection()
-            if collection.id not in collections:
-                collections[collection.id] = pystac.Collection(id=collection.id, 
-                                                               description=collection.description, 
-                                                               extent=collection.extent)
-            collections[collection.id].add_item(item)
-        for collection in collections.values():
-            # Recalculate the extent of the collection with the new items
-            collection_items = [item for item in collection.get_all_items()]
-            collection.extent = pystac.Extent.from_items(collection_items)
-            catalog.add_child(collection)
-
     @classmethod
-    def ext(cls, obj: T, add_if_missing: bool = False) -> "MLDatasetExtension":
+    def ext(cls, obj: T, add_if_missing: bool = False):
         """Extends the given STAC Object with properties from the 
         :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`.
 
@@ -186,12 +177,12 @@ class MLDatasetExtension(
         Raises:
             pystac.ExtensionTypeError : If an invalid object type is passed.
         """
-        if isinstance(obj, pystac.Catalog):
-            cls.validate_has_extension(obj, add_if_missing)
-            return MLDatasetExtension(obj)
         if isinstance(obj, pystac.Collection):
             cls.validate_has_extension(obj, add_if_missing)
             return CollectionMLDatasetExtension(obj)
+        elif isinstance(obj, pystac.Catalog):
+            cls.validate_has_extension(obj, add_if_missing)
+            return MLDatasetExtension(obj)
         elif isinstance(obj, pystac.Item):
             cls.validate_has_extension(obj, add_if_missing)
             return ItemMLDatasetExtension(obj)
@@ -203,9 +194,6 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
     """A concrete implementation of :class:`MLDatasetExtension` on an
     :class:`~pystac.Collection` that extends the properties of the Collection to include
     properties defined in the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`.
-
-    This class should generally not be instantiated directly. Instead, call
-    :meth:`MLDatasetExtension.ext` on an :class:`~pystac.Collection` to extend it.
     """
 
     collection: pystac.Collection
@@ -214,9 +202,39 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
     def __init__(self, collection: pystac.Collection):
         self.collection = collection
         self.properties = collection.extra_fields
+        self.properties[f'{PREFIX}split-items'] = []
 
     def __repr__(self) -> str:
         return "<CollectionMLDatasetExtension Item id={}>".format(self.collection.id)
+    
+    @property
+    def splits(self) -> List[dict]:
+        return self._splits
+
+    @splits.setter
+    def splits(self, v: dict) -> None:
+        self.properties[f'{PREFIX}split-items'] = v
+
+    def add_split(self, v: dict) -> None:
+        self.properties[f'{PREFIX}split-items'].append(v)
+    
+    def create_and_add_split(self, split_data: List[pystac.Item], split_type: str) -> None:
+        """
+        """
+        items_ids = [item.id for item in split_data]
+        items_ids.sort()
+
+        split = {
+            "name": split_type,
+            "items": items_ids
+        }
+        self.add_split(split)
+        print(f'Generating {split_type} split...')
+        for _item in tqdm(split_data):
+            item = self.collection.get_item(_item.id)
+            if item:
+                item_ml = MLDatasetExtension.ext(item, add_if_missing=True)
+                item_ml.split = split_type
 
 
 
@@ -236,9 +254,113 @@ class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
         self.item = item
         self.properties = item.properties
 
+    @property
+    def split(self) -> str:
+        return self._split
+
+    @split.setter
+    def split(self, v: str) -> None:
+        self.properties[f'{PREFIX}split'] = v
+
     def __repr__(self) -> str:
         return "<ItemMLDatasetExtension Item id={}>".format(self.item.id)
+    
 
+class MLDatasetQualityMetrics:
+    """
+    """
+
+    @classmethod
+    def calculate(self, catalog: pystac.Catalog|str) -> None:
+        """
+        """
+
+        if isinstance(catalog, str):
+            catalog = MLDatasetExtension(pystac.read_file(catalog))
+
+        catalog.add_metric(self._search_spatial_duplicates(catalog))
+        catalog.add_metric(self._get_classes_balance(catalog))
+
+        try:
+            print('Validating and saving...')
+            catalog.validate()
+            destination = dirname(catalog.get_self_href())
+            rmtree(destination)   # Remove the old catalog and replace it with the new one
+            catalog.save(dest_href=destination)
+            print('Success!')
+        except STACValidationError as error:
+            # Return full callback
+            traceback.print_exc()
+        
+
+    @staticmethod
+    def _search_spatial_duplicates(catalog: pystac.Catalog):
+        """
+        """
+        # TODO test this method
+        print('Looking for spatial duplicates...')
+        items = [item for item in tqdm(catalog.get_all_items()) if not LabelExtension.has_extension(item)]
+
+        # Initialize the spatial duplicates dict
+        spatial_duplicates = {
+            "name": "spatial-duplicates",
+            "values": [],
+            "total": 0
+        }
+
+        items_bboxes = dict()
+        for item in items:
+            # Get the item bounding box
+            bbox = str(item.bbox)
+            # If the bounding box is not in the items dict, add it
+            if bbox not in items_bboxes.keys():
+                items_bboxes[bbox] = item.id
+            # If the bounding box is already in the items dict, add it to the duplicates dict
+            else:
+                spatial_duplicates["values"].append({
+                    "item": item.id,
+                    "duplicate": items_bboxes[bbox]
+                })
+                spatial_duplicates["total"] += 1
+
+        return spatial_duplicates
+
+    @staticmethod
+    def _get_classes_balance(catalog: pystac.Catalog) -> dict:
+        """
+        """
+        print('Calculating classes balance...')
+        labels = [item for item in tqdm(catalog.get_all_items()) if LabelExtension.has_extension(item)]
+
+        # Initialize the classes balance dict
+        classes_balance = {
+            "name": "classes-balance",
+            "values": []
+        }
+
+        classes = dict()
+        for label in labels:
+            label_ext = LabelExtension.ext(label)
+            label_classes = label_ext.label_classes
+            assert len(label_classes) == 1, "Only one class per label is supported"
+
+            label_class = label_classes[0].classes
+            assert len(label_class) == 1, "Only one class per label is supported"
+            label_class = label_class[0]
+
+            if label_class not in classes:
+                classes[label_class] = 0
+            classes[label_class] += 1
+
+        for key, value in classes.items():
+            classes_balance["values"].append({
+                "class": key,
+                "total": value,
+                "percentage": int(value/len(labels) * 100)
+            })
+
+        return classes_balance
+    
 
 class MLDatasetExtensionHooks(ExtensionHooks):
     schema_uri: str = SCHEMA_URI
@@ -255,7 +377,8 @@ STORAGE_EXTENSION_HOOKS: ExtensionHooks = MLDatasetExtensionHooks()
 
 def add_ml_extension(catalog: pystac.Catalog|str, 
                      destination: str = None,  
-                     make_splits: bool = False,
+                     splits: bool = False,
+                     splits_collection_id: str = 'labels',
                      splits_names: list = ('Training', 'Validation', 'Test'),
                      split_proportions: List[int] = (80, 10, 10),
                      **kwargs) -> None:
@@ -277,60 +400,62 @@ def add_ml_extension(catalog: pystac.Catalog|str,
 
     catalog_ml_dataset = MLDatasetExtension.ext(catalog, add_if_missing=True)
 
-    # Get all items to generate the new catalog
-    # TODO check why is this necessary to not delete items and collections
-    items = catalog.get_all_items()
-
-    for i in items:
-        pass
-
+    # Set extension properties
     for key, value in kwargs.items():
         setattr(catalog_ml_dataset, key, value)
 
-    # Make splits if requested
-    if make_splits:
-        catalog_ml_dataset.splits = splits_names
-        # train_size, test_size, val_size = split_proportions
-        # make_splits(catalog_ml_dataset, 
-        #             train_size=train_size, 
-        #             test_size=test_size,
-        #             val_size=val_size,
-        #             **kwargs)
-        # # Normalize the ref on the same folder
-        # catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
+    # Make splits if needed
+    if splits:
+        catalog_ml_dataset.splits = splits_names   # Add the splits names to the catalog
+        train_size, test_size, val_size = split_proportions
+        splits_collection = catalog.get_child(splits_collection_id)   # Get the collection to split
+        make_splits(splits_collection, 
+                    train_size=train_size, 
+                    test_size=test_size,
+                    val_size=val_size,
+                    **kwargs)
+        # Normalize the ref on the same folder
+        catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
 
     try:
-        # catalog_ml_dataset.validate()   # TODO validate
+        print('Validating and saving...')
+        catalog_ml_dataset.validate()
         if not destination:
             destination = dirname(catalog.get_self_href())
             rmtree(destination)   # Remove the old catalog and replace it with the new one
         catalog_ml_dataset.save(dest_href=destination)
+        print('Success!')
     except STACValidationError as error:
         # Return full callback
         traceback.print_exc()
 
 
-def make_splits(catalog: MLDatasetExtension,
-                train_size: int,
-                test_size: int,
-                val_size: int = 0,
+def make_splits(labels_collection: CollectionMLDatasetExtension|pystac.Collection|str,
+                splits_names: List[str] = ('Training', 'Validation', 'Test'),
+                splits_proportions: List[int] = (80, 10, 10),
                 verbose: bool = True,
                 **kwargs
                 ) -> None:
     """
-    Makes the splits of the dataset.
+    Makes the splits of the labels collection.
 
     Args:
-        catalog : The STAC catalog to add the extension to.
+        labels_collection : The STAC Collection make the splits on.
         train_size : The percentage of the dataset to use for training.
         test_size : The percentage of the dataset to use for testing.
         val_size : The percentage of the dataset to use for validation.
         verbose : Whether to print the sizes of the splits.
     """
+    if isinstance(labels_collection, str):
+        labels_collection = pystac.read_file(labels_collection)
+        
+    train_size, test_size, val_size = splits_proportions
+
     if train_size + test_size + val_size != 100:
         raise ValueError("The sum of the splits must be 100")
     
-    items = [item for item in catalog.get_all_items()]
+    # Get all items in the labels collection
+    items = [item for item in labels_collection.get_all_items()]
 
     # Calculate indices to split the items
     length = len(items)
@@ -356,13 +481,13 @@ def make_splits(catalog: MLDatasetExtension,
     if val_size:
         val_items = items[idx_train+idx_test:idx_train+idx_test+idx_val]
 
-    # Create the subcatalogs
-    for split_type, split_data in zip(["Training", "Test", "Validation"], [train_items, test_items, val_items]):
-        catalog.create_and_add_split(catalog, split_data, split_type, **kwargs)
-        
-    # Remove collections from the root catalog
-    for collection in catalog.get_children():
-        if collection.STAC_OBJECT_TYPE == pystac.STACObjectType.COLLECTION:
-            catalog.remove_child(collection.id)
+    # Create the splits in the collection
+    labels_collection = MLDatasetExtension.ext(labels_collection, 
+                                               add_if_missing=True)
+    for split_type, split_data in zip(splits_names, [train_items, test_items, val_items]):
+        labels_collection.create_and_add_split(split_data, split_type)
 
-    print('Success!')
+    print('Success on splits generation!')
+
+
+import pystac.item
