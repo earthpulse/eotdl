@@ -7,6 +7,8 @@ import json
 import rasterio
 from rasterio.warp import transform_bounds
 
+from os import remove
+from glob import glob
 from os.path import dirname, join, exists
 
 
@@ -41,3 +43,17 @@ def generate_raster_metadata(raster_path: str,
     
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f)
+
+
+def remove_raster_metadata(folder: str, metadata_file: str = 'metadata.json') -> None:
+    """
+    Remove metadata.json file from a folder
+
+    :param folder: folder path
+    :param metadata_file: metadata file name
+    """
+    # Search for all the metadata files in the folder
+    metadata_files = glob(join(folder, '**', metadata_file), recursive=True)
+    # Remove all the metadata files
+    for metadata_file in metadata_files:
+        remove(metadata_file)
