@@ -6,14 +6,13 @@ import pandas as pd
 import geopandas as gpd
 import pystac
 import json
-import os
-from xcube_geodb.core.geodb import GeoDBClient
 from geomet import wkt
 from os.path import join
 from os import makedirs
-
+from typing import Union
 from math import isnan
 from .utils import convert_df_geom_to_shape, get_all_children
+from pathlib import Path
 
 
 class STACDataFrame(gpd.GeoDataFrame):
@@ -27,113 +26,7 @@ class STACDataFrame(gpd.GeoDataFrame):
         """
         return read_stac(stac_file)
 
-    @classmethod
-    def from_geodb(
-        self,
-        server_url: str,
-        server_port: int | str,
-        client_id: str,
-        client_secret: str,
-        auth_aud: str,
-        collection: str,
-        database: str = None,
-    ):
-        """
-        Create a STACDataFrame from a GeoDB collection
-
-        :param server_url: GeoDB server url
-        :param server_port: GeoDB server port
-        :param client_id: GeoDB client id
-        :param client_secret: GeoDB client secret
-        :param auth_aud: GeoDB auth aud
-        :param collection: GeoDB collection
-        :param database: GeoDB database
-        """
-        geodb_client = GeoDBClient(
-            server_url=server_url,
-            server_port=server_port,
-            client_id=client_id,
-            client_secret=client_secret,
-            auth_aud=auth_aud,
-        )
-
-        data = geodb_client.get_collection(collection, database=database)
-
-        return STACDataFrame(data, crs="EPSG:4326")
-
-    def ingest(
-        self,
-        collection: str,
-        server_url: str = os.environ["SERVER_URL"],
-        server_port: int = os.environ["SERVER_PORT"],
-        client_id: str = os.environ["CLIENT_ID"],
-        client_secret: str = os.environ["CLIENT_SECRET"],
-        auth_aud: str = os.environ["AUTH_DOMAIN"],
-        database: str = None,
-    ):
-        """
-        Create a GeoDB collection from a STACDataFrame
-
-        :param collection: dataset name (GeoDB collection)
-        :param server_url: GeoDB server url
-        :param server_port: GeoDB server port
-        :param client_id: GeoDB client id
-        :param client_secret: GeoDB client secret
-        :param auth_aud: GeoDB auth aud
-        :param database: GeoDB database
-        """
-
-        geodb_client = GeoDBClient(
-            server_url=server_url,
-            server_port=server_port,
-            client_id=client_id,
-            client_secret=client_secret,
-            auth_aud=auth_aud,
-        )
-
-        # TODO: check name is unique (use eotdl-cli)
-
-        # TODO: ingest assets (only if local)
-        # TODO: rename assets in the dataframe with URLs (only if local)
-
-        # ingest to geodb
-
-        # Check if the collection already exists
-        if geodb_client.collection_exists(collection, database=database):
-            # geodb_client.drop_collection(collection, database=database)
-            raise Exception(f"Collection {collection} already exists")
-
-        # Rename the column id to stac_id, to avoid conflicts with the id column
-        self.rename(columns={"id": "stac_id"}, inplace=True)
-        # Fill the NaN with '' to avoid errors, except in the geometry column
-        copy = self.copy()
-        columns_to_fill = copy.columns.drop("geometry")
-        self[columns_to_fill] = self[columns_to_fill].fillna("")
-
-        # Create the collection if it does not exist
-        # and insert the data
-        collections = {collection: self._create_collection_structure(self.columns)}
-        geodb_client.create_collections(collections, database=database)
-
-        geodb_client.insert_into_collection(collection, database=database, values=self)
-
-        # TODO: save data in eotdl
-
-    def _create_collection_structure(self, columns: list) -> dict:
-        """
-        Create the schema structure of a GeoDB collection from a STACDataFrame
-
-        :param columns: columns of the STACDataFrame
-        """
-        stac_collection = {"crs": 4326, "properties": {}}
-
-        for column in columns:
-            if column not in ("geometry", "id"):
-                stac_collection["properties"][column] = "json"
-
-        return stac_collection
-
-    def to_stac(self):
+    def to_stac(self, path):
         """
         Create a STAC catalog and children from a STACDataFrame
         """
@@ -150,11 +43,10 @@ class STACDataFrame(gpd.GeoDataFrame):
         catalog_df = df[df["type"] == "Catalog"]
 
         if catalog_df.empty:
-            root_output_folder = "output"
-            makedirs(root_output_folder, exist_ok=True)
+            makedirs(path, exist_ok=True)
         else:
             for index, row in catalog_df.iterrows():
-                root_output_folder = row[id_column]
+                root_output_folder = path + "/" + row[id_column]
                 makedirs(root_output_folder, exist_ok=True)
                 row_json = row.to_dict()
 
@@ -228,7 +120,7 @@ class STACDataFrame(gpd.GeoDataFrame):
 
 
 def read_stac(
-    stac_file: pystac.Catalog | pystac.Collection | str,
+    stac_file: Union[pystac.Catalog, pystac.Collection, str, Path],
     geometry_column: str = "geometry",
 ) -> STACDataFrame:
     """
@@ -237,7 +129,7 @@ def read_stac(
     :param stac_file: STAC file to read
     :param geometry_column: name of the geometry column
     """
-    if isinstance(stac_file, str):
+    if isinstance(stac_file, str) or isinstance(stac_file, Path):
         stac_file = pystac.read_file(stac_file)
     children = get_all_children(stac_file)
 

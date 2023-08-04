@@ -59,5 +59,5 @@ class DownloadDataset:
         return self.Outputs(
             data_stream=self.os_repo.data_stream,
             object_info=object_info,
-            name=data["name"],
+            name=inputs.file,
         )

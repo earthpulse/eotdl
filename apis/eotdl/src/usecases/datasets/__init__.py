@@ -9,8 +9,12 @@ from .main import (
     retrieve_datasets,
     retrieve_dataset_by_name,
     download_dataset,
-    edit_dataset,
     retrieve_datasets_leaderboard,
     complete_multipart_upload,
     update_dataset,
+    ingest_file_url,
+    ingest_stac,
+    download_stac,
+    create_dataset,
+    delete_dataset_file,
 )

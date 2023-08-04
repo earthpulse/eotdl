@@ -9,8 +9,8 @@
 
 # The EOTDL ecosystem
 
-The EOTDL is composed by a set of libraries, user interfaces, command line tools, and APIs. Throughout this documentation you will find instructions 
-on how to perform different tasks with the different components.
+The EOTDL ecosystem is composed by a set of libraries, user interfaces, command line tools, and APIs. Throughout this documentation you will find instructions 
+on how to perform different tasks with the different components, coded with the following colors.
 
 
 <Api>

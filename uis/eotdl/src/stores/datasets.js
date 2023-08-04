@@ -1,9 +1,12 @@
 import { writable } from "svelte/store";
-import ingestDataset from "../lib/datasets/ingestDataset";
-import reuploadDataset from "../lib/datasets/reuploadDataset";
+import createDataset from "../lib/datasets/createDataset";
+import ingestFile from "../lib/datasets/ingestFile";
+import updateDataset from "../lib/datasets/updateDataset";
+import retrieveDataset from "../lib/datasets/retrieveDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
 import likeDataset from "../lib/datasets/likeDataset";
+
 
 const createDatasets = () => {
   const { subscribe, set, update } = writable({
@@ -13,14 +16,29 @@ const createDatasets = () => {
   });
   return {
     subscribe,
-    ingest: async (file, name, description, author, link, license, tags, token) => {
-      const data = await ingestDataset(file, name,  author, link, license, description, tags, token);
-      update((current) => ({
-        data: [...current.data, data],
-      }));
+    retrieveOne: async (name) => await retrieveDataset(name),
+    create: async (name, authors, source, license, token) => {
+      const { dataset_id } = await createDataset(name, authors, source, license, token);
+      return dataset_id
     },
-    reupload: async (dataset_id, file, name, content, author, link, license, tags, token) => {
-      const data = await reuploadDataset(dataset_id, file, name, content, author, link, license, tags, token);
+    ingest: async (dataset_id, file, token, name) => {
+      await ingestFile(dataset_id, file, token);
+      const data = await retrieveDataset(name);
+      update((current) => {
+        const datasetExists = current.data.find((dataset) => dataset.id === data.id)
+        if (datasetExists) {
+          return {
+            data: current.data.map((dataset) => dataset.id === data.id ? data : dataset)
+          }
+        }
+        return {
+          data: [data, ...current.data],
+        }
+      });
+      return data
+    },
+    update: async (dataset_id, name, content, authors, source, license, tags, token) => {
+      const data = await updateDataset(dataset_id, name, content, authors, source, license, tags, token);
       update((current) => ({
         data: current.data.map((dataset) => 
            dataset.id === dataset_id ? data : dataset          
@@ -32,7 +50,6 @@ const createDatasets = () => {
       set({ loading: true });
       try {
         const data = await retrieveDatasets(fetch, limit);
-        console.log(data)
         set({ loading: false, data });
       } catch (e) {
         set({ loading: false, error: e.message });

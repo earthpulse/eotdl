@@ -1,10 +1,11 @@
-from ...repos import DBRepo, OSRepo, S3Repo
+from ...repos import DBRepo, OSRepo, S3Repo  # , GeoDBRepo
+from .CreateDataset import CreateDataset
 from .IngestFile import IngestFile
+from .IngestFileURL import IngestFileURL
 from .UpdateDataset import UpdateDataset
 from .RetrieveDatasets import RetrieveDatasets
 from .RetrieveOneDatasetByName import RetrieveOneDatasetByName
 from .DownloadDataset import DownloadDataset
-from .EditDataset import EditDataset
 from .RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 from ..tags import retrieve_tags
 from .LikeDataset import LikeDataset
@@ -14,20 +15,59 @@ from .IngestDatasetChunk import IngestDatasetChunk
 from .DeleteDataset import DeleteDataset
 from .GenerateUploadId import GenerateUploadId
 from .CompleteMultipartUpload import CompleteMultipartUpload
+from .IngestQ1Dataset import IngestQ1Dataset
+from .IngestSTAC import IngestSTAC
+from .DownloadDatasetSTAC import DownloadDatasetSTAC
+from .DeleteDatasetFile import DeleteDatasetFile
 
 
-async def ingest_file(file, dataset, checksum, user):
+def create_dataset(user, name, authors, source, license):
+    db_repo = DBRepo()
+    create = CreateDataset(db_repo)
+    inputs = CreateDataset.Inputs(
+        uid=user.uid, name=name, authors=authors, source=source, license=license
+    )
+    outputs = create(inputs)
+    return outputs.dataset_id
+
+
+async def ingest_file(file, dataset_id, checksum, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestFile(db_repo, os_repo)
     inputs = ingest.Inputs(
-        dataset=dataset,
+        dataset_id=dataset_id,
         file=file,
         uid=user.uid,
         checksum=checksum,
     )
     outputs = await ingest(inputs)
-    return outputs.dataset
+    return outputs.dataset_id, outputs.dataset_name, outputs.file_name
+
+
+async def ingest_file_url(file, dataset, user):
+    db_repo, os_repo = DBRepo(), OSRepo()
+    ingest = IngestFileURL(db_repo, os_repo)
+    inputs = ingest.Inputs(
+        dataset=dataset,
+        file=file,
+        uid=user.uid,
+    )
+    outputs = await ingest(inputs)
+    return outputs.dataset_id, outputs.dataset_name, outputs.file_name
+
+
+def ingest_stac(stac, dataset, user):
+    pass
+    # db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo()
+    # ingest = IngestSTAC(db_repo, os_repo, geodb_repo)
+    # inputs = ingest.Inputs(
+    #     dataset=dataset,
+    #     stac=stac,
+    #     uid=user.uid,
+    # )
+    # outputs = ingest(inputs)
+    # return outputs.dataset
 
 
 def retrieve_datasets(limit):
@@ -71,14 +111,12 @@ def download_dataset(id, file, user):
     return outputs.data_stream, outputs.object_info, outputs.name
 
 
-def edit_dataset(id, name, description, tags, user):
-    db_repo = DBRepo()
-    edit = EditDataset(db_repo, retrieve_tags)
-    inputs = edit.Inputs(
-        id=id, name=name, description=description, tags=tags, uid=user.uid
-    )
-    outputs = edit(inputs)
-    return outputs.dataset
+def download_stac(dataset_id, user):
+    db_repo, geodb_repo = DBRepo(), GeoDBRepo()
+    retrieve = DownloadDatasetSTAC(db_repo, geodb_repo)
+    inputs = retrieve.Inputs(dataset_id=dataset_id, uid=user.uid)
+    outputs = retrieve(inputs)
+    return outputs.stac
 
 
 def retrieve_datasets_leaderboard():
@@ -106,7 +144,7 @@ def delete_dataset(name):
     return outputs.message
 
 
-def generate_upload_id(user, checksum, name, dataset):
+def generate_upload_id(user, checksum, name, dataset_id):
     db_repo = DBRepo()
     os_repo = OSRepo()
     s3_repo = S3Repo()
@@ -115,7 +153,7 @@ def generate_upload_id(user, checksum, name, dataset):
         uid=user.uid,
         checksum=checksum,
         name=name,
-        dataset=dataset,
+        dataset_id=dataset_id,
     )
     outputs = generate(inputs)
     return outputs.upload_id, outputs.parts
@@ -150,23 +188,44 @@ async def complete_multipart_upload(user, upload_id):
     return outputs.dataset
 
 
-async def update_dataset(
-    dataset_id, user, file, name, author, link, license, tags, description
-):
+def update_dataset(dataset_id, user, name, authors, source, license, tags, description):
     db_repo = DBRepo()
-    os_repo = OSRepo()
-    ingest = UpdateDataset(db_repo, os_repo)
+    ingest = UpdateDataset(db_repo)
     inputs = ingest.Inputs(
-        file=file.file if file is not None else None,
-        size=file.size if file is not None else None,
         uid=user.uid,
         dataset_id=dataset_id,
         name=name,
         description=description,
-        author=author,
-        link=link,
+        authors=authors,
+        source=source,
         license=license,
         tags=tags,
     )
-    outputs = await ingest(inputs)
+    outputs = ingest(inputs)
     return outputs.dataset
+
+
+def ingest_q1_dataset(dataset, uid):
+    pass
+    # db_repo = DBRepo()
+    # geodb_repo = GeoDBRepo()
+    # ingest = IngestQ1Dataset(db_repo)
+    # inputs = ingest.Inputs(
+    #     dataset=dataset,
+    #     uid=uid,
+    # )
+    # outputs = ingest(inputs)
+    # return outputs.message
+
+
+def delete_dataset_file(user, dataset_id, file_name):
+    db_repo = DBRepo()
+    os_repo = OSRepo()
+    delete = DeleteDatasetFile(db_repo, os_repo)
+    inputs = delete.Inputs(
+        uid=user.uid,
+        dataset_id=dataset_id,
+        file_name=file_name,
+    )
+    outputs = delete(inputs)
+    return outputs.message
