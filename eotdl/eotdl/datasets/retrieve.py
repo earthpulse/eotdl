@@ -1,9 +1,17 @@
+import re
+
 from ..src.repos import APIRepo
 from ..src.usecases.datasets import RetrieveDatasets, RetrieveDataset
 
 
-def list_datasets():
-    return retrieve_datasets()
+def list_datasets(pattern=None):
+    datasets = retrieve_datasets()
+    if pattern:
+        regex = re.compile(rf".*{re.escape(pattern)}.*", re.IGNORECASE)
+        names = list(datasets.keys())
+        valid = [name for name in names if regex.search(name)]
+        return {name: datasets[name] for name in valid}
+    return datasets
 
 
 def retrieve_datasets():

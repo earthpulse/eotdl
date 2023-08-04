@@ -21,9 +21,16 @@ eurosat-stac**
 data
 db
 *.zip
+!uis/eotdl/tests/e2e/files/*.zip
 docker-compose.prod.yml
 tutorials/*md
 credentials
 !test.zip
 .vscode
 kk
+auth.json
+node_modules/
+/test-results/
+playwright-report
+playwright/.cache/
+test-results

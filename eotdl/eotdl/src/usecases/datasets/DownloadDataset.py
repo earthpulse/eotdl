@@ -1,5 +1,8 @@
 from pydantic import BaseModel
 from ....src.utils import calculate_checksum
+from ....curation.stac import STACDataFrame
+from pathlib import Path
+import os
 
 
 class DownloadDataset:
@@ -29,28 +32,48 @@ class DownloadDataset:
 
     def __call__(self, inputs: Inputs) -> Outputs:
         dataset = self.retrieve_dataset(inputs.dataset)
-        if inputs.file:
-            files = [f for f in dataset["files"] if f["name"] == inputs.file]
-            if not files:
-                raise Exception(f"File {inputs.file} not found")
-            if len(files) > 1:
-                raise Exception(f"Multiple files with name {inputs.file} found")
-            dst_path = self.download(
-                inputs.dataset,
+        if inputs.path is None:
+            download_path = str(Path.home()) + "/.eotdl/datasets/" + inputs.dataset
+        else:
+            download_path = inputs.path + "/" + inputs.dataset
+        os.makedirs(download_path, exist_ok=True)
+        if dataset["quality"] == 0:
+            if inputs.file:
+                files = [f for f in dataset["files"] if f["name"] == inputs.file]
+                if not files:
+                    raise Exception(f"File {inputs.file} not found")
+                if len(files) > 1:
+                    raise Exception(f"Multiple files with name {inputs.file} found")
+                dst_path = self.download(
+                    inputs.dataset,
+                    dataset["id"],
+                    inputs.file,
+                    files[0]["checksum"],
+                    download_path,
+                    inputs.user,
+                )
+                return self.Outputs(dst_path=dst_path)
+            for file in dataset["files"]:
+                dst_path = self.download(
+                    inputs.dataset,
+                    dataset["id"],
+                    file["name"],
+                    file["checksum"],
+                    download_path,
+                    inputs.user,
+                )
+            return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))
+        else:
+            gdf, error = self.repo.download_stac(
                 dataset["id"],
-                inputs.file,
-                files[0]["checksum"],
-                inputs.path,
-                inputs.user,
+                inputs.user["id_token"],
             )
-            return self.Outputs(dst_path=dst_path)
-        for file in dataset["files"]:
-            dst_path = self.download(
-                inputs.dataset,
-                dataset["id"],
-                file["name"],
-                file["checksum"],
-                inputs.path,
-                inputs.user,
-            )
-        return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))
+            if error:
+                raise Exception(error)
+            df = STACDataFrame(gdf)
+            # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
+            path = inputs.path
+            if path is None:
+                path = str(Path.home()) + "/.eotdl/datasets/" + dataset["name"]
+            df.to_stac(path)
+            return self.Outputs(dst_path=path)

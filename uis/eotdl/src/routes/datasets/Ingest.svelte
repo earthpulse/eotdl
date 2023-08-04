@@ -1,36 +1,52 @@
 <script>
     import { user, id_token } from "$stores/auth";
-    import th from "date-fns/locale/th";
     import { datasets } from "../../stores/datasets";
     import IngestForm from "./IngestForm.svelte";
 
     export let tags;
 
     const submit = async (
-        file,
+        files,
         name,
         content,
-        author,
-        link,
+        authors,
+        source,
         license,
         selected_tags
     ) => {
         if (
             !name ||
-            !file ||
-            !author ||
+            files?.length == 0 ||
+            authors.length == 0 ||
             !license ||
-            !link ||
+            !source ||
             !content ||
             content.length == 0
         )
             throw new Error("Please fill in all fields");
-        await datasets.ingest(
-            file,
+        let data;
+        if (files.length == 0) throw new Error("Please upload a file");
+        const datasetExists = $datasets.data.find(
+            (d) => d.name == name && d.uid == $user.uid
+        );
+        if (datasetExists)
+            throw new Error("Dataset already exists, choose a different name");
+        const dataset_id = await datasets.create(
             name,
+            authors,
+            source,
+            license,
+            $id_token
+        );
+        for (var i = 0; i < files.length; i++) {
+            data = await datasets.ingest(dataset_id, files[i], $id_token, name);
+        }
+        await datasets.update(
+            dataset_id,
+            null,
             content,
-            author,
-            link,
+            authors,
+            source,
             license,
             selected_tags,
             $id_token
