@@ -65,14 +65,14 @@ class MLDatasetExtension(
 
     def __init__(self, catalog: pystac.Catalog):
         super().__init__(id=catalog.id, description=catalog.description)
-        self.catalog = catalog
-        self.id = catalog.id
-        self.description = catalog.description
-        self.title = catalog.title if catalog.title else None
-        self.stac_extensions = catalog.stac_extensions if catalog.stac_extensions else []
-        self.extra_fields = self.properties = catalog.extra_fields if catalog.extra_fields else {}
-        self.links = catalog.links
-        self.quality_metrics = []
+        self._catalog = catalog
+        self._id = catalog.id
+        self._description = catalog.description
+        self._title = catalog.title if catalog.title else None
+        self._stac_extensions = catalog.stac_extensions if catalog.stac_extensions else []
+        self._extra_fields = self.properties = catalog.extra_fields if catalog.extra_fields else {}
+        self._links = catalog.links
+        self._quality_metrics = []
         self._resolved_objects = ResolvedObjectCache()
         
     def apply(
@@ -82,67 +82,67 @@ class MLDatasetExtension(
 
     @property
     def name(self) -> str:
-        return self._name
+        return self._extra_fields[f'{PREFIX}name']
 
     @name.setter
     def name(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}name'] = v
+        self._extra_fields[f'{PREFIX}name'] = v
 
     @property
     def tasks(self) -> List:
-        return self._tasks
+        return self._extra_fields[f'{PREFIX}tasks']
 
     @tasks.setter
     def tasks(self, v: List|Tuple) -> None:
-        self.extra_fields[f'{PREFIX}tasks'] = v
+        self._extra_fields[f'{PREFIX}tasks'] = v
 
     @property
     def type(self) -> str:
-        return self._type
+        return self._extra_fields[f'{PREFIX}type']
 
     @type.setter
     def type(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}type'] = v
+        self._extra_fields[f'{PREFIX}type'] = v
 
     @property
     def inputs_type(self) -> str:
-        return self._inputs_type
+        return self._extra_fields[f'{PREFIX}inputs-type']
 
     @inputs_type.setter
     def inputs_type(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}inputs-type'] = v
+        self._extra_fields[f'{PREFIX}inputs-type'] = v
 
     @property
     def annotations_type(self) -> str:
-        return self._annotations_type
+        return self._extra_fields[f'{PREFIX}annotations-type']
 
     @annotations_type.setter
     def annotations_type(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}annotations-type'] = v
+        self._extra_fields[f'{PREFIX}annotations-type'] = v
 
     @property
     def splits(self) -> List[str]:
-        return self._splits
+        return self._extra_fields[f'{PREFIX}splits']
 
     @splits.setter
     def splits(self, v: dict) -> None:
-        self.extra_fields[f'{PREFIX}splits'] = v
+        self._extra_fields[f'{PREFIX}splits'] = v
 
     @property
     def quality_metrics(self) -> List[dict]:
-        return self._quality_metrics
+        return self._extra_fields[f'{PREFIX}quality-metrics']
 
     @quality_metrics.setter
     def quality_metrics(self, v: dict) -> None:
-        self.extra_fields[f'{PREFIX}quality-metrics'] = v
+        self._extra_fields[f'{PREFIX}quality-metrics'] = v
 
     @property
     def version(self) -> str:
-        return self._version
+        return self._extra_fields[f'{PREFIX}version']
 
     @version.setter
     def version(self, v: str) -> None:
-        self.extra_fields[f'{PREFIX}version'] = v
+        self._extra_fields[f'{PREFIX}version'] = v
 
     @classmethod
     def get_schema_uri(cls) -> str:
@@ -154,8 +154,8 @@ class MLDatasetExtension(
         Args:
              metric : The metric to add.
         """
-        if metric not in self.extra_fields[f'{PREFIX}quality-metrics']:
-            self.extra_fields[f'{PREFIX}quality-metrics'].append(metric)
+        if metric not in self._extra_fields[f'{PREFIX}quality-metrics']:
+            self._extra_fields[f'{PREFIX}quality-metrics'].append(metric)
 
     def add_metrics(self, metrics: List[dict]) -> None:
         """Add a list of metrics to this object's set of metrics.
@@ -208,18 +208,26 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
         return "<CollectionMLDatasetExtension Item id={}>".format(self.collection.id)
     
     @property
-    def splits(self) -> List[dict]:
-        return self._splits
+    def splits_items(self) -> List[dict]:
+        return self.properties[f'{PREFIX}split-items']
 
-    @splits.setter
-    def splits(self, v: dict) -> None:
+    @splits_items.setter
+    def splits_items(self, v: dict) -> None:
         self.properties[f'{PREFIX}split-items'] = v
 
-    def add_split(self, v: dict) -> None:
+    def add_split_items(self, v: dict) -> None:
         self.properties[f'{PREFIX}split-items'].append(v)
     
-    def create_and_add_split(self, split_data: List[pystac.Item], split_type: str) -> None:
+    def create_and_add_split(self, 
+                             split_data: List[pystac.Item], 
+                             split_type: str
+                             ) -> None:
         """
+        Create a split and add it to the collection.
+
+        Args:
+            split_data : The items to add to the split.
+            split_type : The type of the split.
         """
         items_ids = [item.id for item in split_data]
         items_ids.sort()
@@ -228,14 +236,12 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
             "name": split_type,
             "items": items_ids
         }
-        self.add_split(split)
-        print(f'Generating {split_type} split...')
-        for _item in tqdm(split_data):
+        self.add_split_items(split)
+        for _item in tqdm(split_data, desc=f'Generating {split_type} split...'):
             item = self.collection.get_item(_item.id)
             if item:
                 item_ml = MLDatasetExtension.ext(item, add_if_missing=True)
                 item_ml.split = split_type
-
 
 
 class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
@@ -256,7 +262,7 @@ class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
 
     @property
     def split(self) -> str:
-        return self._split
+        return self.properties[f'{PREFIX}split']
 
     @split.setter
     def split(self, v: str) -> None:
@@ -268,11 +274,16 @@ class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
 
 class MLDatasetQualityMetrics:
     """
+    Class to calculate the quality metrics of a catalog
     """
 
     @classmethod
     def calculate(self, catalog: pystac.Catalog|str) -> None:
         """
+        Calculate the quality metrics of the catalog
+
+        Args:
+            catalog : The catalog to calculate the quality metrics.
         """
 
         if isinstance(catalog, str):
@@ -296,6 +307,13 @@ class MLDatasetQualityMetrics:
     @staticmethod
     def _search_spatial_duplicates(catalog: pystac.Catalog):
         """
+        Search for spatial duplicates in the catalog.
+
+        Args:
+            catalog : The catalog to search for spatial duplicates.
+
+        Returns:
+            A dict with the spatial duplicates.
         """
         # TODO test this method
         print('Looking for spatial duplicates...')
@@ -328,6 +346,13 @@ class MLDatasetQualityMetrics:
     @staticmethod
     def _get_classes_balance(catalog: pystac.Catalog) -> dict:
         """
+        Calculate the classes balance of the catalog.
+
+        Args:
+            catalog : The catalog to calculate the classes balance.
+
+        Returns:
+            A dict with the classes balance.
         """
         print('Calculating classes balance...')
         labels = [item for item in tqdm(catalog.get_all_items()) if LabelExtension.has_extension(item)]
@@ -488,6 +513,3 @@ def make_splits(labels_collection: CollectionMLDatasetExtension|pystac.Collectio
         labels_collection.create_and_add_split(split_data, split_type)
 
     print('Success on splits generation!')
-
-
-import pystac.item
