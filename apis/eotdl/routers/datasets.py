@@ -12,6 +12,7 @@ from ..src.usecases.datasets import (
     ingest_file_url,
     ingest_stac,
     create_dataset,
+    create_stac_dataset,
     retrieve_datasets,
     retrieve_dataset_by_name,
     retrieve_liked_datasets,
@@ -34,24 +35,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/datasets", tags=["datasets"])
 
 
-# class IngestSTACBody(BaseModel):
-#     stac: dict  # json as string
-#     dataset: str
-
-
-# @router.post("/stac")
-# async def ingest_stac_catalog(
-#     body: IngestSTACBody,
-#     user: User = Depends(get_current_user),
-# ):
-#     # try:
-#     # stac = json.loads(body.stac)
-#     return ingest_stac(body.stac, body.dataset, user)
-#     # except Exception as e:
-#     #     logger.exception("datasets:ingest_url")
-#     #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
 class CreateDatasetBody(BaseModel):
     name: str
     authors: List[str]
@@ -72,6 +55,41 @@ def create(
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CreateSTACDatasetBody(BaseModel):
+    name: str
+
+
+@router.post("/stac")
+def create_stac(
+    body: CreateSTACDatasetBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id = create_stac_dataset(user, body.name)
+        return {"dataset_id": dataset_id}
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class IngestSTACBody(BaseModel):
+    stac: dict  # json as string
+
+
+@router.put("/stac/{dataset_id}")
+async def ingest_stac_catalog(
+    dataset_id: str,
+    body: IngestSTACBody,
+    user: User = Depends(get_current_user),
+):
+    # try:
+    # stac = json.loads(body.stac)
+    return ingest_stac(body.stac, dataset_id, user)
+    # except Exception as e:
+    #     logger.exception("datasets:ingest_url")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.post("/{dataset_id}")
@@ -255,16 +273,16 @@ async def download(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-# @router.get("/{id}/download")
-# async def download(
-#     id: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         return download_stac(id, user)
-#     except Exception as e:
-#         logger.exception("datasets:download")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+@router.get("/{id}/download")
+async def download(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return download_stac(id, user)
+    except Exception as e:
+        logger.exception("datasets:download")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 class UpdateBody(BaseModel):

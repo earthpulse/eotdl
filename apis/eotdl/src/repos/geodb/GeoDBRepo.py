@@ -4,8 +4,8 @@ from .client import get_client
 
 
 class GeoDBRepo:
-    def __init__(self):
-        self.client = get_client()
+    def __init__(self, credentials):
+        self.client = get_client(credentials)
         self.database = None
 
     def exists(self, collection):

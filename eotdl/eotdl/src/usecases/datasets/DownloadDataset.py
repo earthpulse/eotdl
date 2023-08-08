@@ -1,8 +1,10 @@
 from pydantic import BaseModel
-from ....src.utils import calculate_checksum
-from ....curation.stac import STACDataFrame
 from pathlib import Path
 import os
+from typing import Union
+
+from ....curation.stac import STACDataFrame
+from ....src.utils import calculate_checksum
 
 
 class DownloadDataset:
@@ -13,8 +15,8 @@ class DownloadDataset:
 
     class Inputs(BaseModel):
         dataset: str
-        file: str = None
-        path: str = None
+        file: Union[str, None] = None
+        path: Union[str, None] = None
         user: dict
 
     class Outputs(BaseModel):
@@ -76,4 +78,5 @@ class DownloadDataset:
             if path is None:
                 path = str(Path.home()) + "/.eotdl/datasets/" + dataset["name"]
             df.to_stac(path)
+            # TODO: download items
             return self.Outputs(dst_path=path)

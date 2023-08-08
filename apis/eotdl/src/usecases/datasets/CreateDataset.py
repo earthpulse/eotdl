@@ -22,6 +22,16 @@ class CreateDataset:
     class Outputs(BaseModel):
         dataset_id: str
 
+    def create_dataset(self, id, inputs):
+        return Dataset(
+            uid=inputs.uid,
+            id=id,
+            name=inputs.name,
+            authors=inputs.authors,
+            source=inputs.source,
+            license=inputs.license,
+        )
+
     def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset already exists
         data = self.db_repo.find_one_by_name("datasets", inputs.name)
@@ -47,14 +57,7 @@ class CreateDataset:
             )
         # generate new id
         id = self.db_repo.generate_id()
-        dataset = Dataset(
-            uid=inputs.uid,
-            id=id,
-            name=inputs.name,
-            authors=inputs.authors,
-            source=inputs.source,
-            license=inputs.license,
-        )
+        dataset = self.create_dataset(id, inputs)
         self.db_repo.persist("datasets", dataset.dict(), dataset.id)
         self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
         return self.Outputs(dataset_id=dataset.id)

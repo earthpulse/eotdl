@@ -3,39 +3,37 @@ import typing
 from typing import Union
 from datetime import datetime
 
-from ...models import Dataset, Usage, User, Limits, File
-from ...errors import (
-    DatasetAlreadyExistsError,
-    TierLimitError,
-    DatasetDoesNotExistError,
-    ChecksumMismatch,
-)
+from ...models import STACDataset, User, User
+from ...errors import DatasetDoesNotExistError
 
 
 class IngestSTAC:
-    def __init__(self, db_repo, os_repo, geodb_repo):
+    def __init__(self, db_repo, os_repo, geodb_repo, retrieve_user_credentials):
         self.db_repo = db_repo
         self.os_repo = os_repo
         self.geodb_repo = geodb_repo
+        self.retrieve_user_credentials = retrieve_user_credentials
 
     class Inputs(BaseModel):
         dataset: str
         stac: dict
-        uid: str
+        user: User
 
     class Outputs(BaseModel):
-        dataset: Dataset
+        dataset: STACDataset
 
     def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset exists
-        data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
+        data = self.db_repo.retrieve("datasets", inputs.dataset)
         if not data:
-            raise DatasetAlreadyExistsError()
-        dataset = Dataset(**data)
+            raise DatasetDoesNotExistError()
+        dataset = STACDataset(**data)
         # check user owns dataset
-        if dataset.uid != inputs.uid:
+        if dataset.uid != inputs.user.uid:
             raise DatasetDoesNotExistError()
         # TODO: check all assets exist in os
         # ingest to geodb
-        self.geodb_repo.insert(dataset.name, inputs.stac)
+        credentials = self.retrieve_user_credentials(inputs.user)
+        self.geodb_repo = self.geodb_repo(credentials)
+        self.geodb_repo.insert(inputs.dataset, inputs.stac)
         return self.Outputs(dataset=dataset)

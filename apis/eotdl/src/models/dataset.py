@@ -77,3 +77,22 @@ class UploadingFile(BaseModel):
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     parts: List[int] = []
+
+
+class STACDataset(BaseModel):
+    uid: str
+    id: str
+    name: str
+    description: str = ""
+    tags: List[str] = []
+    createdAt: datetime = datetime.now()
+    updatedAt: datetime = datetime.now()
+    likes: int = 0
+    downloads: int = 0
+    quality: int = 1
+
+    # @validator("name")
+    # def check_name_is_valid(cls, name):
+    #     if name is not None:
+    #         assert validate_name(name) == name
+    #     return name
