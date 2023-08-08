@@ -21,10 +21,29 @@ class APIRepo:
         response = requests.get(self.url + "auth/logout")
         return response.json()["logout_url"]
 
+    def retrieve_credentials(self, id_token):
+        response = requests.get(
+            self.url + "auth/credentials",
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
+
     def create_dataset(self, metadata, id_token):
         response = requests.post(
-            self.url + "datasets",
+            self.url + "datasets/q0",
             json=metadata,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
+
+    def create_stac_dataset(self, name, id_token):
+        response = requests.post(
+            self.url + "datasets/stac",
+            json={"name": name},
             headers={"Authorization": "Bearer " + id_token},
         )
         if response.status_code == 200:
@@ -224,10 +243,10 @@ class APIRepo:
             return None, response.json()["detail"]
         return response.json(), None
 
-    def ingest_stac(self, stac_json, dataset, id_token):
-        reponse = requests.post(
-            self.url + "datasets/stac",
-            json={"dataset": dataset, "stac": stac_json},
+    def ingest_stac(self, stac_json, dataset_id, id_token):
+        reponse = requests.put(
+            self.url + f"datasets/stac/{dataset_id}",
+            json={"stac": stac_json},
             headers={"Authorization": "Bearer " + id_token},
         )
         if reponse.status_code != 200:

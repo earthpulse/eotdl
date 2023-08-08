@@ -1,5 +1,6 @@
-from ...repos import DBRepo, OSRepo, S3Repo  # , GeoDBRepo
+from ...repos import DBRepo, OSRepo, S3Repo, GeoDBRepo
 from .CreateDataset import CreateDataset
+from .CreateSTACDataset import CreateSTACDataset
 from .IngestFile import IngestFile
 from .IngestFileURL import IngestFileURL
 from .UpdateDataset import UpdateDataset
@@ -19,6 +20,7 @@ from .IngestQ1Dataset import IngestQ1Dataset
 from .IngestSTAC import IngestSTAC
 from .DownloadDatasetSTAC import DownloadDatasetSTAC
 from .DeleteDatasetFile import DeleteDatasetFile
+from ..user import retrieve_user_credentials
 
 
 def create_dataset(user, name, authors, source, license):
@@ -27,6 +29,14 @@ def create_dataset(user, name, authors, source, license):
     inputs = CreateDataset.Inputs(
         uid=user.uid, name=name, authors=authors, source=source, license=license
     )
+    outputs = create(inputs)
+    return outputs.dataset_id
+
+
+def create_stac_dataset(user, name):
+    db_repo, geodb_repo = DBRepo(), GeoDBRepo
+    create = CreateSTACDataset(db_repo, geodb_repo, retrieve_user_credentials)
+    inputs = CreateSTACDataset.Inputs(user=user, uid=user.uid, name=name)
     outputs = create(inputs)
     return outputs.dataset_id
 
@@ -58,16 +68,15 @@ async def ingest_file_url(file, dataset, user):
 
 
 def ingest_stac(stac, dataset, user):
-    pass
-    # db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo()
-    # ingest = IngestSTAC(db_repo, os_repo, geodb_repo)
-    # inputs = ingest.Inputs(
-    #     dataset=dataset,
-    #     stac=stac,
-    #     uid=user.uid,
-    # )
-    # outputs = ingest(inputs)
-    # return outputs.dataset
+    db_repo, os_repo, geodb_repo = DBRepo(), OSRepo(), GeoDBRepo
+    ingest = IngestSTAC(db_repo, os_repo, geodb_repo, retrieve_user_credentials)
+    inputs = ingest.Inputs(
+        dataset=dataset,
+        stac=stac,
+        user=user,
+    )
+    outputs = ingest(inputs)
+    return outputs.dataset
 
 
 def retrieve_datasets(limit):
@@ -112,9 +121,9 @@ def download_dataset(id, file, user):
 
 
 def download_stac(dataset_id, user):
-    db_repo, geodb_repo = DBRepo(), GeoDBRepo()
-    retrieve = DownloadDatasetSTAC(db_repo, geodb_repo)
-    inputs = retrieve.Inputs(dataset_id=dataset_id, uid=user.uid)
+    db_repo, geodb_repo = DBRepo(), GeoDBRepo
+    retrieve = DownloadDatasetSTAC(db_repo, geodb_repo, retrieve_user_credentials)
+    inputs = retrieve.Inputs(dataset_id=dataset_id, user=user)
     outputs = retrieve(inputs)
     return outputs.stac
 
