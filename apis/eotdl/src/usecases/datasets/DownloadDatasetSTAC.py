@@ -30,4 +30,6 @@ class DownloadDatasetSTAC:
         credentials = self.retrieve_user_credentials(inputs.user)
         self.geodb_repo = self.geodb_repo(credentials)
         gdf = self.geodb_repo.retrieve(inputs.dataset_id)
+        # report usage
+        self.db_repo.increase_counter("datasets", "id", dataset.id, "downloads")
         return self.Outputs(stac=json.loads(gdf.to_json()))

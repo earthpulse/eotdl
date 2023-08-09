@@ -26,6 +26,8 @@ class MinioRepo:
         )
 
     def persist_file_url(self, url, dataset_id, filename):
+        # This won't work for large files :(
+        # but assets are expected to be small...
         object = self.get_object(dataset_id, filename)
         file_path = f"/tmp/{dataset_id}/{filename}"
         os.makedirs(os.path.dirname(file_path), exist_ok=True)

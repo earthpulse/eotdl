@@ -6,10 +6,11 @@ from ....src.utils import calculate_checksum
 
 
 class IngestFile:
-    def __init__(self, repo, allowed_extensions, logger):
+    def __init__(self, repo, allowed_extensions, logger, verbose=True):
         self.repo = repo
         self.allowed_extensions = allowed_extensions
         self.logger = logger if logger else print
+        self.verbose = verbose
 
     class Inputs(BaseModel):
         file: typing.Any
@@ -27,7 +28,8 @@ class IngestFile:
                 f"Only {', '.join(self.allowed_extensions)} files are allowed"
             )
         id_token = inputs.user["id_token"]
-        self.logger(f"Uploading file {inputs.file}...")
+        if self.verbose:
+            self.logger(f"Uploading file {inputs.file}...")
         if inputs.file.startswith("http://") or inputs.file.startswith("https://"):
             data, error = self.repo.ingest_file_url(
                 inputs.file, inputs.dataset_id, id_token
@@ -56,5 +58,6 @@ class IngestFile:
             data, error = self.repo.complete_upload(id_token, upload_id)
         if error:
             raise Exception(error)
-        self.logger("Done")
+        if self.verbose:
+            self.logger("Done")
         return self.Outputs(data=data)
