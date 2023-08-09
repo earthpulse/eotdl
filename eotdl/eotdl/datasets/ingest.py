@@ -29,10 +29,15 @@ def ingest_dataset(path, f=False, d=False, logger=print):
 
 @with_auth
 def ingest_file(
-    file, dataset_id, logger=None, allowed_extensions=allowed_extensions, user=None
+    file,
+    dataset_id,
+    logger=None,
+    allowed_extensions=allowed_extensions,
+    verbose=True,
+    user=None,
 ):
     api_repo = APIRepo()
-    ingest = IngestFile(api_repo, allowed_extensions, logger)
+    ingest = IngestFile(api_repo, allowed_extensions, logger, verbose)
     inputs = ingest.Inputs(file=file, dataset_id=dataset_id, user=user)
     outputs = ingest(inputs)
     return outputs.data
@@ -50,7 +55,7 @@ def ingest_folder(folder, force, delete, logger=None, user=None):
 @with_auth
 def ingest_stac(stac_catalog, logger=None, user=None):
     api_repo = APIRepo()
-    ingest = IngestSTAC(api_repo, ingest_file, allowed_extensions)
+    ingest = IngestSTAC(api_repo, ingest_file, allowed_extensions, logger)
     inputs = ingest.Inputs(stac_catalog=stac_catalog, user=user)
     outputs = ingest(inputs)
     return outputs.dataset

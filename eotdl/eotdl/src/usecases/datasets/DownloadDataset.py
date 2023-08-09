@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from pathlib import Path
 import os
 from typing import Union
+from tqdm import tqdm
 
 from ....curation.stac import STACDataFrame
 from ....src.utils import calculate_checksum
@@ -18,6 +19,7 @@ class DownloadDataset:
         file: Union[str, None] = None
         path: Union[str, None] = None
         user: dict
+        assets: bool = False
 
     class Outputs(BaseModel):
         dst_path: str
@@ -66,6 +68,7 @@ class DownloadDataset:
                 )
             return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))
         else:
+            self.logger("Downloading STAC metadata...")
             gdf, error = self.repo.download_stac(
                 dataset["id"],
                 inputs.user["id_token"],
@@ -78,5 +81,18 @@ class DownloadDataset:
             if path is None:
                 path = str(Path.home()) + "/.eotdl/datasets/" + dataset["name"]
             df.to_stac(path)
-            # TODO: download items
+            # download assets
+            if inputs.assets:
+                self.logger("Downloading assets...")
+                df = df.dropna(subset=["assets"])
+                for row in tqdm(df.iterrows(), total=len(df)):
+                    id = row[1]["stac_id"]
+                    # print(row[1]["links"])
+                    for k, v in row[1]["assets"].items():
+                        href = v["href"]
+                        self.repo.download_file_url(
+                            href, f"{path}/assets/{id}", inputs.user["id_token"]
+                        )
+            else:
+                self.logger("To download assets, set assets=True")
             return self.Outputs(dst_path=path)

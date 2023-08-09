@@ -61,21 +61,29 @@ class APIRepo:
 
     def download_file(self, dataset, dataset_id, file, id_token, path):
         url = self.url + "datasets/" + dataset_id + "/download/" + file
+        return self.download_file_url(url, path, id_token, progress=True)
+
+    def download_file_url(self, url, path, id_token, progress=False):
         headers = {"Authorization": "Bearer " + id_token}
-        path = f"{path}/{file}"
+        filename = url.split("/")[-1]
+        os.makedirs(path, exist_ok=True)
+        path = f"{path}/{filename}"
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
             block_size = 1024 * 1024 * 10
-            progress_bar = tqdm(
-                total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
-            )
+            if progress:
+                progress_bar = tqdm(
+                    total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+                )
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
-                    progress_bar.update(len(chunk))
+                    if progress:
+                        progress_bar.update(len(chunk))
                     if chunk:
                         f.write(chunk)
-            progress_bar.close()
+            if progress:
+                progress_bar.close()
             return path
 
     def ingest_file(self, file, dataset_id, id_token, checksum=None):
@@ -91,8 +99,8 @@ class APIRepo:
 
     def ingest_file_url(self, file, dataset, id_token):
         reponse = requests.post(
-            self.url + "datasets/url",
-            json={"dataset": dataset, "url": file},
+            self.url + f"datasets/{dataset}/url",
+            json={"url": file},
             headers={"Authorization": "Bearer " + id_token},
         )
         if reponse.status_code != 200:

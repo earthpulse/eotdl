@@ -118,26 +118,26 @@ async def ingest(
 
 class IngestURLBody(BaseModel):
     url: str
-    dataset: str
 
 
-# @router.post("/url")
-# async def ingest_url(
-#     body: IngestURLBody,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         dataset_id, dataset_name, file_name = await ingest_file_url(
-#             body.url, body.dataset, user
-#         )
-#         return {
-#             "dataset_id": dataset_id,
-#             "dataset_name": dataset_name,
-#             "file_name": file_name,
-#         }
-#     except Exception as e:
-#         logger.exception("datasets:ingest")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+@router.post("/{dataset_id}/url")
+async def ingest_url(
+    dataset_id: str,
+    body: IngestURLBody,
+    user: User = Depends(get_current_user),
+):
+    # try:
+    dataset_id, dataset_name, file_name = await ingest_file_url(
+        body.url, dataset_id, user
+    )
+    return {
+        "dataset_id": dataset_id,
+        "dataset_name": dataset_name,
+        "file_name": file_name,
+    }
+    # except Exception as e:
+    #     logger.exception("datasets:ingest")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("")

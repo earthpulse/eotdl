@@ -3,9 +3,8 @@ import typing
 from typing import Union
 from datetime import datetime
 
-from ...models import Dataset, Usage, User, Limits, File
+from ...models import Dataset, Usage, User, Limits, File, STACDataset
 from ...errors import (
-    DatasetAlreadyExistsError,
     TierLimitError,
     DatasetDoesNotExistError,
     ChecksumMismatch,
@@ -21,7 +20,7 @@ class IngestFile:
         dataset_id: str
         file: typing.Any
         uid: str
-        checksum: Union[str, None]
+        checksum: Union[str, None] = None
 
     class Outputs(BaseModel):
         dataset_id: str
@@ -39,7 +38,7 @@ class IngestFile:
         data = self.db_repo.retrieve("datasets", inputs.dataset_id)
         if not data:
             raise DatasetDoesNotExistError()
-        dataset = Dataset(**data)
+        dataset = Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
         # check if user can ingest file
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
@@ -50,12 +49,13 @@ class IngestFile:
             raise DatasetDoesNotExistError()
         # check if user can ingest file
         filename = self.get_file_name(inputs.file)
-        if len(dataset.files) + 1 > limits.datasets.files and filename not in [
-            file.name for file in dataset.files
-        ]:
-            raise TierLimitError(
-                "You cannot have more than {} files".format(limits.datasets.files)
-            )
+        if dataset.quality == 0:
+            if len(dataset.files) + 1 > limits.datasets.files and filename not in [
+                file.name for file in dataset.files
+            ]:
+                raise TierLimitError(
+                    "You cannot have more than {} files".format(limits.datasets.files)
+                )
         # save file in storage
         self.persist_file(inputs.file, dataset.id, filename)
         # calculate checksum
@@ -65,13 +65,14 @@ class IngestFile:
             if len(dataset.files) == 0:
                 self.db_repo.delete("datasets", dataset.id)
             raise ChecksumMismatch()
-        if filename in [f.name for f in dataset.files]:  # update file
-            current_file = [f for f in dataset.files if f.name == filename][0]
-            dataset.size -= current_file.size
-            dataset.files = [f for f in dataset.files if f.name != filename]
         file_size = self.os_repo.object_info(dataset.id, filename).size
-        dataset.files.append(File(name=filename, size=file_size, checksum=checksum))
-        dataset.size += file_size
+        if dataset.quality == 0:
+            if filename in [f.name for f in dataset.files]:  # update file
+                current_file = [f for f in dataset.files if f.name == filename][0]
+                dataset.size -= current_file.size
+                dataset.files = [f for f in dataset.files if f.name != filename]
+            dataset.files.append(File(name=filename, size=file_size, checksum=checksum))
+            dataset.size += file_size
         dataset.updatedAt = datetime.now()
         self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage

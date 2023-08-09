@@ -55,11 +55,11 @@ async def ingest_file(file, dataset_id, checksum, user):
     return outputs.dataset_id, outputs.dataset_name, outputs.file_name
 
 
-async def ingest_file_url(file, dataset, user):
+async def ingest_file_url(file, dataset_id, user):
     db_repo, os_repo = DBRepo(), OSRepo()
     ingest = IngestFileURL(db_repo, os_repo)
     inputs = ingest.Inputs(
-        dataset=dataset,
+        dataset_id=dataset_id,
         file=file,
         uid=user.uid,
     )

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 import typing
 
 from ...errors import DatasetDoesNotExistError, TierLimitError, FileDoesNotExistError
-from ...models import Usage, User, Limits, Dataset
+from ...models import Usage, User, Limits, Dataset, STACDataset
 
 
 class DownloadDataset:
@@ -40,9 +40,10 @@ class DownloadDataset:
         if not data:
             raise DatasetDoesNotExistError()
         # check if file exists
-        dataset = Dataset(**data)
-        if inputs.file not in [f.name for f in dataset.files]:
-            raise FileDoesNotExistError()
+        dataset = Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
+        if dataset.quality == 0:
+            if inputs.file not in [f.name for f in dataset.files]:
+                raise FileDoesNotExistError()
         # report usage
         object_info = self.os_repo.object_info(inputs.id, inputs.file)
         usage = Usage.FileDownload(
@@ -54,7 +55,8 @@ class DownloadDataset:
             },
         )
         self.db_repo.persist("usage", usage.dict())
-        self.db_repo.increase_counter("datasets", "id", inputs.id, "downloads")
+        if dataset.quality == 0:
+            self.db_repo.increase_counter("datasets", "id", inputs.id, "downloads")
         # download
         return self.Outputs(
             data_stream=self.os_repo.data_stream,
