@@ -24,6 +24,7 @@ db
 !uis/eotdl/tests/e2e/files/*.zip
 docker-compose.prod.yml
 tutorials/*md
+credentials
 !test.zip
 .vscode
 kk
