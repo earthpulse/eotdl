@@ -6,16 +6,16 @@ import datetime
 import json
 import rasterio
 from rasterio.warp import transform_bounds
+from typing import Union
 
 from os import remove
 from glob import glob
 from os.path import dirname, join, exists
 
 
-def generate_raster_metadata(raster_path: str,
-                             output_folder: str,
-                             date_adquired: str|datetime.datetime
-                             ) -> None:
+def generate_raster_metadata(
+    raster_path: str, output_folder: str, date_adquired: Union[str, datetime.datetime]
+) -> None:
     """
     Generate metadata.json file for a raster file
 
@@ -25,8 +25,10 @@ def generate_raster_metadata(raster_path: str,
     """
     with rasterio.open(raster_path) as ds:
         bounds = ds.bounds
-        dst_crs = 'EPSG:4326'  # EPSG identifier for WGS84 coordinate system used by the geojson format
-        left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
+        dst_crs = "EPSG:4326"  # EPSG identifier for WGS84 coordinate system used by the geojson format
+        left, bottom, right, top = rasterio.warp.transform_bounds(
+            ds.crs, dst_crs, *bounds
+        )
         bbox = [left, bottom, right, top]
 
     # Get raster directory path to get the request.json file
@@ -34,18 +36,24 @@ def generate_raster_metadata(raster_path: str,
 
     # Read the request.json file and get the request data type
     if exists(raster_dir_path):
-        with open(join(raster_dir_path, 'request.json'), 'r') as f:
+        with open(join(raster_dir_path, "request.json"), "r") as f:
             request = json.load(f)
-            request_data_type = request['request']['payload']['input']['data'][0]['type']
+            request_data_type = request["request"]["payload"]["input"]["data"][0][
+                "type"
+            ]
 
-    metadata_path = join(output_folder, 'metadata.json')
-    metadata = {'date-adquired': date_adquired, 'bounding-box': bbox, 'type': request_data_type}
-    
-    with open(metadata_path, 'w') as f:
+    metadata_path = join(output_folder, "metadata.json")
+    metadata = {
+        "date-adquired": date_adquired,
+        "bounding-box": bbox,
+        "type": request_data_type,
+    }
+
+    with open(metadata_path, "w") as f:
         json.dump(metadata, f)
 
 
-def remove_raster_metadata(folder: str, metadata_file: str = 'metadata.json') -> None:
+def remove_raster_metadata(folder: str, metadata_file: str = "metadata.json") -> None:
     """
     Remove metadata.json file from a folder
 
@@ -53,7 +61,7 @@ def remove_raster_metadata(folder: str, metadata_file: str = 'metadata.json') ->
     :param metadata_file: metadata file name
     """
     # Search for all the metadata files in the folder
-    metadata_files = glob(join(folder, '**', metadata_file), recursive=True)
+    metadata_files = glob(join(folder, "**", metadata_file), recursive=True)
     # Remove all the metadata files
     for metadata_file in metadata_files:
         remove(metadata_file)
