@@ -1,11 +1,10 @@
-from ...repos import DBRepo, EOXRepo
 from ...models import User
 from .PersistUser import PersistUser
 from .UpdateUser import UpdateUser
 from .RetrieveUser import RetrieveUser
-from .RetrieveCredentials import RetrieveCredentials
-from .AcceptTermsAndConditions import AcceptTermsAndConditions
+from .UpdateUserTier import UpdateUserTier
 
+from ...repos import DBRepo
 
 def persist_user(data: dict) -> User:
     repo = DBRepo()
@@ -14,14 +13,12 @@ def persist_user(data: dict) -> User:
     outputs = persist_user(inputs)
     return outputs.user
 
-
-def update_user(user: User, data: dict) -> User:
+def update_user(user, data):
     repo = DBRepo()
     update = UpdateUser(repo)
     inputs = UpdateUser.Inputs(uid=user.uid, data=data)
     outputs = update(inputs)
     return outputs.user
-
 
 def retrieve_user(user):
     repo = DBRepo()
@@ -30,20 +27,9 @@ def retrieve_user(user):
     outputs = retrieve(inputs)
     return outputs.user
 
-
-def accept_user_terms_and_conditions(user):
+def update_user_tier(uid, tier):
     repo = DBRepo()
-    eox_repo = EOXRepo()
-    accept = AcceptTermsAndConditions(repo, eox_repo)
-    inputs = AcceptTermsAndConditions.Inputs(uid=user.uid, email=user.email)
-    outputs = accept(inputs)
+    update = UpdateUserTier(repo)
+    inputs = UpdateUserTier.Inputs(uid=uid, tier=tier)
+    outputs = update(inputs)
     return outputs.user
-
-
-def retrieve_user_credentials(user):
-    repo = DBRepo()
-    eox_repo = EOXRepo()
-    retrieve = RetrieveCredentials(repo, eox_repo)
-    inputs = RetrieveCredentials.Inputs(uid=user.uid, email=user.email)
-    outputs = retrieve(inputs)
-    return outputs.credentials

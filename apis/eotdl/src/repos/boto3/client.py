@@ -1,6 +1,15 @@
 import boto3
 
+# from botocore.client import Config
 import os
+
+
+# def get_session():
+#     return Session(
+#         aws_access_key_id=os.environ["ACCESS_KEY_ID"],
+#         aws_secret_access_key=os.environ["SECRET_ACCESS_KEY"],
+#         region_name=os.getenv("S3_REGION", "us-east-1"),
+#     )
 
 
 def get_client():

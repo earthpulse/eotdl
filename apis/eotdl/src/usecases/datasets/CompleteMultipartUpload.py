@@ -2,13 +2,8 @@ from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 
-from ...models import Dataset, Usage, User, Limits, UploadingFile, File
-from ...errors import (
-    DatasetDoesNotExistError,
-    TierLimitError,
-    UploadIdDoesNotExist,
-    ChecksumMismatch,
-)
+from ...models import Dataset, Usage, User, Limits
+from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
 
 
 class CompleteMultipartUpload:
@@ -19,71 +14,71 @@ class CompleteMultipartUpload:
 
     class Inputs(BaseModel):
         uid: str
+        name: Union[str, None]
+        description: Union[str, None]
+        id: str
         upload_id: str
 
     class Outputs(BaseModel):
         dataset: Dataset
 
-    async def __call__(self, inputs: Inputs) -> Outputs:
-        # check if upload already exists
-        data = self.db_repo.find_one(
-            "uploading",
-            {"uid": inputs.uid, "upload_id": inputs.upload_id},
-        )
-        if not data:
-            raise UploadIdDoesNotExist()
-        uploading = UploadingFile(**data)
-        # check if dataset exists
-        data = self.db_repo.retrieve("datasets", uploading.dataset)
-        if not data:
-            raise DatasetDoesNotExistError()
-        dataset = Dataset(**data)
+    def __call__(self, inputs: Inputs) -> Outputs:
+        # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        # check if user owns dataset
-        if inputs.uid != dataset.uid:
-            raise DatasetDoesNotExistError()
-        # check files limit
-        if (
-            len(dataset.files) + 1 > limits.datasets.files
-            and uploading.name not in dataset.files
-        ):
+        usage = self.db_repo.find_in_time_range(
+            "usage", inputs.uid, "dataset_ingested", "type"
+        )
+        if len(usage) + 1 >= limits.datasets.upload:
             raise TierLimitError(
-                "You cannot have more than {} files".format(limits.datasets.files)
+                "You cannot ingest more than {} datasets per day".format(
+                    limits.datasets.upload
+                )
             )
-        storage = self.os_repo.get_object(dataset.id, uploading.name)
-        self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
-        object_info = self.os_repo.object_info(dataset.id, uploading.name)
-        # # calculate checksum (too expensive for big files)
-        # checksum = await self.os_repo.calculate_checksum(
-        #     dataset.id, uploading.name
-        # )
-        # if checksum != uploading.checksum:
-        #     self.os_repo.delete_file(dataset.id, uploading.name)
-        #     if len(dataset.files) == 0:
-        #         self.db_repo.delete("datasets", dataset.id)
-        #     raise ChecksumMismatch()
-        if uploading.name in [f.name for f in dataset.files]:
-            dataset.files = [f for f in dataset.files if f.name != uploading.name]
-        dataset.files.append(
-            File(
-                name=uploading.name, size=object_info.size, checksum=uploading.checksum
+        # create new dataset
+        if inputs.name is not None and inputs.description is not None:
+            # check if name already exists
+            if self.db_repo.find_one_by_name("datasets", inputs.name):
+                raise DatasetAlreadyExistsError()
+            storage = self.os_repo.get_object(inputs.id)
+            self.s3_repo.complete_multipart_upload(storage, inputs.upload_id)
+            size = self.os_repo.get_size(inputs.id)
+            dataset = Dataset(
+                uid=inputs.uid,
+                id=inputs.id,
+                name=inputs.name,
+                description=inputs.description,
+                size=size,
             )
-        )
-        dataset.updatedAt = datetime.now()
-        dataset.size = dataset.size + object_info.size
-        self.db_repo.update("datasets", dataset.id, dataset.dict())
+            # save dataset in db
+            self.db_repo.persist("datasets", dataset.dict(), inputs.id)
+            # update user dataset count
+            self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
+            # report usage
+            usage = Usage.DatasetIngested(
+                uid=inputs.uid, payload={"dataset": inputs.id}
+            )
+            self.db_repo.persist("usage", usage.dict())
+            return self.Outputs(dataset=dataset)
+        # update existing dataset
+        # check if user is owner
+        data = self.db_repo.retrieve("datasets", inputs.id, "id")
+        dataset = Dataset(**data)
+        if dataset.uid != inputs.uid:
+            raise UserUnauthorizedError()
+        # update dataset
+        storage = self.os_repo.get_object(inputs.id)
+        self.s3_repo.complete_multipart_upload(
+            storage, inputs.upload_id
+        )  # will work if dataset exists?
+        size = self.os_repo.get_size(inputs.id)
+        data.update(size=size, updatedAt=datetime.now())
+        updated_dataset = Dataset(**data)
+        # save dataset in db
+        self.db_repo.update("datasets", inputs.id, updated_dataset.dict())
         # report usage
-        usage = Usage.FileIngested(
-            uid=inputs.uid,
-            payload={
-                "dataset": dataset.id,
-                "file": uploading.name,
-                "size": object_info.size,
-            },
-        )
+        usage = Usage.DatasetIngested(uid=inputs.uid, payload={"dataset": inputs.id})
         self.db_repo.persist("usage", usage.dict())
-        self.db_repo.delete("uploading", uploading.id)
         return self.Outputs(dataset=dataset)

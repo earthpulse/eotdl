@@ -29,14 +29,14 @@ services:
       - .env
     volumes:
       - ./apis/eotdl:/api
-      - ./eotdl/eotdl:/api/eotdl
+      - ./lib/eotdl:/api/eotdl
     command: uvicorn api.main:app --host 0.0.0.0 --reload
 
-  eotdl-test:
-    build: ./eotdl 
-    container_name: eotdl-test
+  eotdl-cli-test:
+    build: ./cli 
+    container_name: eotdl-cli-test
     environment:
       - EOTDL_API_URL=http://eotdl-api-test:8000
     volumes:
-      - ./eotdl:/eotdl
+      - ./cli:/cli
     tty: true
