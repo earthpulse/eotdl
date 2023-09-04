@@ -1,8 +1,9 @@
 from pydantic import BaseModel
+import typing
 
-from ...models import User, Limits, UploadingFile, Dataset
-from ...errors import DatasetDoesNotExistError, TierLimitError
-from typing import List
+from ...models import Dataset, User, Limits
+from ...errors import DatasetAlreadyExistsError, TierLimitError, UserUnauthorizedError
+from typing import Optional
 
 
 class GenerateUploadId:
@@ -13,62 +14,55 @@ class GenerateUploadId:
 
     class Inputs(BaseModel):
         uid: str
-        checksum: str
-        name: str
-        dataset_id: str
+        name: str = None
+        description: str = None
+        id: str = None
 
     class Outputs(BaseModel):
-        upload_id: str
-        parts: List[int] = []
+        dataset_id: Optional[str] = None
+        upload_id: Optional[str] = None
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        # check if upload already exists
-        data = self.db_repo.find_one(
-            "uploading",
-            {"uid": inputs.uid, "name": inputs.name, "dataset": inputs.dataset_id},
-        )
-        if data:
-            uploading = UploadingFile(**data)
-            # abort if trying to resume existing upload with a different file
-            if uploading.checksum != inputs.checksum:
-                self.db_repo.delete("uploading", uploading.id)
-            else:  # resume upload
-                return self.Outputs(
-                    upload_id=uploading.upload_id,
-                    parts=uploading.parts,
-                )
-        # check if dataset already exists
-        data = self.db_repo.retrieve("datasets", inputs.dataset_id)
-        if not data:
-            raise DatasetDoesNotExistError()
-        dataset = Dataset(**data)
+        # check if user can ingest dataset
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        if dataset.uid != inputs.uid:
-            raise DatasetDoesNotExistError()
-        # check if user can ingest file
-        if (
-            len(dataset.files) + 1 > limits.datasets.files
-            and inputs.name not in dataset.files
-        ):
+        usage = self.db_repo.find_in_time_range(
+            "usage", inputs.uid, "dataset_ingested", "type"
+        )
+        if len(usage) + 1 >= limits.datasets.upload:
             raise TierLimitError(
-                "You cannot have more than {} files".format(limits.datasets.files)
+                "You cannot ingest more than {} datasets per day".format(
+                    limits.datasets.upload
+                )
             )
-        # create new upload
-        id = self.db_repo.generate_id()
-        storage = self.os_repo.get_object(dataset.id, inputs.name)
+        # check if name already exists
+        if self.db_repo.find_one_by_name("datasets", inputs.name):
+            raise DatasetAlreadyExistsError()
+        # create new dataset
+        if inputs.id is None:
+            # generate new dataset id and validate name, description
+            id = self.db_repo.generate_id()
+            Dataset(
+                uid=inputs.uid,
+                id=id,
+                name=inputs.name,
+                description=inputs.description,
+            )
+            # generate multipart upload id
+            storage = self.os_repo.get_object(id)
+            upload_id = self.s3_repo.multipart_upload_id(storage)
+            return self.Outputs(dataset_id=id, upload_id=upload_id)
+        # update existing dataset
+        # check if user is owner
+        data = self.db_repo.retrieve("datasets", inputs.id, "id")
+        dataset = Dataset(**data)
+        if dataset.uid != inputs.uid:
+            raise UserUnauthorizedError()
+        # generate multipart upload id
+        storage = self.os_repo.get_object(inputs.id)
         upload_id = self.s3_repo.multipart_upload_id(
             storage
         )  # does this work if the file already exists ?
-        uploading = UploadingFile(
-            uid=inputs.uid,
-            id=id,
-            upload_id=upload_id,
-            dataset=inputs.dataset_id,
-            name=inputs.name,
-            checksum=inputs.checksum,
-        )
-        self.db_repo.persist("uploading", uploading.dict(), uploading.id)
         return self.Outputs(upload_id=upload_id)

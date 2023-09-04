@@ -12,8 +12,8 @@ services:
     image: minio/minio
     container_name: eotdl-minio
     ports:
-      - 9020:9000
-      - 9021:9001
+      - 9000:9000
+      - 9001:9001
     volumes:
       - ./data/minio:/data
     environment:
@@ -24,7 +24,6 @@ services:
   eotdl-api:
     build: ./apis/eotdl
     container_name: eotdl-api
-    # platform: linux/amd64
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
@@ -35,16 +34,11 @@ services:
       - S3_SSL=False
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
-      - API_BASE_URL=http://localhost:8010 # used to generate file urls
-      - EOX_PROVISIONINGS_URL=https://provisionings-dev.api.eotdl.com/provisionings
-      - EOX_VAULT_URL=https://vault.api.eotdl.com/v1
-      - EOX_VAULT_ROLE_ID=0fb065f7-dd9f-447b-e8fc-819c7678090e
-      - EOX_VAULT_SECRET_ID=54c64c8f-2a7a-af90-82b2-f62dfa16b3a4
-    env_file: # auth0 and geodb credentials
+    env_file: # auth0 credentials
       - .env
     volumes:
       - ./apis/eotdl:/api
-      - ./eotdl/eotdl:/api/eotdl
+      - ./lib/eotdl:/api/eotdl
     ports:
-      - 8010:8000
+      - 8000:8000
     command: uvicorn api.main:app --host 0.0.0.0 --reload

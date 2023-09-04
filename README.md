@@ -2,9 +2,9 @@
 
 This repository contains de source code of the [**Earth Observation Training Data Lab** (EOTDL)](https://eotdl.vercel.app/). It contains a set of Python libraries, APIs, CLIs and User Interfaces to explore, create, manage and share datasets and Machine Learning models for Earth Observations applications.
 
-## Library and CLI
+## Library
 
-The [eotdl library](./eotdl) contains the main functionality for creating datasets and models, as well as the CLI.
+The [eotdl library](./lib) contains the main functionality for creating datasets and models.
 
 ## APIs
 
@@ -30,6 +30,7 @@ In order to run the API, you need to set the following environment variables:
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
 - `TZ`: Your time zone (for example, `Europe/Madrid`. Optional, `UTC` by default)
 
+
 To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
 
 - `EOTDL_API_URL`: the URL of the API
@@ -46,30 +47,17 @@ Then, run the tests
 
 ```
 docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
-docker exec eotdl-test poetry run pytest --cov eotdl --cov-report term-missing
+docker exec eotdl-cli-test poetry run pytest --cov cli --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with
 
 ```
 docker exec eotdl-api-test ptw api
-docker exec eotdl-test poetry run ptw
+docker exec eotdl-cli-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
-
-E2E UI generate tests
-
-```
-cd uis/eotdl
-yarn dev
-
-# first time to login and save cookies
-yarn playwright codegen http://localhost:5173 --save-storage=auth.json
-
-# next times to run tests
-yarn playwright codegen http://localhost:5173 --load-storage=auth.json
-```
 
 #### Running the API
 
