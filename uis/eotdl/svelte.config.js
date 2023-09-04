@@ -17,7 +17,6 @@ const config = {
     adapter: vercel(),
         alias: {
           $stores: path.resolve("./src/stores"),
-          $components: path.resolve("./src/components"),
         },
   },
 };
