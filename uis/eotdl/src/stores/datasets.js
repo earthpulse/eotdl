@@ -1,10 +1,12 @@
 import { writable } from "svelte/store";
-import ingestDataset from "../lib/datasets/ingestDataset";
-import reuploadDataset from "../lib/datasets/reuploadDataset";
+import createDataset from "../lib/datasets/createDataset";
+import ingestFile from "../lib/datasets/ingestFile";
+import updateDataset from "../lib/datasets/updateDataset";
+import retrieveDataset from "../lib/datasets/retrieveDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
-import editDataset from "../lib/datasets/editDataset";
 import likeDataset from "../lib/datasets/likeDataset";
+
 
 const createDatasets = () => {
   const { subscribe, set, update } = writable({
@@ -14,19 +16,35 @@ const createDatasets = () => {
   });
   return {
     subscribe,
-    ingest: async (file, name, description, token) => {
-      const data = await ingestDataset(file, name, description, token);
-      update((current) => ({
-        data: [...current.data, data],
-      }));
+    retrieveOne: async (name) => await retrieveDataset(name),
+    create: async (name, authors, source, license, token) => {
+      const { dataset_id } = await createDataset(name, authors, source, license, token);
+      return dataset_id
     },
-    reupload: async (file, dataset_id, token) => {
-      const data = await reuploadDataset(file, dataset_id, token);
+    ingest: async (dataset_id, file, token, name) => {
+      await ingestFile(dataset_id, file, token);
+      const data = await retrieveDataset(name);
+      update((current) => {
+        const datasetExists = current.data.find((dataset) => dataset.id === data.id)
+        if (datasetExists) {
+          return {
+            data: current.data.map((dataset) => dataset.id === data.id ? data : dataset)
+          }
+        }
+        return {
+          data: [data, ...current.data],
+        }
+      });
+      return data
+    },
+    update: async (dataset_id, name, content, authors, source, license, tags, token) => {
+      const data = await updateDataset(dataset_id, name, content, authors, source, license, tags, token);
       update((current) => ({
-        data: current.data.map((dataset) =>
-          dataset.id === id ? data : dataset
+        data: current.data.map((dataset) => 
+           dataset.id === dataset_id ? data : dataset          
         ),
       }));
+      return data;
     },
     retrieve: async (fetch, limit=null) => {
       set({ loading: true });
@@ -39,14 +57,6 @@ const createDatasets = () => {
     },
     download: async (id, token) => {
       return downloadDataset(id, token);
-    },
-    edit: async (id, newName, newDescription, newTags, token) => {
-      await editDataset(id, newName, newDescription, newTags, token);
-      update((current) => ({
-        data: current.data.map((dataset) =>
-          dataset.id === id ? { ...dataset, name: newName, description: newDescription, tags: newTags } : dataset
-        ),
-      }));
     },
     like: async (id, token) => {
       likeDataset(id, token);

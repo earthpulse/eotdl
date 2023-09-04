@@ -1,15 +1,12 @@
 <script>
 	import { user, id_token } from "$stores/auth";
 	import { PUBLIC_EOTDL_API } from "$env/static/public";
-	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
-	import { goto } from "$app/navigation";
 	import { parseISO, formatDistanceToNow } from "date-fns";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 	import "../../../styles/dataset.css";
-	import TextEditor from "../TextEditor.svelte";
 	import Sd from "svelte-material-icons/Sd.svelte";
 	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
@@ -17,23 +14,32 @@
 
 	export let data;
 
-	$: ({ name, id, createdAt, uid, description, tags } = data.dataset);
-
-	$: content = description || "";
+	$: ({
+		name,
+		id,
+		createdAt,
+		description,
+		tags,
+		authors,
+		source,
+		license,
+		size,
+		files,
+	} = data.dataset);
 
 	let createWriteStream;
-	onMount(async () => {
-		if (browser) {
-			// only works in browser
-			const streamsaver = await import("streamsaver");
-			createWriteStream = streamsaver.createWriteStream;
-		}
-	});
+	const load = async () => {
+		await datasets.retrieve(fetch);
+		// only works in browser
+		const streamsaver = await import("streamsaver");
+		createWriteStream = streamsaver.createWriteStream;
+	};
 
-	const download = async () => {
+	$: if (browser) load();
+
+	const download = async (fileName) => {
 		// seems to work, but not sure if it will with large datasets (need to test)
-		const fileName = `${name}.zip`;
-		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
+		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${$id_token}`,
@@ -62,52 +68,6 @@
 			.then((res) => {
 				alert(res.detail);
 			});
-
-		// this works but is slow with large files (no streaming)
-
-		// const response = await fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
-		// 	method: "GET",
-		// 	headers: {
-		// 		Authorization: `Bearer ${$id_token}`,
-		// 	},
-		// });
-		// const blob = await response.blob();
-		// const url = URL.createObjectURL(blob);
-		// const link = document.createElement("a");
-		// link.href = url;
-		// link.download = `${name}.zip`;
-		// document.body.appendChild(link);
-		// link.click();
-		// document.body.removeChild(link);
-	};
-
-	let newName,
-		newTags,
-		loading = false;
-	$: {
-		newTags = tags;
-	}
-	const edit = async () => {
-		loading = true;
-		try {
-			await datasets.edit(id, newName, content, newTags, $id_token);
-			document.getElementById("edit-dataset").checked = false;
-			data.dataset.tags = newTags;
-			data.dataset.name = newName || name;
-			data.dataset.description = content || description;
-			if (newName) goto(`/datasets/${newName}`, { replaceState: true });
-		} catch (e) {
-			alert(e.message);
-		}
-		loading = false;
-	};
-
-	const toggleTag = (tag) => {
-		if (newTags.includes(tag)) {
-			newTags = newTags.filter((t) => t !== tag);
-		} else {
-			newTags = [...newTags, tag];
-		}
 	};
 
 	const like = () => {
@@ -146,12 +106,22 @@
 				</div>
 			</span>
 			{#if $user}
-				<span class="flex flex-row gap-3">
-					<button
-						class="btn btn-ghost btn-outline"
-						on:click={download}>Download</button
-					>
-					<Update dataset_id={data.dataset.id} />
+				<span class="flex flex-row gap-1">
+					{#if $user.uid == data.dataset.uid}
+						<Update
+							dataset_id={data.dataset.id}
+							tags={data.tags}
+							current_tags={tags}
+							{name}
+							bind:authors={data.dataset.authors}
+							bind:source={data.dataset.source}
+							bind:license={data.dataset.license}
+							bind:description={data.dataset.description}
+							bind:selected_tags={data.dataset.tags}
+							bind:size={data.dataset.size}
+							bind:files={data.dataset.files}
+						/>
+					{/if}
 				</span>
 			{:else}
 				<p class="badge badge-warning p-3">Sign in to download</p>
@@ -178,70 +148,91 @@
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<Sd color="gray" size={20} />
-				<p>{formatFileSize(data.dataset.size)}</p>
+				<p>{formatFileSize(size)}</p>
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<CheckDecagramOutline color="gray" size={20} />
 				<p>Q{data.dataset.quality}</p>
 			</span>
 		</span>
-		{#if uid == $user?.uid}
-			<label
-				for="edit-dataset"
-				class="text-gray-400 cursor-pointer hover:underline">Edit</label
-			>
-		{/if}
 		<!-- <p class="py-10">{description}</p> -->
-		<div class="content">
-			{@html description}
+		<div class="grid grid-cols-[auto,425px] gap-3">
+			<div class="content">
+				{#if description}
+					{@html description}
+				{:else}
+					<p class="italic">No description.</p>
+				{/if}
+			</div>
+			<div class="flex flex-col gap-3">
+				<div class="overflow-auto w-full">
+					<table
+						class="table border-2 rounded-lg table-compact h-[100px] w-full"
+					>
+						<tbody>
+							<tr>
+								<th class="w-[20px]">Author(s)</th>
+								<td>{authors.join(", ") || "-"}</td>
+							</tr>
+							<tr>
+								<th>License</th>
+								<td>{license || "-"}</td>
+							</tr>
+							<tr>
+								<th>Source</th>
+								<td>
+									{#if source}
+										<a
+											href={source}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="text-green-200 hover:underline"
+											>{source.length > 30
+												? source.slice(0, 30) + "..."
+												: source}</a
+										>
+									{:else}
+										-
+									{/if}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<p>Files ({files.length}):</p>
+				<div class="overflow-auto w-full">
+					<table
+						class="table border-2 rounded-lg table-compact h-[100px] w-full"
+					>
+						<tbody>
+							<tr>
+								<th> Name </th>
+								<th>Size</th>
+								<th>Checksum (SHA1)</th>
+							</tr>
+							{#each files as file}
+								<tr>
+									<td class="flex flex-row gap-1">
+										{#if $user}
+											<button
+												on:click={() =>
+													download(file.name)}
+												><Download
+													color="gray"
+													size={20}
+												/></button
+											>
+										{/if}
+										{file.name}
+									</td>
+									<td>{formatFileSize(file.size)}</td>
+									<td class="text-xs">{file.checksum}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
-
-<input type="checkbox" id="edit-dataset" class="modal-toggle" />
-<label for="edit-dataset" class="modal cursor-pointer">
-	<label class="modal-box relative" for="">
-		<form on:submit|preventDefault={edit} class="flex flex-col gap-2">
-			<h3 class="text-lg font-bold">Edit dataset</h3>
-			<span>
-				<input
-					class="input input-bordered w-full"
-					type="text"
-					placeholder={name}
-					bind:value={newName}
-				/>
-				<p class="text-sm text-gray-400">*Name should be unique</p>
-			</span>
-			<TextEditor bind:content />
-			<span>
-				<h3>Select relevant tags:</h3>
-				<div class="flex flex-wrap gap-1">
-					{#each data.tags as tag}
-						<p
-							class="badge badge-outline cursor-pointer text-slate-400 text-xs {newTags.includes(
-								tag
-							) && 'badge-accent'}"
-							on:click={() => toggleTag(tag)}
-							on:keyup={() => {}}
-						>
-							{tag}
-						</p>
-					{/each}
-				</div>
-			</span>
-			<span class="self-end">
-				<label
-					for="edit-dataset"
-					class="btn btn-ghost btn-outline btn-error">Close</label
-				>
-				<button
-					class="btn btn-ghost btn-outline {loading && 'loading'}"
-					type="submit">Update</button
-				>
-			</span>
-		</form>
-	</label>
-</label>
-
-<style>
-</style>
