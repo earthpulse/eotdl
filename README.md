@@ -2,6 +2,8 @@
 
 This repository contains de source code of the [**Earth Observation Training Data Lab** (EOTDL)](https://eotdl.vercel.app/). It contains a set of Python libraries, APIs, CLIs and User Interfaces to explore, create, manage and share datasets and Machine Learning models for Earth Observations applications.
 
+> Meet us at the upcoming [BiDS'23](https://www.bigdatafromspace2023.org/) event, that will take place on 6-9 November 2023 in Vienna, Austria. A hands-on tutorial session on EOTDL will take place on November 6th from 9:00 to 12:30, and everyone is welcome to join! More information [here](https://www.bigdatafromspace2023.org/satellite-events).
+
 ## Library
 
 The [eotdl library](./lib) contains the main functionality for creating datasets and models.
