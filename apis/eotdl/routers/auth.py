@@ -131,4 +131,5 @@ def retrieve_credentials(
         return retrieve_user_credentials(user)
     except Exception as e:
         logger.exception("auth.retrieve_credentials")
+        print(e)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

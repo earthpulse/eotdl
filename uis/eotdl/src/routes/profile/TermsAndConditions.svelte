@@ -7,10 +7,12 @@
 		eoxhub = false;
 
 	$: {
-		if ($user.terms.geodb) geodb = true;
-		if ($user.terms.sentinelhub) sentinelhub = true;
-		if ($user.terms.eoxhub) eoxhub = true;
+		if ($user.terms?.geodb) geodb = true;
+		if ($user.terms?.sentinelhub) sentinelhub = true;
+		if ($user.terms?.eoxhub) eoxhub = true;
 	}
+
+	$: console.log($user);
 
 	$: disabled = !geodb || !sentinelhub || !eoxhub;
 
@@ -31,7 +33,7 @@
 	on:submit|preventDefault={submit}
 >
 	<span>
-		{#if $user.terms.geodb}
+		{#if $user.terms?.geodb}
 			<p>You have agreed to the GeoDB Terms and Condition.</p>
 		{:else}
 			<input type="checkbox" bind:checked={geodb} id="geodb" />
@@ -40,7 +42,7 @@
 		{/if}
 	</span>
 	<span>
-		{#if $user.terms.sentinelhub}
+		{#if $user.terms?.sentinelhub}
 			<p>You have agreed to the GeoDB Terms and Condition.</p>
 		{:else}
 			<input
@@ -54,7 +56,7 @@
 		{/if}
 	</span>
 	<span>
-		{#if $user.terms.eoxhub}
+		{#if $user.terms?.eoxhub}
 			<p>You have agreed to the EOX HUB Terms and Condition.</p>
 		{:else}
 			<input type="checkbox" bind:checked={eoxhub} id="eoxhub" />
@@ -63,7 +65,7 @@
 			>
 		{/if}
 	</span>
-	{#if !$user.terms.geodb || !$user.terms.sentinelhub || !$user.terms.eoxhub}
+	{#if !$user.terms?.geodb || !$user.terms?.sentinelhub || !$user.terms?.eoxhub}
 		<button
 			class="btn btn-outline btn-sm w-[100px]"
 			type="submit"

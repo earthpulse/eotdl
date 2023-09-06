@@ -24,6 +24,7 @@ class AcceptTermsAndConditions:
             raise UserDoesNotExistError()
         # generate credentials
         errors = self.eox_repo.generate_credentials(inputs.uid, inputs.email)
+        print(errors)
         if len(errors) > 0:
             raise Exception(errors)
         # update user
