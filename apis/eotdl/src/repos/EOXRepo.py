@@ -24,19 +24,23 @@ class EOXRepo:
         errors = []
         for service in services:
             data["serviceName"] = service.value
-            response = requests.post(self.provisionings_url, headers=headers, data=data)
+            print(self.provisionings_url)
+            print(data)
+            response = requests.post(self.provisionings_url, headers=headers, json=data)
             print(response.status_code)
-            if response.status_code != 201:
+            if response.status_code != 202:
                 print("ERROR", response.text)
                 errors.append(response.text)
         return errors
 
     def retrieve_credentials(self, email):
         token, error = self.get_vault_token()
+        print(token, error)
         if error:
             return None, error
         headers = {"X-Vault-Token": token}
         response = requests.get(f"{self.vault_url}/eotdl/data/{email}", headers=headers)
+        print(response.status_code, response.json())
         if response.status_code != 200:
             return None, response.json()
         return response.json()["data"]["data"], None
