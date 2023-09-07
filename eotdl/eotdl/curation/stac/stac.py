@@ -433,6 +433,9 @@ class STACGenerator:
 
         # Add the assets to the item
         assets = self._assets_generator.extract_assets(item_info)
+        if not assets:
+            # If there are not assets using the selected generator, try with the default
+            assets = STACAssetGenerator.extract_assets(item_info)
 
         # Add the assets to the item
         if assets:
