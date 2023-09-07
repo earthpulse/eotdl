@@ -390,7 +390,7 @@ class STACGenerator:
 
         # Obtain the date acquired
         start_time, end_time = None, None
-        if metadata and metadata["date-adquired"]:
+        if metadata and metadata["date-adquired"] and metadata["type"] not in ('dem', 'DEM'):
             time_acquired = format_time_acquired(metadata["date-adquired"])
         else:
             # Check if the type of the data is DEM
