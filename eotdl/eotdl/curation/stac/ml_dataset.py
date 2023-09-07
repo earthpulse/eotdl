@@ -65,14 +65,13 @@ class MLDatasetExtension(
 
     def __init__(self, catalog: pystac.Catalog):
         super().__init__(id=catalog.id, description=catalog.description)
-        self.catalog = catalog
+        self._catalog = catalog
         self.id = catalog.id
         self.description = catalog.description
         self.title = catalog.title if catalog.title else None
         self.stac_extensions = catalog.stac_extensions if catalog.stac_extensions else []
         self.extra_fields = self.properties = catalog.extra_fields if catalog.extra_fields else {}
         self.links = catalog.links
-        self.quality_metrics = []
         self._resolved_objects = ResolvedObjectCache()
         
     def apply(
@@ -82,7 +81,7 @@ class MLDatasetExtension(
 
     @property
     def name(self) -> str:
-        return self._name
+        return self.extra_fields[f'{PREFIX}name']
 
     @name.setter
     def name(self, v: str) -> None:
@@ -90,7 +89,7 @@ class MLDatasetExtension(
 
     @property
     def tasks(self) -> List:
-        return self._tasks
+        return self.extra_fields[f'{PREFIX}tasks']
 
     @tasks.setter
     def tasks(self, v: List|Tuple) -> None:
@@ -98,7 +97,7 @@ class MLDatasetExtension(
 
     @property
     def type(self) -> str:
-        return self._type
+        return self.extra_fields[f'{PREFIX}type']
 
     @type.setter
     def type(self, v: str) -> None:
@@ -106,7 +105,7 @@ class MLDatasetExtension(
 
     @property
     def inputs_type(self) -> str:
-        return self._inputs_type
+        return self.extra_fields[f'{PREFIX}inputs-type']
 
     @inputs_type.setter
     def inputs_type(self, v: str) -> None:
@@ -114,7 +113,7 @@ class MLDatasetExtension(
 
     @property
     def annotations_type(self) -> str:
-        return self._annotations_type
+        return self.extra_fields[f'{PREFIX}annotations-type']
 
     @annotations_type.setter
     def annotations_type(self, v: str) -> None:
@@ -122,7 +121,7 @@ class MLDatasetExtension(
 
     @property
     def splits(self) -> List[str]:
-        return self._splits
+        self.extra_fields[f'{PREFIX}splits']
 
     @splits.setter
     def splits(self, v: dict) -> None:
@@ -130,7 +129,7 @@ class MLDatasetExtension(
 
     @property
     def quality_metrics(self) -> List[dict]:
-        return self._quality_metrics
+        self.extra_fields[f'{PREFIX}quality-metrics']
 
     @quality_metrics.setter
     def quality_metrics(self, v: dict) -> None:
@@ -138,7 +137,7 @@ class MLDatasetExtension(
 
     @property
     def version(self) -> str:
-        return self._version
+        self.extra_fields[f'{PREFIX}version']
 
     @version.setter
     def version(self, v: str) -> None:
@@ -154,6 +153,9 @@ class MLDatasetExtension(
         Args:
              metric : The metric to add.
         """
+        if not self.extra_fields.get(f'{PREFIX}quality-metrics'):
+            self.extra_fields[f'{PREFIX}quality-metrics'] = []
+
         if metric not in self.extra_fields[f'{PREFIX}quality-metrics']:
             self.extra_fields[f'{PREFIX}quality-metrics'].append(metric)
 
@@ -228,6 +230,10 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
             "name": split_type,
             "items": items_ids
         }
+
+        if not self.properties.get(f'{PREFIX}split-items'):
+            self.properties[f'{PREFIX}split-items'] = []
+        
         self.add_split(split)
         print(f'Generating {split_type} split...')
         for _item in tqdm(split_data):
