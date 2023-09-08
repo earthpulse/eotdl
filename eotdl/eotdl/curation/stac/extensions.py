@@ -7,6 +7,8 @@ from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
 from pystac.extensions.eo import Band, EOExtension
 from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
+from pystac.extensions.raster import RasterExtension, RasterBand
+from pystac.extensions.projection import ProjectionExtension
 from typing import Union
 from os.path import basename, join, dirname
 from os import remove
@@ -15,7 +17,7 @@ import rasterio
 import pandas as pd
 
 
-SUPPORTED_EXTENSIONS = ('eo', 'sar')
+SUPPORTED_EXTENSIONS = ('eo', 'sar', 'proj', 'raster')
 
 
 class STACExtensionObject:
@@ -265,8 +267,70 @@ class LabelExtensionObject(STACExtensionObject):
         label_ext.label_type = label_type
 
 
+class RasterExtensionObject(STACExtensionObject):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def add_extension_to_object(
+        self, obj: Union[pystac.Item, pystac.Asset],
+        obj_info: pd.DataFrame=None
+    ) -> Union[pystac.Item, pystac.Asset]:
+        """
+        Add the extension to the given object
+
+        :param obj: object to add the extension
+        """
+        if not isinstance(obj, pystac.Asset):
+            return obj
+        elif isinstance(obj, pystac.Asset):
+            raster_ext = RasterExtension.ext(obj, add_if_missing=True)
+            src = rasterio.open(obj.href)
+            bands = list()
+            for band in src.indexes:
+                bands.append(RasterBand.create(
+                    nodata=src.nodatavals[band - 1],
+                    data_type=src.dtypes[band - 1],
+                    spatial_resolution=src.res) if src.nodatavals else RasterBand.create(
+                        data_type=src.dtypes[band - 1],
+                        spatial_resolution=src.res))
+            raster_ext.apply(bands=bands)
+                
+        return obj
+
+
+class ProjExtensionObject(STACExtensionObject):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def add_extension_to_object(
+        self, obj: Union[pystac.Item, pystac.Asset],
+        obj_info: pd.DataFrame=None
+    ) -> Union[pystac.Item, pystac.Asset]:
+        """
+        Add the extension to the given object
+
+        :param obj: object to add the extension
+        """
+        # Add raster extension to the item
+        if isinstance(obj, pystac.Asset):
+            return obj
+        elif isinstance(obj, pystac.Item):
+            proj_ext = ProjectionExtension.ext(obj, add_if_missing=True)
+            ds = rasterio.open(obj_info['image'].values[0])
+            # Assume all the bands have the same projection
+            proj_ext.apply(
+                epsg=ds.crs.to_epsg(),
+                transform=ds.transform,
+                shape=ds.shape,
+                )
+
+        return obj
+
+
 type_stac_extensions_dict = {
     "sar": SarExtensionObject(),
     "eo": EOS2ExtensionObject(),
     "dem": DEMExtensionObject(),
+    "raster": RasterExtensionObject(),
+    "proj": ProjExtensionObject()
 }

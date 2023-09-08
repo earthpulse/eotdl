@@ -348,21 +348,21 @@ class MLDatasetQualityMetrics:
         for label in labels:
             label_ext = LabelExtension.ext(label)
             label_classes = label_ext.label_classes
-            assert len(label_classes) == 1, "Only one class per label is supported"
 
-            label_class = label_classes[0].classes
-            assert len(label_class) == 1, "Only one class per label is supported"
-            label_class = label_class[0]
+            for label_class_obj in label_classes:
+                label_class = label_class_obj.classes
 
-            if label_class not in classes:
-                classes[label_class] = 0
-            classes[label_class] += 1
+                for single_class in label_class:
+                    if single_class not in classes:
+                        classes[single_class] = 0
+                    classes[single_class] += 1
 
+        total_labels = sum(classes.values())
         for key, value in classes.items():
             classes_balance["values"].append({
                 "class": key,
                 "total": value,
-                "percentage": int(value/len(labels) * 100)
+                "percentage": int(value/total_labels * 100)
             })
 
         return classes_balance

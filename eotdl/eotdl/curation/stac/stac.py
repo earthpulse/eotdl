@@ -2,14 +2,16 @@
 Module for generating STAC metadata 
 """
 
+from typing import Union
 import pandas as pd
 import json
 import pystac
 from random import sample
 from tqdm import tqdm
 
-from os import listdir, remove
+from os import listdir
 from os.path import join, basename, exists, dirname
+from shutil import rmtree
 
 import rasterio
 from rasterio.warp import transform_bounds
@@ -131,14 +133,19 @@ class STACGenerator:
             # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, 'source') for i in range(len(images))]
         else:
-            collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
+            try:
+                collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
+            except TypeError as e:
+                # TODO control this error
+                raise TypeError(f'Control this error')
 
         df = pd.DataFrame({'image': images, 
                            'label': labels, 
                            'ix': ixs, 
                            'collection': collections_values, 
                            'extensions': extensions_values, 
-                           'bands': bands_values})
+                           'bands': bands_values
+                           })
         
         self._stac_dataframe = df
         
@@ -560,3 +567,51 @@ class STACGenerator:
         except pystac.STACValidationError as e:
             print(f'Catalog validation error: {e}')
             return
+
+
+def merge_stac_catalogs(catalog_1: pystac.Catalog|str,
+                        catalog_2: pystac.Catalog|str,
+                        destination: str = None,
+                        keep_extensions: bool = False,
+                        catalog_type: pystac.CatalogType = pystac.CatalogType.SELF_CONTAINED
+                        ) -> None:
+    """
+    """
+    if isinstance(catalog_1, str):
+        catalog_1 = pystac.Catalog.from_file(catalog_1)
+    if isinstance(catalog_2, str):
+        catalog_2 = pystac.Catalog.from_file(catalog_2)
+
+    for col1 in tqdm(catalog_1.get_children(), desc='Merging catalogs...'):
+        # Check if the collection exists in catalog_2
+        col2 = catalog_2.get_child(col1.id)
+        if col2 is None:
+            # If it does not exist, add it
+            col1_ = col1.clone()
+            catalog_2.add_child(col1)
+            col2 = catalog_2.get_child(col1.id)
+            col2.clear_items()
+            for i in col1_.get_all_items():
+                col2.add_item(i)
+        else:
+            # If it exists, merge the items
+            for item1 in col1.get_items():
+                if col2.get_item(item1.id) is None:
+                    col2.add_item(item1)
+
+    if keep_extensions:
+        for ext in catalog_1.stac_extensions:
+            if ext not in catalog_2.stac_extensions:
+                catalog_2.stac_extensions.append(ext)
+
+        for extra_field_name, extra_field_value in catalog_1.extra_fields.items():
+            if extra_field_name not in catalog_2.extra_fields:
+                catalog_2.extra_fields[extra_field_name] = extra_field_value
+
+    if not destination:
+        destination = dirname(catalog_2.get_self_href())
+        rmtree(destination)   # Remove the old catalog and replace it with the new one
+    # Save the merged catalog
+    print('Validating...')
+    catalog_2.normalize_and_save(destination, catalog_type)
+    print('Success')
