@@ -6,16 +6,19 @@ import pystac
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
 from pystac.extensions.eo import Band, EOExtension
-from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
+from pystac.extensions.label import (
+    LabelClasses,
+    LabelExtension,
+    SummariesLabelExtension,
+)
 from typing import Union
 from os.path import basename, join, dirname
 from os import remove
 
-import rasterio
 import pandas as pd
+from typing import List
 
-
-SUPPORTED_EXTENSIONS = ('eo', 'sar')
+SUPPORTED_EXTENSIONS = ("eo", "sar")
 
 
 class STACExtensionObject:
@@ -24,8 +27,7 @@ class STACExtensionObject:
         self.properties = dict()
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        self, obj: Union[pystac.Item, pystac.Asset], obj_info: pd.DataFrame = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
@@ -42,8 +44,7 @@ class SarExtensionObject(STACExtensionObject):
         self.polarizations_dict = {"VV": Polarization.VV, "VH": Polarization.VH}
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        self, obj: Union[pystac.Item, pystac.Asset], obj_info: pd.DataFrame = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
@@ -52,9 +53,15 @@ class SarExtensionObject(STACExtensionObject):
         """
         # Add SAR extension to the item
         sar_ext = SarExtension.ext(obj, add_if_missing=True)
-        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.polarizations_dict.keys()):
+        if isinstance(obj, pystac.Item) or (
+            isinstance(obj, pystac.Asset)
+            and obj.title not in self.polarizations_dict.keys()
+        ):
             polarizations = self.polarizations
-        elif isinstance(obj, pystac.Asset) and obj.title in self.polarizations_dict.keys():
+        elif (
+            isinstance(obj, pystac.Asset)
+            and obj.title in self.polarizations_dict.keys()
+        ):
             polarizations = [self.polarizations_dict[obj.title]]
         sar_ext.apply(
             instrument_mode="EW",
@@ -89,7 +96,7 @@ class EOS2ExtensionObject(STACExtensionObject):
                 name="B04",
                 description="Red, 664.6 nm (S2A), 665.0 nm (S2B)",
                 common_name="red",
-            ),  
+            ),
             "B05": Band.create(
                 name="B05",
                 description="Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)",
@@ -134,12 +141,11 @@ class EOS2ExtensionObject(STACExtensionObject):
                 name="B12",
                 description="SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)",
                 common_name="swir22",
-            )
+            ),
         }
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        self, obj: Union[pystac.Item, pystac.Asset], obj_info: pd.DataFrame = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
@@ -149,7 +155,9 @@ class EOS2ExtensionObject(STACExtensionObject):
         # Add EO extension
         eo_ext = EOExtension.ext(obj, add_if_missing=True)
         # Add common metadata
-        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.bands_dict.keys()):
+        if isinstance(obj, pystac.Item) or (
+            isinstance(obj, pystac.Asset) and obj.title not in self.bands_dict.keys()
+        ):
             obj.common_metadata.constellation = "Sentinel-2"
             obj.common_metadata.platform = "Sentinel-2"
             obj.common_metadata.instruments = ["Sentinel-2"]
@@ -161,9 +169,7 @@ class EOS2ExtensionObject(STACExtensionObject):
             eo_ext.apply(bands=bands_list)
 
         elif isinstance(obj, pystac.Asset):
-            eo_ext.apply(
-                        bands=[self.bands_dict[obj.title]]
-                    )
+            eo_ext.apply(bands=[self.bands_dict[obj.title]])
 
         return obj
 
@@ -184,29 +190,30 @@ class LabelExtensionObject(STACExtensionObject):
 
     @classmethod
     def add_extension_to_item(
-        self, 
+        self,
         obj: pystac.Item,
         href: str,
-        label_names: list[str],
-        label_classes: list[str],
-        label_properties: list,
+        label_names: List[str],
+        label_classes: List[str],
+        label_properties: List[dict],
         label_description: str,
-        label_methods: list,
-        label_tasks: list[str],
-        label_type: str
+        label_methods: List[dict],
+        label_tasks: List[str],
+        label_type: str,
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
         """
-        label_item = pystac.Item(id=obj.id,
-                                     geometry=obj.geometry,
-                                     bbox=obj.bbox,
-                                     properties=dict(),
-                                     datetime=obj.datetime
-                                    )
-        
+        label_item = pystac.Item(
+            id=obj.id,
+            geometry=obj.geometry,
+            bbox=obj.bbox,
+            properties=dict(),
+            datetime=obj.datetime,
+        )
+
         # Add the label extension to the item
         LabelExtension.add_to(label_item)
 
@@ -218,7 +225,7 @@ class LabelExtensionObject(STACExtensionObject):
             label_classes = LabelClasses.create(
                 name=name,
                 classes=classes,
-                )
+            )
             label_ext.label_classes = [label_classes]
 
         # Add the label properties
@@ -234,22 +241,21 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the source
         label_ext.add_source(obj)
         # Set self href
-        label_item.set_self_href(join(dirname(href), f'{obj.id}.json'))
+        label_item.set_self_href(join(dirname(href), f"{obj.id}.json"))
 
         return label_item
-    
+
     @classmethod
     def add_extension_to_collection(
-            self,
-            obj: pystac.Collection,
-            label_names: list[str],
-            label_classes: list[list|tuple],
-            label_type: str
+        self,
+        obj: pystac.Collection,
+        label_names: List[str],
+        label_classes: Union[List[List], List[tuple]],
+        label_type: str,
     ) -> None:
-        """
-        """
+        """ """
         LabelExtension.add_to(obj)
-        
+
         # Add the label extension to the collection
         label_ext = SummariesLabelExtension(obj)
 
@@ -258,7 +264,7 @@ class LabelExtensionObject(STACExtensionObject):
             label_classes = LabelClasses.create(
                 name=name,
                 classes=classes,
-                )
+            )
             label_ext.label_classes = [label_classes]
 
         # Add the label type

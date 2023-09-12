@@ -90,6 +90,7 @@ class STACDataset(BaseModel):
     likes: int = 0
     downloads: int = 0
     quality: int = 1
+    size: int = 0
 
     # @validator("name")
     # def check_name_is_valid(cls, name):

@@ -10,9 +10,10 @@ class RetrieveDatasets:
         pass
 
     class Outputs(BaseModel):
-        datasets: dict
+        datasets: List[str]
 
     def __call__(self, inputs: Inputs) -> Outputs:
         data = self.repo.retrieve_datasets()
-        datasets = {d["name"]: [f["name"] for f in d["files"]] for d in data}
+        # datasets = {d["name"]: [f["name"] for f in d["files"]] for d in data}
+        datasets = [d["name"] for d in data]
         return self.Outputs(datasets=datasets)

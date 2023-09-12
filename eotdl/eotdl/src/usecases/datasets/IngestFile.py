@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 import os
 import typing
+from pathlib import Path
+from glob import glob
 
 from ....src.utils import calculate_checksum
 
@@ -16,6 +18,7 @@ class IngestFile:
         file: typing.Any
         dataset_id: str
         user: dict
+        root: typing.Optional[Path] = None
 
     class Outputs(BaseModel):
         data: dict
@@ -35,26 +38,40 @@ class IngestFile:
                 inputs.file, inputs.dataset_id, id_token
             )
         else:
-            self.logger("Computing checksum...")
-            checksum = calculate_checksum(inputs.file)
-            self.logger(checksum)
-            self.logger("Ingesting file...")
-            filesize = os.path.getsize(inputs.file)
+            file_path = Path(inputs.file)
+            if not file_path.is_absolute():
+                file_path = glob(
+                    str(inputs.root) + "/**/" + os.path.basename(file_path),
+                    recursive=True,
+                )
+                if len(file_path) == 0:
+                    raise Exception(f"File {inputs.file} not found")
+                elif len(file_path) > 1:
+                    raise Exception(f"Multiple files found for {inputs.file}")
+                file_path = file_path[0]
+            if self.verbose:
+                self.logger("Computing checksum...")
+            checksum = calculate_checksum(file_path)
+            if self.verbose:
+                self.logger("Ingesting file...")
+            filesize = os.path.getsize(file_path)
             # ingest small file
             if filesize < 1024 * 1024 * 16:  # 16 MB
                 data, error = self.repo.ingest_file(
-                    inputs.file, inputs.dataset_id, id_token, checksum
+                    file_path, inputs.dataset_id, id_token, checksum
                 )
                 if error:
                     raise Exception(error)
-                self.logger("Done")
+                if self.verbose:
+                    self.logger("Done")
                 return self.Outputs(data=data)
             # ingest large file
             upload_id, parts = self.repo.prepare_large_upload(
-                inputs.file, inputs.dataset_id, checksum, id_token
+                file_path, inputs.dataset_id, checksum, id_token
             )
-            self.repo.ingest_large_dataset(inputs.file, upload_id, id_token, parts)
-            self.logger("\nCompleting upload...")
+            self.repo.ingest_large_dataset(file_path, upload_id, id_token, parts)
+            if self.verbose:
+                self.logger("\nCompleting upload...")
             data, error = self.repo.complete_upload(id_token, upload_id)
         if error:
             raise Exception(error)

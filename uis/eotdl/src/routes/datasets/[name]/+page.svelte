@@ -25,6 +25,7 @@
 		license,
 		size,
 		files,
+		quality,
 	} = data.dataset);
 
 	let createWriteStream;
@@ -164,75 +165,83 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<div class="flex flex-col gap-3">
-				<div class="overflow-auto w-full">
-					<table
-						class="table border-2 rounded-lg table-compact h-[100px] w-full"
-					>
-						<tbody>
-							<tr>
-								<th class="w-[20px]">Author(s)</th>
-								<td>{authors.join(", ") || "-"}</td>
-							</tr>
-							<tr>
-								<th>License</th>
-								<td>{license || "-"}</td>
-							</tr>
-							<tr>
-								<th>Source</th>
-								<td>
-									{#if source}
-										<a
-											href={source}
-											target="_blank"
-											rel="noopener noreferrer"
-											class="text-green-200 hover:underline"
-											>{source.length > 30
-												? source.slice(0, 30) + "..."
-												: source}</a
-										>
-									{:else}
-										-
-									{/if}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<p>Files ({files.length}):</p>
-				<div class="overflow-auto w-full">
-					<table
-						class="table border-2 rounded-lg table-compact h-[100px] w-full"
-					>
-						<tbody>
-							<tr>
-								<th> Name </th>
-								<th>Size</th>
-								<th>Checksum (SHA1)</th>
-							</tr>
-							{#each files as file}
+			{#if quality == 0}
+				<div class="flex flex-col gap-3">
+					<div class="overflow-auto w-full">
+						<table
+							class="table border-2 rounded-lg table-compact h-[100px] w-full"
+						>
+							<tbody>
 								<tr>
-									<td class="flex flex-row gap-1">
-										{#if $user}
-											<button
-												on:click={() =>
-													download(file.name)}
-												><Download
-													color="gray"
-													size={20}
-												/></button
-											>
-										{/if}
-										{file.name}
-									</td>
-									<td>{formatFileSize(file.size)}</td>
-									<td class="text-xs">{file.checksum}</td>
+									<th class="w-[20px]">Author(s)</th>
+									<td>{authors.join(", ") || "-"}</td>
 								</tr>
-							{/each}
-						</tbody>
-					</table>
+								<tr>
+									<th>License</th>
+									<td>{license || "-"}</td>
+								</tr>
+								<tr>
+									<th>Source</th>
+									<td>
+										{#if source}
+											<a
+												href={source}
+												target="_blank"
+												rel="noopener noreferrer"
+												class="text-green-200 hover:underline"
+												>{source.length > 30
+													? source.slice(0, 30) +
+													  "..."
+													: source}</a
+											>
+										{:else}
+											-
+										{/if}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Files ({files.length}):</p>
+					<div class="overflow-auto w-full">
+						<table
+							class="table border-2 rounded-lg table-compact h-[100px] w-full"
+						>
+							<tbody>
+								<tr>
+									<th> Name </th>
+									<th>Size</th>
+									<th>Checksum (SHA1)</th>
+								</tr>
+								{#each files as file}
+									<tr>
+										<td class="flex flex-row gap-1">
+											{#if $user}
+												<button
+													on:click={() =>
+														download(file.name)}
+													><Download
+														color="gray"
+														size={20}
+													/></button
+												>
+											{/if}
+											{file.name}
+										</td>
+										<td>{formatFileSize(file.size)}</td>
+										<td class="text-xs">{file.checksum}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
 				</div>
-			</div>
+			{:else}
+				<div>
+					<p>Download the dataset with the CLI</p>
+					<p>eotdl datasets get {name}</p>
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>

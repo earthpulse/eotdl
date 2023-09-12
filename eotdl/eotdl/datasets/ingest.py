@@ -34,11 +34,12 @@ def ingest_file(
     logger=None,
     allowed_extensions=allowed_extensions,
     verbose=True,
+    root=None,
     user=None,
 ):
     api_repo = APIRepo()
     ingest = IngestFile(api_repo, allowed_extensions, logger, verbose)
-    inputs = ingest.Inputs(file=file, dataset_id=dataset_id, user=user)
+    inputs = ingest.Inputs(file=file, dataset_id=dataset_id, user=user, root=root)
     outputs = ingest(inputs)
     return outputs.data
 
