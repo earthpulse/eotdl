@@ -33,9 +33,10 @@ def get(
     dataset: str,
     path: str = None,
     file: str = None,
+    assets: bool = False,
 ):
     try:
-        dst_path = download_dataset(dataset, file, path, typer.echo)
+        dst_path = download_dataset(dataset, file, path, typer.echo, assets)
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:
         typer.echo(e)

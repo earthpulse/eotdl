@@ -41,6 +41,7 @@ class IngestSTAC:
             if data["uid"] != inputs.user["sub"]:
                 raise Exception("Dataset already exists.")
             dataset_id = data["id"]
+            # TODO: put size to 0 or else will add up
         else:
             dataset_id = data["dataset_id"]
         # TODO: check that we can ingest in geodb
@@ -55,8 +56,9 @@ class IngestSTAC:
                         v["href"],
                         dataset_id,
                         self.logger,
-                        self.allowed_extensions + [".tif", ".tiff"],
+                        self.allowed_extensions + [".tif", ".tiff", ".jpg"],
                         verbose=False,
+                        root=inputs.stac_catalog.parent.parent,  # esto será siempre así en STAC?
                     )
                     file_url = f"{self.repo.url}datasets/{data['dataset_id']}/download/{data['file_name']}"
                     df.loc[row[0], "assets"][k]["href"] = file_url

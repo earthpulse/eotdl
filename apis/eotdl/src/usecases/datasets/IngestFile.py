@@ -72,7 +72,7 @@ class IngestFile:
                 dataset.size -= current_file.size
                 dataset.files = [f for f in dataset.files if f.name != filename]
             dataset.files.append(File(name=filename, size=file_size, checksum=checksum))
-            dataset.size += file_size
+        dataset.size += file_size  # for Q0+ will add, so put to 0 before if necessary
         dataset.updatedAt = datetime.now()
         self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage

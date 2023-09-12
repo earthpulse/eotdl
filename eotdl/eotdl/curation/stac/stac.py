@@ -13,7 +13,7 @@ from os.path import join, basename, exists, dirname
 
 import rasterio
 from rasterio.warp import transform_bounds
-from typing import Union
+from typing import Union, List
 
 from datetime import datetime
 from shapely.geometry import Polygon, mapping
@@ -217,7 +217,7 @@ class STACGenerator:
 
         return items_list
 
-    def _get_collection_extent(self, rasters: list[str]) -> pystac.Extent:
+    def _get_collection_extent(self, rasters: List[str]) -> pystac.Extent:
         """
         Get the extent of a collection
 
@@ -233,7 +233,7 @@ class STACGenerator:
         return extent
 
     def _get_collection_spatial_extent(
-        self, rasters: list[str]
+        self, rasters: List[str]
     ) -> pystac.SpatialExtent:
         """
         Get the spatial extent of a collection
@@ -268,7 +268,7 @@ class STACGenerator:
             return spatial_extent
 
     def _get_collection_temporal_interval(
-        self, rasters: list[str]
+        self, rasters: List[str]
     ) -> pystac.TemporalExtent:
         """
         Get the temporal interval of a collection
@@ -580,6 +580,8 @@ class STACGenerator:
             # Restore the relative paths
             source_item.make_asset_hrefs_relative()
             # Get the label of the item
+            print(asset_href)
+            print(self._stac_dataframe[self._stac_dataframe["image"] == asset_href])
             label = self._stac_dataframe[self._stac_dataframe["image"] == asset_href][
                 "label"
             ].values[0]
