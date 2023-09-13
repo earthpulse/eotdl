@@ -2,8 +2,6 @@
 Module for formatter classes
 """
 
-import rasterio
-
 from os.path import join, exists
 from os import listdir, mkdir
 from glob import glob

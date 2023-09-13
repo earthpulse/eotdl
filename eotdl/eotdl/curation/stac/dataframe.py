@@ -11,6 +11,7 @@ from xcube_geodb.core.geodb import GeoDBClient
 from geomet import wkt
 from os.path import join
 from os import makedirs
+from typing import Union, Optional
 
 from math import isnan
 from .utils import convert_df_geom_to_shape, get_all_children
@@ -21,9 +22,11 @@ class STACDataFrame(gpd.GeoDataFrame):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_stac_file(self, stac_file):
+    def from_stac_file(self, stac_file: pystac.object):
         """
         Create a STACDataFrame from a STAC file
+
+        :param stac_file: STAC file
         """
         return read_stac(stac_file)
 
@@ -31,12 +34,12 @@ class STACDataFrame(gpd.GeoDataFrame):
     def from_geodb(
         self,
         server_url: str,
-        server_port: int | str,
+        server_port: Union[int, str],
         client_id: str,
         client_secret: str,
         auth_aud: str,
         collection: str,
-        database: str = None,
+        database: Optional[str] = None,
     ):
         """
         Create a STACDataFrame from a GeoDB collection
@@ -228,8 +231,8 @@ class STACDataFrame(gpd.GeoDataFrame):
 
 
 def read_stac(
-    stac_file: pystac.Catalog | pystac.Collection | str,
-    geometry_column: str = "geometry",
+    stac_file: Union[pystac.Catalog, pystac.Collection, str],
+    geometry_column: Optional[str] = "geometry",
 ) -> STACDataFrame:
     """
     Read a STAC file and return a STACDataFrame

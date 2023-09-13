@@ -8,6 +8,7 @@ build
 package
 .env
 .env.*
+.conda
 !.env.example
 yarn.lock
 poetry.lock

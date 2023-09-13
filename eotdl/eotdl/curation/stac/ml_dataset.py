@@ -14,8 +14,8 @@ from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
 from typing import (Any, 
                     Dict,
-                    List, 
-                    Tuple, 
+                    List,
+                    Optional,
                     Generic, 
                     TypeVar,
                     Union, 
@@ -92,7 +92,7 @@ class MLDatasetExtension(
         return self.extra_fields[f'{PREFIX}tasks']
 
     @tasks.setter
-    def tasks(self, v: List|Tuple) -> None:
+    def tasks(self, v: Union[list, tuple]) -> None:
         self.extra_fields[f'{PREFIX}tasks'] = v
 
     @property
@@ -277,7 +277,7 @@ class MLDatasetQualityMetrics:
     """
 
     @classmethod
-    def calculate(self, catalog: pystac.Catalog|str) -> None:
+    def calculate(self, catalog: Union[pystac.Catalog, str]) -> None:
         """
         """
 
@@ -381,12 +381,12 @@ class MLDatasetExtensionHooks(ExtensionHooks):
 STORAGE_EXTENSION_HOOKS: ExtensionHooks = MLDatasetExtensionHooks()
 
 
-def add_ml_extension(catalog: pystac.Catalog|str, 
-                     destination: str = None,  
-                     splits: bool = False,
-                     splits_collection_id: str = 'labels',
-                     splits_names: list = ('Training', 'Validation', 'Test'),
-                     split_proportions: List[int] = (80, 10, 10),
+def add_ml_extension(catalog: Union[pystac.Catalog, str], 
+                     destination: Optional[str] = None,  
+                     splits: Optional[bool] = False,
+                     splits_collection_id: Optional[str] = 'labels',
+                     splits_names: Optional[list] = ('Training', 'Validation', 'Test'),
+                     split_proportions: Optional[List[int]] = (80, 10, 10),
                      **kwargs) -> None:
     """
     Adds the ML Dataset extension to a STAC catalog.
@@ -436,10 +436,10 @@ def add_ml_extension(catalog: pystac.Catalog|str,
         traceback.print_exc()
 
 
-def make_splits(labels_collection: CollectionMLDatasetExtension|pystac.Collection|str,
-                splits_names: List[str] = ('Training', 'Validation', 'Test'),
-                splits_proportions: List[int] = (80, 10, 10),
-                verbose: bool = True,
+def make_splits(labels_collection: Union[CollectionMLDatasetExtension, pystac.Collection, str],
+                splits_names: Optional[List[str]] = ('Training', 'Validation', 'Test'),
+                splits_proportions: Optional[List[int]] = (80, 10, 10),
+                verbose: Optional[bool] = True,
                 **kwargs
                 ) -> None:
     """
