@@ -109,7 +109,12 @@
 				</div>
 			</span>
 			{#if $user}
-				<span class="flex flex-row gap-1">
+				<span class="flex flex-row gap-2">
+					<a
+						class="btn btn-outline"
+						href={`https://notebooks.api.eotdl.com/?search=${data.dataset.name}`}
+						target="_blank">Open</a
+					>
 					{#if $user.uid == data.dataset.uid}
 						<Update
 							dataset_id={data.dataset.id}
