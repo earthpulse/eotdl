@@ -10,6 +10,4 @@ services:
       - ./tutorials:/ipynbs
       - ./eotdl/eotdl:/ipynbs/eotdl
       - ~/.eotdl:/root/.eotdl
-    env_file: 
-      - ./tutorials/.env
     command: jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
