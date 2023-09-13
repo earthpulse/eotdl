@@ -82,7 +82,7 @@ class DownloadDataset:
             # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
             path = inputs.path
             if path is None:
-                path = download_base_path + dataset["name"]
+                path = download_base_path + "/" + dataset["name"]
             df.to_stac(path)
             # download assets
             if inputs.assets:
