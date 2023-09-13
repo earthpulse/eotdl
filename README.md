@@ -35,9 +35,10 @@ In order to run the API, you need to set the following environment variables:
 - `EOX_VAULT_ROLE_ID`: ...
 - `EOX_VAULT_SECRET_ID`: ...
 
-To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
+CLI environment variables:
 
-- `EOTDL_API_URL`: the URL of the API
+- `EOTDL_API_URL`: the URL of the API to run the CLI against (by default, https://api.eotdl.com)
+- `EOTDL_DOWNLOAD_PATH`: the path to download the datasets (by default, `~/.cache/eotdl`)
 
 #### Running tests
 
