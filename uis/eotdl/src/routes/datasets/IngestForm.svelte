@@ -14,6 +14,7 @@
   export let source;
   export let license;
   export let content;
+  export let quality = 0;
 
   const allowed_extensions = ".zip,.tar,.tar.gz,.csv,.txt,.json,.pdf,.md";
   let loading = false;
@@ -30,7 +31,7 @@
         files,
         name,
         content,
-        authors.split(","),
+        authors?.split(","),
         source,
         license,
         selected_tags
@@ -105,82 +106,82 @@
     on:submit|preventDefault={ingest}
     class="flex flex-col gap-2 text-sm modal-box"
   >
-    <slot />
-    <input
-      type="file"
-      accept={allowed_extensions}
-      bind:files
-      bind:this={input}
-      {required}
-      multiple
-      on:change={validate_files}
-    />
-    {#if !valid_file}
-      <CLI>
-        The file size limit is 1GB. Please, use the CLI to ingest larger files:
-        <Code>eotdl datasets ingest {`<dataset-path>`}</Code>
-        Instruction to install the CLI
-        <a
-          class="text-green-200 hover:underline"
-          href="/docs/getting-started/install">here</a
-        >
-      </CLI>
-    {:else}
-      <!-- {#if files?.length > 0}
-        {#each files as file}
+    {#if quality == 0}
+      <slot />
+      <input
+        type="file"
+        accept={allowed_extensions}
+        bind:files
+        bind:this={input}
+        {required}
+        multiple
+        on:change={validate_files}
+      />
+      {#if !valid_file}
+        <CLI>
+          The file size limit is 1GB. Please, use the CLI to ingest larger
+          files:
+          <Code>eotdl datasets ingest {`<dataset-path>`}</Code>
+          Instruction to install the CLI
+          <a
+            class="text-green-200 hover:underline"
+            href="/docs/getting-started/install">here</a
+          >
+        </CLI>
+      {:else}
+        <span>
+          <p>Name</p>
+          <input
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="Dataset name"
+            {required}
+            bind:value={name}
+          />
+          <p class="text-sm text-gray-400">*Name should be unique</p>
+        </span>
+        <span>
+          <p>Authors (use comma for multiple authors)</p>
+          <input
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="Dataset authors"
+            {required}
+            bind:value={authors}
+          />
           <p class="text-sm text-gray-400">
-            {file.name} ({formatFileSize(file.size)})
+            *If you are not the author, provide the correct attribution
           </p>
-        {/each}
-      {/if} -->
-      <span>
-        <p>Name</p>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          placeholder="Dataset name"
-          {required}
-          bind:value={name}
-        />
-        <p class="text-sm text-gray-400">*Name should be unique</p>
-      </span>
-      <span>
-        <p>Authors (use comma for multiple authors)</p>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          placeholder="Dataset authors"
-          {required}
-          bind:value={authors}
-        />
-        <p class="text-sm text-gray-400">
-          *If you are not the author, provide the correct attribution
-        </p>
-      </span>
-      <span>
-        <p>Link to source data</p>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          placeholder="Link to source data"
-          {required}
-          bind:value={source}
-        />
-        <p class="text-sm text-gray-400">
-          *Link to the original source of the data.
-        </p>
-      </span>
-      <span>
-        <p>License</p>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          placeholder="License"
-          {required}
-          bind:value={license}
-        />
-        <p class="text-sm text-gray-400">*Provide a license for the dataset.</p>
-      </span>
+        </span>
+        <span>
+          <p>Link to source data</p>
+          <input
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="Link to source data"
+            {required}
+            bind:value={source}
+          />
+          <p class="text-sm text-gray-400">
+            *Link to the original source of the data.
+          </p>
+        </span>
+        <span>
+          <p>License</p>
+          <input
+            class="input input-bordered w-full"
+            type="text"
+            placeholder="License"
+            {required}
+            bind:value={license}
+          />
+          <p class="text-sm text-gray-400">
+            *Provide a license for the dataset.
+          </p>
+        </span>
+      {/if}
+    {/if}
+    {#if valid_file}
       <p>Description</p>
       <TextEditor bind:content />
       <p>Select the appropriate tags:</p>
@@ -198,7 +199,6 @@
         {/each}
       </div>
     {/if}
-
     <span class="self-end">
       <label for="ingest-dataset" class="btn btn-ghost btn-outline btn-error"
         >Close</label

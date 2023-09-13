@@ -11,6 +11,7 @@
 	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
 	import Update from "./Update.svelte";
+	import { stringify } from "gray-matter";
 
 	export let data;
 
@@ -26,6 +27,7 @@
 		size,
 		files,
 		quality,
+		catalog,
 	} = data.dataset);
 
 	let createWriteStream;
@@ -114,6 +116,7 @@
 							tags={data.tags}
 							current_tags={tags}
 							{name}
+							{quality}
 							bind:authors={data.dataset.authors}
 							bind:source={data.dataset.source}
 							bind:license={data.dataset.license}
@@ -158,11 +161,20 @@
 		</span>
 		<!-- <p class="py-10">{description}</p> -->
 		<div class="grid grid-cols-[auto,425px] gap-3">
-			<div class="content">
-				{#if description}
-					{@html description}
-				{:else}
-					<p class="italic">No description.</p>
+			<div>
+				<div class="content">
+					{#if description}
+						{@html description}
+					{:else}
+						<p class="italic">No description.</p>
+					{/if}
+				</div>
+				{#if quality > 0}
+					<pre class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
+							catalog,
+							null,
+							4
+						)}</pre>
 				{/if}
 			</div>
 			{#if quality == 0}

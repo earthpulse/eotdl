@@ -35,5 +35,12 @@ class IngestSTAC:
         # ingest to geodb
         credentials = self.retrieve_user_credentials(inputs.user)
         self.geodb_repo = self.geodb_repo(credentials)
-        self.geodb_repo.insert(inputs.dataset, inputs.stac)
+        catalog = self.geodb_repo.insert(inputs.dataset, inputs.stac)
+        # the catalog should contain all the info we want to show in the UI
+        dataset.catalog = catalog
+        keys = list(catalog.keys())
+        if "ml-dataset:name" in keys:
+            dataset.quality = 2
+        # TODO: validate Q2 dataset, not only check name
+        self.db_repo.update("datasets", inputs.dataset, dataset.model_dump())
         return self.Outputs(dataset=dataset)
