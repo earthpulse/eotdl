@@ -13,8 +13,12 @@ app = typer.Typer()
 @app.command()
 def ingest(
     path: Path,
-    f: bool = typer.Option(False, "--f", help="Force ingest even if file exists"),
-    d: bool = typer.Option(False, "--d", help="Delete files not in the dataset"),
+    f: bool = typer.Option(
+        False, "--force", "-f", help="Force ingest even if file exists"
+    ),
+    d: bool = typer.Option(
+        False, "--delete", "-d", help="Delete files not in the dataset"
+    ),
 ):
     try:
         ingest_dataset(path, f, d, typer.echo)
@@ -31,12 +35,15 @@ def list():
 @app.command()
 def get(
     dataset: str,
-    path: str = None,
-    file: str = None,
-    assets: bool = False,
+    path: Path = typer.Option(None, "--path", "-p", help="Download to a specific path"),
+    file: bool = typer.Option(None, "--file", "-f", help="Download a specific file"),
+    assets: bool = typer.Option(False, "--assets", "-a", help="Download assets"),
+    force: bool = typer.Option(
+        False, "--force", "-f", help="Force download even if file exists"
+    ),
 ):
     try:
-        dst_path = download_dataset(dataset, file, path, typer.echo, assets)
+        dst_path = download_dataset(dataset, file, path, typer.echo, assets, force)
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:
         typer.echo(e)

@@ -20,6 +20,7 @@ class DownloadDataset:
         path: Union[str, None] = None
         user: dict
         assets: bool = False
+        force: bool = False
 
     class Outputs(BaseModel):
         dst_path: str
@@ -36,11 +37,20 @@ class DownloadDataset:
 
     def __call__(self, inputs: Inputs) -> Outputs:
         dataset = self.retrieve_dataset(inputs.dataset)
+        download_base_path = os.getenv(
+            "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
+        )
         if inputs.path is None:
-            download_path = str(Path.home()) + "/.eotdl/datasets/" + inputs.dataset
+            download_path = download_base_path + "/" + inputs.dataset
         else:
             download_path = inputs.path + "/" + inputs.dataset
         os.makedirs(download_path, exist_ok=True)
+        # check if dataset already exists
+        if os.path.exists(download_path) and not inputs.force:
+            raise Exception(
+                f"Dataset {inputs.dataset} already exists at {download_path}. To force download, use force=True or -f in the CLI."
+            )
+
         if dataset["quality"] == 0:
             if inputs.file:
                 files = [f for f in dataset["files"] if f["name"] == inputs.file]
@@ -79,7 +89,7 @@ class DownloadDataset:
             # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
             path = inputs.path
             if path is None:
-                path = str(Path.home()) + "/.eotdl/datasets/" + dataset["name"]
+                path = download_base_path + "/" + dataset["name"]
             df.to_stac(path)
             # download assets
             if inputs.assets:
@@ -94,5 +104,5 @@ class DownloadDataset:
                             href, f"{path}/assets/{id}", inputs.user["id_token"]
                         )
             else:
-                self.logger("To download assets, set assets=True")
+                self.logger("To download assets, set assets=True or -a in the CLI.")
             return self.Outputs(dst_path=path)
