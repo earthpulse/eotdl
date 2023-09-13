@@ -91,6 +91,7 @@ class STACDataset(BaseModel):
     downloads: int = 0
     quality: int = 1
     size: int = 0
+    catalog: dict = {}
 
     # @validator("name")
     # def check_name_is_valid(cls, name):

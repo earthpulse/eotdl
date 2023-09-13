@@ -1,6 +1,7 @@
 import geopandas as gpd
 from shapely.geometry import Polygon
 from .client import get_client
+import json
 
 
 class GeoDBRepo:
@@ -19,6 +20,9 @@ class GeoDBRepo:
 
     def insert(self, collection, values):
         values = gpd.GeoDataFrame.from_features(values["features"], crs="4326")  # ???
+        catalog = values[values["type"] == "Catalog"]
+        assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
+        catalog = json.loads(catalog.to_json())["features"][0]["properties"]
         values.rename(columns={"id": "stac_id"}, inplace=True)
         # convert None geometry to empty geometry wkt
         values.geometry = values.geometry.apply(lambda x: Polygon() if x is None else x)
@@ -26,10 +30,10 @@ class GeoDBRepo:
             self.delete(collection)
         collections = {collection: self.create_collection_structure(values.columns)}
         self.create(collections)
-        print(values.geometry[0])
-        return self.client.insert_into_collection(
+        self.client.insert_into_collection(
             collection, database=self.database, values=values
         )
+        return catalog
 
     def retrieve(self, collection):
         return self.client.get_collection(collection, database=self.database)

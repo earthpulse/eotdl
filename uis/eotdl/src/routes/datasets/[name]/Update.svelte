@@ -15,6 +15,7 @@
 	export let selected_tags;
 	export let size;
 	export let files;
+	export let quality;
 
 	const submit = async (
 		_files,
@@ -63,6 +64,7 @@
 		{source}
 		{license}
 		{name}
+		{quality}
 	>
 		<h3 class="text-lg font-bold">Edit dataset</h3>
 		<p>
