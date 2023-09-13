@@ -280,13 +280,22 @@ class MLDatasetQualityMetrics:
     def calculate(self, catalog: Union[pystac.Catalog, str]) -> None:
         """
         """
-
         if isinstance(catalog, str):
             catalog = MLDatasetExtension(pystac.read_file(catalog))
+        # Check the catalog has the extension
+        if not MLDatasetExtension.has_extension(catalog):
+            raise pystac.ExtensionNotImplemented(
+                f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"
+            )
 
-        catalog.add_metric(self._search_spatial_duplicates(catalog))
-        catalog.add_metric(self._get_classes_balance(catalog))
-
+        try:
+            catalog.add_metric(self._search_spatial_duplicates(catalog))
+            catalog.add_metric(self._get_classes_balance(catalog))
+        except AttributeError:
+            raise pystac.ExtensionNotImplemented(
+                f"The catalog does not have the required properties or the ML-Dataset extension to calculate the metrics"
+            )
+            
         try:
             print('Validating and saving...')
             catalog.validate()
@@ -399,6 +408,8 @@ def add_ml_extension(catalog: Union[pystac.Catalog, str],
     """
     if not isinstance(catalog, pystac.Catalog) and isinstance(catalog, str):
         catalog = pystac.read_file(catalog)
+    elif isinstance(catalog, pystac.Catalog):
+        pass
     else:
         raise pystac.ExtensionTypeError(
             f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"

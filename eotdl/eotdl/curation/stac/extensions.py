@@ -3,15 +3,17 @@ Module for STAC extensions objects
 """
 
 import rasterio
-
+import json
 import pystac
+
+from os.path import join, dirname
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
 from pystac.extensions.eo import Band, EOExtension
 from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 from pystac.extensions.raster import RasterExtension, RasterBand
 from pystac.extensions.projection import ProjectionExtension
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict
 
 import pandas as pd
 from typing import List
@@ -210,7 +212,8 @@ class LabelExtensionObject(STACExtensionObject):
 
         :param obj: object to add the extension
         :param label_names: list of label names
-        :param label_classes: list of label classes
+        :param label_classes: list of label classes of the item
+        :param label_classes_list: list of all possible label classes
         :param label_properties: list of label properties
         :param label_description: label description
         :param label_methods: list of labeling methods
@@ -240,6 +243,7 @@ class LabelExtensionObject(STACExtensionObject):
             )
             label_ext.label_classes = [label_classes]
 
+        # TODO kwargs
         # Add the label properties
         label_ext.label_properties = label_properties
         # Add the label description
@@ -252,9 +256,59 @@ class LabelExtensionObject(STACExtensionObject):
         label_ext.label_tasks = label_tasks
         # Add the source
         label_ext.add_source(obj)
-        # TODO generate self_href
 
         return label_item
+    
+    @classmethod
+    def add_geojson_to_items(self, 
+                             collection: pystac.Collection,
+                             df: pd.DataFrame
+                             ) -> None:
+        """
+        """
+        for item in collection.get_all_items():
+            label_type = item.properties['label:type']
+            file_name = 'vector_labels' if label_type == 'vector' else 'raster_labels'
+            geojson_path = join(dirname(item.get_self_href()), f'{file_name}.geojson')
+
+            properties = {'roles': ['labels', f'labels-{label_type}']}
+
+            # TODO depending on the tasks, there must be extra fields
+            # TODO https://github.com/stac-extensions/label#assets
+            tasks = item.properties['label:tasks']
+            if 'tile_regression' in tasks:
+                pass
+            elif any(task in tasks for task in ('tile_classification', 'object_detection', 'segmentation')):
+                pass
+
+            label_ext = LabelExtension.ext(item)
+            label_ext.add_geojson_labels(href=geojson_path, 
+                                         title='Label', 
+                                         properties=properties)
+            item.make_asset_hrefs_relative()
+            
+            item_id = item.id
+            geometry = item.geometry
+            labels = [df[df['id'] == item_id]['label'].values[0]]
+            # There is data like DEM data that does not have datetime but start and end datetime
+            datetime = item.datetime.isoformat() if item.datetime else (item.properties.start_datetime.isoformat(),
+                                                                        item.properties.end_datetime.isoformat())
+            labels_properties = dict(zip(item.properties['label:properties'], labels))
+            labels_properties['datetime'] = datetime
+
+            geojson = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": geometry,
+                        "properties": labels_properties,
+                    }
+                ],
+            }
+
+            with open(geojson_path, "w") as f:
+                json.dump(geojson, f)
 
     @classmethod
     def add_extension_to_collection(

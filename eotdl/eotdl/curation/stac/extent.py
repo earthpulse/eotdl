@@ -3,7 +3,7 @@ Module for STAC extent
 '''
 
 import pystac
-import datetime
+from datetime import datetime
 import rasterio
 import json
 

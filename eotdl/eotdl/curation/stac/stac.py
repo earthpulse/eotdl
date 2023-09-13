@@ -354,28 +354,34 @@ class STACGenerator:
         # Generate the labels items
         print("Generating labels collection...")
         for source_item in tqdm(source_items):
-            source_item_id = source_item.id
             # There must be an item ID column in the STAC dataframe
             if not 'id' in self._stac_dataframe.columns:
                 raise ValueError(
                     "No item ID column found in the STAC dataframe, please provide a STAC dataframe with the item ID column"
                 )
-            label = self._stac_dataframe[self._stac_dataframe["id"] == source_item_id][
-                "label"
-            ].values[0]
+            label_classes = self._stac_dataframe.label.unique().tolist()
+
             # Create the label item
-            # TODO put kwargs
+            # TODO put in kwargs
             label_item = LabelExtensionObject.add_extension_to_item(
                 source_item,
                 label_names=["label"],
-                label_classes=[[label]],
+                label_classes=[label_classes],
                 label_properties=["label"],
                 label_description="Item label",
                 label_methods=["manual"],
                 label_tasks=["classification"],
-                label_type="vector",
+                label_type="vector"
             )
-
+            # Add the self href to the label item, following the Best Practices Layout
+            # https://github.com/radiantearth/stac-spec/blob/master/best-practices.md
+            label_item.set_self_href(
+                join(
+                    dirname(collection.get_self_href()),
+                    label_item.id,
+                    f"{label_item.id}.json"
+                    )
+            )
             collection.add_item(label_item)
 
         # Add the extension to the collection
@@ -383,17 +389,25 @@ class STACGenerator:
         LabelExtensionObject.add_extension_to_collection(
             collection,
             label_names=["label"],
-            label_classes=[self._stac_dataframe.label.unique().tolist()],
+            label_classes=[label_classes],
             label_type="vector",
         )
 
         # Validate and save the catalog
+        # Before adding the geojson, we need to save the catalog
+        # and then iterate over the items to add the geojson
         try:
             pystac.validation.validate(catalog)
-            catalog.save(catalog_type=self._catalog_type)
+            catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
         except pystac.STACValidationError as e:
             print(f"Catalog validation error: {e}")
             return
+        
+        # Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
+        # https://github.com/stac-extensions/label#assets
+        LabelExtensionObject.add_geojson_to_items(collection, 
+                                                  self._stac_dataframe)
+        catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
 
 
 def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],

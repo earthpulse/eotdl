@@ -21,7 +21,7 @@ class STACDataFrame(gpd.GeoDataFrame):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def from_stac_file(self, stac_file: pystac.object):
+    def from_stac_file(self, stac_file: pystac.STACObject):
         """
         Create a STACDataFrame from a STAC file
 
