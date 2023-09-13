@@ -5,7 +5,8 @@ STAC utils
 import pystac
 import json
 
-from os.path import dirname, join, exists, listdir
+from os.path import dirname, join, exists
+from os import listdir
 from datetime import datetime
 from dateutil import parser
 from pandas import isna
@@ -102,7 +103,7 @@ def cut_images(images_list: Union[list, tuple]) -> list:
     return images
 
 
-def get_item_metadata(self, raster_path: str) -> str:
+def get_item_metadata(raster_path: str) -> str:
     """
     Get the metadata JSON file of a given directory, associated to a raster file
 
