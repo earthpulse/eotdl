@@ -20,6 +20,7 @@ class DownloadDataset:
         path: Union[str, None] = None
         user: dict
         assets: bool = False
+        force: bool = False
 
     class Outputs(BaseModel):
         dst_path: str
@@ -44,6 +45,12 @@ class DownloadDataset:
         else:
             download_path = inputs.path + "/" + inputs.dataset
         os.makedirs(download_path, exist_ok=True)
+        # check if dataset already exists
+        if os.path.exists(download_path) and not inputs.force:
+            raise Exception(
+                f"Dataset {inputs.dataset} already exists at {download_path}. To force download, use force=True or -f in the CLI."
+            )
+
         if dataset["quality"] == 0:
             if inputs.file:
                 files = [f for f in dataset["files"] if f["name"] == inputs.file]
@@ -97,5 +104,5 @@ class DownloadDataset:
                             href, f"{path}/assets/{id}", inputs.user["id_token"]
                         )
             else:
-                self.logger("To download assets, set assets=True")
+                self.logger("To download assets, set assets=True or -a in the CLI.")
             return self.Outputs(dst_path=path)
