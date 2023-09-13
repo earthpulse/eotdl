@@ -1,14 +1,16 @@
 from pydantic import BaseModel
+from typing import Union
+
 
 class IsLogged:
     def __init__(self, repo):
         self.repo = repo
 
     class Inputs(BaseModel):
-        pass 
+        pass
 
     class Outputs(BaseModel):
-        user: dict = None
+        user: Union[dict, None]
 
     def __call__(self, inputs: Inputs) -> Outputs:
         user = self.repo.load_creds()

@@ -7,11 +7,11 @@ import jwt
 class AuthRepo:
     def __init__(self):
         self.algorithms = ["RS256"]
-        self.home = str(Path.home())
-        self.creds_path = self.home + "/.eotdl/creds.json"
+        self.base_path = str(Path.home()) + "/.cache/eotdl/"
+        os.makedirs(self.base_path, exist_ok=True)
+        self.creds_path = self.base_path + "creds.json"
 
     def save_creds(self, data):
-        os.makedirs(self.home + "/.eotdl", exist_ok=True)
         with open(self.creds_path, "w") as f:
             json.dump(data, f)
         return self.creds_path

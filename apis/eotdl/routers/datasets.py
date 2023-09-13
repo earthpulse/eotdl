@@ -84,12 +84,11 @@ async def ingest_stac_catalog(
     body: IngestSTACBody,
     user: User = Depends(get_current_user),
 ):
-    # try:
-    # stac = json.loads(body.stac)
-    return ingest_stac(body.stac, dataset_id, user)
-    # except Exception as e:
-    #     logger.exception("datasets:ingest_url")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        return ingest_stac(body.stac, dataset_id, user)
+    except Exception as e:
+        logger.exception("datasets:ingest_url")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.post("/{dataset_id}")

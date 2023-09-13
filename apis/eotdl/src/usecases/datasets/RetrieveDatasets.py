@@ -12,7 +12,7 @@ class RetrieveDatasets:
         limit: Union[int, None] = None
 
     class Outputs(BaseModel):
-        datasets: Union[List[Dataset], List[STACDataset]]
+        datasets: List[Union[Dataset, STACDataset]]
 
     def __call__(self, inputs: Inputs) -> Outputs:
         data = self.db_repo.retrieve(
