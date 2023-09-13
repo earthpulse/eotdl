@@ -6,12 +6,12 @@ from ..auth import with_auth
 
 @with_auth
 def download_dataset(
-    dataset, file=None, path=None, logger=None, assets=False, user=None
+    dataset, file=None, path=None, logger=None, assets=False, force=False, user=None
 ):
     api_repo = APIRepo()
     download = DownloadDataset(api_repo, retrieve_dataset, logger)
     inputs = download.Inputs(
-        dataset=dataset, file=file, path=path, user=user, assets=assets
+        dataset=dataset, file=file, path=path, user=user, assets=assets, force=force
     )
     outputs = download(inputs)
     return outputs.dst_path
