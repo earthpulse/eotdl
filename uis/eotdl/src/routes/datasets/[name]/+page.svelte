@@ -1,7 +1,6 @@
 <script>
 	import { user, id_token } from "$stores/auth";
 	import { PUBLIC_EOTDL_API } from "$env/static/public";
-	import { onMount } from "svelte";
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
 	import { parseISO, formatDistanceToNow } from "date-fns";
@@ -21,26 +20,27 @@
 		createdAt,
 		description,
 		tags,
-		author,
-		link,
+		authors,
+		source,
 		license,
 		size,
-		checksum,
+		files,
+		quality,
 	} = data.dataset);
 
 	let createWriteStream;
-	onMount(async () => {
-		if (browser) {
-			// only works in browser
-			const streamsaver = await import("streamsaver");
-			createWriteStream = streamsaver.createWriteStream;
-		}
-	});
+	const load = async () => {
+		await datasets.retrieve(fetch);
+		// only works in browser
+		const streamsaver = await import("streamsaver");
+		createWriteStream = streamsaver.createWriteStream;
+	};
 
-	const download = async () => {
+	$: if (browser) load();
+
+	const download = async (fileName) => {
 		// seems to work, but not sure if it will with large datasets (need to test)
-		const fileName = `${name}.zip`;
-		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download`, {
+		fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${$id_token}`,
@@ -108,23 +108,19 @@
 			</span>
 			{#if $user}
 				<span class="flex flex-row gap-1">
-					<button
-						class="btn btn-ghost btn-outline"
-						on:click={download}>Download</button
-					>
 					{#if $user.uid == data.dataset.uid}
 						<Update
 							dataset_id={data.dataset.id}
 							tags={data.tags}
 							current_tags={tags}
 							{name}
-							bind:author={data.dataset.author}
-							bind:link={data.dataset.link}
+							bind:authors={data.dataset.authors}
+							bind:source={data.dataset.source}
 							bind:license={data.dataset.license}
 							bind:description={data.dataset.description}
 							bind:selected_tags={data.dataset.tags}
 							bind:size={data.dataset.size}
-							bind:checksum={data.dataset.checksum}
+							bind:files={data.dataset.files}
 						/>
 					{/if}
 				</span>
@@ -169,63 +165,83 @@
 					<p class="italic">No description.</p>
 				{/if}
 			</div>
-			<div class="flex flex-col gap-3">
-				<div class="overflow-auto w-full">
-					<table
-						class="table border-2 rounded-lg table-compact h-[100px] w-full"
-					>
-						<tbody>
-							<tr>
-								<th class="w-[20px]">Author(s)</th>
-								<td>{author || "-"}</td>
-							</tr>
-							<tr>
-								<th>License</th>
-								<td>{license || "-"}</td>
-							</tr>
-							<tr>
-								<th>Source</th>
-								<td>
-									{#if link}
-										<a
-											href={link}
-											target="_blank"
-											rel="noopener noreferrer"
-											class="text-green-200 hover:underline"
-											>{link.length > 30
-												? link.slice(0, 30) + "..."
-												: link}</a
-										>
-									{:else}
-										-
-									{/if}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<p>Files:</p>
-				<div class="overflow-auto w-full">
-					<table
-						class="table border-2 rounded-lg table-compact h-[100px] w-full"
-					>
-						<tbody>
-							<tr>
-								<th>Name</th>
-								<th>Size</th>
-								<th>Checksum (SHA1)</th>
-							</tr>
-							{#each data.dataset.files as file}
+			{#if quality == 0}
+				<div class="flex flex-col gap-3">
+					<div class="overflow-auto w-full">
+						<table
+							class="table border-2 rounded-lg table-compact h-[100px] w-full"
+						>
+							<tbody>
 								<tr>
-									<td>{file.name}</td>
-									<td>{formatFileSize(file.size)}</td>
-									<td class="text-xs">{file.checksum}</td>
+									<th class="w-[20px]">Author(s)</th>
+									<td>{authors.join(", ") || "-"}</td>
 								</tr>
-							{/each}
-						</tbody>
-					</table>
+								<tr>
+									<th>License</th>
+									<td>{license || "-"}</td>
+								</tr>
+								<tr>
+									<th>Source</th>
+									<td>
+										{#if source}
+											<a
+												href={source}
+												target="_blank"
+												rel="noopener noreferrer"
+												class="text-green-200 hover:underline"
+												>{source.length > 30
+													? source.slice(0, 30) +
+													  "..."
+													: source}</a
+											>
+										{:else}
+											-
+										{/if}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<p>Files ({files.length}):</p>
+					<div class="overflow-auto w-full">
+						<table
+							class="table border-2 rounded-lg table-compact h-[100px] w-full"
+						>
+							<tbody>
+								<tr>
+									<th> Name </th>
+									<th>Size</th>
+									<th>Checksum (SHA1)</th>
+								</tr>
+								{#each files as file}
+									<tr>
+										<td class="flex flex-row gap-1">
+											{#if $user}
+												<button
+													on:click={() =>
+														download(file.name)}
+													><Download
+														color="gray"
+														size={20}
+													/></button
+												>
+											{/if}
+											{file.name}
+										</td>
+										<td>{formatFileSize(file.size)}</td>
+										<td class="text-xs">{file.checksum}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
 				</div>
-			</div>
+			{:else}
+				<div>
+					<p>Download the dataset with the CLI</p>
+					<p>eotdl datasets get {name}</p>
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>

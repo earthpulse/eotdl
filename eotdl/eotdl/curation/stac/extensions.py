@@ -2,6 +2,8 @@
 Module for STAC extensions objects
 """
 
+import rasterio
+
 import pystac
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
@@ -11,8 +13,8 @@ from pystac.extensions.raster import RasterExtension, RasterBand
 from pystac.extensions.projection import ProjectionExtension
 from typing import Union, List, Optional
 
-import rasterio
 import pandas as pd
+from typing import List
 
 
 SUPPORTED_EXTENSIONS = ('eo', 'sar', 'proj', 'raster')
@@ -54,9 +56,15 @@ class SarExtensionObject(STACExtensionObject):
         """
         # Add SAR extension to the item
         sar_ext = SarExtension.ext(obj, add_if_missing=True)
-        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.polarizations_dict.keys()):
+        if isinstance(obj, pystac.Item) or (
+            isinstance(obj, pystac.Asset)
+            and obj.title not in self.polarizations_dict.keys()
+        ):
             polarizations = self.polarizations
-        elif isinstance(obj, pystac.Asset) and obj.title in self.polarizations_dict.keys():
+        elif (
+            isinstance(obj, pystac.Asset)
+            and obj.title in self.polarizations_dict.keys()
+        ):
             polarizations = [self.polarizations_dict[obj.title]]
         sar_ext.apply(
             instrument_mode="EW",
@@ -91,7 +99,7 @@ class EOS2ExtensionObject(STACExtensionObject):
                 name="B04",
                 description="Red, 664.6 nm (S2A), 665.0 nm (S2B)",
                 common_name="red",
-            ),  
+            ),
             "B05": Band.create(
                 name="B05",
                 description="Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)",
@@ -136,7 +144,7 @@ class EOS2ExtensionObject(STACExtensionObject):
                 name="B12",
                 description="SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)",
                 common_name="swir22",
-            )
+            ),
         }
 
     def add_extension_to_object(
@@ -152,7 +160,9 @@ class EOS2ExtensionObject(STACExtensionObject):
         # Add EO extension
         eo_ext = EOExtension.ext(obj, add_if_missing=True)
         # Add common metadata
-        if isinstance(obj, pystac.Item) or (isinstance(obj, pystac.Asset) and obj.title not in self.bands_dict.keys()):
+        if isinstance(obj, pystac.Item) or (
+            isinstance(obj, pystac.Asset) and obj.title not in self.bands_dict.keys()
+        ):
             obj.common_metadata.constellation = "Sentinel-2"
             obj.common_metadata.platform = "Sentinel-2"
             obj.common_metadata.instruments = ["Sentinel-2"]
@@ -164,9 +174,7 @@ class EOS2ExtensionObject(STACExtensionObject):
             eo_ext.apply(bands=bands_list)
 
         elif isinstance(obj, pystac.Asset):
-            eo_ext.apply(
-                        bands=[self.bands_dict[obj.title]]
-                    )
+            eo_ext.apply(bands=[self.bands_dict[obj.title]])
 
         return obj
 
@@ -187,7 +195,7 @@ class LabelExtensionObject(STACExtensionObject):
 
     @classmethod
     def add_extension_to_item(
-        self, 
+        self,
         obj: pystac.Item,
         label_names: List[str],
         label_classes: List[str],
@@ -229,7 +237,7 @@ class LabelExtensionObject(STACExtensionObject):
             label_classes = LabelClasses.create(
                 name=name,
                 classes=classes,
-                )
+            )
             label_ext.label_classes = [label_classes]
 
         # Add the label properties
@@ -247,7 +255,7 @@ class LabelExtensionObject(STACExtensionObject):
         # TODO generate self_href
 
         return label_item
-    
+
     @classmethod
     def add_extension_to_collection(
             self,
@@ -265,7 +273,7 @@ class LabelExtensionObject(STACExtensionObject):
         :param label_type: label type
         """
         LabelExtension.add_to(obj)
-        
+
         # Add the label extension to the collection
         label_ext = SummariesLabelExtension(obj)
 
@@ -274,7 +282,7 @@ class LabelExtensionObject(STACExtensionObject):
             label_classes = LabelClasses.create(
                 name=name,
                 classes=classes,
-                )
+            )
             label_ext.label_classes = [label_classes]
 
         # Add the label type

@@ -1,4 +1,10 @@
 from pydantic import BaseModel
+from pathlib import Path
+import os
+from typing import Union
+from tqdm import tqdm
+
+from ....curation.stac import STACDataFrame
 from ....src.utils import calculate_checksum
 
 
@@ -10,9 +16,10 @@ class DownloadDataset:
 
     class Inputs(BaseModel):
         dataset: str
-        file: str = None
-        path: str = None
+        file: Union[str, None] = None
+        path: Union[str, None] = None
         user: dict
+        assets: bool = False
 
     class Outputs(BaseModel):
         dst_path: str
@@ -29,28 +36,63 @@ class DownloadDataset:
 
     def __call__(self, inputs: Inputs) -> Outputs:
         dataset = self.retrieve_dataset(inputs.dataset)
-        if inputs.file:
-            files = [f for f in dataset["files"] if f["name"] == inputs.file]
-            if not files:
-                raise Exception(f"File {inputs.file} not found")
-            if len(files) > 1:
-                raise Exception(f"Multiple files with name {inputs.file} found")
-            dst_path = self.download(
-                inputs.dataset,
+        if inputs.path is None:
+            download_path = str(Path.home()) + "/.eotdl/datasets/" + inputs.dataset
+        else:
+            download_path = inputs.path + "/" + inputs.dataset
+        os.makedirs(download_path, exist_ok=True)
+        if dataset["quality"] == 0:
+            if inputs.file:
+                files = [f for f in dataset["files"] if f["name"] == inputs.file]
+                if not files:
+                    raise Exception(f"File {inputs.file} not found")
+                if len(files) > 1:
+                    raise Exception(f"Multiple files with name {inputs.file} found")
+                dst_path = self.download(
+                    inputs.dataset,
+                    dataset["id"],
+                    inputs.file,
+                    files[0]["checksum"],
+                    download_path,
+                    inputs.user,
+                )
+                return self.Outputs(dst_path=dst_path)
+            for file in dataset["files"]:
+                dst_path = self.download(
+                    inputs.dataset,
+                    dataset["id"],
+                    file["name"],
+                    file["checksum"],
+                    download_path,
+                    inputs.user,
+                )
+            return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))
+        else:
+            self.logger("Downloading STAC metadata...")
+            gdf, error = self.repo.download_stac(
                 dataset["id"],
-                inputs.file,
-                files[0]["checksum"],
-                inputs.path,
-                inputs.user,
+                inputs.user["id_token"],
             )
-            return self.Outputs(dst_path=dst_path)
-        for file in dataset["files"]:
-            dst_path = self.download(
-                inputs.dataset,
-                dataset["id"],
-                file["name"],
-                file["checksum"],
-                inputs.path,
-                inputs.user,
-            )
-        return self.Outputs(dst_path="/".join(dst_path.split("/")[:-1]))
+            if error:
+                raise Exception(error)
+            df = STACDataFrame(gdf)
+            # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
+            path = inputs.path
+            if path is None:
+                path = str(Path.home()) + "/.eotdl/datasets/" + dataset["name"]
+            df.to_stac(path)
+            # download assets
+            if inputs.assets:
+                self.logger("Downloading assets...")
+                df = df.dropna(subset=["assets"])
+                for row in tqdm(df.iterrows(), total=len(df)):
+                    id = row[1]["stac_id"]
+                    # print(row[1]["links"])
+                    for k, v in row[1]["assets"].items():
+                        href = v["href"]
+                        self.repo.download_file_url(
+                            href, f"{path}/assets/{id}", inputs.user["id_token"]
+                        )
+            else:
+                self.logger("To download assets, set assets=True")
+            return self.Outputs(dst_path=path)

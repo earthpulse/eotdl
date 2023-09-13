@@ -30,7 +30,6 @@ In order to run the API, you need to set the following environment variables:
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
 - `TZ`: Your time zone (for example, `Europe/Madrid`. Optional, `UTC` by default)
 
-
 To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
 
 - `EOTDL_API_URL`: the URL of the API
@@ -58,6 +57,19 @@ docker exec eotdl-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
+
+E2E UI generate tests
+
+```
+cd uis/eotdl
+yarn dev
+
+# first time to login and save cookies
+yarn playwright codegen http://localhost:5173 --save-storage=auth.json
+
+# next times to run tests
+yarn playwright codegen http://localhost:5173 --load-storage=auth.json
+```
 
 #### Running the API
 

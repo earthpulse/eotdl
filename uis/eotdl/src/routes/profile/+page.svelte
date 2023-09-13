@@ -1,5 +1,7 @@
 <script>
 	import updateProfile from "$lib/auth/updateProfile";
+	import TermsAndConditions from "./TermsAndConditions.svelte";
+	import Credentials from "./Credentials.svelte";
 
 	export let data;
 
@@ -24,9 +26,7 @@
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
-	<div
-		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center gap-3"
-	>
+	<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-3">
 		<h1 class="text-left w-full text-2xl">Profile</h1>
 		<div class="flex flex-row w-full gap-3">
 			<div class="avatar">
@@ -47,6 +47,8 @@
 				>
 			</div>
 		</div>
+		<TermsAndConditions />
+		<Credentials {data} />
 	</div>
 </div>
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from ...models import User, Limits, UploadingFile, Dataset
-from ...errors import DatasetAlreadyExistsError, TierLimitError
+from ...errors import DatasetDoesNotExistError, TierLimitError
 from typing import List
 
 
@@ -15,7 +15,7 @@ class GenerateUploadId:
         uid: str
         checksum: str
         name: str
-        dataset: str
+        dataset_id: str
 
     class Outputs(BaseModel):
         upload_id: str
@@ -25,7 +25,7 @@ class GenerateUploadId:
         # check if upload already exists
         data = self.db_repo.find_one(
             "uploading",
-            {"uid": inputs.uid, "name": inputs.name, "dataset": inputs.dataset},
+            {"uid": inputs.uid, "name": inputs.name, "dataset": inputs.dataset_id},
         )
         if data:
             uploading = UploadingFile(**data)
@@ -38,44 +38,27 @@ class GenerateUploadId:
                     parts=uploading.parts,
                 )
         # check if dataset already exists
+        data = self.db_repo.retrieve("datasets", inputs.dataset_id)
+        if not data:
+            raise DatasetDoesNotExistError()
+        dataset = Dataset(**data)
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
         limits = Limits(**data["limits"])
-        data = self.db_repo.find_one_by_name("datasets", inputs.dataset)
-        if data:
-            dataset = Dataset(**data)
-            # error if dataset already exists for another user
-            if dataset.uid != inputs.uid:
-                raise DatasetAlreadyExistsError()
-            # check if user can ingest file
-            if (
-                len(dataset.files) + 1 >= limits.datasets.files
-                and inputs.name not in dataset.files
-            ):
-                raise TierLimitError(
-                    "You cannot have more than {} files".format(limits.datasets.files)
-                )
-        else:  # first upload to new dataset
-            # check if user can ingest dataset
-            usage = self.db_repo.find_in_time_range(
-                "usage", inputs.uid, "dataset_ingested", "type"
+        if dataset.uid != inputs.uid:
+            raise DatasetDoesNotExistError()
+        # check if user can ingest file
+        if (
+            len(dataset.files) + 1 > limits.datasets.files
+            and inputs.name not in dataset.files
+        ):
+            raise TierLimitError(
+                "You cannot have more than {} files".format(limits.datasets.files)
             )
-            if len(usage) + 1 >= limits.datasets.upload:
-                raise TierLimitError(
-                    "You cannot ingest more than {} datasets per day".format(
-                        limits.datasets.upload
-                    )
-                )
-            if user.dataset_count + 1 >= limits.datasets.count:
-                raise TierLimitError(
-                    "You cannot have more than {} datasets".format(
-                        limits.datasets.count
-                    )
-                )
         # create new upload
         id = self.db_repo.generate_id()
-        storage = self.os_repo.get_object(id, inputs.name)
+        storage = self.os_repo.get_object(dataset.id, inputs.name)
         upload_id = self.s3_repo.multipart_upload_id(
             storage
         )  # does this work if the file already exists ?
@@ -83,7 +66,7 @@ class GenerateUploadId:
             uid=inputs.uid,
             id=id,
             upload_id=upload_id,
-            dataset=inputs.dataset,
+            dataset=inputs.dataset_id,
             name=inputs.name,
             checksum=inputs.checksum,
         )
