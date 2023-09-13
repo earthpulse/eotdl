@@ -1,5 +1,6 @@
 <script>
     import { user } from "$stores/auth";
+    import { page } from "$app/stores";
     export let loading;
 
     const links = [
@@ -23,6 +24,29 @@
 </script>
 
 <div class="grid place-items-center w-full">
+    {#if $page.url.pathname == "/"}
+        <div class="w-full p-3 bg-red-400 grid items-center">
+            <p class="m-auto max-w-6xl">
+                Meet us at the upcoming
+                <a
+                    class="text-white hover:underline"
+                    href="https://www.bigdatafromspace2023.org"
+                    target="_blank"
+                    rel="noopener noreferrer">BiDS'23</a
+                >
+                event, that will take place on 6-9 November 2023 in Vienna, Austria.
+                A <span class="underline">hands-on tutorial session </span>on
+                EOTDL will take place on November 6th from 9:00 to 12:30, and
+                everyone is welcome to join! More information
+                <a
+                    class="text-white hover:underline"
+                    href="https://www.bigdatafromspace2023.org/satellite-events"
+                    target="_blank"
+                    rel="noopener noreferrer">here</a
+                >.
+            </p>
+        </div>
+    {/if}
     <ul
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >

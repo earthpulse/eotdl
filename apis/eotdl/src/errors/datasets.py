@@ -52,3 +52,17 @@ class ChunkUploadChecksumMismatch(Exception):
 
     def __init__(self):
         super().__init__(self.message)
+
+
+class UploadIdDoesNotExist(Exception):
+    message = "Upload Id not found."
+
+    def __init__(self):
+        super().__init__(self.message)
+
+
+class ChecksumMismatch(Exception):
+    message = "Checksum mismatch."
+
+    def __init__(self):
+        super().__init__(self.message)

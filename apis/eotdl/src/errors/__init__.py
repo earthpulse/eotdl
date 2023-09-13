@@ -7,6 +7,8 @@ from .datasets import (
     NameCharsValidationError,
     NameLengthValidationError,
     DescriptionLengthValidationError,
+    UploadIdDoesNotExist,
+    ChecksumMismatch,
 )
 from .user import (
     UserUnauthorizedError,

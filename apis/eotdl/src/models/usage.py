@@ -14,7 +14,7 @@ class Usage:
         type: str = "file_ingested"
 
     class FileDownload(BaseUsage):
-        type = "file_download"
+        type: str = "file_download"
 
 
 class DatasetLimits(BaseModel):
