@@ -9,9 +9,7 @@ from pystac.extensions.eo import Band, EOExtension
 from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 from pystac.extensions.raster import RasterExtension, RasterBand
 from pystac.extensions.projection import ProjectionExtension
-from typing import Union
-from os.path import basename, join, dirname
-from os import remove
+from typing import Union, List, Optional
 
 import rasterio
 import pandas as pd
@@ -27,12 +25,13 @@ class STACExtensionObject:
 
     def add_extension_to_object(
         self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        obj_info: Optional[pd.DataFrame] = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param obj_info: object info from the STACDataFrame
         """
         pass
 
@@ -45,12 +44,13 @@ class SarExtensionObject(STACExtensionObject):
 
     def add_extension_to_object(
         self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        obj_info: Optional[pd.DataFrame] = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param obj_info: object info from the STACDataFrame
         """
         # Add SAR extension to the item
         sar_ext = SarExtension.ext(obj, add_if_missing=True)
@@ -141,12 +141,13 @@ class EOS2ExtensionObject(STACExtensionObject):
 
     def add_extension_to_object(
         self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        obj_info: pd.DataFrame
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param obj_info: object info from the STACDataFrame
         """
         # Add EO extension
         eo_ext = EOExtension.ext(obj, add_if_missing=True)
@@ -188,26 +189,34 @@ class LabelExtensionObject(STACExtensionObject):
     def add_extension_to_item(
         self, 
         obj: pystac.Item,
-        href: str,
-        label_names: list[str],
-        label_classes: list[str],
+        label_names: List[str],
+        label_classes: List[str],
         label_properties: list,
         label_description: str,
         label_methods: list,
-        label_tasks: list[str],
+        label_tasks: List[str],
         label_type: str
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param label_names: list of label names
+        :param label_classes: list of label classes
+        :param label_properties: list of label properties
+        :param label_description: label description
+        :param label_methods: list of labeling methods
+        :param label_tasks: list of label tasks
+        :param label_type: label type
+
+        :return: the item with the label extension
         """
         label_item = pystac.Item(id=obj.id,
-                                     geometry=obj.geometry,
-                                     bbox=obj.bbox,
-                                     properties=dict(),
-                                     datetime=obj.datetime
-                                    )
+                                 geometry=obj.geometry,
+                                 bbox=obj.bbox,
+                                 properties=dict(),
+                                 datetime=obj.datetime
+                                 )
         
         # Add the label extension to the item
         LabelExtension.add_to(label_item)
@@ -235,8 +244,7 @@ class LabelExtensionObject(STACExtensionObject):
         label_ext.label_tasks = label_tasks
         # Add the source
         label_ext.add_source(obj)
-        # Set self href
-        label_item.set_self_href(join(dirname(href), f'{obj.id}.json'))
+        # TODO generate self_href
 
         return label_item
     
@@ -244,11 +252,17 @@ class LabelExtensionObject(STACExtensionObject):
     def add_extension_to_collection(
             self,
             obj: pystac.Collection,
-            label_names: list[str],
-            label_classes: list[list|tuple],
+            label_names: List[str],
+            label_classes: List[Union[list, tuple]],
             label_type: str
     ) -> None:
         """
+        Add the label extension to the given collection
+
+        :param obj: object to add the extension
+        :param label_names: list of label names
+        :param label_classes: list of label classes
+        :param label_type: label type
         """
         LabelExtension.add_to(obj)
         
@@ -273,16 +287,17 @@ class RasterExtensionObject(STACExtensionObject):
 
     def add_extension_to_object(
         self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        obj_info: Optional[pd.DataFrame] = None
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param obj_info: object info from the STACDataFrame
         """
         if not isinstance(obj, pystac.Asset):
             return obj
-        elif isinstance(obj, pystac.Asset):
+        else:
             raster_ext = RasterExtension.ext(obj, add_if_missing=True)
             src = rasterio.open(obj.href)
             bands = list()
@@ -304,12 +319,13 @@ class ProjExtensionObject(STACExtensionObject):
 
     def add_extension_to_object(
         self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame=None
+        obj_info: pd.DataFrame
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
 
         :param obj: object to add the extension
+        :param obj_info: object info from the STACDataFrame
         """
         # Add raster extension to the item
         if isinstance(obj, pystac.Asset):

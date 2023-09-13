@@ -4,13 +4,10 @@ Module for generating STAC metadata
 
 from typing import Union
 import pandas as pd
-import json
 import pystac
-from random import sample
 from tqdm import tqdm
 
-from os import listdir
-from os.path import join, basename, exists, dirname
+from os.path import join, basename, dirname
 from shutil import rmtree
 
 import rasterio
@@ -19,11 +16,18 @@ from rasterio.warp import transform_bounds
 from datetime import datetime
 from shapely.geometry import Polygon, mapping
 from glob import glob
+from typing import Union, Optional
 
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
-from .utils import format_time_acquired, count_ocurrences
-from .extensions import type_stac_extensions_dict, SUPPORTED_EXTENSIONS, LabelExtensionObject
+from .utils import (format_time_acquired, 
+                    cut_images, 
+                    get_item_metadata)
+from .extensions import (type_stac_extensions_dict, 
+                         SUPPORTED_EXTENSIONS, 
+                         LabelExtensionObject)
+from .extent import (get_unknow_extent, 
+                     get_collection_extent)
 
 
 class STACGenerator:
@@ -58,9 +62,9 @@ class STACGenerator:
         """
         Generate STAC metadata for a given directory containing the assets to generate metadata
 
-        :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
         :param id: id of the catalog
         :param description: description of the catalog
+        :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
         :param output_folder: output folder to write the catalog to
         """
         self._stac_dataframe = stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
@@ -68,7 +72,7 @@ class STACGenerator:
             raise ValueError('No STAC dataframe provided')
         
         # Create an empty catalog
-        catalog = self.create_stac_catalog(id=id, description=description)
+        catalog = pystac.Catalog(id=id, description=description, **kwargs)
         
         # Add the collections to the catalog
         collections = self._stac_dataframe.collection.unique()
@@ -91,26 +95,10 @@ class STACGenerator:
         except pystac.STACValidationError as e:
             print(f'Catalog validation error: {e}')
             return
-        
-    def cut_images(self, images_list: list|tuple) -> list:
-        """
-        # TODO poner en otro archivo
-        
-        """
-        dirnames = list()
-        images = list()
-
-        for image in images_list:
-            dir = dirname(image)
-            if dir not in dirnames:
-                dirnames.append(dir)
-                images.append(image)
-
-        return images
 
     def get_stac_dataframe(self, 
                            path: str, 
-                           collections: str|dict='source',
+                           collections: Union[str, dict]='source',
                            bands: dict=None, 
                            extensions: dict=None
                            ) -> pd.DataFrame:
@@ -118,12 +106,13 @@ class STACGenerator:
         Get a dataframe with the STAC metadata of a given directory containing the assets to generate metadata
 
         :param path: path to the root directory
+        :param collections: dictionary with the collections
+        :param bands: dictionary with the bands
         :param extensions: dictionary with the extensions
-        :param image_format: image format of the assets
         """
         images = glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
         if self._assets_generator.type == 'Extracted':
-            images = self.cut_images(images)
+            images = cut_images(images)
 
         labels, ixs = self._format_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
@@ -150,33 +139,6 @@ class STACGenerator:
         self._stac_dataframe = df
         
         return df
-    
-    def _get_images_common_prefix(self, images: list) -> list:
-        """
-        Get the common prefix of a list of images
-
-        :param images: list of images
-        """
-        images_common_prefix_dict = dict()
-
-        images_dirs = [dirname(i) for i in images]
-
-        for image in images_dirs:
-            path = image
-            common = False
-            while not common:
-                n = count_ocurrences(path, images_dirs)
-                if n > 1:
-                    images_common_prefix_dict[image] = path
-                    common = True
-                else:
-                    path = dirname(path)
-
-        images_common_prefix_list = list()
-        for i in images:
-            images_common_prefix_list.append(images_common_prefix_dict[dirname(i)])
-
-        return images_common_prefix_list
     
     def _format_labels(self, images):
         """
@@ -206,141 +168,17 @@ class STACGenerator:
                 items_list.append(None)
 
         return items_list
-    
-    def _get_collection_extent(self, rasters: list[str]) -> pystac.Extent:
-        """
-        Get the extent of a collection
-        
-        :param path: path to the directory
-        """
-        # Get the spatial extent of the collection
-        spatial_extent = self._get_collection_spatial_extent(rasters)
-        # Get the temporal interval of the collection
-        temporal_interval = self._get_collection_temporal_interval(rasters)
-        # Create the Extent object
-        extent = pystac.Extent(spatial=spatial_extent, temporal=temporal_interval)
-
-        return extent
-    
-    def _get_collection_spatial_extent(self, rasters: list[str]) -> pystac.SpatialExtent:
-        """
-        Get the spatial extent of a collection
-
-        :param path: path to the directory
-        """
-        # Get the bounding boxes of all the given rasters
-        bboxes = list()
-        for raster in rasters:
-            with rasterio.open(raster) as ds:
-                bounds = ds.bounds
-                dst_crs = 'EPSG:4326'
-                try:
-                    left, bottom, right, top = rasterio.warp.transform_bounds(ds.crs, dst_crs, *bounds)
-                    bbox = [left, bottom, right, top]
-                except rasterio.errors.CRSError:
-                    spatial_extent = pystac.SpatialExtent([[0, 0, 0, 0]])
-                    return spatial_extent
-                bboxes.append(bbox)
-        # Get the minimum and maximum values of the bounding boxes
-        try:
-            left = min([bbox[0] for bbox in bboxes])
-            bottom = min([bbox[1] for bbox in bboxes])
-            right = max([bbox[2] for bbox in bboxes])
-            top = max([bbox[3] for bbox in bboxes])
-            spatial_extent = pystac.SpatialExtent([[left, bottom, right, top]])
-        except ValueError:
-            spatial_extent = pystac.SpatialExtent([[0, 0, 0, 0]])
-        finally:
-            return spatial_extent
-    
-    def _get_collection_temporal_interval(self, rasters: list[str]) -> pystac.TemporalExtent:
-        """
-        Get the temporal interval of a collection
-
-        :param path: path to the directory
-        """
-        # Get all the metadata.json files in the directory of all the given rasters
-        metadata_json_files = list()
-        for raster in rasters:
-            metadata_json_files += glob(f'{dirname(raster)}/*.json', recursive=True)
-
-        if not metadata_json_files:
-            return self._get_unknow_temporal_interval()   # If there is no metadata, set a generic temporal interval
-        
-        # Get the temporal interval of every metadata.json file and the type of the data
-        data_types = list()
-        temporal_intervals = list()
-        for metadata_json_file in metadata_json_files:
-            with open(metadata_json_file, 'r') as f:
-                metadata = json.load(f)
-            # Append the temporal interval to the list as a datetime object
-            temporal_intervals.append(metadata['date-adquired']) if metadata['date-adquired'] else None
-            # Append the data type to the list
-            data_types.append(metadata['type']) if metadata['type'] else None
-            
-        if temporal_intervals:
-            try:
-                # Get the minimum and maximum values of the temporal intervals
-                min_date = min([datetime.strptime(interval, '%Y-%m-%d') for interval in temporal_intervals])
-                max_date = max([datetime.strptime(interval, '%Y-%m-%d') for interval in temporal_intervals])
-            except ValueError:
-                min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
-                max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
-            finally:
-                # Create the temporal interval
-                return pystac.TemporalExtent([(min_date, max_date)])
-        else:
-            # Check if the collection is composed by DEM data. If not, set a generic temporal interval
-            if set(data_types) == {'dem'} or set(data_types) == {'DEM'} or set(data_types) == {'dem', 'DEM'}:
-                return self._get_dem_temporal_interval()
-            else:
-                return self._get_unknow_temporal_interval()
-            
-    def _get_dem_temporal_interval(self) -> pystac.TemporalExtent:
-        """
-        Get a temporal interval for DEM data
-        """
-        min_date = datetime.strptime('2011-01-01', '%Y-%m-%d')
-        max_date = datetime.strptime('2015-01-07', '%Y-%m-%d')
-
-        return pystac.TemporalExtent([(min_date, max_date)])
-    
-    def _get_unknow_temporal_interval(self) -> pystac.TemporalExtent:
-        """
-        Get an unknown temporal interval
-        """
-        min_date = datetime.strptime('2000-01-01', '%Y-%m-%d')
-        max_date = datetime.strptime('2023-12-31', '%Y-%m-%d')
-
-        return pystac.TemporalExtent([(min_date, max_date)])
-    
-    def _get_unknow_extent(self) -> pystac.Extent:
-        """
-        """
-        return pystac.Extent(spatial=pystac.SpatialExtent([[0, 0, 0, 0]]),
-                                   temporal=pystac.TemporalExtent([(datetime.strptime('2000-01-01', '%Y-%m-%d'), 
-                                                                    datetime.strptime('2023-12-31', '%Y-%m-%d'))]))
-
-    def create_stac_catalog(self, id: str, description: str, kwargs: dict={}) -> pystac.Catalog:
-        """
-        Create a STAC catalog
-
-        :param id: id of the catalog
-        :param description: description of the catalog
-        :param params: additional parameters
-        """
-        return pystac.Catalog(id=id, description=description, **kwargs)
 
     def generate_stac_collection(self, collection_path: str) -> pystac.Collection:
         """
         Generate a STAC collection from a directory containing the assets to generate metadata
 
-        :param path: path to the root directory
+        :param collection_path: path to the collection
         """
         # Get the images of the collection, as they are needed to obtain the collection extent
         collection_images = self._stac_dataframe[self._stac_dataframe['collection'] == collection_path]['image']
         # Get the collection extent
-        extent = self._get_collection_extent(collection_images)
+        extent = get_collection_extent(collection_images)
         # Create the collection
         collection_id = basename(collection_path)
         collection = pystac.Collection(id=collection_id,
@@ -367,7 +205,7 @@ class STACGenerator:
         :param raster_path: path to the raster file
         """
         # Check if there is any metadata file in the directory associated to the raster file
-        metadata = self._get_item_metadata(raster_path)
+        metadata = get_item_metadata(raster_path)
 
         # Obtain the bounding box from the raster
         with rasterio.open(raster_path) as ds:
@@ -413,6 +251,10 @@ class STACGenerator:
 
         # Obtain the item ID. The approach depends on the item parser
         id = self._item_parser.get_item_id(raster_path)
+        # Add the item ID to the dataframe, to be able to get it later
+        self._stac_dataframe.loc[
+            self._stac_dataframe["image"] == raster_path, "id"
+        ] = id
         
         # Instantiate pystac item
         item = pystac.Item(id=id,
@@ -465,117 +307,108 @@ class STACGenerator:
         
         return item
 
-    def _get_item_metadata(self, raster_path: str) -> str:
+    def generate_stac_labels(
+        self,
+        catalog: Union[pystac.Catalog, str],
+        stac_dataframe: Optional[pd.DataFrame] = None,
+        collection: Optional[Union[pystac.Collection, str]] = None,
+    ) -> None:
         """
-        Get the metadata JSON file of a given directory, associated to a raster file
-
-        :param raster_path: path to the raster file
-        """
-        # Get the directory of the raster file
-        raster_dir_path = dirname(raster_path)
-        # Get the metadata JSON file
-        # Check if there is a metadata.json file in the directory
-        if 'metadata.json' in listdir(raster_dir_path):
-            metadata_json = join(raster_dir_path, 'metadata.json')
-        else:
-            # If there is no metadata.json file in the directory, check if there is
-            # a json file with the same name as the raster file
-            raster_name = raster_path.split('/')[-1]
-            raster_name = raster_name.split('.')[0]
-            metadata_json = join(raster_dir_path, f'{raster_name}.json')
-            if not exists(metadata_json):
-                # If there is no metadata.json file in the directory, return None
-                return None
+        Generate a labels collection from a STAC dataframe
         
-        # Open the metadata.json file and return it
-        with open(metadata_json, 'r') as f:
-            metadata = json.load(f)
-        
-        return metadata
-
-    def generate_stac_labels(self,
-                             catalog: pystac.Catalog|str,
-                             stac_dataframe: pd.DataFrame = None,
-                             collection: pystac.Collection|str = None
-                             ) -> None:
+        :param catalog: catalog to add the labels collection to
+        :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
+        :param collection: collection to add the labels collection to
         """
-        """
-        self._stac_dataframe = stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
+        self._stac_dataframe = (
+            stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
+        )
         if self._stac_dataframe.empty:
-            raise ValueError('No STAC dataframe provided, please provide a STAC dataframe or generate it with <get_stac_dataframe> method')
+            raise ValueError(
+                "No STAC dataframe provided, please provide a STAC dataframe or generate it with <get_stac_dataframe> method"
+            )
         if isinstance(catalog, str):
             catalog = pystac.Catalog.from_file(catalog)
 
         # Add the labels collection to the catalog
         # If exists a source collection, get it extent
-        source_collection = catalog.get_child('source')
+        source_collection = catalog.get_child("source")
         if source_collection:
             extent = source_collection.extent
             source_items = source_collection.get_all_items()
         else:
             if not collection:
-                raise ValueError('No source collection provided, please provide a source collection')
-            extent = self._get_unknow_extent()
-        
+                raise ValueError(
+                    "No source collection provided, please provide a source collection"
+                )
+            extent = get_unknow_extent()
+
         # Create the labels collection and add it to the catalog if it does not exist
         # If it exists, remove it
-        collection = pystac.Collection(id='labels',
-                                        description='Labels',
-                                        extent=extent)
+        collection = pystac.Collection(id="labels", description="Labels", extent=extent)
         if collection.id in [c.id for c in catalog.get_children()]:
             catalog.remove_child(collection.id)
         catalog.add_child(collection)
 
         # Generate the labels items
-        print('Generating labels collection...')
+        print("Generating labels collection...")
         for source_item in tqdm(source_items):
-            source_item.make_asset_hrefs_absolute()
-            # Get assets hrefs
-            assets = source_item.assets
-            assets_hrefs = [assets[asset].href for asset in assets]
-            # Supose the first asset href is enough if assets_hrefs is a list
-            asset_href = assets_hrefs[0] if isinstance(assets_hrefs, list) else assets_hrefs
-            # Restore the relative paths
-            source_item.make_asset_hrefs_relative()
-            # Get the label of the item
-            label = self._stac_dataframe[self._stac_dataframe['image'] == asset_href]['label'].values[0]
+            source_item_id = source_item.id
+            # There must be an item ID column in the STAC dataframe
+            if not 'id' in self._stac_dataframe.columns:
+                raise ValueError(
+                    "No item ID column found in the STAC dataframe, please provide a STAC dataframe with the item ID column"
+                )
+            label = self._stac_dataframe[self._stac_dataframe["id"] == source_item_id][
+                "label"
+            ].values[0]
             # Create the label item
             # TODO put kwargs
-            label_item = LabelExtensionObject.add_extension_to_item(source_item,
-                                                                      href=asset_href,
-                                                                      label_names=['label'],
-                                                                      label_classes=[[label]],
-                                                                      label_properties=['label'],
-                                                                      label_description='Item label',
-                                                                      label_methods=['manual'],
-                                                                      label_tasks=['classification'],
-                                                                      label_type='vector')
+            label_item = LabelExtensionObject.add_extension_to_item(
+                source_item,
+                label_names=["label"],
+                label_classes=[[label]],
+                label_properties=["label"],
+                label_description="Item label",
+                label_methods=["manual"],
+                label_tasks=["classification"],
+                label_type="vector",
+            )
 
             collection.add_item(label_item)
 
         # Add the extension to the collection
         # TODO put in kwargs
-        LabelExtensionObject.add_extension_to_collection(collection,
-                                                         label_names=['label'],
-                                                         label_classes=[self._stac_dataframe.label.unique().tolist()],
-                                                         label_type='vector')
+        LabelExtensionObject.add_extension_to_collection(
+            collection,
+            label_names=["label"],
+            label_classes=[self._stac_dataframe.label.unique().tolist()],
+            label_type="vector",
+        )
 
         # Validate and save the catalog
         try:
             pystac.validation.validate(catalog)
             catalog.save(catalog_type=self._catalog_type)
         except pystac.STACValidationError as e:
-            print(f'Catalog validation error: {e}')
+            print(f"Catalog validation error: {e}")
             return
 
 
-def merge_stac_catalogs(catalog_1: pystac.Catalog|str,
-                        catalog_2: pystac.Catalog|str,
-                        destination: str = None,
-                        keep_extensions: bool = False,
-                        catalog_type: pystac.CatalogType = pystac.CatalogType.SELF_CONTAINED
+def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],
+                        catalog_2: Union[pystac.Catalog, str],
+                        destination: Optional[str] = None,
+                        keep_extensions: Optional[bool] = False,
+                        catalog_type: Optional[pystac.CatalogType] = pystac.CatalogType.SELF_CONTAINED
                         ) -> None:
     """
+    Merge two STAC catalogs, keeping the properties, collection and items of both catalogs
+
+    :param catalog_1: first catalog to merge
+    :param catalog_2: second catalog to merge
+    :param destination: destination folder to save the merged catalog
+    :param keep_extensions: keep the extensions of the first catalog
+    :param catalog_type: type of the catalog
     """
     if isinstance(catalog_1, str):
         catalog_1 = pystac.Catalog.from_file(catalog_1)

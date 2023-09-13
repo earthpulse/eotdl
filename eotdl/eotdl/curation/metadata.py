@@ -6,6 +6,7 @@ import datetime
 import json
 import rasterio
 from rasterio.warp import transform_bounds
+from typing import Union, Optional
 
 from os import remove
 from glob import glob
@@ -14,7 +15,7 @@ from os.path import dirname, join, exists
 
 def generate_raster_metadata(raster_path: str,
                              output_folder: str,
-                             date_adquired: str|datetime.datetime
+                             date_adquired: Union[str, datetime.datetime]
                              ) -> None:
     """
     Generate metadata.json file for a raster file
@@ -45,7 +46,7 @@ def generate_raster_metadata(raster_path: str,
         json.dump(metadata, f)
 
 
-def remove_raster_metadata(folder: str, metadata_file: str = 'metadata.json') -> None:
+def remove_raster_metadata(folder: str, metadata_file: Optional[str] = 'metadata.json') -> None:
     """
     Remove metadata.json file from a folder
 
