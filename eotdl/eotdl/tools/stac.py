@@ -18,6 +18,12 @@ def stac_items_to_gdf(items: ItemCollection) -> gpd.GeoDataFrame:
     features = []
     for f in _features:
         if f not in features:
-            features.append(f)
+            # Add the id, type and stac_extensions as properties, in order to retrieve 
+            # them as columns in the GeoDataFrame
+            f['properties']['id'] = f['id']
+            f['properties']['scene_id'] = f['id'].split('_')[3]
+            f['properties']['type'] = f['type']
+            f['properties']['stac_extensions'] = f['stac_extensions']
+            features.append(f)       
     
     return gpd.GeoDataFrame.from_features(features)

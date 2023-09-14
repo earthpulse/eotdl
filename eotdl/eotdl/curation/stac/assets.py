@@ -28,6 +28,7 @@ class STACAssetGenerator:
     def __init__(self):
         pass
 
+    @classmethod
     def extract_assets(self, obj_info: pd.DataFrame):
         """
         Extract the assets from the raster file
