@@ -12,6 +12,7 @@ allowed_extensions = [
     ".csv",
     ".txt",
     ".json",
+    ".geojson",
     ".pdf",
     ".md",
     ".yml",
