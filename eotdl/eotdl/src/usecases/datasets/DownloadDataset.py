@@ -44,9 +44,9 @@ class DownloadDataset:
             download_path = download_base_path + "/" + inputs.dataset
         else:
             download_path = inputs.path + "/" + inputs.dataset
-        os.makedirs(download_path, exist_ok=True)
         # check if dataset already exists
         if os.path.exists(download_path) and not inputs.force:
+            os.makedirs(download_path, exist_ok=True)
             raise Exception(
                 f"Dataset {inputs.dataset} already exists at {download_path}. To force download, use force=True or -f in the CLI."
             )
