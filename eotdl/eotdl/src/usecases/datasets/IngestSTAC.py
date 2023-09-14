@@ -52,6 +52,7 @@ class IngestSTAC:
             # for asset in df.assets.dropna().values[:10]:
             try:
                 for k, v in row[1]["assets"].items():
+                    print(k, v)
                     data = self.ingest_file(
                         v["href"],
                         dataset_id,
