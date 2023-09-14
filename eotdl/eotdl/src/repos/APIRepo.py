@@ -7,7 +7,8 @@ import geopandas as gpd
 
 
 class APIRepo:
-    def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
+    # def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
+    def __init__(self, url=os.getenv("EOTDL_API_URL", "http://localhost:8010/")):
         self.url = url
 
     def login(self):
