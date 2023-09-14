@@ -147,11 +147,11 @@ class MLDatasetExtension(
         Args:
              metric : The metric to add.
         """
-        if not self.extra_fields.get(f"{PREFIX}quality-metrics"):
-            self.extra_fields[f"{PREFIX}quality-metrics"] = []
+        if not self.extra_fields.get(f'{PREFIX}quality-metrics'):
+            self.extra_fields[f'{PREFIX}quality-metrics'] = []
 
-        if metric not in self.extra_fields[f"{PREFIX}quality-metrics"]:
-            self.extra_fields[f"{PREFIX}quality-metrics"].append(metric)
+        if metric not in self.extra_fields[f'{PREFIX}quality-metrics']:
+            self.extra_fields[f'{PREFIX}quality-metrics'].append(metric)
 
     def add_metrics(self, metrics: List[dict]) -> None:
         """Add a list of metrics to this object's set of metrics.
@@ -235,6 +235,7 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
                 item_ml.split = split_type
 
 
+
 class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
     """A concrete implementation of :class:`MLDatasetExtension` on an
     :class:`~pystac.Item` that extends the properties of the Item to include properties
@@ -272,10 +273,20 @@ class MLDatasetQualityMetrics:
 
         if isinstance(catalog, str):
             catalog = MLDatasetExtension(pystac.read_file(catalog))
+        # Check the catalog has the extension
+        if not MLDatasetExtension.has_extension(catalog):
+            raise pystac.ExtensionNotImplemented(
+                f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"
+            )
 
-        catalog.add_metric(self._search_spatial_duplicates(catalog))
-        catalog.add_metric(self._get_classes_balance(catalog))
-
+        try:
+            catalog.add_metric(self._search_spatial_duplicates(catalog))
+            catalog.add_metric(self._get_classes_balance(catalog))
+        except AttributeError:
+            raise pystac.ExtensionNotImplemented(
+                f"The catalog does not have the required properties or the ML-Dataset extension to calculate the metrics"
+            )
+            
         try:
             print("Validating and saving...")
             catalog.validate()
@@ -496,6 +507,3 @@ def make_splits(
         labels_collection.create_and_add_split(split_data, split_type)
 
     print("Success on splits generation!")
-
-
-import pystac.item

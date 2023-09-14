@@ -3,11 +3,13 @@ STAC utils
 """
 
 import pystac
+import json
 
+from os.path import dirname, join, exists
+from os import listdir
 from datetime import datetime
 from dateutil import parser
 from pandas import isna
-from numpy import nan
 from typing import Union
 
 
@@ -84,3 +86,47 @@ def get_all_children(obj: pystac.STACObject) -> list:
             children.append(item.to_dict())
 
     return children
+
+
+def cut_images(images_list: Union[list, tuple]) -> list:
+    """
+    """
+    dirnames = list()
+    images = list()
+
+    for image in images_list:
+        dir = dirname(image)
+        if dir not in dirnames:
+            dirnames.append(dir)
+            images.append(image)
+
+    return images
+
+
+def get_item_metadata(raster_path: str) -> str:
+    """
+    Get the metadata JSON file of a given directory, associated to a raster file
+
+    :param raster_path: path to the raster file
+    """
+    # Get the directory of the raster file
+    raster_dir_path = dirname(raster_path)
+    # Get the metadata JSON file
+    # Check if there is a metadata.json file in the directory
+    if 'metadata.json' in listdir(raster_dir_path):
+        metadata_json = join(raster_dir_path, 'metadata.json')
+    else:
+        # If there is no metadata.json file in the directory, check if there is
+        # a json file with the same name as the raster file
+        raster_name = raster_path.split('/')[-1]
+        raster_name = raster_name.split('.')[0]
+        metadata_json = join(raster_dir_path, f'{raster_name}.json')
+        if not exists(metadata_json):
+            # If there is no metadata.json file in the directory, return None
+            return None
+    
+    # Open the metadata.json file and return it
+    with open(metadata_json, 'r') as f:
+        metadata = json.load(f)
+    
+    return metadata

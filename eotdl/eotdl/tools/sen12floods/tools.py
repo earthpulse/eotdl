@@ -22,7 +22,7 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
                 - images_count: the count of available images of each location.
                 - images_dates: list with the dates of the available images of each location.
     """
-    uniques_location_id = gdf['location_id'].unique()   # List of unique location ids
+    uniques_location_id = gdf['scene_id'].unique()   # List of unique location ids
     uniques_location_id.sort()
 
     images_count_list, images_dates_list = [], []
@@ -30,11 +30,11 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     # Iterate the unique location ids, count the number of images per location and generate
     # a list with the dates of every image in a location
     for location_id in uniques_location_id:
-        dates = gdf[gdf['location_id'] == location_id]['datetime']
+        dates = gdf[gdf['scene_id'] == location_id]['datetime']
         images_count_list.append(dates.count())
         images_dates_list.append(dates.tolist())
 
-    data = {'sequence_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
+    data = {'scene_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
     gdf_dates_per_aoi = gpd.GeoDataFrame.from_dict(data)
 
     return gdf_dates_per_aoi
