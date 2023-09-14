@@ -302,10 +302,8 @@ class STACGenerator:
                             else:
                                 extension_obj = self._extensions_dict[extension]
                                 extension_obj.add_extension_to_object(asset, item_info)
-
         item.set_self_href(join(dirname(raster_path), f"{id}.json"))
         item.make_asset_hrefs_relative()
-
         return item
 
     def generate_stac_labels(

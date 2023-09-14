@@ -133,7 +133,8 @@ def read_stac(
     :param geometry_column: name of the geometry column
     """
     if isinstance(stac_file, str) or isinstance(stac_file, Path):
-        stac_file = pystac.read_file(stac_file)
+        stac_file = pystac.read_file(stac_file) # we assume this is always a catalog
+    stac_file.make_all_asset_hrefs_absolute()
     children = get_all_children(stac_file)
 
     # Convert Dataframe to STACDataFrame

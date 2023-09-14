@@ -3,14 +3,12 @@ Module for STAC Asset Generators
 '''
 
 from os import remove, listdir
-from os.path import dirname, join, basename
+from os.path import dirname, join, basename, abspath
 from ..metadata import remove_raster_metadata
-from pathlib import Path
 
 import pandas as pd
 import rasterio
 import pystac
-
 
 MEDIA_TYPES_DICT = {
     'tif': pystac.MediaType.GEOTIFF,
@@ -40,7 +38,7 @@ class STACAssetGenerator:
         title = basename(raster_path).split('.')[0]
         # Get the file extension
         raster_format = raster_path.split('.')[-1]
-        asset = pystac.Asset(href=Path(raster_path).as_posix(), 
+        asset = pystac.Asset(href=abspath(raster_path), 
                              title=title, 
                              media_type=MEDIA_TYPES_DICT[raster_format], 
                              roles=['data'])
