@@ -35,8 +35,8 @@ def list():
 @app.command()
 def get(
     dataset: str,
-    path: Path = typer.Option(None, "--path", "-p", help="Download to a specific path"),
-    file: bool = typer.Option(None, "--file", "-f", help="Download a specific file"),
+    path: str = typer.Option(None, "--path", "-p", help="Download to a specific path"),
+    file: str = typer.Option(None, "--file", "-f", help="Download a specific file"),
     assets: bool = typer.Option(False, "--assets", "-a", help="Download assets"),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
