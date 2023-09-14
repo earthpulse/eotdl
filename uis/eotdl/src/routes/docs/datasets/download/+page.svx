@@ -28,9 +28,17 @@ Your datasets will be downloaded to a default folder, but you can specify a diff
 
 <CLI><Code>eotdl datasets get dataset-name --path .</Code></CLI>
 
-You can also specify which file to download
+For Q0 datasets, you can also specify which file to download.
 
 <CLI><Code>eotdl datasets get dataset-name --file file-name</Code></CLI>
+
+For Q1+ datasets, the previous command will only download the STAC metadata (which contains the links to all the assets). However, if you want to download the assets as well, you cann use the `--assets` option.
+
+<CLI><Code>eotdl datasets get dataset-name --assets</Code></CLI>
+
+In order to overwrite a dataset that you already downloaded, you can use the `--force` option.
+
+<CLI><Code>eotdl datasets get dataset-name --force</Code></CLI>
 
 ## API 
 

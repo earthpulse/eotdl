@@ -85,8 +85,6 @@ The datasets hosted on the EOTDL are categorized into for quality levels:
 
 EOTDL offers functionality to easily create datasets and perform automated quality checks on Q1+ datasets, which metrics are reported in the STAC metadata.
 
-> Currently, only Q0 datasets are supported. We will update this post and the documentation as new features are available.
-
 ## Next steps
 
 Check our next post to start working with Q0 datasets.

@@ -12,5 +12,3 @@ The datasets hosted on the EOTDL are categorized into for quality levels:
 - **Q3**: Q2 datasets that are manually curated. These datasets are the most reliable and can be used as benchmark datasets.
 
 EOTDL offers functionality to easily create datasets and perform automated quality checks on Q1+ datasets, which metrics are reported in the STAC metadata.
-
-<BadgeWarning>Currently only Q0 datasets are supported.</BadgeWarning>
