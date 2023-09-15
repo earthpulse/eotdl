@@ -121,7 +121,6 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         return row
 
-
 def read_stac(
     stac_file: Union[pystac.Catalog, pystac.Collection, str],
     geometry_column: Optional[str] = "geometry",
