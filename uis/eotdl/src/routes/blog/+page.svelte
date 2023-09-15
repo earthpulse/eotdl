@@ -36,7 +36,7 @@
         }
     }
 
-    const maxVisiblePosts = 3;
+    const maxVisiblePosts = 5;
     let currentPage = 0;
     $: numPages = Math.ceil(filtered_posts?.length / maxVisiblePosts);
     $: if (numPages > 0) currentPage = 0;

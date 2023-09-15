@@ -132,8 +132,6 @@
 						/>
 					{/if}
 				</span>
-			{:else}
-				<p class="badge badge-warning p-3">Sign in to download</p>
 			{/if}
 		</div>
 
