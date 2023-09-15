@@ -39,8 +39,13 @@ class GeoDBRepo:
         return self.client.get_collection(collection, database=self.database)
 
     def create_collection_structure(self, columns: list) -> dict:
+        # TODO: in order to query geodb we must set the correct types !!!
+        # https://xcube-geodb.readthedocs.io/en/latest/notebooks/geodb_manage_collections.html
+        # https://www.postgresql.org/docs/11/datatype.html
         stac_collection = {"crs": 4326, "properties": {}}
         for column in columns:
             if column not in ("geometry", "id"):
-                stac_collection["properties"][column] = "json"
+                stac_collection["properties"][column] = "text"
         return stac_collection
+    
+

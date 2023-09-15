@@ -64,7 +64,6 @@ def get_all_children(obj: pystac.STACObject) -> list:
     :param obj: STAC object
     """
     children = []
-
     # Append the current object to the list
     children.append(obj.to_dict())
 
