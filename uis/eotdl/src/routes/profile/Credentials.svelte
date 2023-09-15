@@ -5,8 +5,6 @@
 	export let data;
 	$: ({ credentials } = data.user);
 
-	$: console.log(data.user);
-
 	const _credentials = [
 		"GEODB_API_SERVER_PORT",
 		"GEODB_API_SERVER_URL",

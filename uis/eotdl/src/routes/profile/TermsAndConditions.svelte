@@ -12,8 +12,6 @@
 		if ($user.terms?.eoxhub) eoxhub = true;
 	}
 
-	$: console.log($user);
-
 	$: disabled = !geodb || !sentinelhub || !eoxhub;
 
 	const submit = async () => {
@@ -51,17 +49,25 @@
 				id="sentinelhub"
 			/>
 			<label for="sentinelhub"
-				>I agree to the Sentinel HUB Terms and Conditions.</label
+				>I agree to the <a
+					class="hover:underline text-green-200"
+					href="https://www.sentinel-hub.com/tos/#terms"
+					target="_blank">Sentinel HUB Terms and Conditions</a
+				>.</label
 			>
 		{/if}
 	</span>
 	<span>
 		{#if $user.terms?.eoxhub}
-			<p>You have agreed to the EOX HUB Terms and Condition.</p>
+			<p>You have agreed to the EOX HUB Terms and Conditions.</p>
 		{:else}
 			<input type="checkbox" bind:checked={eoxhub} id="eoxhub" />
 			<label for="eoxhub"
-				>I agree to the EOX HUBTerms and Conditions.</label
+				>I agree to the <a
+					class="hover:underline text-green-200"
+					href="https://eox.at/service-terms-and-conditions/ "
+					target="_blank">EOX HUB Terms and Conditions</a
+				>.</label
 			>
 		{/if}
 	</span>
