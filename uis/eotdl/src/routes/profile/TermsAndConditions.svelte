@@ -32,16 +32,33 @@
 >
 	<span>
 		{#if $user.terms?.geodb}
-			<p>You have agreed to the GeoDB Terms and Condition.</p>
+			<p>
+				You have agreed to the <a
+					class="hover:underline text-green-200"
+					href="https://nor-discover.cloudeo.group/Service/Brockmann-EDC-xcube/SLA"
+					target="_blank">GeoDB Terms and Conditions</a
+				>.
+			</p>
 		{:else}
 			<input type="checkbox" bind:checked={geodb} id="geodb" />
-			<label for="geodb">I agree to the GeoDB Terms and Conditions.</label
+			<label for="geodb"
+				>I agree to the <a
+					class="hover:underline text-green-200"
+					href="https://nor-discover.cloudeo.group/Service/Brockmann-EDC-xcube/SLA"
+					target="_blank">GeoDB Terms and Conditions</a
+				>.</label
 			>
 		{/if}
 	</span>
 	<span>
 		{#if $user.terms?.sentinelhub}
-			<p>You have agreed to the GeoDB Terms and Condition.</p>
+			<p>
+				You have agreed to the <a
+					class="hover:underline text-green-200"
+					href="https://www.sentinel-hub.com/tos/#terms"
+					target="_blank">Sentinel HUB Terms and Conditions</a
+				>.
+			</p>
 		{:else}
 			<input
 				type="checkbox"
@@ -59,7 +76,13 @@
 	</span>
 	<span>
 		{#if $user.terms?.eoxhub}
-			<p>You have agreed to the EOX HUB Terms and Conditions.</p>
+			<p>
+				You have agreed to the <a
+					class="hover:underline text-green-200"
+					href="https://eox.at/service-terms-and-conditions/ "
+					target="_blank">EOX HUB Terms and Conditions</a
+				>.
+			</p>
 		{:else}
 			<input type="checkbox" bind:checked={eoxhub} id="eoxhub" />
 			<label for="eoxhub"
