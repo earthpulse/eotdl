@@ -1,7 +1,7 @@
 ---
 title: Q0 Training Datasets
 date: '2023-04-26T10:00:00.000Z'
-description: In this post you will learn about Q0 datsets and how to explore, download and ingest them in EOTDL.
+description: In this post you will learn about Q0 datasets and how to explore, download and ingest them in EOTDL.
 tags: Q0, datasets
 ---
 
