@@ -403,6 +403,7 @@ class STACGenerator:
         
         # Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         # https://github.com/stac-extensions/label#assets
+        # TODO if label_type == vector:
         LabelExtensionObject.add_geojson_to_items(collection, 
                                                   self._stac_dataframe)
         catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
