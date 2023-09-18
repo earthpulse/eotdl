@@ -13,6 +13,7 @@ from os.path import dirname
 from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
 from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
+from .utils import make_links_relative_to_path
 
 T = TypeVar("T", pystac.Item, pystac.Collection, pystac.Catalog)
 
@@ -410,6 +411,8 @@ def add_ml_extension(
         )
 
     catalog_ml_dataset = MLDatasetExtension.ext(catalog, add_if_missing=True)
+    catalog_ml_dataset.set_self_href(destination + "/catalog.json")
+    catalog_ml_dataset.set_root(catalog_ml_dataset)
 
     # Set extension properties
     for key, value in kwargs.items():
@@ -429,20 +432,22 @@ def add_ml_extension(
             val_size=val_size,
             **kwargs,
         )
-        # Normalize the ref on the same folder
-        catalog_ml_dataset.normalize_hrefs(root_href=dirname(catalog.get_self_href()))
+
+    # Normalize the ref on the same folder
+    if destination:
+        make_links_relative_to_path(destination, catalog_ml_dataset)
+    else:
+        destination = dirname(catalog.get_self_href())
+        rmtree(
+            destination
+        )  # Remove the old catalog and replace it with the new one
 
     try:
         print("Validating and saving...")
         catalog_ml_dataset.validate()
-        if not destination:
-            destination = dirname(catalog.get_self_href())
-            rmtree(
-                destination
-            )  # Remove the old catalog and replace it with the new one
-        catalog_ml_dataset.save(dest_href=destination)
+        catalog_ml_dataset.normalize_and_save(root_href=destination, catalog_type=pystac.CatalogType.SELF_CONTAINED)
         print("Success!")
-    except STACValidationError as error:
+    except STACValidationError:
         # Return full callback
         traceback.print_exc()
 

@@ -5,7 +5,7 @@ STAC utils
 import pystac
 import json
 
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, abspath
 from os import listdir
 from datetime import datetime
 from dateutil import parser
@@ -129,3 +129,34 @@ def get_item_metadata(raster_path: str) -> str:
         metadata = json.load(f)
     
     return metadata
+
+
+def make_links_relative_to_path(path: str,
+                                catalog: Union[pystac.Catalog, str],
+                                ) -> None:
+    """
+    Makes all asset HREFs in the catalog relative to a given path
+    """
+    if isinstance(catalog, str):
+        catalog = pystac.read_file(catalog)
+    path = abspath(path)
+
+    catalog.make_all_asset_hrefs_absolute()
+
+    for collection in catalog.get_children():
+        new_collection = collection.clone()
+        new_collection.set_self_href(join(path, collection.id, f"collection.json"))
+        new_collection.set_root(catalog)
+        new_collection.set_parent(catalog)
+        catalog.remove_child(collection.id)
+        catalog.add_child(new_collection)
+        for item in collection.get_all_items():
+            new_item = item.clone()
+            new_item.set_self_href(join(path, item.id, f"{item.id}.json"))
+            new_item.set_parent(collection)
+            new_item.set_root(catalog)
+            new_collection.add_item(new_item)
+
+    catalog.make_all_asset_hrefs_relative()
+
+    return catalog
