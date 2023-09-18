@@ -48,7 +48,7 @@ class STACDataFrame(gpd.GeoDataFrame):
         if catalog_df.empty:
             makedirs(path, exist_ok=True)
         else:
-            for index, row in catalog_df.iterrows():
+            for _, row in catalog_df.iterrows():
                 root_output_folder = path + "/" + row[id_column]
                 makedirs(root_output_folder, exist_ok=True)
                 row_json = row.to_dict()
@@ -62,7 +62,7 @@ class STACDataFrame(gpd.GeoDataFrame):
         # Second, create the collections and their folders, if exist
         collections = dict()
         collections_df = df[df["type"] == "Collection"]
-        for index, row in collections_df.iterrows():
+        for _, row in collections_df.iterrows():
             stac_output_folder = join(root_output_folder, row[id_column])
             collections[row[id_column]] = stac_output_folder
             makedirs(stac_output_folder, exist_ok=True)
@@ -76,7 +76,7 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         # Then, create the items and their folders, if exist
         features_df = df[df["type"] == "Feature"]
-        for index, row in features_df.iterrows():
+        for _, row in features_df.iterrows():
             collection = row["collection"]
             stac_output_folder = join(collections[collection], row[id_column])
 
@@ -113,11 +113,20 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         # Remove the NaN values and empty strings
         for k, v in row.items():
-            if (isinstance(v, float) and isnan(v)) or v == "":
+            if (isinstance(v, float) and isnan(v)) or v == "" or not v:
                 keys_to_remove.append(k)
+
         for key in keys_to_remove:
-            del row[key]
-        del row["geometry"]
+            if key in row.keys():
+                del row[key]
+
+        # Convert the value to dict if it is a string and is possible
+        for k, v in row.items():
+            if isinstance(v, str):
+                try:
+                    row[k] = json.loads(v)
+                except json.decoder.JSONDecodeError:
+                    pass
 
         return row
 

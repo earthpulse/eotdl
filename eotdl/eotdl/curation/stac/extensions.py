@@ -267,11 +267,9 @@ class LabelExtensionObject(STACExtensionObject):
         """
         """
         for item in collection.get_all_items():
-            label_type = item.properties['label:type']
-            file_name = 'vector_labels' if label_type == 'vector' else 'raster_labels'
-            geojson_path = join(dirname(item.get_self_href()), f'{file_name}.geojson')
+            geojson_path = join(dirname(item.get_self_href()), f'{item.id}.geojson')
 
-            properties = {'roles': ['labels', f'labels-{label_type}']}
+            properties = {'roles': ['labels', f'labels-vector']}
 
             # TODO depending on the tasks, there must be extra fields
             # TODO https://github.com/stac-extensions/label#assets
