@@ -119,6 +119,9 @@ class STACGenerator:
         if self._assets_generator.type == 'Extracted':
             images = cut_images(images)
 
+        from random import sample
+        images = sample(images, 100)
+        
         labels, ixs = self._format_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
         extensions_values = self._get_items_list_from_dict(labels, extensions)
