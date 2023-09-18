@@ -1,6 +1,7 @@
 """Implements the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`."""
 
 import traceback
+import json
 import random
 
 import pystac
@@ -280,6 +281,7 @@ class MLDatasetQualityMetrics:
                 f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"
             )
 
+        catalog.make_all_asset_hrefs_absolute()
         try:
             catalog.add_metric(self._search_spatial_duplicates(catalog))
             catalog.add_metric(self._get_classes_balance(catalog))
@@ -287,6 +289,8 @@ class MLDatasetQualityMetrics:
             raise pystac.ExtensionNotImplemented(
                 f"The catalog does not have the required properties or the ML-Dataset extension to calculate the metrics"
             )
+        finally:
+            catalog.make_all_asset_hrefs_relative()
             
         try:
             print("Validating and saving...")
@@ -304,13 +308,15 @@ class MLDatasetQualityMetrics:
     @staticmethod
     def _search_spatial_duplicates(catalog: pystac.Catalog):
         """ """
-        # TODO test this method
         print("Looking for spatial duplicates...")
-        items = [
-            item
-            for item in tqdm(catalog.get_all_items())
-            if not LabelExtension.has_extension(item)
-        ]
+        items = list(
+            set(
+                [item 
+                 for item in tqdm(catalog.get_items(recursive=True)) 
+                 if not LabelExtension.has_extension(item)
+                 ]
+                )
+            )
 
         # Initialize the spatial duplicates dict
         spatial_duplicates = {"name": "spatial-duplicates", "values": [], "total": 0}
@@ -334,38 +340,59 @@ class MLDatasetQualityMetrics:
     @staticmethod
     def _get_classes_balance(catalog: pystac.Catalog) -> dict:
         """ """
+
+        def get_label_properties(items: List[pystac.Item]) -> List:
+            """
+            """
+            label_properties = list()
+            for label in items:
+                label_ext = LabelExtension.ext(label)
+                for prop in label_ext.label_properties:
+                    if prop not in label_properties:
+                        label_properties.append(prop)
+
+            return label_properties
+    
         print("Calculating classes balance...")
-        labels = [
-            item
-            for item in tqdm(catalog.get_all_items())
-            if LabelExtension.has_extension(item)
-        ]
+        labels = list(
+            set(
+                [item 
+                 for item in tqdm(catalog.get_items(recursive=True)) 
+                 if LabelExtension.has_extension(item)
+                 ]
+                )
+            )
 
         # Initialize the classes balance dict
         classes_balance = {"name": "classes-balance", "values": []}
+        label_properties = get_label_properties(labels)
 
-        classes = dict()
-        for label in labels:
-            label_ext = LabelExtension.ext(label)
-            label_classes = label_ext.label_classes
+        for property in label_properties:
+            property_balance = {"name": property, "values": []}
+            properties = dict()
+            for label in labels:
+                asset_path = label.assets["labels"].href
+                # Open the linked geoJSON to obtain the label properties
+                with open(asset_path) as f:
+                    label_data = json.load(f)
+                # Get the property
+                property_value = label_data["features"][0]["properties"][property]
+                if property_value not in properties:
+                    properties[property_value] = 0
+                properties[property_value] += 1
+            
+            # Create the property balance dict
+            total_labels = sum(properties.values())
+            for key, value in properties.items():
+                property_balance["values"].append(
+                    {
+                        "class": key,
+                        "total": value,
+                        "percentage": int(value / total_labels * 100),
+                    }
+                )
 
-            for label_class_obj in label_classes:
-                label_class = label_class_obj.classes
-
-                for single_class in label_class:
-                    if single_class not in classes:
-                        classes[single_class] = 0
-                    classes[single_class] += 1
-
-        total_labels = sum(classes.values())
-        for key, value in classes.items():
-            classes_balance["values"].append(
-                {
-                    "class": key,
-                    "total": value,
-                    "percentage": int(value / total_labels * 100),
-                }
-            )
+            classes_balance["values"].append(property_balance)
 
         return classes_balance
 
@@ -390,6 +417,7 @@ def add_ml_extension(
     splits_collection_id: Optional[str] = "labels",
     splits_names: Optional[list] = ("Training", "Validation", "Test"),
     split_proportions: Optional[List[int]] = (80, 10, 10),
+    catalog_type: Optional[pystac.CatalogType] = pystac.CatalogType.SELF_CONTAINED,
     **kwargs,
 ) -> None:
     """
@@ -438,14 +466,14 @@ def add_ml_extension(
         make_links_relative_to_path(destination, catalog_ml_dataset)
     else:
         destination = dirname(catalog.get_self_href())
-        rmtree(
-            destination
-        )  # Remove the old catalog and replace it with the new one
 
     try:
         print("Validating and saving...")
         catalog_ml_dataset.validate()
-        catalog_ml_dataset.normalize_and_save(root_href=destination, catalog_type=pystac.CatalogType.SELF_CONTAINED)
+        rmtree(destination) if destination else None # Remove the old catalog and replace it with the new one
+        catalog_ml_dataset.normalize_and_save(root_href=destination, 
+                                              catalog_type=catalog_type
+                                              )
         print("Success!")
     except STACValidationError:
         # Return full callback
@@ -478,7 +506,7 @@ def make_splits(
         raise ValueError("The sum of the splits must be 100")
 
     # Get all items in the labels collection
-    items = [item for item in labels_collection.get_all_items()]
+    items = [item for item in labels_collection.get_items(recursive=True)]
 
     # Calculate indices to split the items
     length = len(items)

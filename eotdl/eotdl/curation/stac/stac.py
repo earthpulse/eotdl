@@ -2,6 +2,7 @@
 Module for generating STAC metadata 
 """
 
+import traceback
 from typing import Union
 import pandas as pd
 import pystac
@@ -23,7 +24,8 @@ from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
 from .utils import (format_time_acquired, 
                     cut_images, 
-                    get_item_metadata)
+                    get_item_metadata,
+                    make_links_relative_to_path)
 from .extensions import (type_stac_extensions_dict, 
                          SUPPORTED_EXTENSIONS, 
                          LabelExtensionObject)
@@ -337,7 +339,7 @@ class STACGenerator:
         source_collection = catalog.get_child("source")
         if source_collection:
             extent = source_collection.extent
-            source_items = source_collection.get_all_items()
+            source_items = source_collection.get_stac_objects(pystac.RelType.ITEM)
         else:
             if not collection:
                 raise ValueError(
@@ -441,7 +443,7 @@ def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],
             catalog_2.add_child(col1)
             col2 = catalog_2.get_child(col1.id)
             col2.clear_items()
-            for i in col1_.get_all_items():
+            for i in col1_.get_stac_objects(pystac.RelType.ITEM):
                 col2.add_item(i)
         else:
             # If it exists, merge the items
@@ -458,10 +460,21 @@ def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],
             if extra_field_name not in catalog_2.extra_fields:
                 catalog_2.extra_fields[extra_field_name] = extra_field_value
 
-    if not destination:
+    if destination:
+        # TODO test
+        make_links_relative_to_path(destination, catalog_2)
+    else:
         destination = dirname(catalog_2.get_self_href())
-        rmtree(destination)   # Remove the old catalog and replace it with the new one
+
     # Save the merged catalog
-    print('Validating...')
-    catalog_2.normalize_and_save(destination, catalog_type)
-    print('Success')
+    try:
+        print("Validating and saving...")
+        catalog_2.validate()
+        rmtree(destination) if not destination else None # Remove the old catalog and replace it with the new one
+        catalog_2.normalize_and_save(root_href=destination, 
+                                     catalog_type=catalog_type
+                                     )
+        print("Success!")
+    except pystac.STACValidationError:
+        # Return full callback
+        traceback.print_exc()
