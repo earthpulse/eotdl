@@ -373,8 +373,13 @@ class MLDatasetQualityMetrics:
             for label in labels:
                 asset_path = label.assets["labels"].href
                 # Open the linked geoJSON to obtain the label properties
-                with open(asset_path) as f:
-                    label_data = json.load(f)
+                try:
+                    with open(asset_path) as f:
+                        label_data = json.load(f)
+                except FileNotFoundError:
+                    raise FileNotFoundError(
+                        f"The file {asset_path} does not exist. Make sure the assets hrefs are correct"
+                    )
                 # Get the property
                 property_value = label_data["features"][0]["properties"][property]
                 if property_value not in properties:

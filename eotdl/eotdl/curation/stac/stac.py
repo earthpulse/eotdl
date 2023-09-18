@@ -90,6 +90,13 @@ class STACGenerator:
             # Add the collection to the catalog
             catalog.add_child(collection)
 
+        # Check there have been generate all the items from the images
+        items = list(set([item.id for item in catalog.get_items(recursive=True)]))
+        if len(self._stac_dataframe) != len(items):
+            raise pystac.STACError(
+                "Not all the STAC items have been generated, please check the Item parser or the STAC dataframe. If you are using the StructuredParser, check that the images are in the correct folder structure."
+            )
+
         # Add the catalog to the root directory
         catalog.normalize_hrefs(output_folder)
 
@@ -121,9 +128,9 @@ class STACGenerator:
         if self._assets_generator.type == 'Extracted':
             images = cut_images(images)
 
-        from random import sample
-        images = sample(images, 100)
-        
+        if len(images) == 0:
+            raise ValueError("No images found in the given path with the given extension. Please check the path and the extension")
+
         labels, ixs = self._format_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
         extensions_values = self._get_items_list_from_dict(labels, extensions)
@@ -134,9 +141,8 @@ class STACGenerator:
         else:
             try:
                 collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
-            except TypeError as e:
-                # TODO control this error
-                raise TypeError(f'Control this error')
+            except TypeError:
+                raise pystac.STACError('There is an error generating the collections. Please check the collections dictionary')
 
         df = pd.DataFrame({'image': images, 
                            'label': labels, 
