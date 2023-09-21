@@ -35,6 +35,7 @@ class Auth:
                 creds_path = self.repo.save_creds(token_data)
                 print('Saved credentials to: ', creds_path)
                 current_user = self.repo.decode_token(token_data)
+                # TODO: call EOTDL api to retrieve services creds
                 authenticated = True
                 current_user['id_token'] = token_data['id_token']
                 return self.Outputs(user=current_user)

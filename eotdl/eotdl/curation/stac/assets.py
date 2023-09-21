@@ -5,6 +5,7 @@ Module for STAC Asset Generators
 from os import remove, listdir
 from os.path import dirname, join, basename, abspath
 from ..metadata import remove_raster_metadata
+from typing import List
 
 import pandas as pd
 import rasterio
@@ -29,7 +30,7 @@ class STACAssetGenerator:
     @classmethod
     def extract_assets(self, obj_info: pd.DataFrame):
         """
-        Extract the assets from the raster file
+        Generate a single asset from the raster file
 
         :param raster_path: path to the raster file
         """

@@ -1,6 +1,7 @@
 """
 Module for managing the Sentinel Hub configuration and data access
 """
+
 from os.path import join
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
@@ -9,10 +10,10 @@ from sentinelhub import (SHConfig,
                          CRS, 
                          SentinelHubRequest, 
                          SentinelHubDownloadClient,
-                         MimeType,
-                         DataCollection)
+                         MimeType)
 
-from .utils import SHParametersFeature, EvalScripts
+from .parameters import SHParametersFeature
+from .evalscripts import EvalScripts
 
 # Relate the DataCollection.api_id with the corresponding evalscript
 # We will use it in the SHClient.request_data function

@@ -14,7 +14,7 @@ from os.path import dirname
 from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
 from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
-from .utils import make_links_relative_to_path
+from ..utils import make_links_relative_to_path
 
 T = TypeVar("T", pystac.Item, pystac.Collection, pystac.Catalog)
 
