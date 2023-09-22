@@ -67,11 +67,11 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the label type
         label_ext.label_type = label_type
         # Add the label properties, if any
-        label_ext.label_properties = kwargs.label_properties if kwargs.get('label_properties', None) else []
+        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else None
         # Add the label methods, if any
-        label_ext.label_methods = kwargs.label_methods if kwargs.get('label_methods', None) else []
+        label_ext.label_methods = kwargs.get('label_methods') if kwargs.get('label_methods', None) else None
         # Add the label tasks, if any
-        label_ext.label_tasks = kwargs.label_tasks if kwargs.get('label_tasks', None) else []
+        label_ext.label_tasks = kwargs.get('label_tasks') if kwargs.get('label_tasks', None) else None
         # Add the source
         label_ext.add_source(obj)
 
