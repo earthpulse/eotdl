@@ -80,14 +80,15 @@ class LabelExtensionObject(STACExtensionObject):
     @classmethod
     def add_geojson_to_items(self, 
                              collection: pystac.Collection,
-                             df: pd.DataFrame
+                             df: pd.DataFrame,
+                             label_type: str
                              ) -> None:
         """
         """
         for item in collection.get_all_items():
             geojson_path = join(dirname(item.get_self_href()), f'{item.id}.geojson')
 
-            properties = {'roles': ['labels', f'labels-vector']}
+            properties = {'roles': ['labels', f'labels-{label_type}']}
 
             # TODO depending on the tasks, there must be extra fields
             # https://github.com/stac-extensions/label#assets
@@ -109,7 +110,7 @@ class LabelExtensionObject(STACExtensionObject):
             # There is data like DEM data that does not have datetime but start and end datetime
             datetime = item.datetime.isoformat() if item.datetime else (item.properties.start_datetime.isoformat(),
                                                                         item.properties.end_datetime.isoformat())
-            labels_properties = dict(zip(item.properties['label:properties'], labels))
+            labels_properties = dict(zip(item.properties['label:properties'], labels)) if label_type == 'vector' else dict()
             labels_properties['datetime'] = datetime
 
             geojson = {
