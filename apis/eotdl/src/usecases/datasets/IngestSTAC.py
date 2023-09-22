@@ -41,6 +41,8 @@ class IngestSTAC:
         keys = list(catalog.keys())
         if "ml-dataset:name" in keys:
             dataset.quality = 2
+            # TODO: compute and report automatic qa metrics
         # TODO: validate Q2 dataset, not only check name
+        # TODO: validate Q1 dataset with required fields/extensions (author, license)
         self.db_repo.update("datasets", inputs.dataset, dataset.model_dump())
         return self.Outputs(dataset=dataset)
