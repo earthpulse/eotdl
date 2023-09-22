@@ -138,7 +138,7 @@ def get_available_data_by_location(search_data: dict,
     return available_data, not_available_data
 
 
-def get_tarfile_image_info(tar: str, Optional[path]: str = None, pattern: Optional[str] = r"\d{8}T\d{6}", level: Optional[int] = 2):
+def get_tarfile_image_info(tar: str, path: Optional[str] = None, pattern: Optional[str] = r"\d{8}T\d{6}", level: Optional[int] = 2):
     """
     """
     if path:
