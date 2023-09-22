@@ -95,8 +95,11 @@ class STACGenerator:
             catalog.add_child(collection)
 
         # Check there have been generate all the items from the images
-        items = list(set([item.id for item in catalog.get_items(recursive=True)]))
-        if len(self._stac_dataframe) != len(items):
+        items_count = 0
+        for collection in catalog.get_children():
+            items = list(set([item.id for item in collection.get_items(recursive=True)]))
+            items_count += len(items)
+        if len(self._stac_dataframe) != items_count:
             raise pystac.STACError(
                 "Not all the STAC items have been generated, please check the Item parser or the STAC dataframe. If you are using the StructuredParser, check that the images are in the correct folder structure."
             )
@@ -129,15 +132,18 @@ class STACGenerator:
         :param bands: dictionary with the bands
         :param extensions: dictionary with the extensions
         """
-        images = get_all_images_in_path(path)
+        images = get_all_images_in_path(path, self._image_format)
+        if len(images) == 0:
+            raise ValueError("No images found in the given path with the given extension. Please check the path and the extension")
+        
         if self._assets_generator.type == 'Extracted':
             images = cut_images(images)
 
         if sample:
-            images = random.sample(images, sample)
-
-        if len(images) == 0:
-            raise ValueError("No images found in the given path with the given extension. Please check the path and the extension")
+            try:
+                images = random.sample(images, sample)
+            except ValueError:
+                raise ValueError(f"Sample size must be smaller than the number of images ({len(images)}). May be there are no images found in the given path with the given extension")
 
         labels, ixs = self._labeling_strategy.get_images_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
@@ -146,6 +152,9 @@ class STACGenerator:
         if collections == "source":
             # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, "source") for i in range(len(images))]
+        elif collections == '*':
+            # List of path with the same value repeated as many times as the number of images
+            collections_values = [join(path, basename(dirname(image))) for image in images]
         else:
             try:
                 collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
@@ -319,7 +328,7 @@ class STACGenerator:
         self,
         catalog: Union[pystac.Catalog, str],
         stac_dataframe: Optional[pd.DataFrame] = None,
-        collection: Optional[Union[pystac.Collection, str]] = None,
+        collection: Optional[Union[pystac.Collection, str]] = 'source',
         label_description: Optional[str] = "Item label",
         label_type: Optional[str] = "vector",
         label_names: Optional[List[str]] = ["label"],
@@ -344,7 +353,7 @@ class STACGenerator:
 
         # Add the labels collection to the catalog
         # If exists a source collection, get it extent
-        source_collection = catalog.get_child("source")
+        source_collection = catalog.get_child(collection)
         if source_collection:
             extent = source_collection.extent
             source_items = source_collection.get_stac_objects(pystac.RelType.ITEM)
@@ -412,7 +421,7 @@ class STACGenerator:
         
         # Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         # https://github.com/stac-extensions/label#assets
-        if label_type == 'vector':
-            LabelExtensionObject.add_geojson_to_items(collection, 
-                                                    self._stac_dataframe)
+        LabelExtensionObject.add_geojson_to_items(collection, 
+                                                  self._stac_dataframe,
+                                                  label_type=label_type)
         catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
