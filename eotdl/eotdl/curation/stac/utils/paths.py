@@ -3,7 +3,8 @@ Paths utils
 '''
 
 from os.path import dirname
-from typing import Union
+from typing import Union, Optional
+from glob import glob
 
 
 def count_ocurrences(text: str, text_list: list) -> int:
@@ -37,3 +38,14 @@ def cut_images(images_list: Union[list, tuple]) -> list:
             images.append(image)
 
     return images
+
+
+def get_all_images_in_path(path: str, image_format: Optional[str] = 'tif') -> list:
+        """
+        Get all the images in a directory
+
+        :param path: path to the directory
+
+        :return: list of images
+        """
+        return glob(str(path) + f'/**/*.{image_format}', recursive=True)

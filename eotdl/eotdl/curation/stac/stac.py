@@ -23,9 +23,11 @@ from typing import Union, Optional
 
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
+from .labeling import LabelingStrategy, UnlabeledStrategy
 from .utils import (format_time_acquired, 
                     cut_images, 
-                    get_item_metadata)
+                    get_item_metadata,
+                    get_all_images_in_path)
 from .extensions import (type_stac_extensions_dict, 
                          SUPPORTED_EXTENSIONS, 
                          LabelExtensionObject)
@@ -40,6 +42,7 @@ class STACGenerator:
         catalog_type: pystac.CatalogType = pystac.CatalogType.SELF_CONTAINED,
         item_parser: STACIdParser = StructuredParser,
         assets_generator: STACAssetGenerator = STACAssetGenerator,
+        labeling_strategy: LabelingStrategy = UnlabeledStrategy,
     ) -> None:
         """
         Initialize the STAC generator
@@ -48,11 +51,13 @@ class STACGenerator:
         :param catalog_type: type of the catalog
         :param item_parser: parser to get the item ID
         :param assets_generator: generator to generate the assets
+        :param labeling_strategy: strategy to label the images
         """
         self._image_format = image_format
         self._catalog_type = catalog_type
         self._item_parser = item_parser()
         self._assets_generator = assets_generator()
+        self._labeling_strategy = labeling_strategy()
         self._extensions_dict: dict = type_stac_extensions_dict
         self._stac_dataframe = pd.DataFrame()
 
@@ -124,7 +129,7 @@ class STACGenerator:
         :param bands: dictionary with the bands
         :param extensions: dictionary with the extensions
         """
-        images = self.get_images(path)
+        images = get_all_images_in_path(path)
         if self._assets_generator.type == 'Extracted':
             images = cut_images(images)
 
@@ -134,7 +139,7 @@ class STACGenerator:
         if len(images) == 0:
             raise ValueError("No images found in the given path with the given extension. Please check the path and the extension")
 
-        labels, ixs = self.get_images_labels(images)
+        labels, ixs = self._labeling_strategy.get_images_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
         extensions_values = self._get_items_list_from_dict(labels, extensions)
 
@@ -158,46 +163,6 @@ class STACGenerator:
         self._stac_dataframe = df
 
         return df
-    
-    def get_images(self, path: str) -> list:
-        """
-        Get all the images in a directory
-
-        :param path: path to the directory
-
-        :return: list of images
-        """
-        return glob(str(path) + f'/**/*.{self._image_format}', recursive=True)
-    
-    def get_images_labels(self, images: List[str]) -> tuple(list, list):
-        """
-        Extract the labels of the images, depending on the images filenames
-
-        :param images: list of images
-
-        :return: list of labels, list of indexes
-        """
-        from os.path import basename
-        
-        labels = list()
-        for image in images:
-            image_basename = basename(image).split('.')[0]   # Get filename without extension
-            # Check if the image has format <label>_<number> or <label>-<number>
-            if '-' in image_basename or '_' in image_basename:
-                try:
-                    int(image_basename.split('_')[1])
-                    label = image_basename.split('_')[0]
-                    if not label.isalpha():
-                        label = image_basename
-                except ValueError:
-                    label = image_basename   
-            else:
-                label = image_basename   # Get the label from the entire filename
-            labels.append(label)
-        
-        ixs = [labels.index(x) for x in labels]
-    
-        return labels, ixs
 
     def _get_items_list_from_dict(self, labels: list, items: dict) -> list:
         """
