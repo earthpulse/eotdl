@@ -2,7 +2,7 @@
 Module for data engineeringt
 """
 from ..access.sentinelhub.client import SHClient
-from ..access.sentinelhub.utils import (sentinel_1_search_parameters, 
+from ..access.sentinelhub.parameters import (sentinel_1_search_parameters, 
                                          sentinel_2_search_parameters)
 
 import geopandas as gpd
@@ -10,11 +10,13 @@ import pandas as pd
 import tarfile
 import rasterio
 import re
+import datetime
+import json
+
 from shapely.geometry import box, Polygon
 from pyproj import Transformer
-import datetime
 from os.path import exists
-import json
+from typing import Union, Optional, List
 
 
 def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
@@ -48,7 +50,7 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
     return df_dates_per_aoi
 
 
-def generate_location_payload(gdf: gpd.GeoDataFrame|pd.Dataframe, path: str) -> dict:
+def generate_location_payload(gdf: Union[gpd.GeoDataFrame, pd.DataFrame], path: str) -> dict:
     """
     Generate a dictionary with the location payload of the locations in the GeoDataFrame, 
     such as the bounding box and the time interval to search for available data.
@@ -136,7 +138,7 @@ def get_available_data_by_location(search_data: dict,
     return available_data, not_available_data
 
 
-def get_tarfile_image_info(tar, path: str = None, pattern: str = r"\d{8}T\d{6}", level: int = 2):
+def get_tarfile_image_info(tar: str, Optional[path]: str = None, pattern: Optional[str] = r"\d{8}T\d{6}", level: Optional[int] = 2):
     """
     """
     if path:
@@ -182,13 +184,13 @@ def get_tarfile_image_info(tar, path: str = None, pattern: str = r"\d{8}T\d{6}",
     return images_gdf
 
 
-def get_image_bbox(raster: tarfile.ExFileObject|str):
+def get_image_bbox(raster: Union[tarfile.ExFileObject, str]):
     with rasterio.open(raster) as src:
         bbox = src.bounds
     return bbox
 
 
-def get_image_resolution(raster: tarfile.ExFileObject|str):
+def get_image_resolution(raster: Union[tarfile.ExFileObject, str]):
     with rasterio.open(raster) as src:
         resolution = src.res
     return resolution
@@ -210,7 +212,7 @@ def extract_image_id_in_folder(raster_path: str, level: int):
     return raster_path.split("/")[level]
 
 
-def get_first_last_dates(dataframe: pd.DataFrame | gpd.GeoDataFrame, dates_column: str = 'datetime'):
+def get_first_last_dates(dataframe: Union[pd.DataFrame, gpd.GeoDataFrame], dates_column: Optional[str] = 'datetime'):
     """
     """
     dataframe[dates_column] = dataframe[dates_column].apply(lambda x: sorted(x))
@@ -236,7 +238,7 @@ def create_time_slots(start_date: datetime.datetime, end_date: datetime.datetime
     return slots
 
 
-def expand_time_interval(time_interval: list|tuple, format: str='%Y-%m-%dT%H:%M:%S.%fZ') -> list:
+def expand_time_interval(time_interval: Union[list, tuple], format: str='%Y-%m-%dT%H:%M:%S.%fZ') -> list:
     """
     """
     start_date = time_interval[0]
@@ -300,11 +302,11 @@ from_4326_transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')
 from_3857_transformer = Transformer.from_crs('EPSG:3857', 'EPSG:4326')
 
 
-def bbox_from_centroid(x: int|float, 
-                       y: int|float,
-                       pixel_size: int|float,
-                       width: int|float,
-                       height: int|float
+def bbox_from_centroid(x: Union[int, float], 
+                       y: Union[int, float],
+                       pixel_size: Union[int, float],
+                       width: Union[int, float],
+                       height: Union[int, float]
                        ) -> list:
     """
     Generate a bounding box from a centroid, pixel size and image dimensions.
