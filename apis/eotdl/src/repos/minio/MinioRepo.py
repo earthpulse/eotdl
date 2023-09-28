@@ -17,16 +17,12 @@ class MinioRepo:
         return f"{dataset_id}/{file_name}"
 
     def persist_file(self, file, dataset_id, filename):
-        count = 1
-        filename0 = filename
-        filename1 = filename
+        file_version = 1
         while True:
             try:
-                object = self.get_object(dataset_id, filename)
+                object = self.get_object(dataset_id, f"{filename}_{file_version}")
                 self.client.stat_object(self.bucket, object)
-                filename1 = copy.copy(filename)
-                filename = f"{filename0}_{count}"
-                count += 1
+                file_version += 1
             except:
                 break
         self.client.put_object(
@@ -36,8 +32,8 @@ class MinioRepo:
             length=-1,
             part_size=10 * 1024 * 1024,
         )
-        return filename, filename1
-
+        return file_version
+    
     def persist_file_url(self, url, dataset_id, filename):
         # This won't work for large files :(
         # but assets are expected to be small...

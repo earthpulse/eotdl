@@ -53,10 +53,10 @@ class IngestFile:
         filename = self.get_file_name(inputs.file)
         if inputs.parent != ".":
             filename = inputs.parent + "/" + filename
-        print(filename)
         # save file in storage
-        filename, filename0 = self.persist_file(inputs.file, dataset.id, filename)
-        print("filename", filename, filename0)
+        file_version = self.persist_file(inputs.file, dataset.id, filename)
+        filename0 = filename
+        filename += '_' + str(file_version)
         # calculate checksum
         checksum = await self.os_repo.calculate_checksum(dataset.id, filename)
         if inputs.checksum and checksum != inputs.checksum:
@@ -67,23 +67,28 @@ class IngestFile:
         file_size = self.os_repo.object_info(dataset.id, filename).size
         if dataset.quality == 0:
             # TODO: handle existing files
-            file = [f for f in dataset.files if f.name == filename0]
-            print(dataset.files, file)
+            print(filename0, file_version)
+            print([(f.name, f.version) for f in dataset.files])
+            file = [f for f in dataset.files if f.name == filename0 and f.version == file_version - 1]
+            print(file)
             if len(file) == 1:
                 # update file
                 file = file[0]
                 print(filename0, "already exists")
                 if file.checksum != checksum: # the file has been modified
                     print("new version of", filename0, filename)
-                    dataset.files.append(File(name=filename, size=file_size, checksum=checksum, versions=[inputs.version]))
+                    dataset.files.append(File(name=filename0, size=file_size, checksum=checksum, version=file_version, versions=[inputs.version]))
                 else:
                     print("same version of", filename0, filename)
                     self.os_repo.delete(dataset.id, filename)
-                    file = File(name=filename0, size=file_size, checksum=checksum, versions=file.versions + [inputs.version])
-                    dataset.files = [f for f in dataset.files if f.name != filename0] + [file]
+                    file = File(name=filename0, size=file_size, checksum=checksum, version=file.version, versions=file.versions + [inputs.version])
+                    # for f in dataset.files:
+                    #     print(f.name, f.version, f.name != filename0 or f.version != file.version)
+                    dataset.files = [f for f in dataset.files if (f.name != filename0 or f.version != file.version)] + [file]
+                    print([(f.name, f.version) for f in dataset.files])
             elif len(file) == 0:
                 print("new file", filename)
-                dataset.files.append(File(name=filename, size=file_size, checksum=checksum, versions=[inputs.version]))
+                dataset.files.append(File(name=filename0, size=file_size, checksum=checksum, version=file_version, versions=[inputs.version]))
             else: # dataset exists and is the same
                 pass
         version = [v for v in dataset.versions if v.version_id == inputs.version][0]

@@ -34,6 +34,7 @@ class File(BaseModel):
     name: str
     size: int
     checksum: str
+    version: int
     versions: List[int] = []
     createdAt: datetime = datetime.now()
 
