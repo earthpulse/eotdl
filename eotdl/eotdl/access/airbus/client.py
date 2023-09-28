@@ -8,6 +8,7 @@ from requests.exceptions import ConnectTimeout, ReadTimeout
 from urllib3.exceptions import TimeoutError
 import time
 
+from typing import Optional, Iterable
 from os.path import join, exists
 from .parameters import *
 from .utils import get_airbus_access_token
@@ -38,7 +39,7 @@ class AirbusClient():
 
   def get_total_products_price(self,
                                payload: dict,
-                               all_info: bool = False
+                               all_info: Optional[bool] = False
                                ) -> dict:
     """
     """
@@ -60,10 +61,10 @@ class AirbusClient():
 
   def get_product_price(self,
                         product_id: str, 
-                        coordinates: tuple,
-                        product_type: AirbusProductType = AirbusProductType.MULTISPECTRAL,
-                        image_format: AirbusImageFormat = AirbusImageFormat.GEOTIFF,
-                        processing: AirbusRadiometricProcessing = AirbusRadiometricProcessing.REFLECTANCE
+                        coordinates: Iterable,
+                        product_type: Optional[AirbusProductType] = AirbusProductType.MULTISPECTRAL,
+                        image_format: Optional[AirbusImageFormat] = AirbusImageFormat.GEOTIFF,
+                        processing: Optional[AirbusRadiometricProcessing] = AirbusRadiometricProcessing.REFLECTANCE
                         ) -> dict:
     """
     Get product price
@@ -122,10 +123,10 @@ class AirbusClient():
   
   def place_product_order(self,
                           product_id: str,
-                          coordinates: tuple,
-                          product_type: AirbusProductType = AirbusProductType.MULTISPECTRAL,
-                          image_format: AirbusImageFormat = AirbusImageFormat.GEOTIFF,
-                          processing: AirbusRadiometricProcessing = AirbusRadiometricProcessing.REFLECTANCE
+                          coordinates: Iterable,
+                          product_type: Optional[AirbusProductType] = AirbusProductType.MULTISPECTRAL,
+                          image_format: Optional[AirbusImageFormat] = AirbusImageFormat.GEOTIFF,
+                          processing: Optional[AirbusRadiometricProcessing] = AirbusRadiometricProcessing.REFLECTANCE
                           ) -> dict:
     """
     Place product order
@@ -180,18 +181,18 @@ class AirbusClient():
     return response.json()
   
   def search_image(self,
-                   bounding_box: tuple|list,
-                   acquisition_date: tuple|list,
-                   timeout: int = 10
+                   bounding_box: Iterable,
+                   acquisition_date: Iterable,
+                   timeout: Optional[int] = 10
                    ) -> dict:
     """
     Search image
 
     Params
     ----------
-    bounding_box: tuple|list
+    bounding_box: tuple or list
         Bounding box
-    acquisition_date: tuple|list
+    acquisition_date: tuple or list
         Acquisition date
     timeout: int
         Timeout
@@ -227,8 +228,8 @@ class AirbusClient():
 
   def search_images_close_in_time(self,
                                   payload_dict: dict,
-                                  path: str = None,
-                                  max_days: int = 30
+                                  path: Optional[str] = None,
+                                  max_days: Optional[int] = 30
                                   ) -> dict:
     """
     Search images close in time
