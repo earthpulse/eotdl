@@ -24,7 +24,6 @@
 		authors,
 		source,
 		license,
-		size,
 		files,
 		quality,
 		catalog,
