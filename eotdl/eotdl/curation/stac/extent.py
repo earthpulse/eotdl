@@ -107,7 +107,7 @@ def get_collection_temporal_interval(rasters: List[str]) -> pystac.TemporalExten
         with open(metadata_json_file, 'r') as f:
             metadata = json.load(f)
         # Append the temporal interval to the list as a datetime object
-        temporal_intervals.append(metadata['date-adquired']) if metadata['date-adquired'] else None
+        temporal_intervals.append(metadata['acquisition-date']) if metadata['acquisition-date'] else None
         # Append the data type to the list
         data_types.append(metadata['type']) if metadata['type'] else None
         
