@@ -34,7 +34,13 @@ class File(BaseModel):
     name: str
     size: int
     checksum: str
+    versions: List[int] = []
+    createdAt: datetime = datetime.now()
 
+class Version(BaseModel):
+    version_id: int 
+    createdAt: datetime = datetime.now()
+    size: int = 0
 
 class Dataset(BaseModel):
     uid: str
@@ -43,8 +49,8 @@ class Dataset(BaseModel):
     authors: List[str]
     source: str
     license: str
-    size: int = 0
     files: List[File] = []
+    versions: List[Version] = []
     description: str = ""
     tags: List[str] = []
     createdAt: datetime = datetime.now()
@@ -92,6 +98,7 @@ class STACDataset(BaseModel):
     quality: int = 1
     size: int = 0
     catalog: dict = {}
+    versions: List[Version] = []
 
     # @validator("name")
     # def check_name_is_valid(cls, name):

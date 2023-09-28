@@ -27,6 +27,7 @@ from ..src.usecases.datasets import (
     delete_dataset,
     download_stac,
     delete_dataset_file,
+    create_dataset_version
 )
 from .auth import get_current_user, key_auth
 
@@ -55,6 +56,7 @@ def create(
     except Exception as e:
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
 
 
 class CreateSTACDatasetBody(BaseModel):
@@ -96,22 +98,36 @@ async def ingest(
     dataset_id: str,
     file: UploadFile = File(...),
     # optional since from browser cannot compute checksum easily
+    version: int = Form(),
+    parent: str = Form(),
     checksum: str = Form(None),
     user: User = Depends(get_current_user),
 ):
+    # try:
+    if file.size > 1000000000:  # 1GB
+        raise Exception("File too large, please use the CLI to upload large files.")
+    dataset_id, dataset_name, file_name = await ingest_file(
+        file, dataset_id, version, parent, checksum, user
+    )
+    return {
+        "dataset_id": dataset_id,
+        "dataset_name": dataset_name,
+        "file_name": file_name,
+    }
+    # except Exception as e:
+    #     logger.exception("datasets:ingest")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@router.post("/version/{dataset_id}")
+def version(
+    dataset_id: str,
+    user: User = Depends(get_current_user),
+):
     try:
-        if file.size > 1000000000:  # 1GB
-            raise Exception("File too large, please use the CLI to upload large files.")
-        dataset_id, dataset_name, file_name = await ingest_file(
-            file, dataset_id, checksum, user
-        )
-        return {
-            "dataset_id": dataset_id,
-            "dataset_name": dataset_name,
-            "file_name": file_name,
-        }
+        version = create_dataset_version(dataset_id, user)
+        return {"version": version}
     except Exception as e:
-        logger.exception("datasets:ingest")
+        logger.exception("datasets:version")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 

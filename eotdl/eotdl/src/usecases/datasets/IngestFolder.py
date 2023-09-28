@@ -1,15 +1,14 @@
 from pydantic import BaseModel
-import os
 from pathlib import Path
 import yaml
 from ...models import Metadata
-
+from glob import glob
+from tqdm import tqdm
 
 class IngestFolder:
-    def __init__(self, repo, ingest_file, allowed_extensions, logger):
+    def __init__(self, repo, ingest_file, logger):
         self.repo = repo
         self.ingest_file = ingest_file
-        self.allowed_extensions = allowed_extensions
         self.logger = logger if logger else print
 
     class Inputs(BaseModel):
@@ -22,77 +21,46 @@ class IngestFolder:
         dataset: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        # validate folder
-        self.logger("Uploading directory (only files, not recursive)")
-        items = list(inputs.folder.glob("*"))
-        filtered_items = [item for item in items if item.is_file()]
-        filtered_items = [
-            item for item in filtered_items if item.suffix in self.allowed_extensions
-        ]
-        if len(filtered_items) == 0:
+        self.logger(f"Uploading directory {inputs.folder}...")
+        # get all files in directory recursively
+        items = [Path(item) for item in glob(str(inputs.folder) + "/**/*", recursive=True)]
+        # remove directories
+        items = [item for item in items if not item.is_dir()]
+        if len(items) == 0:
             raise Exception("No files found in directory")
-        if len(filtered_items) > 10:
-            raise Exception("Too many files in directory, limited to 10")
-        if "metadata.yml" not in [item.name for item in filtered_items]:
+        if not any(item.name == "metadata.yml" for item in items):
             raise Exception("metadata.yml not found in directory")
         # load metadata
         metadata = yaml.safe_load(
             open(inputs.folder.joinpath("metadata.yml"), "r").read()
-        )
+        ) or {}
         metadata = Metadata(**metadata)
         # remove metadata.yml from files
-        filtered_items = [
-            item for item in filtered_items if item.name != "metadata.yml"
-        ]
+        items = [item for item in items if item.name != "metadata.yml"]
+        # if zip or tar file, send error
+        if any(item.suffix.endswith((".zip", ".tar", ".tar.gz", ".gz")) for item in items):
+            raise Exception(f"At least one zip, tar or gz file found in {inputs.folder}, please unzip and try again")
         # create dataset
         data, error = self.repo.create_dataset(metadata.dict(), inputs.user["id_token"])
-        # dataset may already exists, but if user is owner continue ingesting files
+        print(data, error)
+        # dataset may already exist, but if user is owner continue ingesting files 
         current_files = []
         if error:
             data, error2 = self.repo.retrieve_dataset(metadata.name)
+            print(data, error2)
             if error2:
                 raise Exception(error)
             if data["uid"] != inputs.user["sub"]:
                 raise Exception("Dataset already exists.")
             data["dataset_id"] = data["id"]
             current_files = [item["name"] for item in data["files"]]
-            if len(current_files) > 0 and not inputs.force:
-                self.logger(
-                    "The following files already exist and will not be uploaded (use --f to force re-upload):"
-                )
-                for item in current_files:
-                    self.logger(f"{item}")
-            hanged_files = [
-                file
-                for file in current_files
-                if file not in [item.name for item in filtered_items]
-            ]
-            if len(hanged_files) > 0:
-                self.logger(
-                    "The following files are no longer in your dataset (use --d to delete):"
-                )
-                for item in hanged_files:
-                    self.logger(f"{item}")
-                    if inputs.delete:
-                        self.logger(f"Deleting file {item}...")
-                        _, error = self.repo.delete_file(
-                            data["dataset_id"], item, inputs.user["id_token"]
-                        )
-                        if error:
-                            self.logger(error)
-                        else:
-                            self.logger("Done")
-            if not inputs.force:
-                filtered_items = [
-                    item for item in filtered_items if item.name not in current_files
-                ]
+            print("current_files", current_files)
         dataset_id = data["dataset_id"]
+        # create new version
+        data, error = self.repo.create_version(dataset_id, inputs.user["id_token"])
+        print(data, error)
+        version = data["version"]
         # upload files
-        if len(filtered_items) == 0:
-            raise Exception("No files to upload")
-        self.logger("The following files will be uploaded:")
-        for item in filtered_items:
-            self.logger(f"{item.name}")
-        for item in filtered_items:
-            data = self.ingest_file(item, dataset_id, logger=self.logger)
+        for item in tqdm(items):
+            data = self.ingest_file(str(item), dataset_id, version, str(item.relative_to(inputs.folder).parent), logger=self.logger, verbose=False)
         return self.Outputs(dataset=data)

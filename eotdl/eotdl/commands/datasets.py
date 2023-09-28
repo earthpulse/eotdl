@@ -9,6 +9,10 @@ from ..datasets import (
 
 app = typer.Typer()
 
+@app.command()
+def list():
+    datasets = retrieve_datasets()
+    typer.echo(datasets)
 
 @app.command()
 def ingest(
@@ -26,10 +30,7 @@ def ingest(
         typer.echo(e)
 
 
-@app.command()
-def list():
-    datasets = retrieve_datasets()
-    typer.echo(datasets)
+
 
 
 @app.command()

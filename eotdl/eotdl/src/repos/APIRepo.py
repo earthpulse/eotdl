@@ -32,7 +32,7 @@ class APIRepo:
 
     def create_dataset(self, metadata, id_token):
         response = requests.post(
-            self.url + "datasets/q0",
+            self.url + "datasets/",
             json=metadata,
             headers={"Authorization": "Bearer " + id_token},
         )
@@ -40,6 +40,15 @@ class APIRepo:
             return response.json(), None
         return None, response.json()["detail"]
 
+    def create_version(self, dataset_id, id_token):
+        response = requests.post(
+            self.url + "datasets/version/" + dataset_id,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code == 200:
+            return response.json(), None
+        return None, response.json()["detail"]
+    
     def create_stac_dataset(self, name, id_token):
         response = requests.post(
             self.url + "datasets/stac",
@@ -86,11 +95,11 @@ class APIRepo:
                 progress_bar.close()
             return path
 
-    def ingest_file(self, file, dataset_id, id_token, checksum=None):
+    def ingest_file(self, file, dataset_id, version, parent, id_token, checksum=None):
         reponse = requests.post(
             self.url + "datasets/" + dataset_id,
             files={"file": open(file, "rb")},
-            data={"checksum": checksum} if checksum else None,
+            data={"checksum": checksum, "version": version, "parent": parent} if checksum else None,
             headers={"Authorization": "Bearer " + id_token},
         )
         if reponse.status_code != 200:

@@ -20,6 +20,7 @@ from .IngestQ1Dataset import IngestQ1Dataset
 from .IngestSTAC import IngestSTAC
 from .DownloadDatasetSTAC import DownloadDatasetSTAC
 from .DeleteDatasetFile import DeleteDatasetFile
+from .CreateDatasetVersion import CreateDatasetVersion
 from ..user import retrieve_user_credentials
 
 
@@ -41,13 +42,15 @@ def create_stac_dataset(user, name):
     return outputs.dataset_id
 
 
-async def ingest_file(file, dataset_id, checksum, user):
+async def ingest_file(file, dataset_id, verison, parent, checksum, user):
     db_repo = DBRepo()
     os_repo = OSRepo()
     ingest = IngestFile(db_repo, os_repo)
     inputs = ingest.Inputs(
         dataset_id=dataset_id,
         file=file,
+        version=verison,
+        parent=parent,
         uid=user.uid,
         checksum=checksum,
     )
@@ -238,3 +241,13 @@ def delete_dataset_file(user, dataset_id, file_name):
     )
     outputs = delete(inputs)
     return outputs.message
+
+def create_dataset_version(dataset_id, user):
+    db_repo = DBRepo()
+    create = CreateDatasetVersion(db_repo)
+    inputs = create.Inputs(
+        uid=user.uid,
+        dataset_id=dataset_id,
+    )
+    outputs = create(inputs)
+    return outputs.version

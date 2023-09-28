@@ -21,7 +21,6 @@ class DatasetLimits(BaseModel):
     upload: int
     download: int
     count: int
-    files: int
 
 
 class Limits(BaseModel):

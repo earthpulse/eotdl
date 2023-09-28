@@ -8,15 +8,16 @@ from ....src.utils import calculate_checksum
 
 
 class IngestFile:
-    def __init__(self, repo, allowed_extensions, logger, verbose=True):
+    def __init__(self, repo, logger, verbose=True):
         self.repo = repo
-        self.allowed_extensions = allowed_extensions
         self.logger = logger if logger else print
         self.verbose = verbose
 
     class Inputs(BaseModel):
         file: typing.Any
+        version: int
         dataset_id: str
+        parent: str
         user: dict
         root: typing.Optional[Path] = None
 
@@ -24,12 +25,6 @@ class IngestFile:
         data: dict
 
     def __call__(self, inputs: Inputs) -> Outputs:
-        # validate file extension
-        extension = os.path.splitext(inputs.file)[1]
-        if extension not in self.allowed_extensions:
-            raise Exception(
-                f"Only {', '.join(self.allowed_extensions)} files are allowed"
-            )
         id_token = inputs.user["id_token"]
         if self.verbose:
             self.logger(f"Uploading file {inputs.file}...")
@@ -58,7 +53,7 @@ class IngestFile:
             # ingest small file
             if filesize < 1024 * 1024 * 16:  # 16 MB
                 data, error = self.repo.ingest_file(
-                    file_path, inputs.dataset_id, id_token, checksum
+                    file_path, inputs.dataset_id, inputs.version, inputs.parent, id_token, checksum
                 )
                 if error:
                     raise Exception(error)
