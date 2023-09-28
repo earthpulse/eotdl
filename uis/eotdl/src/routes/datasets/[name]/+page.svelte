@@ -28,6 +28,7 @@
 		files,
 		quality,
 		catalog,
+		versions,
 	} = data.dataset);
 
 	let createWriteStream;
@@ -86,6 +87,13 @@
 			data.dataset.likes = data.dataset.likes + 1;
 		}
 	};
+
+	// $: current_version = versions[versions.length - 1].version_id || 0;
+	$: current_version = versions[versions.length - 1];
+
+	$: filtered_files = files.filter((f) =>
+		f.versions.includes(current_version.version_id)
+	);
 </script>
 
 <svelte:head>
@@ -155,13 +163,42 @@
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<Sd color="gray" size={20} />
-				<p>{formatFileSize(size)}</p>
+				<p>{formatFileSize(current_version.size)}</p>
 			</span>
 			<span class="flex flex-row items-center gap-1">
 				<CheckDecagramOutline color="gray" size={20} />
 				<p>Q{data.dataset.quality}</p>
 			</span>
 		</span>
+		<span class="flex flex-row gap-3">
+			<p>Version:</p>
+			<select
+				class="border w-10 select-accent"
+				on:change={(e) => {
+					const version_id = e.target.value;
+					current_version = versions.find(
+						(v) => v.version_id == version_id
+					);
+					console.log("ei", current_version);
+				}}
+			>
+				{#each versions as version}
+					<option
+						value={version.version_id}
+						selected={current_version.version_id ==
+							version.version_id}
+					>
+						{version.version_id}
+					</option>
+				{/each}
+			</select>
+			<p class="text-gray-400">
+				Created {formatDistanceToNow(
+					parseISO(current_version.createdAt)
+				)} ago
+			</p>
+		</span>
+
 		<!-- <p class="py-10">{description}</p> -->
 		<div class="grid grid-cols-[auto,425px] gap-3">
 			<div>
@@ -218,17 +255,17 @@
 						</table>
 					</div>
 					<p>Files ({files.length}):</p>
-					<div class="overflow-auto w-full">
+					<div class="overflow-auto w-full h-[300px]">
 						<table
-							class="table border-2 rounded-lg table-compact h-[100px] w-full"
+							class="table border-2 rounded-lg table-compact w-full"
 						>
 							<tbody>
 								<tr>
 									<th> Name </th>
 									<th>Size</th>
-									<th>Checksum (SHA1)</th>
+									<!-- <th>Checksum (SHA1)</th> -->
 								</tr>
-								{#each files as file}
+								{#each filtered_files as file}
 									<tr>
 										<td class="flex flex-row gap-1">
 											{#if $user}
@@ -244,7 +281,7 @@
 											{file.name}
 										</td>
 										<td>{formatFileSize(file.size)}</td>
-										<td class="text-xs">{file.checksum}</td>
+										<!-- <td class="text-xs">{file.checksum}</td> -->
 									</tr>
 								{/each}
 							</tbody>

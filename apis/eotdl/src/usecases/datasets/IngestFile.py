@@ -20,6 +20,8 @@ class IngestFile:
         dataset_id: str
         file: typing.Any
         uid: str
+        version: int
+        parent: str
         checksum: Union[str, None] = None
 
     class Outputs(BaseModel):
@@ -36,28 +38,25 @@ class IngestFile:
     async def __call__(self, inputs: Inputs) -> Outputs:
         # check if dataset exists
         data = self.db_repo.retrieve("datasets", inputs.dataset_id)
-        if not data:
+        versions = [v['version_id'] for v in data['versions']]
+        if not data or not inputs.version in versions:
             raise DatasetDoesNotExistError()
         dataset = Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
         # check if user can ingest file
         data = self.db_repo.retrieve("users", inputs.uid, "uid")
         user = User(**data)
         data = self.db_repo.find_one_by_name("tiers", user.tier)
-        limits = Limits(**data["limits"])
         # check user owns dataset
         if dataset.uid != inputs.uid:
             raise DatasetDoesNotExistError()
         # check if user can ingest file
         filename = self.get_file_name(inputs.file)
-        if dataset.quality == 0:
-            if len(dataset.files) + 1 > limits.datasets.files and filename not in [
-                file.name for file in dataset.files
-            ]:
-                raise TierLimitError(
-                    "You cannot have more than {} files".format(limits.datasets.files)
-                )
+        if inputs.parent != ".":
+            filename = inputs.parent + "/" + filename
+        print(filename)
         # save file in storage
-        self.persist_file(inputs.file, dataset.id, filename)
+        filename, filename0 = self.persist_file(inputs.file, dataset.id, filename)
+        print("filename", filename, filename0)
         # calculate checksum
         checksum = await self.os_repo.calculate_checksum(dataset.id, filename)
         if inputs.checksum and checksum != inputs.checksum:
@@ -67,12 +66,28 @@ class IngestFile:
             raise ChecksumMismatch()
         file_size = self.os_repo.object_info(dataset.id, filename).size
         if dataset.quality == 0:
-            if filename in [f.name for f in dataset.files]:  # update file
-                current_file = [f for f in dataset.files if f.name == filename][0]
-                dataset.size -= current_file.size
-                dataset.files = [f for f in dataset.files if f.name != filename]
-            dataset.files.append(File(name=filename, size=file_size, checksum=checksum))
-        dataset.size += file_size  # for Q0+ will add, so put to 0 before if necessary
+            # TODO: handle existing files
+            file = [f for f in dataset.files if f.name == filename0]
+            print(dataset.files, file)
+            if len(file) == 1:
+                # update file
+                file = file[0]
+                print(filename0, "already exists")
+                if file.checksum != checksum: # the file has been modified
+                    print("new version of", filename0, filename)
+                    dataset.files.append(File(name=filename, size=file_size, checksum=checksum, versions=[inputs.version]))
+                else:
+                    print("same version of", filename0, filename)
+                    self.os_repo.delete(dataset.id, filename)
+                    file = File(name=filename0, size=file_size, checksum=checksum, versions=file.versions + [inputs.version])
+                    dataset.files = [f for f in dataset.files if f.name != filename0] + [file]
+            elif len(file) == 0:
+                print("new file", filename)
+                dataset.files.append(File(name=filename, size=file_size, checksum=checksum, versions=[inputs.version]))
+            else: # dataset exists and is the same
+                pass
+        version = [v for v in dataset.versions if v.version_id == inputs.version][0]
+        version.size += file_size  # for Q0+ will add, so put to 0 before if necessary
         dataset.updatedAt = datetime.now()
         self.db_repo.update("datasets", dataset.id, dataset.dict())
         # report usage
