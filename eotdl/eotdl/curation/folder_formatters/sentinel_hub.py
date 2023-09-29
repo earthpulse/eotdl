@@ -66,10 +66,14 @@ class SHFolderFormatter(FolderFormatter):
             )
             bbox = [left, bottom, right, top]
 
+        payload_data = request_json['request']['payload']['input']['data'][0]
         # Get the data type from the request json
-        data_type = request_json['request']['payload']['input']['data'][0]['type']
+        data_type = payload_data['type']
         # Get the acquision date from the request json
-        data_acquisition_date = request_json['request']['payload']['input']['data'][0]['dataFilter']['timeRange']['from']
+        if 'timeRange' in payload_data['dataFilter']:
+            data_acquisition_date = payload_data['dataFilter']['timeRange']['from']
+        else:   # DEM data does not have a timeRange
+            data_acquisition_date = None
 
         # Generate the metadata.json file
         metadata_path = join(output_folder, "metadata.json")
