@@ -1,42 +1,9 @@
 from pydantic import BaseModel, validator
 from datetime import datetime
 from typing import List
-import re
-from ..errors import (
-    NameCharsValidationError,
-    NameLengthValidationError,
-    DescriptionLengthValidationError,
-)
 
+from .validators import validate_name
 
-def validate_name(
-    name: str,
-    regex: str = "^[^a-zA-Z]{1}|[^a-zA-Z0-9-]",
-    max_length: int = 45,
-    min_length: int = 3,
-) -> str:
-    if re.findall(regex, name):
-        raise NameCharsValidationError()
-    if len(name) > max_length or len(name) < min_length:
-        raise NameLengthValidationError(max_length, min_length)
-    return name
-
-
-def validate_description(
-    description: str, max_length: int = 50, min_length: int = 5
-) -> str:
-    if len(description) > max_length or len(description) < min_length:
-        raise DescriptionLengthValidationError(max_length, min_length)
-    return description
-
-
-class File(BaseModel):
-    name: str
-    size: int
-    checksum: str
-    version: int
-    versions: List[int] = []
-    createdAt: datetime = datetime.now()
 
 class Version(BaseModel):
     version_id: int 
@@ -50,7 +17,7 @@ class Dataset(BaseModel):
     authors: List[str]
     source: str
     license: str
-    files: List[File] = []
+    files: str
     versions: List[Version] = []
     description: str = ""
     tags: List[str] = []
@@ -72,19 +39,6 @@ class Dataset(BaseModel):
             if not source.startswith("http") and not source.startswith("https"):
                 raise ValueError("source must be a valid url")
         return source
-
-
-class UploadingFile(BaseModel):
-    uid: str
-    id: str
-    upload_id: str
-    name: str
-    dataset: str
-    checksum: str
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
-    parts: List[int] = []
-
 
 class STACDataset(BaseModel):
     uid: str

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 
-from ...models import Dataset, User, Limits
+from ...models import Dataset, User, Limits, Files
 from ...errors import (
     DatasetAlreadyExistsError,
     TierLimitError,
@@ -22,10 +22,11 @@ class CreateDataset:
     class Outputs(BaseModel):
         dataset_id: str
 
-    def create_dataset(self, id, inputs):
+    def create_dataset(self, id, inputs, files_id):
         return Dataset(
             uid=inputs.uid,
             id=id,
+            files=files_id,
             name=inputs.name,
             authors=inputs.authors,
             source=inputs.source,
@@ -55,9 +56,11 @@ class CreateDataset:
             raise TierLimitError(
                 "You cannot have more than {} datasets".format(limits.datasets.count)
             )
-        # generate new id
         id = self.db_repo.generate_id()
-        dataset = self.create_dataset(id, inputs)
+        files_id = self.db_repo.generate_id()
+        files = Files(id=files_id, dataset=id)
+        self.db_repo.persist("files", files.dict(), files.id)
+        dataset = self.create_dataset(id, inputs, files_id)
         self.db_repo.persist("datasets", dataset.dict(), dataset.id)
         self.db_repo.increase_counter("users", "uid", inputs.uid, "dataset_count")
         return self.Outputs(dataset_id=dataset.id)
