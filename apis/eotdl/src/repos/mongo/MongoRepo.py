@@ -20,7 +20,7 @@ class MongoRepo:
         return self.db[collection].insert_one(data).inserted_id
 
     def retrieve(
-        self, collection, value=None, field="id", limit=None, sort=None, order=None
+        self, collection, value=None, field="id", limit=None, sort=None, order=None, selector=None
     ):
         if value is None:
             query = self.db[collection].find()  # TODO: find_many if field is provided
@@ -31,8 +31,11 @@ class MongoRepo:
             return list(query)
         if field == "_id":
             value = ObjectId(value)
-        query = self.db[collection].find_one({field: value})
+        query = self.db[collection].find_one({field: value}, selector)
         return query
+    
+    def retrieve2(self, collection, query, selector):
+        return self.db[collection].find_one(query, selector)
 
     def retrieve_many(self, collection, values, field="_id"):
         if field == "_id":
@@ -41,6 +44,15 @@ class MongoRepo:
 
     def update(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
+
+    def push(self, collection, id, data):
+        return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
+
+    def add_to_set(self, collection, id, data):
+        return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
+    
+    def update2(self, collection, query, value):
+        return self.db[collection].update_one(query, value)
 
     def delete(self, collection, value, field="id"):
         if field == "_id":

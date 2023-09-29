@@ -53,8 +53,8 @@ class IngestFolder:
             if data["uid"] != inputs.user["sub"]:
                 raise Exception("Dataset already exists.")
             data["dataset_id"] = data["id"]
-            current_files = [item["name"] for item in data["files"]]
-            print("current_files", current_files)
+            # current_files = [item["name"] for item in data["files"]]
+            # print("current_files", current_files)
         dataset_id = data["dataset_id"]
         # create new version
         data, error = self.repo.create_version(dataset_id, inputs.user["id_token"])
