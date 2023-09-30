@@ -21,5 +21,5 @@ def persist_user(data: dict) -> User:
     except UserDoesNotExistError:
         data["id"] = repo.generate_id()
         new_user = User(**data)
-        repo.persist_user(new_user.model_dump())
+        repo.persist_user(new_user.model_dump(), new_user.id)
         return new_user
