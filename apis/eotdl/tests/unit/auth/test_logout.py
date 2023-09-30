@@ -1,16 +1,13 @@
 import pytest
-from unittest import mock
+from unittest.mock import patch
 
-from ....src.usecases.auth.Logout import Logout
+from ....src.usecases.auth import generate_logout_url
 
-
-def test_logout():
-    repo = mock.Mock()
-    logout_url = "123"
-    repo.generate_logout_url.return_value = logout_url
-    logout = Logout(repo)
-    redirect_uri = "test"
-    inputs = Logout.Inputs(redirect_uri=redirect_uri)
-    outputs = logout(inputs)
-    assert outputs.logout_url == logout_url
-    repo.generate_logout_url.assert_called_once_with(redirect_uri)
+@patch('api.src.usecases.auth.logout.AuthRepo')
+def test_logout(mocked_repo):
+    mock_return_value = "http://mockedlogout.url"
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.generate_logout_url.return_value = mock_return_value
+    result = generate_logout_url("test")
+    assert result == mock_return_value
+    mocked_repo_instance.generate_logout_url.assert_called_once()

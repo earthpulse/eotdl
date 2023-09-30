@@ -1,7 +1,5 @@
-from .main import (
-    persist_user,
-    update_user,
-    retrieve_user,
-    accept_user_terms_and_conditions,
-    retrieve_user_credentials,
-)
+from .persist_user import persist_user
+from .update_user import update_user
+from .retrieve_user import retrieve_user
+from .accept_user_terms_and_conditions import accept_user_terms_and_conditions
+from .retrieve_credentials import retrieve_user_credentials

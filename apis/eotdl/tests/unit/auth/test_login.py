@@ -1,13 +1,13 @@
 import pytest 
-from unittest import mock
+from unittest.mock import patch
 
-from ....src.usecases.auth.Login import Login
+from ....src.usecases.auth import generate_login_url 
 
-def test_login():
-    repo = mock.Mock()
-    login_url = {'login_url': '123'}
-    repo.generate_login_url.return_value = login_url
-    login = Login(repo)
-    inputs = Login.Inputs()
-    outputs = login(inputs)
-    assert outputs.login_url == login_url
+@patch('api.src.usecases.auth.login.AuthRepo')
+def test_generate_login_url(mocked_repo):
+    mock_return_value = "http://mockedlogin.url"
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.generate_login_url.return_value = mock_return_value
+    result = generate_login_url()
+    assert result == mock_return_value
+    mocked_repo_instance.generate_login_url.assert_called_once()
