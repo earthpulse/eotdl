@@ -18,3 +18,9 @@ class MongoUserRepo(MongoRepo):
     
     def check_user_exists(self, uid):
         return self.exists("users", uid, "uid")
+    
+    def retrieve_tier(self, tier):
+        return self.find_one_by_name("tiers", tier)
+    
+    def retrieve_usage(self, uid):
+        return self.find_in_time_range("usage", uid, "dataset_ingested", "type")
