@@ -1,6 +1,4 @@
 from ...repos import DBRepo, OSRepo, S3Repo, GeoDBRepo
-from .CreateDataset import CreateDataset
-from .CreateSTACDataset import CreateSTACDataset
 from .IngestFile import IngestFile
 from .IngestFileURL import IngestFileURL
 from .UpdateDataset import UpdateDataset
@@ -22,16 +20,6 @@ from .DownloadDatasetSTAC import DownloadDatasetSTAC
 from .DeleteDatasetFile import DeleteDatasetFile
 from .CreateDatasetVersion import CreateDatasetVersion
 from ..user import retrieve_user_credentials
-
-
-def create_dataset(user, name, authors, source, license):
-    db_repo = DBRepo()
-    create = CreateDataset(db_repo)
-    inputs = CreateDataset.Inputs(
-        uid=user.uid, name=name, authors=authors, source=source, license=license
-    )
-    outputs = create(inputs)
-    return outputs.dataset_id
 
 
 def create_stac_dataset(user, name):

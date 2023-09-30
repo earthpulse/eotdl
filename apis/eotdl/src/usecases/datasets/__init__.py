@@ -15,8 +15,9 @@ from .main import (
     ingest_file_url,
     ingest_stac,
     download_stac,
-    create_dataset,
     create_stac_dataset,
     delete_dataset_file,
     create_dataset_version
 )
+
+from .create_dataset import create_dataset

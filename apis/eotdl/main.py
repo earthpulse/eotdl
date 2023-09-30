@@ -15,6 +15,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# auth 
 app.include_router(login.router, prefix="/auth")
 app.include_router(logout.router, prefix="/auth")
 app.include_router(me.router, prefix="/auth")
@@ -22,7 +23,9 @@ app.include_router(token.router, prefix="/auth")
 app.include_router(update_user_data.router, prefix="/auth")
 app.include_router(credentials.router, prefix="/auth")
 app.include_router(accept_terms_and_conditions.router, prefix="/auth")
+# tags
 app.include_router(retrieve_tags.router, prefix="/tags")
+# dataset
 app.include_router(create_dataset.router, prefix="/datasets")
 app.include_router(delete_dataset.router, prefix="/datasets")
 app.include_router(download_dataset.router, prefix="/datasets")
@@ -32,6 +35,7 @@ app.include_router(retrieve_dataset.router, prefix="/datasets")
 app.include_router(update_dataset.router, prefix="/datasets")
 app.include_router(upload_large_files.router, prefix="/datasets")
 app.include_router(version_dataset.router, prefix="/datasets")
+# other
 app.include_router(admin.router)
 # app.include_router(migrate.router)
 
