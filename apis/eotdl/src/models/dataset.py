@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 from typing import List
 
@@ -27,13 +27,13 @@ class Dataset(BaseModel):
     downloads: int = 0
     quality: int = 0
 
-    @validator("name")
+    @field_validator("name")
     def check_name_is_valid(cls, name):
         if name is not None:
             assert validate_name(name) == name
         return name
 
-    @validator("source")
+    @field_validator("source")
     def check_source_is_url(cls, source):
         if source != "" and source is not None:
             if not source.startswith("http") and not source.startswith("https"):

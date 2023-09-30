@@ -7,8 +7,10 @@ class MongoRepo:
     def __init__(self):
         self.db = get_db()
 
-    def exists(self, collection, id):
-        return self.db[collection].find_one({"_id": ObjectId(id)}) is not None
+    def exists(self, collection, value, field="_id"):
+        if field == "_id":
+            value = ObjectId(value)
+        return self.db[collection].find_one({field: value}) is not None
 
     def generate_id(self):
         return str(ObjectId())
