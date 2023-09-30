@@ -2,14 +2,10 @@ from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status
 import logging
 
-from ..src.usecases.tags import retrieve_tags
+from ...src.usecases.tags import retrieve_tags
 
 logger=logging.getLogger(__name__)
-
-router = APIRouter(
-    prefix="/tags",
-    tags=["tags"]
-)
+router = APIRouter()
 
 @router.get("")
 def retrieve():

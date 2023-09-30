@@ -20,6 +20,7 @@ bucket = os.environ.get("S3_BUCKET")
 
 @router.get("", include_in_schema=False)
 def migrate_db(isAdmin: bool = Depends(key_auth)):
+    return "Done"
     db = get_db()
     collections = db.list_collection_names()
     s3 = get_client()

@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from .routers import auth, datasets, tags, admin  # , migrate
+from .routers.auth import login, logout, me, token, update_user_data, credentials, accept_terms_and_conditions
+from .routers.tags import retrieve_tags
+from .routers.datasets import create_dataset, delete_dataset, download_dataset, ingest_dataset, like_dataset, retrieve_dataset, update_dataset, upload_large_files, version_dataset
+from .routers import admin  # , migrate
 
 app = FastAPI()
 app.add_middleware(
@@ -12,9 +15,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(auth.router)
-app.include_router(datasets.router)
-app.include_router(tags.router)
+app.include_router(login.router, prefix="/auth")
+app.include_router(logout.router, prefix="/auth")
+app.include_router(me.router, prefix="/auth")
+app.include_router(token.router, prefix="/auth")
+app.include_router(update_user_data.router, prefix="/auth")
+app.include_router(credentials.router, prefix="/auth")
+app.include_router(accept_terms_and_conditions.router, prefix="/auth")
+app.include_router(retrieve_tags.router, prefix="/tags")
+app.include_router(create_dataset.router, prefix="/datasets")
+app.include_router(delete_dataset.router, prefix="/datasets")
+app.include_router(download_dataset.router, prefix="/datasets")
+app.include_router(ingest_dataset.router, prefix="/datasets")
+app.include_router(like_dataset.router, prefix="/datasets")
+app.include_router(retrieve_dataset.router, prefix="/datasets")
+app.include_router(update_dataset.router, prefix="/datasets")
+app.include_router(upload_large_files.router, prefix="/datasets")
+app.include_router(version_dataset.router, prefix="/datasets")
 app.include_router(admin.router)
 # app.include_router(migrate.router)
 
