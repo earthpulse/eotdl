@@ -40,13 +40,15 @@ class EvalScripts:
                                     "B06", 
                                     "B07", 
                                     "B08", 
+                                    "B8A",
                                     "B09",
                                     "B11", 
-                                    "B12"]
+                                    "B12"],
+                            units: "DN"
                         }],
                         output: {
-                            id: "default",
-                            bands: 11
+                            bands: 12,
+                            sampleType: "INT16"
                         }
                     };
                 }
@@ -60,6 +62,7 @@ class EvalScripts:
                             sample.B06, 
                             sample.B07, 
                             sample.B08, 
+                            sample.B8A,
                             sample.B09,
                             sample.B11, 
                             sample.B12];
