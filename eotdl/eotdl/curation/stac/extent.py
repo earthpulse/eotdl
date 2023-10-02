@@ -9,8 +9,9 @@ import json
 
 from glob import glob
 from os.path import dirname
-
 from typing import List
+
+from .utils import get_item_metadata
 
 
 def get_dem_temporal_interval() -> pystac.TemporalExtent:
@@ -93,19 +94,19 @@ def get_collection_temporal_interval(rasters: List[str]) -> pystac.TemporalExten
     :param path: path to the directory
     """
     # Get all the metadata.json files in the directory of all the given rasters
-    metadata_json_files = list()
+    metadata_jsons = list()
     for raster in rasters:
-        metadata_json_files += glob(f'{dirname(raster)}/*.json', recursive=True)
+        metadata_json = get_item_metadata(raster)
+        if metadata_json:
+            metadata_jsons.append(metadata_json)
 
-    if not metadata_json_files:
+    if not metadata_jsons:
         return get_unknow_temporal_interval()   # If there is no metadata, set a generic temporal interval
     
     # Get the temporal interval of every metadata.json file and the type of the data
     data_types = list()
     temporal_intervals = list()
-    for metadata_json_file in metadata_json_files:
-        with open(metadata_json_file, 'r') as f:
-            metadata = json.load(f)
+    for metadata in metadata_jsons:
         # Append the temporal interval to the list as a datetime object
         temporal_intervals.append(metadata['acquisition-date']) if metadata['acquisition-date'] else None
         # Append the data type to the list
