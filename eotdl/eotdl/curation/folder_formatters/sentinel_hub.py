@@ -65,6 +65,7 @@ class SHFolderFormatter(FolderFormatter):
             output_folder = self.root
         makedirs(output_folder, exist_ok=True)
 
+        n = 0
         for image in images:
             # Folder with the request and response, with the id of the request
             image_dir = dirname(image)
@@ -73,15 +74,15 @@ class SHFolderFormatter(FolderFormatter):
             parent_dir_name = parent_dir.split('/')[-1]
             parent_dir_name_split = parent_dir_name.split('_')
             id = parent_dir_name_split[0]   # ID of the given location
-            date = parent_dir_name_split[-1] if len(parent_dir_name_split) > 1 else None   # Acquisition date of the image
             # Get the request.json file with the request parameters
             request_file = join(image_dir, 'request.json')
             request_json = json.load(open(request_file))
             # Generate a metadata.json file of the raster in the destination folder
             # It will extract some needed parameters, which will be used later 
             # for the STAC generation
-            # As file name, we give the same name as de image, which is <id>_<date>
-            filename = f'{id}_{date}'
+            # As file name, we give the same name as de image, which is <id>_<n>
+            n += 1
+            filename = f'{id}_{n}'
             self.generate_raster_metadata(request_json, image, output_folder, filename)    
             # Copy the response tiff to the destination folder
             copyfile(image, join(output_folder, f'{filename}.tif'))
