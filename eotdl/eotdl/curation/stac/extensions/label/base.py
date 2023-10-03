@@ -1,14 +1,11 @@
 '''
-Module for Label STAC extensions object
+Module for the STAC label extension base object
 '''
 
 import pystac
-import json
-import pandas as pd
 
-from os.path import join, dirname
-from typing import List, Optional, Union
-from .base import STACExtensionObject
+from typing import List,  Union
+from ..base import STACExtensionObject
 from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 
 
@@ -17,6 +14,14 @@ class LabelExtensionObject(STACExtensionObject):
         super().__init__()
 
     @classmethod
+    def generate_stac_labels(
+        self
+    ) -> None:
+        """
+        Generate a labels collection from a STAC dataframe.
+        """
+        pass
+
     def add_extension_to_item(
         self,
         obj: pystac.Item,
@@ -67,7 +72,7 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the label type
         label_ext.label_type = label_type
         # Add the label properties, if any
-        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else None
+        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else label_names
         # Add the label methods, if any
         label_ext.label_methods = kwargs.get('label_methods') if kwargs.get('label_methods', None) else None
         # Add the label tasks, if any
@@ -76,58 +81,7 @@ class LabelExtensionObject(STACExtensionObject):
         label_ext.add_source(obj)
 
         return label_item
-    
-    @classmethod
-    def add_geojson_to_items(self, 
-                             collection: pystac.Collection,
-                             df: pd.DataFrame,
-                             label_type: str
-                             ) -> None:
-        """
-        """
-        for item in collection.get_all_items():
-            geojson_path = join(dirname(item.get_self_href()), f'{item.id}.geojson')
 
-            properties = {'roles': ['labels', f'labels-{label_type}']}
-
-            # TODO depending on the tasks, there must be extra fields
-            # https://github.com/stac-extensions/label#assets
-            tasks = item.properties['label:tasks']
-            if 'tile_regression' in tasks:
-                pass
-            elif any(task in tasks for task in ('tile_classification', 'object_detection', 'segmentation')):
-                pass
-
-            label_ext = LabelExtension.ext(item)
-            label_ext.add_geojson_labels(href=geojson_path, 
-                                         title='Label', 
-                                         properties=properties)
-            item.make_asset_hrefs_relative()
-            
-            item_id = item.id
-            geometry = item.geometry
-            labels = [df[df['id'] == item_id]['label'].values[0]]
-            # There is data like DEM data that does not have datetime but start and end datetime
-            datetime = item.datetime.isoformat() if item.datetime else (item.properties.start_datetime.isoformat(),
-                                                                        item.properties.end_datetime.isoformat())
-            labels_properties = dict(zip(item.properties['label:properties'], labels)) if label_type == 'vector' else dict()
-            labels_properties['datetime'] = datetime
-
-            geojson = {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": geometry,
-                        "properties": labels_properties,
-                    }
-                ],
-            }
-
-            with open(geojson_path, "w") as f:
-                json.dump(geojson, f)
-
-    @classmethod
     def add_extension_to_collection(
             self,
             obj: pystac.Collection,
@@ -158,3 +112,11 @@ class LabelExtensionObject(STACExtensionObject):
 
         # Add the label type
         label_ext.label_type = label_type
+
+    def add_geojson_to_items(self
+                             ) -> None:
+        """
+        Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
+        https://github.com/stac-extensions/label#assets
+        """
+        pass

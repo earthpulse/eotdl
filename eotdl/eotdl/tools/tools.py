@@ -1,9 +1,6 @@
 """
 Module for data engineeringt
 """
-from ..access.sentinelhub.client import SHClient
-from ..access.sentinelhub.parameters import (sentinel_1_search_parameters, 
-                                         sentinel_2_search_parameters)
 
 import geopandas as gpd
 import pandas as pd
@@ -16,7 +13,7 @@ import json
 from shapely.geometry import box, Polygon
 from pyproj import Transformer
 from os.path import exists
-from typing import Union, Optional, List
+from typing import Union, Optional
 
 
 def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
@@ -31,7 +28,7 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
                 - images_count: the count of available images of each location.
                 - images_dates: list with the dates of the available images of each location.
     """
-    uniques_location_id = gdf['location_id'].unique()   # List of unique location ids
+    uniques_location_id = gdf['scene_id'].unique()   # List of unique location ids
     uniques_location_id.sort()
 
     images_count_list, images_dates_list = [], []
@@ -39,12 +36,12 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
     # Iterate the unique location ids, count the number of images per location and generate
     # a list with the dates of every image in a location
     for location_id in uniques_location_id:
-        dates = gdf[gdf['location_id'] == location_id]['datetime']
+        dates = gdf[gdf['scene_id'] == location_id]['datetime']
         images_count_list.append(dates.count())
         images_dates_list.append(dates.tolist())
 
     images_dates_list.sort()   # Sort the list of dates
-    data = {'location_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
+    data = {'scene_id': uniques_location_id, 'dates_count': images_count_list, 'dates_list': images_dates_list}
     df_dates_per_aoi = pd.DataFrame.from_dict(data)
 
     return df_dates_per_aoi
@@ -81,61 +78,6 @@ def generate_location_payload(gdf: Union[gpd.GeoDataFrame, pd.DataFrame], path: 
         json.dump(bbox_date_by_location, f)
 
     return bbox_date_by_location
-
-
-sentinel_parameters = {'sentinel-1': sentinel_1_search_parameters,
-                       'sentinel-2': sentinel_2_search_parameters}
-
-
-def get_available_data_by_location(search_data: dict,
-                                   eotdl_client: SHClient,
-                                   sentinel_mission: str
-                                   ) -> list:
-    # TODO put in data access
-    """
-    Search and return a dict with the available Sentinel data for a dict with given locations and a time intervals.
-
-    :param search_data: dictionary with the data required to search the available imagery in a given location
-            and time interval. It must have the following format:
-                {<location_id>: {'bounding_box': list(), 'time_interval': list()}, ... }
-    :param eotdl_client: eotdl.SHClient object required to search for availabe data in Sentinel Hub 
-    :param sentinel_mission: id of the required Sentinel mission. The value must be <sentinel-1> or <sentinel-2>
-    :return: available_data: available data for downloading for a given location and time interval
-    :return: not_available_data: list with the locations that does not have any available data for the
-            given location and time interval
-    """
-    if sentinel_mission not in ('sentinel-1', 'sentinel-2'):
-        print('The specified Sentinel mission is not valid. The values must be between <sentinel-1> and <sentinel-2>')
-        return
-    
-    parameters = sentinel_parameters[sentinel_mission]
-
-    available_data, not_available_data = dict(), list()
-    for location_id, location_info in search_data.items():
-        parameters.bounding_box = location_info['bounding_box']
-        parameters.time_interval = location_info['time_interval']
-        results = eotdl_client.search_available_sentinel_data(parameters)
-        if results:
-            # The returning results are composed by a list with format 
-            # 'id': <image ID>, properties : {'datetime': <image date>}
-            # As we can't make a bulk request with the ID but with the date time,
-            # and we need all the available images in a time lapse and not
-            # a mosaic, we are going to generate a dict with format
-            # 'location_id': <location ID>,
-            # {'bounding_box': <image bbox>, 'time_interval': <image date>}
-            # This dictionary is digerible by the SHClient
-            time_intervals = list()
-            for result in results:
-                datetime = result['properties']['datetime'][0:10]
-                time_interval = (datetime, datetime)
-                time_intervals.append(time_interval) if time_interval not in time_intervals else time_intervals
-            available_data[location_id] = {'bounding_box': location_info['bounding_box'], 'time_interval': time_intervals}
-        else:
-            # We should have a trace with the locations without
-            # available data
-            not_available_data.append(location_id)
-
-    return available_data, not_available_data
 
 
 def get_tarfile_image_info(tar: str, path: Optional[str] = None, pattern: Optional[str] = r"\d{8}T\d{6}", level: Optional[int] = 2):
@@ -313,16 +255,16 @@ def bbox_from_centroid(x: Union[int, float],
 
     Params
     ------
-    x: int|float
+    x: int or float
         x coordinate of the centroid
-    y: int|float
+    y: int or float
         y coordinate of the centroid
-    pixel_size: int|float
-        pixel size of the image, in meters
-    width: int|float
-        image width, in pixels
-    height: int|float
-        image height, in pixels
+    pixel_size: int or float
+        pixel size in meters
+    width: int or float
+        width of the image in pixels
+    height: int or float
+        height of the image in pixels
 
     Returns
     -------

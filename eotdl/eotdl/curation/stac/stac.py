@@ -23,7 +23,7 @@ from typing import Union, Optional
 
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
-from .labeling import LabelingStrategy, UnlabeledStrategy
+from .dataframe_labeling import LabelingStrategy, UnlabeledStrategy
 from .utils import (format_time_acquired, 
                     cut_images, 
                     get_item_metadata,
@@ -153,7 +153,6 @@ class STACGenerator:
             # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, "source") for i in range(len(images))]
         elif collections == '*':
-            # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, basename(dirname(image))) for image in images]
         else:
             try:
@@ -256,8 +255,8 @@ class STACGenerator:
 
         # Obtain the date acquired
         start_time, end_time = None, None
-        if metadata and metadata["date-adquired"] and metadata["type"] not in ('dem', 'DEM'):
-            time_acquired = format_time_acquired(metadata["date-adquired"])
+        if metadata and metadata["acquisition-date"] and metadata["type"] not in ('dem', 'DEM'):
+            time_acquired = format_time_acquired(metadata["acquisition-date"])
         else:
             # Check if the type of the data is DEM
             if metadata and metadata["type"] and metadata["type"] in ("dem", "DEM"):
@@ -323,105 +322,3 @@ class STACGenerator:
         item.set_self_href(join(dirname(raster_path), f"{id}.json"))
         item.make_asset_hrefs_relative()
         return item
-
-    def generate_stac_labels(
-        self,
-        catalog: Union[pystac.Catalog, str],
-        stac_dataframe: Optional[pd.DataFrame] = None,
-        collection: Optional[Union[pystac.Collection, str]] = 'source',
-        label_description: Optional[str] = "Item label",
-        label_type: Optional[str] = "vector",
-        label_names: Optional[List[str]] = ["label"],
-        **kwargs
-    ) -> None:
-        """
-        Generate a labels collection from a STAC dataframe
-        
-        :param catalog: catalog to add the labels collection to
-        :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
-        :param collection: collection to add the labels collection to
-        """
-        self._stac_dataframe = (
-            stac_dataframe if self._stac_dataframe.empty else self._stac_dataframe
-        )
-        if self._stac_dataframe.empty:
-            raise ValueError(
-                "No STAC dataframe provided, please provide a STAC dataframe or generate it with <get_stac_dataframe> method"
-            )
-        if isinstance(catalog, str):
-            catalog = pystac.Catalog.from_file(catalog)
-
-        # Add the labels collection to the catalog
-        # If exists a source collection, get it extent
-        source_collection = catalog.get_child(collection)
-        if source_collection:
-            extent = source_collection.extent
-            source_items = source_collection.get_stac_objects(pystac.RelType.ITEM)
-        else:
-            if not collection:
-                raise ValueError(
-                    "No source collection provided, please provide a source collection"
-                )
-            extent = get_unknow_extent()
-
-        # Create the labels collection and add it to the catalog if it does not exist
-        # If it exists, remove it
-        collection = pystac.Collection(id="labels", description="Labels", extent=extent)
-        if collection.id in [c.id for c in catalog.get_children()]:
-            catalog.remove_child(collection.id)
-        catalog.add_child(collection)
-
-        # Generate the labels items
-        print("Generating labels collection...")
-        for source_item in tqdm(source_items):
-            # There must be an item ID column in the STAC dataframe
-            if not 'id' in self._stac_dataframe.columns:
-                raise ValueError(
-                    "No item ID column found in the STAC dataframe, please provide a STAC dataframe with the item ID column"
-                )
-            label_classes = self._stac_dataframe.label.unique().tolist()
-
-            # Create the label item
-            label_item = LabelExtensionObject.add_extension_to_item(
-                source_item,
-                label_description=label_description,
-                label_type=label_type,
-                label_names=[label_names],
-                label_classes=[label_classes],
-                **kwargs
-            )
-            # Add the self href to the label item, following the Best Practices Layout
-            # https://github.com/radiantearth/stac-spec/blob/master/best-practices.md
-            label_item.set_self_href(
-                join(
-                    dirname(collection.get_self_href()),
-                    label_item.id,
-                    f"{label_item.id}.json"
-                    )
-            )
-            collection.add_item(label_item)
-
-        # Add the extension to the collection
-        LabelExtensionObject.add_extension_to_collection(
-            collection,
-            label_names=[label_names],
-            label_classes=[label_classes],
-            label_type=label_type,
-        )
-
-        # Validate and save the catalog
-        # Before adding the geojson, we need to save the catalog
-        # and then iterate over the items to add the geojson
-        try:
-            pystac.validation.validate(catalog)
-            catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
-        except pystac.STACValidationError as e:
-            print(f"Catalog validation error: {e}")
-            return
-        
-        # Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
-        # https://github.com/stac-extensions/label#assets
-        LabelExtensionObject.add_geojson_to_items(collection, 
-                                                  self._stac_dataframe,
-                                                  label_type=label_type)
-        catalog.normalize_and_save(dirname(catalog.get_self_href()), self._catalog_type)
