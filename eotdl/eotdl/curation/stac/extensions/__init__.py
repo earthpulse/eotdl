@@ -3,7 +3,7 @@ from .raster import RasterExtensionObject
 from .projection import ProjExtensionObject
 from .dem import DEMExtensionObject
 from .eo import EOS2ExtensionObject
-from .label import LabelExtensionObject
+from .label import LabelExtensionObject, ImageNameLabeler, ScaneoLabeler
 from .ml_dataset import add_ml_extension, MLDatasetQualityMetrics
 
 

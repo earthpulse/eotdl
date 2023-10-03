@@ -23,7 +23,7 @@ from typing import Union, Optional
 
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
-from .labeling import LabelingStrategy, UnlabeledStrategy
+from .dataframe_labeling import LabelingStrategy, UnlabeledStrategy
 from .utils import (format_time_acquired, 
                     cut_images, 
                     get_item_metadata,
