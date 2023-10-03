@@ -5,7 +5,7 @@ Module for the STAC label extension base object
 import pystac
 
 from typing import List,  Union
-from .base import STACExtensionObject
+from ..base import STACExtensionObject
 from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 
 
@@ -72,7 +72,7 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the label type
         label_ext.label_type = label_type
         # Add the label properties, if any
-        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else None
+        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else label_names
         # Add the label methods, if any
         label_ext.label_methods = kwargs.get('label_methods') if kwargs.get('label_methods', None) else None
         # Add the label tasks, if any

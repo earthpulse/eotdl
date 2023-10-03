@@ -8,7 +8,7 @@ import json
 
 from glob import glob
 from tqdm import tqdm
-from os.path import join, dirname, exists, splitext, basename
+from os.path import join, dirname, exists, splitext, basename, abspath
 from typing import List, Optional, Union
 from pystac.extensions.label import LabelExtension
 
@@ -20,7 +20,6 @@ class ScaneoLabeler(LabelExtensionObject):
     def __init__(self) -> None:
         super().__init__()
 
-    @classmethod
     def generate_stac_labels(
         self,
         catalog: Union[pystac.Catalog, str],
@@ -81,8 +80,7 @@ class ScaneoLabeler(LabelExtensionObject):
         label_classes = self.get_label_classes(root_folder, geojson_files)
 
         # Generate the labels items
-        print("Generating labels collection...")
-        for source_item in tqdm(source_items):
+        for source_item in tqdm(source_items, desc="Generating labels collection..."):
             # Get the GeoJSON label of the item
             geojson_label = self.get_geojson_of_item(source_item, geojson_files)
             # Get the tasks from the GeoJSON label
@@ -91,12 +89,12 @@ class ScaneoLabeler(LabelExtensionObject):
             kwargs['label_tasks'] = tasks
 
             # Create the label item
-            label_item = LabelExtensionObject.add_extension_to_item(
+            label_item = self.add_extension_to_item(
                 source_item,
                 label_description=label_description,
                 label_type=label_type,
-                label_names=[label_names],
-                label_classes=[label_classes],
+                label_names=label_names,
+                label_classes=label_classes,
                 **kwargs
             )
             # Add the self href to the label item, following the Best Practices Layout
@@ -109,12 +107,12 @@ class ScaneoLabeler(LabelExtensionObject):
                     )
             )
             # Match the GeoJSON label with the label item
-            self.add_geojson_to_item(source_item, geojson_label, label_type)
+            self.add_geojson_to_item(label_item, geojson_label, label_type)
             # Add the item to the collection
             collection.add_item(label_item)
 
         # Add the extension to the collection
-        LabelExtensionObject.add_extension_to_collection(
+        self.add_extension_to_collection(
             collection,
             label_names=[label_names],
             label_classes=[label_classes],
@@ -146,8 +144,9 @@ class ScaneoLabeler(LabelExtensionObject):
         """
         properties = {'roles': ['labels', f'labels-{label_type}']}
 
-        label_ext = LabelExtension.ext(item)
-        label_ext.add_geojson_labels(href=geojson_path, 
+        label_ext = LabelExtension.ext(item, add_if_missing=True)
+        item.make_asset_hrefs_absolute()
+        label_ext.add_geojson_labels(href=abspath(geojson_path), 
                                      title='Label', 
                                      properties=properties)
         item.make_asset_hrefs_relative()
@@ -161,7 +160,7 @@ class ScaneoLabeler(LabelExtensionObject):
         """
         label_classes = list()
 
-        labels_json = glob(join(root_folder, "labels.json"))
+        labels_json = glob(join(root_folder, "labels.json"))[0]
         if exists(labels_json):
             with open(labels_json, 'r') as f:
                 labels = json.load(f)
@@ -174,7 +173,7 @@ class ScaneoLabeler(LabelExtensionObject):
                 for value in labels['features']:
                     label_classes.append(value['properties']['labels']) if value['properties']['labels'] not in label_classes else None
 
-        return label_classes
+        return [label_classes]
 
     def get_geojson_of_item(self,
                             item: pystac.Item,
@@ -210,6 +209,7 @@ class ScaneoLabeler(LabelExtensionObject):
             geojson = json.load(f)
             tasks = list()
             for feature in geojson['features']:
-                tasks.append(feature['properties']['tasks']) if feature['properties']['tasks'] not in tasks else None
+                for task in feature['properties']['tasks']:
+                    tasks.append(task) if task not in tasks else None
         
         return tasks
