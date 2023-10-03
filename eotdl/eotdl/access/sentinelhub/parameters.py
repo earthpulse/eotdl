@@ -4,6 +4,7 @@ Utils
 
 from sentinelhub import DataCollection, MosaickingOrder
 
+from .evalscripts import EvalScripts
 from ..parameters import ParametersFeature
 
 
@@ -73,21 +74,24 @@ sentinel_2_search_parameters = SHParametersFeature(options)
 
 options = {
     'data_collection': DataCollection.SENTINEL1,
-    'resolution': 3
+    'resolution': 3,
+    'evalscript': EvalScripts.SENTINEL_1
 }
 sentinel_1_download_parameters = SHParametersFeature(options)
 
 
 options = {
     'data_collection': DataCollection.SENTINEL2_L2A,
-    'resolution': 3,
-    'mosaicking_order': MosaickingOrder.LEAST_CC 
+    'resolution': (10, 10),
+    'mosaicking_order': MosaickingOrder.LEAST_CC,
+    'evalscript': EvalScripts.SENTINEL_2
 }
 sentinel_2_download_parameters = SHParametersFeature(options)
 
 
 options = {
     'data_collection': DataCollection.DEM_COPERNICUS_30,
-    'resolution': 3
+    'resolution': 3,
+    'evalscript': EvalScripts.DEM,
 }
 dem_download_parameters = SHParametersFeature(options)
