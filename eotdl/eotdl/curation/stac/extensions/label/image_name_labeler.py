@@ -116,8 +116,7 @@ class ImageNameLabeler(LabelExtensionObject):
             pystac.validation.validate(catalog)
             catalog.normalize_and_save(dirname(catalog.get_self_href()), pystac.CatalogType.SELF_CONTAINED)
         except pystac.STACValidationError as e:
-            print(f"Catalog validation error: {e}")
-            return
+            raise pystac.STACError(f"Catalog validation error: {e}")
         
         # Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         # https://github.com/stac-extensions/label#assets
@@ -125,7 +124,7 @@ class ImageNameLabeler(LabelExtensionObject):
                                   stac_dataframe,
                                   label_type=label_type)
         catalog.normalize_and_save(dirname(catalog.get_self_href()), pystac.CatalogType.SELF_CONTAINED)
-
+        print('Success on labels generation!')
 
     def add_geojson_to_items(self, 
                              collection: pystac.Collection,
