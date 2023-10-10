@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/{dataset_id}")
-def ingest(
+async def ingest(
     dataset_id: str,
     file: UploadFile = File(...),
     version: int = Form(),  # debería quitarlo (un file solo se puede subir a la última versión si no está ya)
@@ -23,7 +23,7 @@ def ingest(
     # try:
     if file.size > 1000000000:  # 1GB
         raise Exception("File too large, please use the CLI to upload large files.")
-    dataset_id, dataset_name, file_name = ingest_file(
+    dataset_id, dataset_name, file_name = await ingest_file(
         file, dataset_id, version, parent, checksum, user
     )
     return {
