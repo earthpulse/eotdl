@@ -6,9 +6,10 @@ from .validators import validate_name
 
 
 class Version(BaseModel):
-    version_id: int 
+    version_id: int
     createdAt: datetime = datetime.now()
     size: int = 0
+
 
 class Dataset(BaseModel):
     uid: str
@@ -39,6 +40,7 @@ class Dataset(BaseModel):
             if not source.startswith("http") and not source.startswith("https"):
                 raise ValueError("source must be a valid url")
         return source
+
 
 class STACDataset(BaseModel):
     uid: str
