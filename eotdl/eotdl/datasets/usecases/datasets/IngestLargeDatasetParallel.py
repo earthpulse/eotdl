@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from eotdl.eotdl.utils import calculate_checksum
+from eotdl.eotdl.datasets.utils import calculate_checksum
 
 
 class IngestLargeDatasetParallel:

@@ -1,23 +1,26 @@
 from pathlib import Path
 from glob import glob
 import yaml
+from tqdm import tqdm
+import os
 
 from ..auth import with_auth
 from .metadata import Metadata
 from ..repos import DatasetsAPIRepo
+from .utils import calculate_checksum
 
 
-def ingest_dataset(path, logger=print):
+def ingest_dataset(path, verbose=False, logger=print):
     path = Path(path)
     if not path.is_dir():
         raise Exception("Path must be a folder")
     # if "catalog.json" in [f.name for f in path.iterdir()]:
     #     return ingest_stac(path / "catalog.json", logger)
-    return ingest_folder(path, logger)
+    return ingest_folder(path, verbose, logger)
 
 
 @with_auth
-def ingest_folder(folder, logger=print, user=None):
+def ingest_folder(folder, verbose=False, logger=print, user=None):
     repo = DatasetsAPIRepo()
     logger(f"Uploading directory {folder}...")
     # get all files in directory recursively
@@ -40,53 +43,100 @@ def ingest_folder(folder, logger=print, user=None):
         )
     # create dataset
     data, error = repo.create_dataset(metadata.dict(), user["id_token"])
-    print(data, error)
-    # # dataset may already exist, but if user is owner continue ingesting files
-    # current_files = []
-    # if error:
-    #     data, error2 = self.repo.retrieve_dataset(metadata.name)
-    #     print(data, error2)
-    #     if error2:
-    #         raise Exception(error)
-    #     if data["uid"] != user["sub"]:
-    #         raise Exception("Dataset already exists.")
-    #     data["dataset_id"] = data["id"]
-    #     # current_files = [item["name"] for item in data["files"]]
-    #     # print("current_files", current_files)
-    # dataset_id = data["dataset_id"]
-    # # create new version
-    # data, error = self.repo.create_version(dataset_id, user["id_token"])
-    # print(data, error)
-    # version = data["version"]
-    # # upload files
-    # for item in tqdm(items):
-    #     data = self.ingest_file(
-    #         str(item),
-    #         dataset_id,
-    #         version,
-    #         str(item.relative_to(folder).parent),
-    #         logger=logger,
-    #         verbose=False,
-    #     )
-    # return self.Outputs(dataset=data)
+    # dataset may already exist, and will return an error, but if user is owner continue ingesting files
+    current_files = []
+    if error:
+        data, error2 = repo.retrieve_dataset(metadata.name)
+        if error2:
+            raise Exception(error)
+        if data["uid"] != user["sub"]:
+            raise Exception("Dataset already exists.")
+        data["dataset_id"] = data["id"]
+    dataset_id = data["dataset_id"]
+    # create new version
+    data, error = repo.create_version(dataset_id, user["id_token"])
+    if error:
+        raise Exception(error)
+    version = data["version"]
+    # upload files
+    for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
+        data = ingest_file(
+            repo,
+            str(item),
+            dataset_id,
+            version,
+            str(item.relative_to(folder).parent),
+            logger=logger,
+            verbose=verbose,
+            user=user,
+        )
+    return data
 
 
-# @with_auth
-# def ingest_file(
-#     file,
-#     dataset_id,
-#     version,
-#     parent,
-#     logger=None,
-#     verbose=True,
-#     root=None,
-#     user=None,
-# ):
-#     api_repo = APIRepo()
-#     ingest = IngestFile(api_repo, logger, verbose)
-#     inputs = ingest.Inputs(file=file, version=version, parent=parent, dataset_id=dataset_id, user=user, root=root)
-#     outputs = ingest(inputs)
-#     return outputs.data
+def ingest_file(
+    repo,
+    file,
+    dataset_id,
+    version,
+    parent,
+    logger=None,
+    verbose=True,
+    root=None,
+    user=None,
+):
+    id_token = user["id_token"]
+    if verbose:
+        logger(f"Uploading file {file}...")
+    if file.startswith("http://") or file.startswith("https://"):
+        raise NotImplementedError("URL ingestion not implemented yet")
+        # data, error = repo.ingest_file_url(file, dataset_id, id_token)
+    else:
+        file_path = Path(file)
+        if not file_path.is_absolute():
+            file_path = glob(
+                str(root) + "/**/" + os.path.basename(file_path),
+                recursive=True,
+            )
+            if len(file_path) == 0:
+                raise Exception(f"File {file} not found")
+            elif len(file_path) > 1:
+                raise Exception(f"Multiple files found for {file}")
+            file_path = file_path[0]
+        if verbose:
+            logger("Computing checksum...")
+        checksum = calculate_checksum(file_path)
+        if verbose:
+            logger("Ingesting file...")
+        filesize = os.path.getsize(file_path)
+        # ingest small file
+        if filesize < 1024 * 1024 * 16:  # 16 MB
+            data, error = repo.ingest_file(
+                file_path,
+                dataset_id,
+                version,
+                parent,
+                id_token,
+                checksum,
+            )
+            if error:
+                raise Exception(error)
+            if verbose:
+                logger("Done")
+            return data
+        raise NotImplementedError("Large file ingestion not implemented yet")
+        # # ingest large file
+        # upload_id, parts = repo.prepare_large_upload(
+        #     file_path, dataset_id, checksum, id_token
+        # )
+        # repo.ingest_large_dataset(file_path, upload_id, id_token, parts)
+        # if verbose:
+        #     logger("\nCompleting upload...")
+        # data, error = repo.complete_upload(id_token, upload_id)
+    if error:
+        raise Exception(error)
+    if verbose:
+        logger("Done")
+    return data
 
 
 # @with_auth

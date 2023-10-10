@@ -9,6 +9,7 @@ from .datasets import (
     DescriptionLengthValidationError,
     UploadIdDoesNotExist,
     ChecksumMismatch,
+    DatasetVersionDoesNotExistError,
 )
 from .user import (
     UserUnauthorizedError,

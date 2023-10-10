@@ -15,9 +15,9 @@ from .routers.tags import retrieve_tags
 from .routers.datasets import (
     retrieve_dataset,
     create_dataset,
+    ingest_dataset,
     # delete_dataset,
     # download_dataset,
-    # ingest_dataset,
     # like_dataset,
     # update_dataset,
     # version_dataset,
@@ -45,7 +45,7 @@ app.include_router(retrieve_tags.router, prefix="/tags")
 # dataset
 app.include_router(retrieve_dataset.router, prefix="/datasets")
 app.include_router(create_dataset.router, prefix="/datasets")
-# app.include_router(ingest_dataset.router, prefix="/datasets")
+app.include_router(ingest_dataset.router, prefix="/datasets")
 # # app.include_router(upload_large_files.router, prefix="/datasets")
 # app.include_router(version_dataset.router, prefix="/datasets")
 # app.include_router(update_dataset.router, prefix="/datasets")

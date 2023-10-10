@@ -57,14 +57,11 @@ class MongoRepo:
     def update(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
 
+    def _update(self, collection, id, data):
+        return self.db[collection].update_one({"_id": ObjectId(id)}, data)
+
     def push(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
-
-    def add_to_set(self, collection, id, data):
-        return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
-
-    def update2(self, collection, query, value):
-        return self.db[collection].update_one(query, value)
 
     def delete(self, collection, value, field="id"):
         if field == "_id":
