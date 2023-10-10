@@ -23,9 +23,12 @@ def list(
 
 
 @app.command()
-def ingest(path: Path = typer.Option(..., "--path", "-p", help="Path to dataset")):
+def ingest(
+    path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
+):
     try:
-        ingest_dataset(path, typer.echo)
+        ingest_dataset(path, verbose, typer.echo)
     except Exception as e:
         typer.echo(e)
 

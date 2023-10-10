@@ -1,5 +1,5 @@
 from ...models import Dataset, STACDataset
-from ...errors import DatasetDoesNotExistError
+from ...errors import DatasetDoesNotExistError, UserUnauthorizedError
 from ...repos import DatasetsDBRepo
 
 
@@ -25,3 +25,10 @@ def retrieve_file(files_id, file_id):
     repo = DatasetsDBRepo()
     data = repo.retrieve_file(files_id, file_id)
     return data
+
+
+def retrieve_owned_dataset(dataset_id, uid):
+    dataset = retrieve_dataset(dataset_id)
+    if dataset.uid != uid:
+        raise UserUnauthorizedError()
+    return dataset

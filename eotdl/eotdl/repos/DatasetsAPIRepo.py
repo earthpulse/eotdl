@@ -11,7 +11,7 @@ class DatasetsAPIRepo(APIRepo):
     def retrieve_datasets(self, name, limit):
         url = self.url + "datasets"
         if name is not None:
-            url += "?name=" + name
+            url += "?match=" + name
         if limit is not None:
             if name is None:
                 url += "?limit=" + str(limit)
@@ -28,18 +28,27 @@ class DatasetsAPIRepo(APIRepo):
         )
         return self.format_response(response)
 
-    # def retrieve_dataset(self, name):
-    #     response = requests.get(self.url + "datasets?name=" + name)
-    #     return self.format_response(response)
+    def retrieve_dataset(self, name):
+        response = requests.get(self.url + "datasets?name=" + name)
+        return self.format_response(response)
 
-    # def create_version(self, dataset_id, id_token):
-    #     response = requests.post(
-    #         self.url + "datasets/version/" + dataset_id,
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if response.status_code == 200:
-    #         return response.json(), None
-    #     return None, response.json()["detail"]
+    def create_version(self, dataset_id, id_token):
+        response = requests.post(
+            self.url + "datasets/version/" + dataset_id,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(response)
+
+    def ingest_file(self, file, dataset_id, version, parent, id_token, checksum=None):
+        reponse = requests.post(
+            self.url + "datasets/" + dataset_id,
+            files={"file": open(file, "rb")},
+            data={"checksum": checksum, "version": version, "parent": parent}
+            if checksum
+            else None,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
 
     # def create_stac_dataset(self, name, id_token):
     #     response = requests.post(
@@ -77,19 +86,6 @@ class DatasetsAPIRepo(APIRepo):
     #         if progress:
     #             progress_bar.close()
     #         return path
-
-    # def ingest_file(self, file, dataset_id, version, parent, id_token, checksum=None):
-    #     reponse = requests.post(
-    #         self.url + "datasets/" + dataset_id,
-    #         files={"file": open(file, "rb")},
-    #         data={"checksum": checksum, "version": version, "parent": parent}
-    #         if checksum
-    #         else None,
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if reponse.status_code != 200:
-    #         return None, reponse.json()["detail"]
-    #     return reponse.json(), None
 
     # def ingest_file_url(self, file, dataset, id_token):
     #     reponse = requests.post(

@@ -1,4 +1,5 @@
 from .MongoRepo import MongoRepo
+from datetime import datetime
 
 
 class MongoDatasetsRepo(MongoRepo):
@@ -37,3 +38,13 @@ class MongoDatasetsRepo(MongoRepo):
 
     def decrease_user_dataset_count(self, uid):
         return self.increase_counter("users", "uid", uid, "dataset_count", -1)
+
+    def create_dataset_version(self, dataset, version):
+        return self._update(
+            "datasets",
+            dataset.id,
+            {
+                "$set": {"updated_at": datetime.now()},
+                "$push": {"versions": version},
+            },
+        )
