@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.DeleteDataset import DeleteDataset
+from ....src.usecases.datasets.delete_dataset import DeleteDataset
 from ....src.errors import DatasetDoesNotExistError
 
 
