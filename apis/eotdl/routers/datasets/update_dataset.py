@@ -6,10 +6,23 @@ from pydantic import BaseModel
 
 from ..auth import get_current_user
 from ...src.models import User
-from ...src.usecases.datasets import update_dataset
+from ...src.usecases.datasets import toggle_like_dataset, update_dataset
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+@router.put("/{id}/like", include_in_schema=False)
+def like(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return toggle_like_dataset(id, user)
+    except Exception as e:
+        logger.exception("datasets:like")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
 
 class UpdateBody(BaseModel):
     name: Optional[str] = None
@@ -20,15 +33,15 @@ class UpdateBody(BaseModel):
     license: Optional[str] = None
 
 
-@router.put("/{id}")
+@router.put("/{dataset_id}")
 def update(
-    id: str,
+    dataset_id: str,
     body: UpdateBody,
     user: User = Depends(get_current_user),
 ):
     try:
         return update_dataset(
-            id,
+            dataset_id,
             user,
             body.name,
             body.authors,

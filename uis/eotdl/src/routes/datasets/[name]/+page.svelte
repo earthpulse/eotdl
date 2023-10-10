@@ -11,7 +11,6 @@
 	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import formatFileSize from "../../../lib/datasets/formatFileSize.js";
 	import Update from "./Update.svelte";
-	import { stringify } from "gray-matter";
 
 	export let data;
 
@@ -24,7 +23,6 @@
 		authors,
 		source,
 		license,
-		files,
 		quality,
 		catalog,
 		versions,
@@ -90,9 +88,9 @@
 	// $: current_version = versions[versions.length - 1].version_id || 0;
 	$: current_version = versions[versions.length - 1];
 
-	$: filtered_files = files.filter((f) =>
-		f.versions.includes(current_version.version_id)
-	);
+	// $: filtered_files = files.filter((f) =>
+	// 	f.versions.includes(current_version.version_id)
+	// );
 </script>
 
 <svelte:head>
@@ -156,10 +154,10 @@
 				>
 				<p>{data.dataset.likes}</p>
 			</span>
-			<span class="flex flex-row items-center gap-1">
+			<!-- <span class="flex flex-row items-center gap-1">
 				<Download color="gray" size={20} />
 				<p>{data.dataset.downloads}</p>
-			</span>
+			</span> -->
 			<span class="flex flex-row items-center gap-1">
 				<Sd color="gray" size={20} />
 				<p>{formatFileSize(current_version.size)}</p>
@@ -178,7 +176,6 @@
 					current_version = versions.find(
 						(v) => v.version_id == version_id
 					);
-					console.log("ei", current_version);
 				}}
 			>
 				{#each versions as version}
@@ -253,7 +250,7 @@
 							</tbody>
 						</table>
 					</div>
-					<p>Files ({files.length}):</p>
+					<!-- <p>Files ({files.length}):</p>
 					<div class="overflow-auto w-full h-[300px]">
 						<table
 							class="table border-2 rounded-lg table-compact w-full"
@@ -262,7 +259,7 @@
 								<tr>
 									<th> Name </th>
 									<th>Size</th>
-									<!-- <th>Checksum (SHA1)</th> -->
+									<th>Checksum (SHA1)</th>
 								</tr>
 								{#each filtered_files as file}
 									<tr>
@@ -280,12 +277,12 @@
 											{file.name}
 										</td>
 										<td>{formatFileSize(file.size)}</td>
-										<!-- <td class="text-xs">{file.checksum}</td> -->
+										 <td class="text-xs">{file.checksum}</td> 
 									</tr>
 								{/each}
 							</tbody>
 						</table>
-					</div>
+					</div> -->
 				</div>
 			{:else}
 				<div>

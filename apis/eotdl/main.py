@@ -17,9 +17,8 @@ from .routers.datasets import (
     create_dataset,
     ingest_dataset,
     download_dataset,
+    update_dataset,
     # delete_dataset,
-    # like_dataset,
-    # update_dataset,
 )
 from .routers import admin  # , migrate
 
@@ -46,10 +45,9 @@ app.include_router(retrieve_dataset.router, prefix="/datasets")
 app.include_router(create_dataset.router, prefix="/datasets")
 app.include_router(ingest_dataset.router, prefix="/datasets")
 app.include_router(download_dataset.router, prefix="/datasets")
+app.include_router(update_dataset.router, prefix="/datasets")
 # # app.include_router(upload_large_files.router, prefix="/datasets")
-# app.include_router(update_dataset.router, prefix="/datasets")
 # app.include_router(delete_dataset.router, prefix="/datasets")
-# app.include_router(like_dataset.router, prefix="/datasets")
 # other
 app.include_router(admin.router)
 # app.include_router(migrate.router)

@@ -24,9 +24,8 @@ class MongoDatasetsRepo(MongoRepo):
     def retrieve_files(self, id):
         return self.retrieve("files", id)
 
-    def retrieve_file(self, files_id, file_id):
-        # given the id of a file, retrieve it from the list of files
-        return self.retrieve("files", id)
+    # def retrieve_file(self, files_id, file_id):
+    #     return self.retrieve("files", id)
 
     def delete_files(self, id):
         return self.delete("files", id)
@@ -52,3 +51,20 @@ class MongoDatasetsRepo(MongoRepo):
 
     def update_dataset(self, dataset_id, dataset):
         return self.update("datasets", dataset_id, dataset)
+
+    def retrieve_datasets_leaderboard(self):
+        return self.find_top("users", "dataset_count", 5)
+
+    def retrieve_popular_datasets(self, limit):
+        return self.find_top("datasets", "likes", limit)
+
+    def like_dataset(self, dataset_id, uid):
+        self.increase_counter("datasets", "_id", dataset_id, "likes", 1)
+        return self.append_to_list("users", "uid", uid, "liked_datasets", dataset_id)
+
+    def unlike_dataset(self, dataset_id, uid):
+        self.increase_counter("datasets", "_id", dataset_id, "likes", -1)
+        return self.remove_from_list("users", "uid", uid, "liked_datasets", dataset_id)
+
+    def retrieve_tags(self):
+        return self.retrieve("tags")

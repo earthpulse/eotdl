@@ -108,7 +108,7 @@
   >
     {#if quality == 0}
       <slot />
-      <input
+      <!-- <input
         type="file"
         accept={allowed_extensions}
         bind:files
@@ -116,7 +116,7 @@
         {required}
         multiple
         on:change={validate_files}
-      />
+      /> -->
       {#if !valid_file}
         <CLI>
           The file size limit is 1GB. Please, use the CLI to ingest larger
