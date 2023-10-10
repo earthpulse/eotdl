@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 from glob import glob
 
-from ....src.utils import calculate_checksum
+from ....utils import calculate_checksum
 
 
 class IngestFile:
@@ -53,7 +53,12 @@ class IngestFile:
             # ingest small file
             if filesize < 1024 * 1024 * 16:  # 16 MB
                 data, error = self.repo.ingest_file(
-                    file_path, inputs.dataset_id, inputs.version, inputs.parent, id_token, checksum
+                    file_path,
+                    inputs.dataset_id,
+                    inputs.version,
+                    inputs.parent,
+                    id_token,
+                    checksum,
                 )
                 if error:
                     raise Exception(error)

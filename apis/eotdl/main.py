@@ -13,12 +13,12 @@ from .routers.auth import (
 )
 from .routers.tags import retrieve_tags
 from .routers.datasets import (
-    create_dataset,
+    retrieve_dataset,
+    # create_dataset,
     # delete_dataset,
     # download_dataset,
     # ingest_dataset,
     # like_dataset,
-    # retrieve_dataset,
     # update_dataset,
     # version_dataset,
 )
@@ -43,11 +43,11 @@ app.include_router(accept_terms_and_conditions.router, prefix="/auth")
 # tags
 app.include_router(retrieve_tags.router, prefix="/tags")
 # dataset
-app.include_router(create_dataset.router, prefix="/datasets")
+app.include_router(retrieve_dataset.router, prefix="/datasets")
+# app.include_router(create_dataset.router, prefix="/datasets")
 # app.include_router(ingest_dataset.router, prefix="/datasets")
 # # app.include_router(upload_large_files.router, prefix="/datasets")
 # app.include_router(version_dataset.router, prefix="/datasets")
-# app.include_router(retrieve_dataset.router, prefix="/datasets")
 # app.include_router(update_dataset.router, prefix="/datasets")
 # app.include_router(download_dataset.router, prefix="/datasets")
 # app.include_router(delete_dataset.router, prefix="/datasets")
