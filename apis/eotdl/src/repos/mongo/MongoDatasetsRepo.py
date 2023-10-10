@@ -42,7 +42,7 @@ class MongoDatasetsRepo(MongoRepo):
     def create_dataset_version(self, dataset, version):
         return self._update(
             "datasets",
-            dataset.id,
+            {"id": dataset.id},
             {
                 "$set": {"updated_at": datetime.now()},
                 "$push": {"versions": version},

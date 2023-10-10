@@ -46,7 +46,7 @@ class MongoRepo:
         query = self.db[collection].find_one({field: value}, selector)
         return query
 
-    def retrieve2(self, collection, query, selector):
+    def _retrieve(self, collection, query, selector):
         return self.db[collection].find_one(query, selector)
 
     def retrieve_many(self, collection, values, field="_id"):
@@ -57,8 +57,8 @@ class MongoRepo:
     def update(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
 
-    def _update(self, collection, id, data):
-        return self.db[collection].update_one({"_id": ObjectId(id)}, data)
+    def _update(self, collection, query, data):
+        return self.db[collection].update_one(query, data)
 
     def push(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
