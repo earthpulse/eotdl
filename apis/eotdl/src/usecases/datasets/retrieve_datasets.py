@@ -2,9 +2,9 @@ from ...repos import DatasetsDBRepo
 from ...models import Dataset, STACDataset
 
 
-def retrieve_datasets(name=None, limit=None):
+def retrieve_datasets(match=None, limit=None):
     repo = DatasetsDBRepo()
-    data = repo.retrieve_datasets(name, limit)
+    data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
         if d["quality"] == 0:

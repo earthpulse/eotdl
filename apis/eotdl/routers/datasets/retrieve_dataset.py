@@ -8,6 +8,7 @@ from ...src.models import User
 from ...src.usecases.datasets import (
     retrieve_datasets,
     retrieve_dataset_by_name,
+    retrieve_dataset_files,
     # retrieve_datasets_leaderboard,
     # retrieve_liked_datasets,
     # retrieve_popular_datasets,
@@ -23,6 +24,19 @@ def retrieve(name: str = None, match: str = None, limit: Union[int, None] = None
         if name is None:
             return retrieve_datasets(match, limit)
         return retrieve_dataset_by_name(name)
+    except Exception as e:
+        logger.exception("datasets:retrieve")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/{dataset_id}/files")
+def retrieve_files(
+    dataset_id: str,
+    version: int = None,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return retrieve_dataset_files(dataset_id, user, version)
     except Exception as e:
         logger.exception("datasets:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

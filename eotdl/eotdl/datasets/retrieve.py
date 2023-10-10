@@ -1,4 +1,4 @@
-from ..repos import DatasetsAPIRepo
+from ..repos import DatasetsAPIRepo, FilesAPIRepo
 
 
 def retrieve_datasets(name=None, limit=None):
@@ -10,6 +10,22 @@ def retrieve_datasets(name=None, limit=None):
     return []
 
 
+def retrieve_dataset(name):
+    repo = DatasetsAPIRepo()
+    data, error = repo.retrieve_dataset(name)
+    if error:
+        raise Exception(error)
+    return data
+
+
+def retrieve_dataset_files(dataset_id, version):
+    repo = FilesAPIRepo()
+    data, error = repo.retrieve_dataset_files(dataset_id, version)
+    if error:
+        raise Exception(error)
+    return data
+
+
 # def list_datasets(pattern=None):
 #     datasets = retrieve_datasets()
 #     if pattern:
@@ -18,10 +34,3 @@ def retrieve_datasets(name=None, limit=None):
 #         valid = [name for name in names if regex.search(name)]
 #         return {name: datasets[name] for name in valid}
 #     return datasets
-
-# def retrieve_dataset(name):
-#     api_repo = APIRepo()
-#     retrieve = RetrieveDataset(api_repo)
-#     inputs = retrieve.Inputs(name=name)
-#     outputs = retrieve(inputs)
-#     return outputs.dataset

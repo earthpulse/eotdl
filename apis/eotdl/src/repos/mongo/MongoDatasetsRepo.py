@@ -7,6 +7,7 @@ class MongoDatasetsRepo(MongoRepo):
         super().__init__()
 
     def retrieve_datasets(self, name, limit):
+        match = {}
         if name is not None:
             match = {"name": {"$regex": name, "$options": "i"}}
         return self.retrieve("datasets", limit=limit, match=match)
@@ -48,3 +49,6 @@ class MongoDatasetsRepo(MongoRepo):
                 "$push": {"versions": version},
             },
         )
+
+    def update_dataset(self, dataset_id, dataset):
+        return self.update("datasets", dataset_id, dataset)

@@ -6,7 +6,7 @@ class MongoFilesRepo(MongoRepo):
         super().__init__()
 
     def retrieve_file(self, files_id, filename, version):
-        return self.retrieve2(
+        return self._retrieve(
             "files",
             {
                 "id": files_id,
@@ -42,3 +42,15 @@ class MongoFilesRepo(MongoRepo):
 
     def add_folder(self, files_id, folder):
         return self.push("files", files_id, {"folders": folder})
+
+    def retrieve_dataset_files(self, files_id, version):
+        return list(
+            self.db["files"].aggregate(
+                [
+                    {"$match": {"id": files_id}},
+                    {"$unwind": "$files"},
+                    {"$match": {"files.versions": version}},
+                    {"$group": {"_id": "$_id", "files": {"$push": "$files"}}},
+                ]
+            )
+        )
