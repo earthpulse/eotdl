@@ -1,1 +1,3 @@
-from .main import is_logged, auth, generate_logout_url, with_auth
+from .is_logged import is_logged
+from .auth import auth, with_auth
+from .logout import logout_user

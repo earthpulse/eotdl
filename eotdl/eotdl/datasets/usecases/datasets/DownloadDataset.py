@@ -5,7 +5,7 @@ from typing import Union
 from tqdm import tqdm
 
 from ....curation.stac import STACDataFrame
-from ....src.utils import calculate_checksum
+from ....utils import calculate_checksum
 
 
 class DownloadDataset:

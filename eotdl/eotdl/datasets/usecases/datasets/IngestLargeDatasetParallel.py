@@ -1,16 +1,17 @@
 from pydantic import BaseModel
-from ....src.utils import calculate_checksum
+from eotdl.eotdl.utils import calculate_checksum
 
 
-class IngestLargeDataset:
+class IngestLargeDatasetParallel:
     def __init__(self, repo, logger):
         self.repo = repo
-        self.logger = logger if logger else print
+        self.logger = logger
 
     class Inputs(BaseModel):
         name: str
         path: str = None
         user: dict
+        threads: int = 0
 
     class Outputs(BaseModel):
         dataset: dict
@@ -23,15 +24,22 @@ class IngestLargeDataset:
         if not inputs.path.endswith(".zip"):
             raise Exception("Only zip files are allowed")
         self.logger("Computing checksum...")
-        checksum = calculate_checksum(inputs.path)
+        checksum = calculate_checksum(
+            inputs.path
+        )  # should do this at chunk level, before and after
         self.logger(checksum)
         self.logger("Ingesting dataset...")
         id_token = inputs.user["id_token"]
         dataset_id, upload_id, parts = self.repo.prepare_large_upload(
             inputs.name, id_token, checksum
         )
-        self.repo.ingest_large_dataset(
-            inputs.path, upload_id, dataset_id, id_token, parts
+        self.repo.ingest_large_dataset_parallel(
+            inputs.path,
+            upload_id,
+            dataset_id,
+            id_token,
+            parts,
+            inputs.threads,
         )
         self.logger("\nCompleting upload...")
         data, error = self.repo.complete_upload(
