@@ -7,7 +7,7 @@ from ..auth import get_current_user
 from ...src.models import User
 from ...src.usecases.datasets import (
     retrieve_datasets,
-    retrieve_dataset_by_name,
+    # retrieve_dataset_by_name,
     # retrieve_datasets_leaderboard,
     # retrieve_liked_datasets,
     # retrieve_popular_datasets,
@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 @router.get("")
 def retrieve(name: str = None, limit: Union[int, None] = None):
     try:
-        if name is None:
-            return retrieve_datasets(limit)
-        return retrieve_dataset_by_name(name)
+        return retrieve_datasets(name, limit)
+        # if name is None:
+        #     return retrieve_datasets(limit)
+        # return retrieve_dataset_by_name(name)
     except Exception as e:
         logger.exception("datasets:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

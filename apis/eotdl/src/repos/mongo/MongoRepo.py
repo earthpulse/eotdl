@@ -22,20 +22,30 @@ class MongoRepo:
         return self.db[collection].insert_one(data).inserted_id
 
     def retrieve(
-        self, collection, value=None, field="id", limit=None, sort=None, order=None, selector=None
+        self,
+        collection,
+        value=None,
+        field="id",
+        limit=None,
+        sort=None,
+        order=None,
+        selector=None,
+        match={},
     ):
+        # retrieve all
         if value is None:
-            query = self.db[collection].find()  # TODO: find_many if field is provided
+            query = self.db[collection].find(match)
             if sort is not None:
                 query = query.sort(sort, order)
             if limit is not None:
                 query = query.limit(limit)
             return list(query)
+        # retrieve one
         if field == "_id":
             value = ObjectId(value)
         query = self.db[collection].find_one({field: value}, selector)
         return query
-    
+
     def retrieve2(self, collection, query, selector):
         return self.db[collection].find_one(query, selector)
 
@@ -52,7 +62,7 @@ class MongoRepo:
 
     def add_to_set(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
-    
+
     def update2(self, collection, query, value):
         return self.db[collection].update_one(query, value)
 
@@ -60,9 +70,6 @@ class MongoRepo:
         if field == "_id":
             value = ObjectId(value)
         return self.db[collection].delete_one({field: value})
-
-    def retrieve_all(self, collection):
-        return list(self.db[collection].find())
 
     def find_one(self, collection, data):
         return self.db[collection].find_one(data)

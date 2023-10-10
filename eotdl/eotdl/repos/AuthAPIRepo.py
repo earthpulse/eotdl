@@ -1,11 +1,11 @@
 import requests
 import os
+from .APIRepo import APIRepo
 
 
-class AuthAPIRepo:
-    def __init__(self, url=os.getenv("EOTDL_API_URL", "https://api.eotdl.com/")):
-        # def __init__(self, url=os.getenv("EOTDL_API_URL", "http://localhost:8010/")):
-        self.url = url
+class AuthAPIRepo(APIRepo):
+    def __init__(self, url=None):
+        super().__init__(url)
 
     def login(self):
         return requests.get(self.url + "auth/login")
