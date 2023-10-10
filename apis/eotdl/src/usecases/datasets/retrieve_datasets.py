@@ -1,16 +1,17 @@
-def retrieve_datasets():
-    # TODO
-    return
-    # data = self.db_repo.retrieve(
-    #     "datasets", limit=inputs.limit, sort="createdAt", order=-1
-    # )
-    # datasets = []
-    # for d in data:
-    #     if d["quality"] == 0:
-    #         datasets.append(Dataset(**d))
-    #     else:
-    #         datasets.append(STACDataset(**d))
-    # return self.Outputs(datasets=datasets)
+from ...repos import DatasetsDBRepo
+from ...models import Dataset, STACDataset
+
+
+def retrieve_datasets(name=None, limit=None):
+    repo = DatasetsDBRepo()
+    data = repo.retrieve_datasets(name, limit)
+    datasets = []
+    for d in data:
+        if d["quality"] == 0:
+            datasets.append(Dataset(**d))
+        else:
+            datasets.append(STACDataset(**d))
+    return datasets
 
 
 def retrieve_liked_datasets():

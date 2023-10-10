@@ -4,9 +4,9 @@ from .retrieve_datasets import (
     # retrieve_popular_datasets,
     # retrieve_datasets_leaderboard,
 )
-from .retrieve_dataset import retrieve_dataset_by_name
+from .create_dataset import create_dataset  # , create_stac_dataset
 
-# from .create_dataset import create_dataset, create_stac_dataset
+# from .retrieve_dataset import retrieve_dataset_by_name
 # from .delete_dataset import delete_dataset
 # from .download_dataset import download_dataset_file, download_stac_catalog
 # from .ingest_file import ingest_file, ingest_stac, ingest_file_url

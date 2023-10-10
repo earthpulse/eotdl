@@ -5,6 +5,11 @@ class MongoDatasetsRepo(MongoRepo):
     def __init__(self):
         super().__init__()
 
+    def retrieve_datasets(self, name, limit):
+        if name is not None:
+            match = {"name": {"$regex": name, "$options": "i"}}
+        return self.retrieve("datasets", limit=limit, match=match)
+
     def find_one_dataset_by_name(self, name):
         return self.find_one_by_name("datasets", name)
 
@@ -12,7 +17,7 @@ class MongoDatasetsRepo(MongoRepo):
         return self.retrieve("datasets", dataset_id)
 
     def persist_files(self, files, id):
-        return self.persist("files", files.dict(), id)
+        return self.persist("files", files, id)
 
     def retrieve_files(self, id):
         return self.retrieve("files", id)
