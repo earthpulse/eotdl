@@ -1,6 +1,6 @@
 from ...models import Dataset, STACDataset
 from ...errors import DatasetDoesNotExistError, UserUnauthorizedError
-from ...repos import DatasetsDBRepo
+from ...repos import DatasetsDBRepo, FilesDBRepo
 
 
 def retrieve(data):
@@ -32,3 +32,22 @@ def retrieve_owned_dataset(dataset_id, uid):
     if dataset.uid != uid:
         raise UserUnauthorizedError()
     return dataset
+
+
+def retrieve_dataset_files(dataset_id, user, version=None):
+    files_repo = FilesDBRepo()
+    dataset = retrieve_dataset(dataset_id)
+    versions = sorted(dataset.versions, key=lambda x: x.version_id)
+    if version is None:
+        version = versions[-1].version_id
+    if version not in [v.version_id for v in versions]:
+        raise Exception("Version not found")
+    data = files_repo.retrieve_dataset_files(dataset.files, version)
+    if len(data) != 1:
+        raise Exception("No files found")
+    files = (
+        [{"filename": f["name"], "version": f["version"]} for f in data[0]["files"]]
+        if len(data[0]["files"]) > 0
+        else []
+    )
+    return files

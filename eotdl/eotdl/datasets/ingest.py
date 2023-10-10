@@ -6,7 +6,7 @@ import os
 
 from ..auth import with_auth
 from .metadata import Metadata
-from ..repos import DatasetsAPIRepo
+from ..repos import DatasetsAPIRepo, FilesAPIRepo
 from .utils import calculate_checksum
 
 
@@ -61,7 +61,6 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     # upload files
     for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
         data = ingest_file(
-            repo,
             str(item),
             dataset_id,
             version,
@@ -74,7 +73,6 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
 
 
 def ingest_file(
-    repo,
     file,
     dataset_id,
     version,
@@ -87,6 +85,7 @@ def ingest_file(
     id_token = user["id_token"]
     if verbose:
         logger(f"Uploading file {file}...")
+    repo = FilesAPIRepo()
     if file.startswith("http://") or file.startswith("https://"):
         raise NotImplementedError("URL ingestion not implemented yet")
         # data, error = repo.ingest_file_url(file, dataset_id, id_token)

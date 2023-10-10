@@ -1,80 +1,65 @@
 import requests
 import os
+from tqdm import tqdm
 
 from ..repos import APIRepo
 
 
-class DatasetsAPIRepo(APIRepo):
+class FilesAPIRepo(APIRepo):
     def __init__(self, url=None):
         super().__init__(url)
 
-    def retrieve_datasets(self, name, limit):
-        url = self.url + "datasets"
-        if name is not None:
-            url += "?match=" + name
-        if limit is not None:
-            if name is None:
-                url += "?limit=" + str(limit)
-            else:
-                url += "&limit=" + str(limit)
+    def ingest_file(self, file, dataset_id, version, parent, id_token, checksum=None):
+        reponse = requests.post(
+            self.url + "datasets/" + dataset_id,
+            files={"file": open(file, "rb")},
+            data={"checksum": checksum, "version": version, "parent": parent}
+            if checksum
+            else None,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
+
+    def retrieve_dataset_files(self, dataset_id, version=None):
+        print(dataset_id, version)
+        url = self.url + "datasets/" + dataset_id + "/files"
+        if version is not None:
+            url += "?version=" + str(version)
         response = requests.get(url)
         return self.format_response(response)
 
-    def create_dataset(self, metadata, id_token):
-        response = requests.post(
-            self.url + "datasets",
-            json=metadata,
-            headers={"Authorization": "Bearer " + id_token},
+    def download_file(
+        self, dataset_id, file_name, id_token, path, file_version, version
+    ):
+        url = self.url + "datasets/" + dataset_id + "/download/" + file_name
+        if file_version is not None:
+            url += "?version=" + str(file_version)
+        return self.download_file_url(
+            url, file_name, f"{path}/v{version}", id_token, progress=True
         )
-        return self.format_response(response)
 
-    def retrieve_dataset(self, name):
-        response = requests.get(self.url + "datasets?name=" + name)
-        return self.format_response(response)
-
-    def create_version(self, dataset_id, id_token):
-        response = requests.post(
-            self.url + "datasets/version/" + dataset_id,
-            headers={"Authorization": "Bearer " + id_token},
-        )
-        return self.format_response(response)
-
-    # def create_stac_dataset(self, name, id_token):
-    #     response = requests.post(
-    #         self.url + "datasets/stac",
-    #         json={"name": name},
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if response.status_code == 200:
-    #         return response.json(), None
-    #     return None, response.json()["detail"]
-
-    # def download_file(self, dataset, dataset_id, file, id_token, path):
-    #     url = self.url + "datasets/" + dataset_id + "/download/" + file
-    #     return self.download_file_url(url, path, id_token, progress=True)
-
-    # def download_file_url(self, url, path, id_token, progress=False):
-    #     headers = {"Authorization": "Bearer " + id_token}
-    #     filename = url.split("/")[-1]
-    #     os.makedirs(path, exist_ok=True)
-    #     path = f"{path}/{filename}"
-    #     with requests.get(url, headers=headers, stream=True) as r:
-    #         r.raise_for_status()
-    #         total_size = int(r.headers.get("content-length", 0))
-    #         block_size = 1024 * 1024 * 10
-    #         if progress:
-    #             progress_bar = tqdm(
-    #                 total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
-    #             )
-    #         with open(path, "wb") as f:
-    #             for chunk in r.iter_content(block_size):
-    #                 if progress:
-    #                     progress_bar.update(len(chunk))
-    #                 if chunk:
-    #                     f.write(chunk)
-    #         if progress:
-    #             progress_bar.close()
-    #         return path
+    def download_file_url(self, url, filename, path, id_token, progress=False):
+        print("hola", url, path)
+        headers = {"Authorization": "Bearer " + id_token}
+        os.makedirs(path, exist_ok=True)
+        path = f"{path}/{filename}"
+        with requests.get(url, headers=headers, stream=True) as r:
+            r.raise_for_status()
+            total_size = int(r.headers.get("content-length", 0))
+            block_size = 1024 * 1024 * 10
+            if progress:
+                progress_bar = tqdm(
+                    total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+                )
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(block_size):
+                    if progress:
+                        progress_bar.update(len(chunk))
+                    if chunk:
+                        f.write(chunk)
+            if progress:
+                progress_bar.close()
+            return path
 
     # def ingest_file_url(self, file, dataset, id_token):
     #     reponse = requests.post(

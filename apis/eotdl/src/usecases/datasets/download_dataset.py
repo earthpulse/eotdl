@@ -1,15 +1,15 @@
-def download_dataset_file(dataset_id, filename, user):
-    # TODO
-    return
-    # db_repo, os_repo = DatasetsDBRepo(), OSRepo()
-    # # check_user_can_download_dataset(user)
-    # dataset = retrieve_dataset(dataset_id)
-    # # file = retrieve_file(dataset.files, filename)
-    # # report usage ???
-    # # increase download counter ???
-    # data_stream = os_repo.data_stream
-    # object_info = os_repo.object_info(dataset_id, filename)
-    # return data_stream, object_info, filename
+from ...repos import OSRepo
+
+
+def download_dataset_file(dataset_id, filename, user, version=None):
+    os_repo = OSRepo()
+    # check_user_can_download_dataset(user)
+    # TODO: if no version is provided, download most recent file ?
+    data_stream = os_repo.data_stream
+    filename = f"{filename}_{version}"
+    print("ieee", filename, version)
+    object_info = os_repo.object_info(dataset_id, filename)
+    return data_stream, object_info, filename
 
 
 def download_stac_catalog():
