@@ -33,7 +33,6 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
     #   - create files
     #   - create version
     for dataset in db["datasets"].find():
-        print("updating dataset", dataset["name"])
         size = dataset["size"]
         dataset_id = dataset["id"]
         if dataset["quality"] == 0:

@@ -25,7 +25,7 @@ def list(
 @app.command()
 def ingest(
     path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ):
     try:
         ingest_dataset(path, verbose, typer.echo)
@@ -43,7 +43,7 @@ def get(
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
     ),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ):
     try:
         dst_path = download_dataset(

@@ -26,30 +26,30 @@ async def ingest(
     fileversion: int = Form(None),
     user: User = Depends(get_current_user),
 ):
-    # try:
-    if filename:
-        assert not file, "File provided as both file and filename"
-        assert not parent, "Parent provided as both parent and filename"
-        assert fileversion, "Fileversion not provided"
-        print("ingesting existing file")
-        dataset_id, dataset_name, file_name = await ingest_existing_file(
-            filename, dataset_id, fileversion, version, checksum, user
-        )
-    else:
-        if file.size > 1000000000:  # 1GB
-            raise Exception("File too large, please use the CLI to upload large files.")
-        print("ingesting new file")
-        dataset_id, dataset_name, file_name = await ingest_file(
-            file, dataset_id, version, parent, checksum, user
-        )
-    return {
-        "dataset_id": dataset_id,
-        "dataset_name": dataset_name,
-        "file_name": file_name,
-    }
-    # except Exception as e:
-    #     logger.exception("datasets:ingest")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        if filename:
+            assert not file, "File provided as both file and filename"
+            assert not parent, "Parent provided as both parent and filename"
+            assert fileversion, "Fileversion not provided"
+            dataset_id, dataset_name, file_name = await ingest_existing_file(
+                filename, dataset_id, fileversion, version, checksum, user
+            )
+        else:
+            if file.size > 1000000000:  # 1GB
+                raise Exception(
+                    "File too large, please use the CLI to upload large files."
+                )
+            dataset_id, dataset_name, file_name = await ingest_file(
+                file, dataset_id, version, parent, checksum, user
+            )
+        return {
+            "dataset_id": dataset_id,
+            "dataset_name": dataset_name,
+            "file_name": file_name,
+        }
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 # class IngestSTACBody(BaseModel):

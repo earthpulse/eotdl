@@ -39,7 +39,7 @@ async def ingest_file(file, dataset_id, version, parent, checksum, user):
             # print(filename0, "already exists")
             file = files["files"][0]
             if file["checksum"] != checksum:  # the file has been modified
-                print("new version of", filename0, filename)
+                # print("new version of", filename0, filename)
                 new_file = File(
                     name=filename0,
                     size=file_size,
