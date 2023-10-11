@@ -20,8 +20,30 @@ class FilesAPIRepo(APIRepo):
         )
         return self.format_response(reponse)
 
+    def ingest_existing_file(
+        self,
+        filename,
+        dataset_id,
+        version,
+        file_version,
+        id_token,
+        checksum=None,
+    ):
+        reponse = requests.post(
+            self.url + "datasets/" + dataset_id,
+            data={
+                "checksum": checksum,
+                "version": version,
+                "filename": filename,
+                "fileversion": file_version,
+            }
+            if checksum
+            else None,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
+
     def retrieve_dataset_files(self, dataset_id, version=None):
-        print(dataset_id, version)
         url = self.url + "datasets/" + dataset_id + "/files"
         if version is not None:
             url += "?version=" + str(version)

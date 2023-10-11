@@ -34,7 +34,7 @@ def retrieve_owned_dataset(dataset_id, uid):
     return dataset
 
 
-def retrieve_dataset_files(dataset_id, user, version=None):
+def retrieve_dataset_files(dataset_id, version=None):
     files_repo = FilesDBRepo()
     dataset = retrieve_dataset(dataset_id)
     versions = sorted(dataset.versions, key=lambda x: x.version_id)
@@ -46,7 +46,10 @@ def retrieve_dataset_files(dataset_id, user, version=None):
     if len(data) != 1:
         raise Exception("No files found")
     files = (
-        [{"filename": f["name"], "version": f["version"]} for f in data[0]["files"]]
+        [
+            {"filename": f["name"], "version": f["version"], "checksum": f["checksum"]}
+            for f in data[0]["files"]
+        ]
         if len(data[0]["files"]) > 0
         else []
     )

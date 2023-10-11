@@ -6,6 +6,7 @@ import retrieveDataset from "../lib/datasets/retrieveDataset";
 import retrieveDatasets from "../lib/datasets/retrieveDatasets";
 import downloadDataset from "../lib/datasets/downloadDataset";
 import likeDataset from "../lib/datasets/likeDataset";
+import retrieveDatasetFiles from "../lib/datasets/retrieveDatasetFiles";
 
 
 const createDatasets = () => {
@@ -60,6 +61,9 @@ const createDatasets = () => {
     },
     like: async (id, token) => {
       likeDataset(id, token);
+    },
+    retrieveFiles: async (id, version, token) => {
+      return await retrieveDatasetFiles(id, version, token);
     }
   };
 };

@@ -33,7 +33,7 @@ class MinioRepo:
             part_size=10 * 1024 * 1024,
         )
         return file_version
-    
+
     def persist_file_url(self, url, dataset_id, filename):
         # This won't work for large files :(
         # but assets are expected to be small...
@@ -71,6 +71,13 @@ class MinioRepo:
         return self.client.stat_object(
             self.bucket, self.get_object(dataset_id, file_name)
         )
+
+    def exists(self, dataset_id, file_name):
+        try:
+            self.object_info(dataset_id, file_name)
+            return True
+        except:
+            return False
 
     async def calculate_checksum(self, dataset_id, file_name):
         data_stream = self.data_stream(dataset_id, file_name)
