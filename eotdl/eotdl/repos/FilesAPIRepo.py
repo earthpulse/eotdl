@@ -50,21 +50,18 @@ class FilesAPIRepo(APIRepo):
         response = requests.get(url)
         return self.format_response(response)
 
-    def download_file(
-        self, dataset_id, file_name, id_token, path, file_version, version
-    ):
+    def download_file(self, dataset_id, file_name, id_token, path, file_version):
         url = self.url + "datasets/" + dataset_id + "/download/" + file_name
         if file_version is not None:
             url += "?version=" + str(file_version)
-        return self.download_file_url(
-            url, file_name, f"{path}/v{version}", id_token, progress=True
-        )
+        return self.download_file_url(url, file_name, path, id_token)
 
     def download_file_url(self, url, filename, path, id_token, progress=False):
-        print("hola", url, path)
         headers = {"Authorization": "Bearer " + id_token}
-        os.makedirs(path, exist_ok=True)
         path = f"{path}/{filename}"
+        for i in range(1, len(path.split("/")) - 1):
+            # print("/".join(path.split("/")[: i + 1]))
+            os.makedirs("/".join(path.split("/")[: i + 1]), exist_ok=True)
         with requests.get(url, headers=headers, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))

@@ -11,14 +11,13 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/{dataset_id}/download/{filename}")
+@router.get("/{dataset_id}/download/{filename:path}")
 async def download_dataset(
     dataset_id: str,
     filename: str,  # podría ser un path... a/b/c/file.txt
     version: int = None,
     user: User = Depends(get_current_user),
 ):
-    print(filename)
     try:
         data_stream, object_info, _filename = download_dataset_file(
             dataset_id, filename, user, version

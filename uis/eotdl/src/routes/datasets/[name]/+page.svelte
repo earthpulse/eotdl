@@ -30,6 +30,7 @@
 
 	// $: current_version = versions[versions.length - 1].version_id || 0;
 	$: current_version = versions[versions.length - 1];
+	$: if (current_version) retrieve_files();
 
 	let createWriteStream;
 	let all_files = null;
@@ -38,6 +39,15 @@
 	let back = null;
 	const load = async () => {
 		await datasets.retrieve(fetch);
+		// await retrieve_files();
+		// only works in browser
+		const streamsaver = await import("streamsaver");
+		createWriteStream = streamsaver.createWriteStream;
+	};
+
+	const retrieve_files = async () => {
+		files = null;
+		folders = null;
 		all_files = await datasets.retrieveFiles(
 			id,
 			current_version.version_id
@@ -48,9 +58,6 @@
 			.map((f) => f.filename.split("/")[0]);
 		folders = [...new Set(folders)];
 		files = all_files.filter((f) => !f.filename.includes("/"));
-		// only works in browser
-		const streamsaver = await import("streamsaver");
-		createWriteStream = streamsaver.createWriteStream;
 	};
 
 	$: if (browser) load();

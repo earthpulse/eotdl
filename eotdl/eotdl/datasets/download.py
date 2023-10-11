@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from tqdm import tqdm
 
 from ..auth import with_auth
 from .retrieve import retrieve_dataset, retrieve_dataset_files
@@ -16,21 +17,30 @@ def download_dataset(
     logger=None,
     assets=False,
     force=False,
+    verbose=False,
     user=None,
 ):
     dataset = retrieve_dataset(dataset_name)
+    if version is None:
+        version = sorted(dataset["versions"], key=lambda v: v["version_id"])[-1][
+            "version_id"
+        ]
+    else:
+        assert version in [
+            v["version_id"] for v in dataset["versions"]
+        ], f"Version {version} not found"
     download_base_path = os.getenv(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )
     if path is None:
-        download_path = download_base_path + "/" + dataset_name
+        download_path = download_base_path + "/" + dataset_name + "/v" + str(version)
     else:
-        download_path = path + "/" + dataset_name
+        download_path = path + "/" + dataset_name + "/v" + str(version)
     # check if dataset already exists
     if os.path.exists(download_path) and not force:
         os.makedirs(download_path, exist_ok=True)
         raise Exception(
-            f"Dataset {dataset} already exists at {download_path}. To force download, use force=True or -f in the CLI."
+            f"Dataset `{dataset['name']} v{str(version)}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
         )
     if dataset["quality"] == 0:
         if file:
@@ -50,22 +60,22 @@ def download_dataset(
             # )
             # return Outputs(dst_path=dst_path)
         dataset_files = retrieve_dataset_files(dataset["id"], version)
-        print(dataset_files)
         repo = FilesAPIRepo()
-        for file in dataset_files:
+        for file in tqdm(dataset_files, disable=verbose, unit="file"):
             filename, file_version = file["filename"], file["version"]
-            logger(f"Downloading {file}...")
+            if verbose:
+                logger(f"Downloading {file['filename']}...")
             dst_path = repo.download_file(
                 dataset["id"],
                 filename,
                 user["id_token"],
                 download_path,
                 file_version,
-                version,
             )
             # if calculate_checksum(dst_path) != checksum:
             #     logger(f"Checksum for {file} does not match")
-            logger(f"Done")
+            if verbose:
+                logger(f"Done")
         return "/".join(dst_path.split("/")[:-1])
     else:
         raise NotImplementedError("Downloading a STAC dataset is not implemented")
