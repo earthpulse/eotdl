@@ -65,7 +65,7 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             dataset_id, version - 1
         )
         if error:
-            print(error)
+            # print("retreive dataset files error: ", error)
             current_files = []
     for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
         data = ingest_file(
@@ -102,15 +102,16 @@ def ingest_file(
     else:
         file_path = Path(file)
         if not file_path.is_absolute():
-            file_path = glob(
-                str(root) + "/**/" + os.path.basename(file_path),
-                recursive=True,
-            )
-            if len(file_path) == 0:
-                raise Exception(f"File {file} not found")
-            elif len(file_path) > 1:
-                raise Exception(f"Multiple files found for {file}")
-            file_path = file_path[0]
+            # file_path = glob(
+            #     str(root) + "/**/" + os.path.basename(file_path),
+            #     recursive=True,
+            # )
+            # if len(file_path) == 0:
+            #     raise Exception(f"File {file} not found")
+            # elif len(file_path) > 1:
+            #     raise Exception(f"Multiple files found for {file}")
+            # file_path = file_path[0]
+            file_path = str(file_path.absolute())
         if verbose:
             logger("Computing checksum...")
         checksum = calculate_checksum(file_path)
