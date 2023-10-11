@@ -32,11 +32,11 @@ You can logout by either deleting the credentials file or by executing the `logo
 
 You will receive a logout url that you can visit in case you want to authenticate with a different account.
 
-## Library
+<!-- ## Library
 
-<BadgeWarning>🚧 Not implemented yet</BadgeWarning>
+<BadgeWarning>🚧 Not implemented yet</BadgeWarning> -->
 
-## API
+<!-- ## API
 
 The interactive documentation is available at [https://api.eotdl.com/docs](https://api.eotdl.com/docs).
 
@@ -58,11 +58,11 @@ If you want to use a different account in the future, you will have to visit the
 
 <Api><Code>curl -X 'GET' \
   '{api_url}/auth/logout' \
-  -H 'accept: application/json'</Code></Api>
+  -H 'accept: application/json'</Code></Api> -->
 
 
 
-## UI 
+## User Interface
 
 In order to authenticate through the user interface, you just have to click on the `Sign In` button in the top right corner. You will be redirected to the authentication page. After authentication, you will be redirected back to the application.
 
