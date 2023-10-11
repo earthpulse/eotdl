@@ -28,9 +28,26 @@
 		versions,
 	} = data.dataset);
 
+	// $: current_version = versions[versions.length - 1].version_id || 0;
+	$: current_version = versions[versions.length - 1];
+
 	let createWriteStream;
+	let all_files = null;
+	let files = null;
+	let folders = null;
+	let back = null;
 	const load = async () => {
 		await datasets.retrieve(fetch);
+		all_files = await datasets.retrieveFiles(
+			id,
+			current_version.version_id
+		);
+		all_files = all_files.sort((f) => f.filename);
+		folders = all_files
+			.filter((f) => f.filename.includes("/"))
+			.map((f) => f.filename.split("/")[0]);
+		folders = [...new Set(folders)];
+		files = all_files.filter((f) => !f.filename.includes("/"));
 		// only works in browser
 		const streamsaver = await import("streamsaver");
 		createWriteStream = streamsaver.createWriteStream;
@@ -85,12 +102,23 @@
 		}
 	};
 
-	// $: current_version = versions[versions.length - 1].version_id || 0;
-	$: current_version = versions[versions.length - 1];
+	const filter_by_folder = (folder) => {
+		back = "root";
+		if (folder == "root") {
+			files = all_files.filter((f) => !f.filename.includes("/"));
+			folders = all_files
+				.filter((f) => f.filename.includes("/"))
+				.map((f) => f.filename.split("/")[0]);
+			back = null;
+		} else {
+			files = all_files.filter((f) => f.filename.includes(folder));
+			folders = files
+				.filter((f) => f.filename.includes("/"))
+				.map((f) => f.filename.split("/")[0]);
+		}
 
-	// $: filtered_files = files.filter((f) =>
-	// 	f.versions.includes(current_version.version_id)
-	// );
+		folders = [...new Set(folders)];
+	};
 </script>
 
 <svelte:head>
@@ -250,21 +278,22 @@
 							</tbody>
 						</table>
 					</div>
-					<!-- <p>Files ({files.length}):</p>
-					<div class="overflow-auto w-full h-[300px]">
-						<table
-							class="table border-2 rounded-lg table-compact w-full"
+					{#if files}
+						<p>Files:</p>
+						<div
+							class="overflow-auto w-full max-h-[200px] border-2"
 						>
-							<tbody>
-								<tr>
-									<th> Name </th>
-									<th>Size</th>
-									<th>Checksum (SHA1)</th>
-								</tr>
-								{#each filtered_files as file}
-									<tr>
-										<td class="flex flex-row gap-1">
-											{#if $user}
+							{#if back}
+								<button
+									class="hover:underline px-3"
+									on:click={() => filter_by_folder(back)}
+								>
+									...
+								</button>
+							{/if}
+							{#each files as file}
+								<p class="flex flex-row gap-1 px-3">
+									<!-- {#if $user}
 												<button
 													on:click={() =>
 														download(file.name)}
@@ -273,16 +302,24 @@
 														size={20}
 													/></button
 												>
-											{/if}
-											{file.name}
-										</td>
-										<td>{formatFileSize(file.size)}</td>
-										 <td class="text-xs">{file.checksum}</td> 
-									</tr>
-								{/each}
-							</tbody>
-						</table>
-					</div> -->
+											{/if} -->
+									{file.filename}
+								</p>
+								<!-- <td>{formatFileSize(file.size)}</td>
+										<td class="text-xs">{file.checksum}</td> -->
+							{/each}
+							{#each folders as folder}
+								<button
+									class="flex flex-row gap-1 cursor-pointer hover:underline px-3"
+									on:click={() => filter_by_folder(folder)}
+								>
+									{folder}
+								</button>
+							{/each}
+						</div>
+					{:else}
+						<p>Loading files ...</p>
+					{/if}
 				</div>
 			{:else}
 				<div>

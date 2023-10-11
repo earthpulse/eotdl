@@ -7,7 +7,10 @@ from .retrieve_datasets import (
 from .create_dataset import create_dataset  # , create_stac_dataset
 from .retrieve_dataset import retrieve_dataset_by_name, retrieve_dataset_files
 from .create_dataset_version import create_dataset_version
-from .ingest_file import ingest_file  # , ingest_stac, ingest_file_url
+from .ingest_file import (
+    ingest_file,
+    ingest_existing_file,
+)  # , ingest_stac, ingest_file_url
 from .download_dataset import download_dataset_file  # , download_stac_catalog
 from .update_dataset import toggle_like_dataset, update_dataset
 

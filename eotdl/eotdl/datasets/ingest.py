@@ -21,7 +21,7 @@ def ingest_dataset(path, verbose=False, logger=print):
 
 @with_auth
 def ingest_folder(folder, verbose=False, logger=print, user=None):
-    repo = DatasetsAPIRepo()
+    repo, files_repo = DatasetsAPIRepo(), FilesAPIRepo()
     logger(f"Uploading directory {folder}...")
     # get all files in directory recursively
     items = [Path(item) for item in glob(str(folder) + "/**/*", recursive=True)]
@@ -59,6 +59,14 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
         raise Exception(error)
     version = data["version"]
     # upload files
+    current_files = []
+    if version > 1:
+        current_files, error = files_repo.retrieve_dataset_files(
+            dataset_id, version - 1
+        )
+        if error:
+            print(error)
+            current_files = []
     for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
         data = ingest_file(
             str(item),
@@ -68,6 +76,7 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             logger=logger,
             verbose=verbose,
             user=user,
+            current_files=current_files,
         )
     return data
 
@@ -81,6 +90,7 @@ def ingest_file(
     verbose=True,
     root=None,
     user=None,
+    current_files=[],
 ):
     id_token = user["id_token"]
     if verbose:
@@ -104,6 +114,32 @@ def ingest_file(
         if verbose:
             logger("Computing checksum...")
         checksum = calculate_checksum(file_path)
+        # check if file already exists in dataset
+        filename = os.path.basename(file_path)
+        if parent != ".":
+            filename = parent + "/" + filename
+        if len(current_files) > 0:
+            matches = [
+                f
+                for f in current_files
+                if f["filename"] == filename and f["checksum"] == checksum
+            ]  # this could slow down ingestion in large datasets... should think of faster search algos, puede que sea mejor hacer el re-upload simplemente...
+            if len(matches) == 1:
+                if verbose:
+                    print(f"File {file_path} already exists in dataset, skipping...")
+                data, error = repo.ingest_existing_file(
+                    filename,
+                    dataset_id,
+                    version,
+                    matches[0]["version"],
+                    id_token,
+                    checksum,
+                )
+                if error:
+                    raise Exception(error)
+                if verbose:
+                    logger("Done")
+                return data
         if verbose:
             logger("Ingesting file...")
         filesize = os.path.getsize(file_path)

@@ -33,13 +33,12 @@ def retrieve(name: str = None, match: str = None, limit: Union[int, None] = None
 def retrieve_files(
     dataset_id: str,
     version: int = None,
-    user: User = Depends(get_current_user),
 ):
-    try:
-        return retrieve_dataset_files(dataset_id, user, version)
-    except Exception as e:
-        logger.exception("datasets:retrieve")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    return retrieve_dataset_files(dataset_id, version)
+    # except Exception as e:
+    #     logger.exception("datasets:retrieve")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("/leaderboard", include_in_schema=False)
@@ -53,11 +52,11 @@ def leaderboard():
 
 @router.get("/popular", include_in_schema=False)
 def retrieve_popular(limit: Union[int, None] = None):
-    # try:
-    return retrieve_popular_datasets(limit)
-    # except Exception as e:
-    #     logger.exception("datasets:retrieve_popular")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        return retrieve_popular_datasets(limit)
+    except Exception as e:
+        logger.exception("datasets:retrieve_popular")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 # @router.get("/liked", include_in_schema=False)
