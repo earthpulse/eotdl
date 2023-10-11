@@ -20,7 +20,7 @@ from .routers.datasets import (
     update_dataset,
     # delete_dataset,
 )
-from .routers import admin, migrate
+from .routers import admin  # , migrate
 
 app = FastAPI()
 app.add_middleware(
@@ -50,7 +50,7 @@ app.include_router(update_dataset.router, prefix="/datasets")
 # app.include_router(delete_dataset.router, prefix="/datasets")
 # other
 app.include_router(admin.router)
-app.include_router(migrate.router)
+# app.include_router(migrate.router)
 
 logging.basicConfig(
     filename="/tmp/eotdl-api.log",
