@@ -43,10 +43,11 @@ def get(
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
     ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ):
     try:
         dst_path = download_dataset(
-            dataset, version, path, file, typer.echo, assets, force
+            dataset, version, path, file, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:
