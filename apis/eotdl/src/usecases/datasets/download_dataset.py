@@ -1,10 +1,10 @@
 from ...repos import OSRepo
-from .retrieve_dataset import retrieve_owned_dataset
+from .retrieve_dataset import retrieve_dataset
 
 
 def download_dataset_file(dataset_id, filename, user, version=None):
     os_repo = OSRepo()
-    retrieve_owned_dataset(dataset_id, user.uid)
+    retrieve_dataset(dataset_id)
     # check_user_can_download_dataset(user)
     # TODO: if no version is provided, download most recent file ?
     data_stream = os_repo.data_stream

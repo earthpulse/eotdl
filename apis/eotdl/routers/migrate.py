@@ -33,6 +33,10 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
     #   - create files
     #   - create version
     for dataset in db["datasets"].find():
+        if (
+            "size" not in dataset
+        ):  # copy large files takes a while and api timesout, make sure this can be run multiple times
+            continue
         size = dataset["size"]
         dataset_id = dataset["id"]
         if dataset["quality"] == 0:
@@ -48,14 +52,15 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
                     )
                 )
                 new_object_name = f"{dataset_id}/{f['name']}_1"
+                current_name = f"{dataset_id}/{f['name']}"
                 if size < 1024 * 1024 * 5:
                     # minio errors when copying files larger than 5GB
                     s3.copy_object(
-                        bucket, new_object_name, CopySource(bucket, f["name"])
+                        bucket, new_object_name, CopySource(bucket, current_name)
                     )
                 else:
                     config = TransferConfig(multipart_threshold=5 * 1024 * 1024)  # 5Mb
-                    copy_source = {"Bucket": bucket, "Key": f["name"]}
+                    copy_source = {"Bucket": bucket, "Key": current_name}
                     boto.copy(copy_source, bucket, new_object_name, Config=config)
             files_id = ObjectId()
             data = Files(id=str(files_id), dataset=dataset_id, files=files).model_dump()
