@@ -34,11 +34,11 @@ def retrieve_files(
     dataset_id: str,
     version: int = None,
 ):
-    # try:
-    return retrieve_dataset_files(dataset_id, version)
-    # except Exception as e:
-    #     logger.exception("datasets:retrieve")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        return retrieve_dataset_files(dataset_id, version)
+    except Exception as e:
+        logger.exception("datasets:retrieve")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("/leaderboard", include_in_schema=False)
