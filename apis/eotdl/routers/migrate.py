@@ -30,9 +30,9 @@ def migrate_db(isAdmin: bool = Depends(key_auth)):
     if not collection_name in collections:
         db[collection_name].insert_many(db["users"].find())
     # update users
-    for user in db["user"].find():
+    for user in db["users"].find():
         if "id" not in user:
-            db["user"].update_one(
+            db["users"].update_one(
                 {"_id": user["_id"]}, {"$set": {"id": str(user["_id"])}}
             )
     # update datasets
