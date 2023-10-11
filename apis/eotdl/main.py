@@ -58,7 +58,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
-VERSION = "2023.10.16"
+VERSION = "2023.10.17"
 
 
 @app.get("/", name="home", include_in_schema=False)
