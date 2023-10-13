@@ -17,7 +17,7 @@ The following constraints apply to the dataset name:
 - It must be between 3 and 45 characters long
 - It can only contain alphanumeric characters and dashes.
 
-## User interface
+<!-- ## User interface
 
 <UI>In the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> section, use the INGEST button to upload a dataset.</UI>
 
@@ -27,13 +27,13 @@ A limit of **10 files** per dataset is enforced. Additionally, the file size lim
 
 You'll need to be logged in to ingest datasets.
 
-You can use the `EDIT` button in the dataset page to update the information or data.
+You can use the `EDIT` button in the dataset page to update the information or data. -->
 
 ## CLI 
 
-The CLI is the most convenient way to ingest large datasets. You can ingest a dataset using the following CLI command:
+The CLI is the most convenient way to ingest datasets. You can ingest a dataset using the following CLI command:
 
-<CLI><Code>eotdl datasets ingest {'<'}dataset-path></Code></CLI>
+<CLI><Code>eotdl datasets ingest "dataset path"</Code></CLI>
 
 Where `dataset-path` is the path to a folder containing your dataset. 
 
@@ -51,28 +51,13 @@ source: link to source
 
 If this file is not present, the ingestion process will fail.
 
-> ⚠ The CLI will NOT upload files recursively, so make sure to comporess subfolders with multiple files (zip, tar or tar.gz).
-
-A limit of **10 files** per dataset is enforced. Additionally, the file size limit is **5 TB**. If you need to ingest larger files, please get in touch with us.
-
 > After uploading a dataset with the CLI we recommend visiting the dataset page to fill in the rest of the information.
 
-You can update your dataset in multiple ways. If you add more files to your local folder and run the `ingest` command again, the new files will be ingested. However,
-existing filed will not be automatically overwritten. If you want to update an existing file, you can use the `--force` option:
-
-<CLI><Code>eotdl datasets ingest {'<'}dataset-path> --force</Code></CLI>
-
-This will force the re-upload of all files in the dataset.
-
-In the case that you delete a file from your local folder, it will not be deleted from the hosted dataset. If you want to delete a file from the dataset, you can use the `--delete` option:
-
-<CLI><Code>eotdl datasets ingest {'<'}dataset-path> --delete</Code></CLI>
-
-This will synchronize the dataset with your local folder, deleting any files that are not present locally.
+You can update your dataset in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
 
 For Q1+ datasets, a file called `catalog.json` is expected in the root of the folder containing the STAC metadata for your dataset, that will be used as an entrypoint to ingest all the assets.
 
-## API 
+<!-- ## API 
 
 In order to ingest a dataset using the API, you must first create the dataset:
 
@@ -112,7 +97,7 @@ You can also fill in additional information about the dataset with the following
   -H 'accept: application/json' \
   -H 'Authorization: Bearer {'<'}your-token> \
   -H 'Content-Type: application/json' \
-  -F 'file=@{'<'}dataset-path>;type=application/zip' \
+  -F 'file=@"dataset path";type=application/zip' \
   -d '{'{'}
     "name": "new-name",
     "description": "dataset description",
@@ -143,4 +128,4 @@ If you ingest a file that already exists, it will be overwritten. If you want to
   'https://api.eotdl.com/datasets/dataset-id/file/file-name' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer {'<'}your-token> \
-  -H 'Content-Type: application/json'</Code></Api>
+  -H 'Content-Type: application/json'</Code></Api> -->

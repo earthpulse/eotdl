@@ -1,6 +1,6 @@
 <script>
 	import { datasets } from "../../stores/datasets";
-	import { user, id_token } from "../../stores/auth";
+	import { user } from "../../stores/auth";
 	import Leaderboard from "./Leaderboard.svelte";
 	import Card from "./Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
@@ -97,18 +97,22 @@
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
-					<p
+					<!-- <p
 						class="text-gray-400 hover:underline cursor-pointer text-sm"
 					>
 						advanced filtering
-					</p>
+					</p> -->
 					<button on:click={toggleLike}
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
 				</span>
-				<Ingest tags={data?.tags} />
+				<!-- <Ingest tags={data?.tags} /> -->
+				<a
+					href="/docs/datasets/ingest"
+					class="text-green-200 hover:underline">Ingest dataset</a
+				>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>

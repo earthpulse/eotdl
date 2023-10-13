@@ -1,25 +1,20 @@
 import pytest 
-from unittest import mock
+from unittest.mock import patch
 
-from ....src.usecases.tags.RetrieveTags import RetrieveTags
+from ....src.usecases.tags import retrieve_tags 
 
-def test_retrieve_tags():
-    repo = mock.Mock()
-    tags = [{'name': 'tag1'}, {'name': 'tag2'}]
-    repo.retrieve.return_value = tags
-    retrieve = RetrieveTags(repo)
-    inputs = RetrieveTags.Inputs()
-    outputs = retrieve(inputs)
-    assert outputs.tags == ['tag1', 'tag2']
-    repo.retrieve.return_value = [] 
-    outputs = retrieve(inputs)
-    assert outputs.tags == []
+@patch('api.src.usecases.tags.retrieve_tags.TagsDBRepo')
+def test_retrieve_tags(mocked_repo):
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.retrieve_tags.return_value = [{'name': 'tag1'}, {'name': 'tag2'}]
+    result = retrieve_tags()
+    assert result == ['tag1', 'tag2']
+    mocked_repo_instance.retrieve_tags.assert_called_once()
     
-def test_retrieve_tags_fail():
-    repo = mock.Mock()
-    tags = [{'name': 'tag1'}, {'kk': 'tag2'}]
-    repo.retrieve.return_value = tags
-    retrieve = RetrieveTags(repo)
-    inputs = RetrieveTags.Inputs()
+@patch('api.src.usecases.tags.retrieve_tags.TagsDBRepo')
+def test_retrieve_tags_fail(mocked_repo):
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.retrieve_tags.return_value = [{'name': 'tag1'}, {'kk': 'tag2'}]
     with pytest.raises(Exception):
-    	retrieve(inputs)
+        retrieve_tags()
+    mocked_repo_instance.retrieve_tags.assert_called_once()

@@ -1,16 +1,13 @@
 import pytest
-from unittest import mock
+from unittest.mock import patch
 
-from ....src.usecases.auth.GenerateToken import GenerateToken
+from ....src.usecases.auth import generate_id_token
 
-
-def test_generate_token():
-    repo = mock.Mock()
-    id_token = {"id_token": "123"}
-    repo.generate_id_token.return_value = id_token
-    token = GenerateToken(repo)
-    code = "test"
-    inputs = GenerateToken.Inputs(code=code)
-    outputs = token(inputs)
-    assert outputs.token == id_token
-    repo.generate_id_token.assert_called_once_with(code)
+@patch('api.src.usecases.auth.generate_token.AuthRepo')
+def test_generate_token(mocked_repo):
+    mock_return_value = "test_token"
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.generate_id_token.return_value = mock_return_value
+    result = generate_id_token('test_code')
+    assert result == mock_return_value
+    mocked_repo_instance.generate_id_token.assert_called_once()

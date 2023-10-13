@@ -16,6 +16,7 @@ class TermsAndConditions(BaseModel):
 
 
 class User(BaseModel):
+    id: str
     uid: str
     name: str
     email: str

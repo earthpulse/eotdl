@@ -45,6 +45,7 @@ datasets = [
 
 users = [
     {
+        "id": str(ObjectId()),
         "uid": "123",
         "name": "test",
         "email": "test",
@@ -53,6 +54,7 @@ users = [
         "dataset_count": 3,
     },
     {
+        "id": str(ObjectId()),
         "uid": "456",
         "name": "test2",
         "email": "test2",
