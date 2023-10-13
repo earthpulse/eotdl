@@ -18,7 +18,6 @@ class ImageNameLabeler(LabelExtensionObject):
     def __init__(self) -> None:
         super().__init__()
 
-    @classmethod
     def generate_stac_labels(
         self,
         catalog: Union[pystac.Catalog, str],

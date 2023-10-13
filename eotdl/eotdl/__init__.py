@@ -1,7 +1,5 @@
 from .curation import *
 
-from .hello import say_hello, hola
-
 from .access import (SHClient,
                      SHParametersFeature,
                      EvalScripts,
