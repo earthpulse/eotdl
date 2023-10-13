@@ -4,7 +4,7 @@ Metadata utilities for STAC
 
 import json
 
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, basename
 from os import listdir
 
 
@@ -23,13 +23,14 @@ def get_item_metadata(raster_path: str) -> str:
     else:
         # If there is no metadata.json file in the directory, check if there is
         # a json file with the same name as the raster file
-        raster_name = raster_path.split('/')[-1]
-        raster_name = raster_name.split('.')[0]
+        raster_name = basename(raster_path).split('.')[0]
         metadata_json = join(raster_dir_path, f'{raster_name}.json')
         if not exists(metadata_json):
-            # If there is no metadata.json file in the directory, return None
+            # If there is no metadata file in the directory, return None
             return None
     
-    # Open the metadata.json file and return it
+    # Open the metadata file and return it
     with open(metadata_json, 'r') as f:
         metadata = json.load(f)
+    
+    return metadata

@@ -1,5 +1,5 @@
 '''
-Module for labeling strategy
+Module for the labeling strategy when creating a STAC catalog from a dataframe
 '''
 
 import pystac
@@ -40,7 +40,7 @@ class UnlabeledStrategy(LabelingStrategy):
 class LabeledStrategy(LabelingStrategy):
     """
     Assumes the images are already labeled, and returns the labels.
-    The images filenames must follow the pattern: <image_id>_<label>.<ext> or <image_id>-<label>.<ext>
+    The images filenames must follow the pattern: <label>_<id>.<ext> or <label>-<id>.<ext>
     """
 
     def __init__(self):
