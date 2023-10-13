@@ -125,9 +125,9 @@ class ScaneoLabeler(LabelExtensionObject):
         try:
             pystac.validation.validate(catalog)
             catalog.normalize_and_save(dirname(catalog.get_self_href()), pystac.CatalogType.SELF_CONTAINED)
+            print('Success on labels generation!')
         except pystac.STACValidationError as e:
-            print(f"Catalog validation error: {e}")
-            return
+            raise pystac.STACError(f"Catalog validation error: {e}")
 
     def add_geojson_to_item(self, 
                             item: pystac.Item,

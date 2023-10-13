@@ -5,12 +5,13 @@ import json
 import random
 
 import pystac
+
 from tqdm import tqdm
 from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
 from pystac.extensions.label import LabelExtension
 from pystac import STACValidationError
 from shutil import rmtree
-from os.path import dirname
+from os.path import dirname, exists
 from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
 from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
@@ -353,11 +354,10 @@ class MLDatasetQualityMetrics:
 
             return label_properties
     
-        print("Calculating classes balance...")
         labels = list(
             set(
                 [item 
-                 for item in tqdm(catalog.get_items(recursive=True)) 
+                 for item in tqdm(catalog.get_items(recursive=True), desc="Calculating classes balance...") 
                  if LabelExtension.has_extension(item)
                  ]
                 )
@@ -381,10 +381,17 @@ class MLDatasetQualityMetrics:
                         f"The file {asset_path} does not exist. Make sure the assets hrefs are correct"
                     )
                 # Get the property
-                property_value = label_data["features"][0]["properties"][property]
-                if property_value not in properties:
-                    properties[property_value] = 0
-                properties[property_value] += 1
+                for feature in label_data["features"]:
+                    if property in feature["properties"]:
+                        property_value = feature["properties"][property]
+                    else:
+                        if feature["properties"]["labels"]:
+                            property_value = feature["properties"]["labels"][0]
+                        else:
+                            continue
+                    if property_value not in properties:
+                        properties[property_value] = 0
+                    properties[property_value] += 1
             
             # Create the property balance dict
             total_labels = sum(properties.values())
@@ -475,7 +482,7 @@ def add_ml_extension(
     try:
         print("Validating and saving...")
         catalog_ml_dataset.validate()
-        rmtree(destination) if destination else None # Remove the old catalog and replace it with the new one
+        rmtree(destination) if exists(destination) else None # Remove the old catalog and replace it with the new one
         catalog_ml_dataset.normalize_and_save(root_href=destination, 
                                               catalog_type=catalog_type
                                               )
