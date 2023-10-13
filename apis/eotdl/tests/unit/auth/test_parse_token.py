@@ -1,16 +1,13 @@
 import pytest
-from unittest import mock
+from unittest.mock import patch
 
-from ....src.usecases.auth.ParseToken import ParseToken
+from ....src.usecases.auth import parse_token
 
-
-def test_parse_token():
-    repo = mock.Mock()
-    data = {"username": "123"}
-    repo.parse_token.return_value = data
-    parse = ParseToken(repo)
-    token = "test"
-    inputs = ParseToken.Inputs(token=token)
-    outputs = parse(inputs)
-    assert outputs.payload == data
-    repo.parse_token.assert_called_once_with(token)
+@patch('api.src.usecases.auth.parse_token.AuthRepo')
+def test_parse_token(mocked_repo):
+    mock_return_value = "parsed_token"
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.parse_token.return_value = mock_return_value
+    result = parse_token('token')
+    assert result == mock_return_value
+    mocked_repo_instance.parse_token.assert_called_once()

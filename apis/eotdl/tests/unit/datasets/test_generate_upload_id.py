@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.GenerateUploadId import GenerateUploadId
+from ....src.usecases.datasets.upload_large_file import GenerateUploadId
 from ....src.errors import DatasetAlreadyExistsError, TierLimitError
 
 

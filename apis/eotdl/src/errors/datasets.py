@@ -66,3 +66,10 @@ class ChecksumMismatch(Exception):
 
     def __init__(self):
         super().__init__(self.message)
+
+
+class DatasetVersionDoesNotExistError(Exception):
+    message = "Dataset version doesn't exist"
+
+    def __init__(self):
+        super().__init__(self.message)

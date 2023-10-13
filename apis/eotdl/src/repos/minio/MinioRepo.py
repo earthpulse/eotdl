@@ -3,6 +3,7 @@ import os
 import hashlib
 import requests
 from io import BytesIO
+import copy
 
 
 class MinioRepo:
@@ -16,14 +17,22 @@ class MinioRepo:
         return f"{dataset_id}/{file_name}"
 
     def persist_file(self, file, dataset_id, filename):
-        object = self.get_object(dataset_id, filename)
-        return self.client.put_object(
+        file_version = 1
+        while True:
+            try:
+                object = self.get_object(dataset_id, f"{filename}_{file_version}")
+                self.client.stat_object(self.bucket, object)
+                file_version += 1
+            except:
+                break
+        self.client.put_object(
             self.bucket,
             object,
             file,
             length=-1,
             part_size=10 * 1024 * 1024,
         )
+        return file_version
 
     def persist_file_url(self, url, dataset_id, filename):
         # This won't work for large files :(
@@ -62,6 +71,13 @@ class MinioRepo:
         return self.client.stat_object(
             self.bucket, self.get_object(dataset_id, file_name)
         )
+
+    def exists(self, dataset_id, file_name):
+        try:
+            self.object_info(dataset_id, file_name)
+            return True
+        except:
+            return False
 
     async def calculate_checksum(self, dataset_id, file_name):
         data_stream = self.data_stream(dataset_id, file_name)

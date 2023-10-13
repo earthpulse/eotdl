@@ -38,13 +38,17 @@
                     <HeartOutline color={liked ? "red" : "gray"} />
                     <p>{dataset.likes}</p>
                 </span>
-                <span class="flex flex-row items-center gap-1">
+                <!-- <span class="flex flex-row items-center gap-1">
                     <Download color="gray" size={14} />
                     <p>{dataset.downloads}</p>
-                </span>
+                </span> -->
                 <span class="flex flex-row items-center gap-1">
                     <Sd color="gray" size={14} />
-                    <p>{formatFileSize(dataset.size)}</p>
+                    <p>
+                        {formatFileSize(
+                            dataset.versions[dataset.versions.length - 1].size
+                        )}
+                    </p>
                 </span>
                 <span class="flex flex-row items-center gap-1">
                     <CheckDecagramOutline color="gray" size={14} />

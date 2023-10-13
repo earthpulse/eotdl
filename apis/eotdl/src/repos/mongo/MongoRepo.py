@@ -7,8 +7,10 @@ class MongoRepo:
     def __init__(self):
         self.db = get_db()
 
-    def exists(self, collection, id):
-        return self.db[collection].find_one({"_id": ObjectId(id)}) is not None
+    def exists(self, collection, value, field="_id"):
+        if field == "_id":
+            value = ObjectId(value)
+        return self.db[collection].find_one({field: value}) is not None
 
     def generate_id(self):
         return str(ObjectId())
@@ -20,19 +22,32 @@ class MongoRepo:
         return self.db[collection].insert_one(data).inserted_id
 
     def retrieve(
-        self, collection, value=None, field="id", limit=None, sort=None, order=None
+        self,
+        collection,
+        value=None,
+        field="id",
+        limit=None,
+        sort=None,
+        order=None,
+        selector=None,
+        match={},
     ):
+        # retrieve all
         if value is None:
-            query = self.db[collection].find()  # TODO: find_many if field is provided
+            query = self.db[collection].find(match)
             if sort is not None:
                 query = query.sort(sort, order)
             if limit is not None:
                 query = query.limit(limit)
             return list(query)
+        # retrieve one
         if field == "_id":
             value = ObjectId(value)
-        query = self.db[collection].find_one({field: value})
+        query = self.db[collection].find_one({field: value}, selector)
         return query
+
+    def _retrieve(self, collection, query, selector):
+        return self.db[collection].find_one(query, selector)
 
     def retrieve_many(self, collection, values, field="_id"):
         if field == "_id":
@@ -42,13 +57,16 @@ class MongoRepo:
     def update(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
 
+    def _update(self, collection, query, data):
+        return self.db[collection].update_one(query, data)
+
+    def push(self, collection, id, data):
+        return self.db[collection].update_one({"_id": ObjectId(id)}, {"$push": data})
+
     def delete(self, collection, value, field="id"):
         if field == "_id":
             value = ObjectId(value)
         return self.db[collection].delete_one({field: value})
-
-    def retrieve_all(self, collection):
-        return list(self.db[collection].find())
 
     def find_one(self, collection, data):
         return self.db[collection].find_one(data)

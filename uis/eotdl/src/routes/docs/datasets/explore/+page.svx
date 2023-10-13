@@ -16,7 +16,7 @@ The easier and more intuitive way to explore the available datasets is through t
 
 <UI>Visit the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> section to explore all the available datasets.</UI>
 
-You can click on a dataset card to see more information about it, download it, etc.
+You can click on a dataset card to see more information about it, explore it in a notebook or evan label the data.
 
 
 ## CLI 
@@ -25,7 +25,13 @@ You can retrieve the list of all the datasets using the following CLI command:
 
 <CLI><Code>eotdl datasets list</Code></CLI>
 
-## API 
+You can filter the datasets by name using the following CLI command:
+
+<CLI><Code>eotdl datasets list --name "dataset name"</Code></CLI>
+
+This command will return all datasets that match the given name.
+
+<!-- ## API 
 
 You can retrieve the list of all datasets using the following API call:
 
@@ -38,4 +44,4 @@ You can also retrieve the information of one particular dataset using the follow
 
 <Api><Code>curl -X 'GET' \
   'https://api.eotdl.com/datasets?name=dataset name' \
-  -H 'accept: application/json'</Code></Api>
+  -H 'accept: application/json'</Code></Api> -->

@@ -1,10 +1,10 @@
 import pytest
 from unittest import mock
 
-from eotdl.src.usecases.auth.Auth import Auth
+from eotdl.eotdl.auth.auth import Auth
 from eotdl.src.errors.auth import LoginError, AuthTimeOut
-from eotdl.src.usecases.auth.IsLogged import IsLogged
-from eotdl.src.usecases.auth.Logout import Logout
+from eotdl.eotdl.auth.is_logged import IsLogged
+from eotdl.eotdl.auth.logout import Logout
 
 
 def test_auth():

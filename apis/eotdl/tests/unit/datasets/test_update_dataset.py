@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.UpdateDataset import UpdateDataset
+from ....src.usecases.datasets.update_dataset import UpdateDataset
 from ....src.errors import (
     InvalidTagError,
     DatasetDoesNotExistError,

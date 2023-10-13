@@ -1,15 +1,12 @@
 import typer
-from ..auth import is_logged, auth, generate_logout_url
-from ..src.errors.auth import LoginError
+from ..auth import is_logged, auth, logout_user
+from ..auth.errors import LoginError
 
 app = typer.Typer()
 
 
 @app.command()
 def login():
-    """
-    Login to your account
-    """
     try:
         user = auth()
         typer.echo(f"You are logged in as {user['email']}")
@@ -20,14 +17,11 @@ def login():
 
 @app.command()
 def logout():
-    """
-    Logout from your account
-    """
     user = is_logged()
     if user:
         typer.echo(f"You are logged in as {user['email']}")
         typer.confirm(f"Are you sure you want to logout?", abort=True)
-        logout_url = generate_logout_url()
+        logout_url = logout_user()
         typer.echo(f"You are logged out.")
         typer.echo(
             f"If you want to login with a different account, visit {logout_url} and login again."
