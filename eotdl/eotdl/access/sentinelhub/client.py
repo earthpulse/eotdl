@@ -2,7 +2,9 @@
 Module for managing the Sentinel Hub configuration and data access
 """
 
-from os.path import join
+import json
+from os.path import join, exists
+from typing import Optional
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
                          BBox, 
@@ -12,6 +14,7 @@ from sentinelhub import (SHConfig,
                          SentinelHubDownloadClient,
                          MimeType)
 
+from ...repos.AuthRepo import AuthRepo
 from .parameters import (SHParametersFeature, 
                          sentinel_1_search_parameters, 
                          sentinel_2_search_parameters)
@@ -26,17 +29,33 @@ class SHClient():
     Client class to manage the Sentinel Hub Python interface.
     """
 
-    def __init__(self, 
-                 sh_client_id: str, 
-                 sh_client_secret: str
+    def __init__(self,
+                 sh_client_id: Optional[str] = None, 
+                 sh_client_secret: Optional[str] = None
                  ) -> None:
         """
         :param sh_client_id: User's OAuth client ID for Sentinel Hub service.
         :param sh_client_secret: User's OAuth client secret for Sentinel Hub service.
         """
         self.config = SHConfig()
-        self.config.sh_client_id = sh_client_id
-        self.config.sh_client_secret = sh_client_secret
+        if sh_client_id and sh_client_secret:
+            # If the user has provided the credentials, we should save them
+            self.config.sh_client_id = sh_client_id
+            self.config.sh_client_secret = sh_client_secret
+        else:
+            # If the user has not provided the credentials, we should check if
+            # the user is logged in
+            auth_repo = AuthRepo()
+            creds_file = auth_repo.creds_path
+            if not exists(creds_file):
+                raise ValueError('Your are not logged in and have not provided Sentinel Hub credentials.')
+            else:
+                creds = json.load(open(creds_file, 'r'))
+                if not 'SH_CLIENT_ID' in creds.keys() or not 'SH_CLIENT_SECRET' in creds.keys():
+                    raise ValueError('If you already had a Sentinel HUB account before accepting the Terms and Conditions, your SH credentials will NOT appear here. You can retrieve them from you Sentinel HUB dashboard)')
+                else:
+                    self.config.sh_client_id = creds['SH_CLIENT_ID']
+                    self.config.sh_client_secret = creds['SH_CLIENT_SECRET']
         self.catalog = SentinelHubCatalog(config=self.config)
 
     def search_available_sentinel_data(self,
