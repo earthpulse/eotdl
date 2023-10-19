@@ -4,7 +4,7 @@ from .access import (SHClient,
                      SHParametersFeature,
                      EvalScripts,
                      sentinel_1_download_parameters,
-                     sentinel_2_download_parameters,
+                     sentinel_2_l2a_download_parameters,
                      dem_download_parameters,
                      AirbusClient,
                      get_airbus_access_token)

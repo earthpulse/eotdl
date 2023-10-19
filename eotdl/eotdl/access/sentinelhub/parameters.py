@@ -69,7 +69,7 @@ options = {
                         "properties.datetime"], 
             "exclude": []}
     }
-sentinel_2_search_parameters = SHParametersFeature(options)
+sentinel_2_l2a_search_parameters = SHParametersFeature(options)
 
 
 options = {
@@ -86,7 +86,7 @@ options = {
     'mosaicking_order': MosaickingOrder.LEAST_CC,
     'evalscript': EvalScripts.SENTINEL_2
 }
-sentinel_2_download_parameters = SHParametersFeature(options)
+sentinel_2_l2a_download_parameters = SHParametersFeature(options)
 
 
 options = {
