@@ -1,9 +1,7 @@
 """
 Module for data engineering in the sen12floods dataset
 """
-from ...access.sentinelhub.client import SHClient
-from ...access.sentinelhub.parameters import (sentinel_1_search_parameters, 
-                                         sentinel_2_search_parameters)
+
 from statistics import mean
 
 import geopandas as gpd
