@@ -354,6 +354,8 @@ class MLDatasetQualityMetrics:
 
             return label_properties
     
+        catalog.make_all_asset_hrefs_absolute()
+
         labels = list(
             set(
                 [item 
@@ -372,6 +374,7 @@ class MLDatasetQualityMetrics:
             properties = dict()
             for label in labels:
                 asset_path = label.assets["labels"].href
+                print(asset_path)
                 # Open the linked geoJSON to obtain the label properties
                 try:
                     with open(asset_path) as f:
@@ -405,6 +408,8 @@ class MLDatasetQualityMetrics:
                 )
 
             classes_balance["values"].append(property_balance)
+
+        catalog.make_all_asset_hrefs_relative()
 
         return classes_balance
 
@@ -476,6 +481,7 @@ def add_ml_extension(
     # Normalize the ref on the same folder
     if destination:
         make_links_relative_to_path(destination, catalog_ml_dataset)
+        # TODO not working
     else:
         destination = dirname(catalog.get_self_href())
 
