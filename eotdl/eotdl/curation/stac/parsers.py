@@ -4,8 +4,6 @@ Module for STAC parsers
 
 from os.path import dirname, basename
 
-# TODO are these classes necessary?
-
 
 class STACIdParser:
     
