@@ -17,11 +17,14 @@ from sentinelhub import (SHConfig,
 from ...repos.AuthRepo import AuthRepo
 from .parameters import (SHParametersFeature, 
                          sentinel_1_search_parameters, 
-                         sentinel_2_search_parameters)
+                         sentinel_2_l2a_search_parameters)
+from .utils import check_time_interval_is_range
 
 
-SENTINEL_PARAMETERS = {'sentinel-1': sentinel_1_search_parameters,
-                       'sentinel-2': sentinel_2_search_parameters}
+SENTINEL_PARAMETERS = {'sentinel-1-grd': sentinel_1_search_parameters,
+                       'sentinel-2-l2a': sentinel_2_l2a_search_parameters}
+
+SUPPORTED_SENTINEL_MISSIONS = ('sentinel-2-l1c', 'sentinel-2-l2a', 'sentinel-1-grd')
 
 
 class SHClient():
@@ -94,8 +97,8 @@ class SHClient():
         information and we pass it to a download client.
 
         :param parameters: ParametersFeature object with the needed parameters for the search. The neeeded parameters are:
-                    - data_to_download: Required. Dictionary with the information about the data that the user wants to
-                        download. It could have two formats:
+                    - data_to_download: Dictionary with the information about the data that the user wants to
+                        download. If not given, will take the bounding_box and time_interval. It could have two formats:
                             - location_id : list(bounding_box)
                             - location_id : dict(bounding_box: list(bounding_box),
                                                 time_interval: list(list(time_interval), list(time_interval) ...)
@@ -113,15 +116,34 @@ class SHClient():
 
         root_folder = parameters.data_folder
 
-        for id, info in parameters.data_to_download.items():
-            # We should distinct between the possible input formats
-            if isinstance(info, tuple):
-                bbox = BBox(info, crs=CRS.WGS84)
-                time_interval = [None]
-            elif isinstance(info, dict):   # Bulk download
-                bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
-                time_interval = info['time_interval']
-            parameters.bounding_box = bbox
+        if not parameters.data_to_download:
+            bbox = parameters.bounding_box
+            time_interval = parameters.time_interval
+            if not parameters.bounding_box or not parameters.time_interval:
+                raise ValueError('You must provide a bounding box and a time interval')
+        else:
+            for id, info in parameters.data_to_download.items():
+                # We should distinct between the possible input formats
+                if isinstance(info, tuple):
+                    bbox = BBox(info, crs=CRS.WGS84)
+                    time_interval = [None]
+                elif isinstance(info, dict):   # Bulk download
+                    if not info['bounding_box'] or not info['time_interval']:
+                        raise ValueError(f'You must provide a bounding box and a time interval for the location {id}')
+                    bbox = BBox(info['bounding_box'], crs=CRS.WGS84)
+                    time_interval = info['time_interval']
+                    # Check if the time interval is a list of lists
+                    # If it is, we will do a request for each time interval
+                    # it not, we will do a request for the whole time interval
+                    if not check_time_interval_is_range(time_interval):
+                        # Search all available data in the time interval
+                        search_dict = parameters.data_to_download
+                        available_data, non_available_data = self.get_available_data_by_location(search_dict,
+                                                                                                parameters.data_collection.api_id)
+                        # Add the available data to the data_to_download dictionary
+                        parameters.data_to_download[id] = available_data[id]
+                        time_interval = parameters.data_to_download[id]['time_interval']
+                parameters.bounding_box = bbox
 
             # Create a different data folder for each request
             _data_folder = join(root_folder, id)
@@ -207,8 +229,8 @@ class SHClient():
         :return: not_available_data: list with the locations that does not have any available data for the
                 given location and time interval
         """
-        if sentinel_mission not in ('sentinel-1', 'sentinel-2'):
-            raise ValueError('The specified Sentinel mission is not valid. The values must be between <sentinel-1> and <sentinel-2>')
+        if sentinel_mission not in SUPPORTED_SENTINEL_MISSIONS:
+            raise ValueError(f'The specified Sentinel mission is not valid. The values must be between {SUPPORTED_SENTINEL_MISSIONS}')
         
         parameters = SENTINEL_PARAMETERS[sentinel_mission]
 
