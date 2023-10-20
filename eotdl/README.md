@@ -11,7 +11,7 @@
     <a href="https://pypi.python.org/pypi/eotdl">
         <img src="https://img.shields.io/pypi/v/eotdl.svg" alt="NPM Version" />
     </a>
-    <a href="https://discord.strapi.io">
+    <a href="https://discord.eotdl.io">
         <img src="https://img.shields.io/discord/1024232224486326362?label=Discord" alt="EOTDL on Discord" />
     </a>
 </p>
