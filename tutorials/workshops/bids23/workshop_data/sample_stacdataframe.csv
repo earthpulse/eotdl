@@ -1,0 +1,6 @@
+image,label,ix,collection,extensions,bands
+data/sentinel_2/Boadella_2.tif,Boadella,0,data/sentinel_2/source,,
+data/sentinel_2/Boadella_3.tif,Boadella,0,data/sentinel_2/source,,
+data/sentinel_2/Boadella_1.tif,Boadella,0,data/sentinel_2/source,,
+data/sentinel_2/Boadella_4.tif,Boadella,0,data/sentinel_2/source,,
+data/sentinel_2/Boadella_5.tif,Boadella,0,data/sentinel_2/source,,

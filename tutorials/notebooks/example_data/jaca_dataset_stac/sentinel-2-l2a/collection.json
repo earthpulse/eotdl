@@ -1,0 +1,59 @@
+{
+  "type": "Collection",
+  "id": "sentinel-2-l2a",
+  "stac_version": "1.0.0",
+  "description": "Collection",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Jaca_1/Jaca_1.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Jaca_2/Jaca_2.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Jaca_3/Jaca_3.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Jaca_4/Jaca_4.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -0.557034,
+          42.569409,
+          -0.547706,
+          42.57571
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2000-01-01T00:00:00Z",
+          "2023-12-31T00:00:00Z"
+        ]
+      ]
+    }
+  },
+  "license": "proprietary"
+}
