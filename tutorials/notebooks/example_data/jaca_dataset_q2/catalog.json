@@ -1,0 +1,40 @@
+{
+  "type": "Catalog",
+  "id": "jaca-dataset-extensions",
+  "stac_version": "1.0.0",
+  "description": "Jaca dataset with STAC extensions",
+  "links": [
+    {
+      "rel": "root",
+      "href": "./catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./sentinel-2-l2a/collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./labels/collection.json",
+      "type": "application/json"
+    }
+  ],
+  "stac_extensions": [
+    "https://raw.githubusercontent.com/earthpulse/ml-dataset/main/json-schema/schema.json"
+  ],
+  "ml-dataset:name": "Q2 Dataset",
+  "ml-dataset:tasks": [
+    "segmentation"
+  ],
+  "ml-dataset:inputs-type": [
+    "satellite imagery"
+  ],
+  "ml-dataset:annotations-type": "raster",
+  "ml-dataset:version": "0.1.0",
+  "ml-dataset:splits": [
+    "Training",
+    "Validation",
+    "Test"
+  ]
+}
