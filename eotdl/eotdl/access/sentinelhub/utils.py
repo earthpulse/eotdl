@@ -2,15 +2,18 @@
 Utils for Sentinel Hub access
 """
 
+from datetime import datetime
 from typing import List
 
 
 def check_time_interval_is_range(time_interval: List) -> bool:
     """
     """
-    if len(time_interval) == 2:   # Suppose it is a simple list, (from-date, to-date)
-        if isinstance(time_interval[0], str) and isinstance(time_interval[1], str):
-            if time_interval[0] != time_interval[1]:
-                return False
+    if len(time_interval) != 2:
+        return False
+    
+    for e in time_interval:
+        if not isinstance(e, (str, datetime)):
+            return False
     
     return True
