@@ -40,8 +40,8 @@
         Read the brochure</a
       ></span
     >
-    <p class="p-4 badge badge-warning mt-5 uppercase text-xs font-bold">
+    <!-- <p class="p-4 badge badge-warning mt-5 uppercase text-xs font-bold">
       🚧 Under development
-    </p>
+    </p> -->
   </div>
 </div>

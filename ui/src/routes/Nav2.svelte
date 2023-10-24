@@ -6,7 +6,7 @@
     const links = [
         { href: "/", label: "Home" },
         { href: "/datasets", label: "Datasets" },
-        // { href: "/models", label: "Models" },
+        { href: "/models", label: "Models" },
         { href: "/docs", label: "Docs" },
     ];
     const secondary_links = [
