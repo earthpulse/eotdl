@@ -15,7 +15,7 @@ class SHParameters:
 
 class SHS2L2AParameters(SHParameters):
     DATA_COLLECTION = DataCollection.SENTINEL2_L2A
-    RESOLUTION = (10, 10)
+    RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
     EVALSCRIPT = EvalScripts.SENTINEL_2_L2A
     FIELDS = {"include": ["id", 
@@ -27,11 +27,12 @@ class SHS2L2AParameters(SHParameters):
 
 class SHS2L1CParameters(SHParameters):
     DATA_COLLECTION = DataCollection.SENTINEL2_L1C
-    RESOLUTION = (10, 10)
+    RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
     EVALSCRIPT = EvalScripts.SENTINEL_2_L1C
     FIELDS = {"include": ["id", 
-                        "properties.datetime"], 
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"], 
             "exclude": []}
     
 
@@ -57,6 +58,7 @@ class SHDEMParameters(SHParameters):
 
 
 SUPPORTED_SENSORS = ('sentinel-1-grd', 'sentinel-2-l1c', 'sentinel-2-l2a', 'dem')
+
 SH_PARAMETERS_DICT = {
     'sentinel-1-grd': SHS1Parameters,
     'sentinel-2-l1c': SHS2L1CParameters,

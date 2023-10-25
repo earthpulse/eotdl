@@ -126,18 +126,6 @@ def get_tarfile_image_info(tar: str, path: Optional[str] = None, pattern: Option
     return images_gdf
 
 
-def get_image_bbox(raster: Union[tarfile.ExFileObject, str]):
-    with rasterio.open(raster) as src:
-        bbox = src.bounds
-    return bbox
-
-
-def get_image_resolution(raster: Union[tarfile.ExFileObject, str]):
-    with rasterio.open(raster) as src:
-        resolution = src.res
-    return resolution
-
-
 def extract_image_date_in_folder(raster_path: str, pattern: str):
     case = re.findall(pattern, raster_path)
 
@@ -154,54 +142,6 @@ def extract_image_id_in_folder(raster_path: str, level: int):
     return raster_path.split("/")[level]
 
 
-def get_first_last_dates(dataframe: Union[pd.DataFrame, gpd.GeoDataFrame], dates_column: Optional[str] = 'datetime'):
-    """
-    """
-    dataframe[dates_column] = dataframe[dates_column].apply(lambda x: sorted(x))
-    dataframe['first_date'] = dataframe['dates_list'].apply(lambda x: x[0])
-    dataframe['last_date'] = dataframe['dates_list'].apply(lambda x: x[-1])
-    dataframe = dataframe.sort_values(by=['first_date', 'last_date'])
-    # Sort by sequence id
-    dataframe = dataframe.sort_values(by=['location_id'])
-    # Convert first_date and last_date to datetime, in format YYYY-MM-DD
-    dataframe['first_date'] = pd.to_datetime(dataframe['first_date'], format='%Y-%m-%d')
-    dataframe['last_date'] = pd.to_datetime(dataframe['last_date'], format='%Y-%m-%d')
-
-    return dataframe
-
-
-def create_time_slots(start_date: datetime.datetime, end_date: datetime.datetime, n_chunks: int):
-    """
-    """
-    tdelta = (end_date - start_date) / n_chunks
-    edges = [(start_date + i * tdelta).date().isoformat() for i in range(n_chunks)]
-    slots = [(edges[i], edges[i + 1]) for i in range(len(edges) - 1)]
-
-    return slots
-
-
-def expand_time_interval(time_interval: Union[list, tuple], format: str='%Y-%m-%dT%H:%M:%S.%fZ') -> list:
-    """
-    """
-    start_date = time_interval[0]
-    end_date = time_interval[1]
-
-    if isinstance(start_date, str):
-        start_date = datetime.datetime.strptime(start_date, format)
-    if isinstance(end_date, str):
-        end_date = datetime.datetime.strptime(end_date, format)
-
-    # Add one day to start date and remove one day to end date
-    new_start_date = start_date - datetime.timedelta(days=1)
-    new_end_date = end_date + datetime.timedelta(days=1)
-
-    # Convert to string
-    new_start_date = new_start_date.strftime(format)
-    new_end_date = new_end_date.strftime(format)
-
-    return new_start_date, new_end_date
-
-
 def format_product_location_payload(location_payload: dict,
                                     images_response: dict,
                                     all_info: bool = False
@@ -216,75 +156,3 @@ def format_product_location_payload(location_payload: dict,
             location_payload[id]['image'] = images_response[id]['properties']['id'] if images_response[id] else None
 
     return location_payload
-
-
-def bbox_to_coordinates(bounding_box: list) -> list:
-    """
-    """
-    polygon_coordinates = [
-        (bounding_box[0], bounding_box[1]),  # bottom left
-        (bounding_box[0], bounding_box[3]),  # top left
-        (bounding_box[2], bounding_box[3]),  # top right
-        (bounding_box[2], bounding_box[1]),  # bottom right
-        (bounding_box[0], bounding_box[1])   # back to bottom left
-    ]
-
-    return polygon_coordinates
-
-
-def bbox_to_polygon(bounding_box: list) -> Polygon:
-    """
-    """
-    polygon = box(bounding_box[0], bounding_box[1], bounding_box[2], bounding_box[3])
-
-    return polygon
-
-
-from_4326_transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')
-from_3857_transformer = Transformer.from_crs('EPSG:3857', 'EPSG:4326')
-
-
-def bbox_from_centroid(x: Union[int, float], 
-                       y: Union[int, float],
-                       pixel_size: Union[int, float],
-                       width: Union[int, float],
-                       height: Union[int, float]
-                       ) -> list:
-    """
-    Generate a bounding box from a centroid, pixel size and image dimensions.
-
-    Params
-    ------
-    x: int or float
-        x coordinate of the centroid
-    y: int or float
-        y coordinate of the centroid
-    pixel_size: int or float
-        pixel size in meters
-    width: int or float
-        width of the image in pixels
-    height: int or float
-        height of the image in pixels
-
-    Returns
-    -------
-    bounding_box: list
-        list with the bounding box coordinates
-    """
-    width_m = width * pixel_size
-    heigth_m = height * pixel_size
-
-    # Transform the centroid coordinates to meters
-    centroid_m = from_4326_transformer.transform(x, y)
-
-    # Calculate the bounding box coordinates
-    min_x = centroid_m[0] - width_m / 2
-    min_y = centroid_m[1] - heigth_m / 2
-    max_x = centroid_m[0] + width_m / 2
-    max_y = centroid_m[1] + heigth_m / 2
-
-    # Convert the bounding box coordinates back to degrees
-    min_x, min_y = from_3857_transformer.transform(min_x, min_y)
-    max_x, max_y = from_3857_transformer.transform(max_x, max_y)
-
-    return [min_y, min_x, max_y, max_x]
