@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 
 from datetime import datetime, timedelta
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 
 def is_time_interval(time_interval: list) -> bool:
@@ -78,7 +78,7 @@ def expand_time_interval(time_interval: Union[list, tuple], format: str='%Y-%m-%
     return new_start_date, new_end_date
 
 
-def prepare_time_interval(self, date):
+def prepare_time_interval(date):
     if isinstance(date, str):
         date = datetime.strptime(date, "%Y-%m-%d")
     elif isinstance(date, datetime):
@@ -96,3 +96,19 @@ def prepare_time_interval(self, date):
     date_next_day = date_next_day.strftime("%Y-%m-%d")
 
     return (date_day_before, date_next_day)
+
+
+def get_day_between(from_date: Union[datetime, str], 
+                    to_date: Union[datetime, str]
+                    ) -> str:
+    """
+    """
+    if isinstance(from_date, str):
+        from_date = datetime.strptime(from_date, "%Y-%m-%dT%H:%M:%SZ")
+    if isinstance(to_date, str):
+        to_date = datetime.strptime(to_date, "%Y-%m-%dT%H:%M:%SZ")
+
+    date_between = from_date + timedelta(days=1)
+    date_between = date_between.strftime("%Y-%m-%d") 
+    
+    return date_between

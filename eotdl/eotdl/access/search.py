@@ -1,12 +1,11 @@
-from .sentinelhub import SHClient
-from .sentinelhub.parameters import SH_PARAMETERS_DICT
-from .sentinelhub.utils import evaluate_sentinel_parameters
-from typing import Optional
+from .sentinelhub import SHClient, SH_PARAMETERS_DICT, evaluate_sentinel_parameters
+from typing import Union, List
+from datetime import datetime
 
 
-def search_sentinel_imagery(sensor: str,
-                            time_interval: Optional[list] = None,
-                            bounding_box: Optional[list] = None
+def search_sentinel_imagery(time_interval: Union[str, datetime, List[Union[str, datetime]]],
+                            bounding_box: List[Union[int, float]],
+                            sensor: str,
                             ) -> None:
     evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output_needed=False)
 
