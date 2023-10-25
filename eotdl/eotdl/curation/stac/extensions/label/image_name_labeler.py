@@ -145,11 +145,12 @@ class ImageNameLabeler(LabelExtensionObject):
 
             # TODO depending on the tasks, there must be extra fields
             # https://github.com/stac-extensions/label#assets
-            tasks = item.properties['label:tasks']
-            if 'tile_regression' in tasks:
-                pass
-            elif any(task in tasks for task in ('tile_classification', 'object_detection', 'segmentation')):
-                pass
+            if 'label:tasks' in item.properties:
+                tasks = item.properties['label:tasks']
+                if 'tile_regression' in tasks:
+                    pass
+                elif any(task in tasks for task in ('tile_classification', 'object_detection', 'segmentation')):
+                    pass
 
             label_ext = LabelExtension.ext(item)
             label_ext.add_geojson_labels(href=geojson_path, 

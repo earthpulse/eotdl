@@ -5,6 +5,8 @@ STAC utils
 import pystac
 
 from os.path import dirname, join, abspath
+from os import makedirs
+from json import dumps
 from typing import Union, Optional
 from tqdm import tqdm
 from traceback import print_exc
@@ -14,8 +16,6 @@ from shutil import rmtree
 def get_all_children(obj: pystac.STACObject) -> list:
     """
     Get all the children of a STAC object
-
-    :param obj: STAC object
     """
     children = []
     # Append the current object to the list
@@ -23,7 +23,6 @@ def get_all_children(obj: pystac.STACObject) -> list:
 
     # Collections
     collections = list(obj.get_collections())
-
     for collection in collections:
         children.append(collection.to_dict())
 
@@ -45,31 +44,38 @@ def make_links_relative_to_path(path: str,
                                 catalog: Union[pystac.Catalog, str],
                                 ) -> pystac.Catalog:
     """
-    Makes all asset HREFs in the catalog relative to a given path
-
-    :param path: path to make the links relative
-    :param catalog: catalog to make the links relative
-
-    :return: catalog with the links relative
+    Makes all asset HREFs and links in the STAC catalog relative to a given path
     """
     if isinstance(catalog, str):
         catalog = pystac.read_file(catalog)
     path = abspath(path)
 
+    # Create a temporary catalog in the destination path to set as root
+    future_path = join(path, 'catalog.json')
+    makedirs(path, exist_ok=True)
+    with open(future_path, 'w') as f:
+        f.write(dumps(catalog.to_dict(), indent=4))
+    temp_catalog = pystac.Catalog.from_file(future_path)
+
+    catalog.set_root(temp_catalog)
     catalog.make_all_asset_hrefs_absolute()
 
     for collection in catalog.get_children():
+        # Create new collection
         new_collection = collection.clone()
         new_collection.set_self_href(join(path, collection.id, f"collection.json"))
         new_collection.set_root(catalog)
         new_collection.set_parent(catalog)
+        # Remove old collection and add new one to catalog
         catalog.remove_child(collection.id)
         catalog.add_child(new_collection)
         for item in collection.get_all_items():
+            # Create new item from old collection and add it to the new collection
             new_item = item.clone()
-            new_item.set_self_href(join(path, item.id, f"{item.id}.json"))
+            new_item.set_self_href(join(path, collection.id, item.id, f"{item.id}.json"))
             new_item.set_parent(collection)
             new_item.set_root(catalog)
+            new_item.make_asset_hrefs_relative()
             new_collection.add_item(new_item)
 
     catalog.make_all_asset_hrefs_relative()
@@ -85,12 +91,6 @@ def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],
                         ) -> None:
     """
     Merge two STAC catalogs, keeping the properties, collection and items of both catalogs
-
-    :param catalog_1: first catalog to merge
-    :param catalog_2: second catalog to merge
-    :param destination: destination folder to save the merged catalog
-    :param keep_extensions: keep the extensions of the first catalog
-    :param catalog_type: type of the catalog
     """
     if isinstance(catalog_1, str):
         catalog_1 = pystac.Catalog.from_file(catalog_1)
@@ -124,7 +124,6 @@ def merge_stac_catalogs(catalog_1: Union[pystac.Catalog, str],
                 catalog_2.extra_fields[extra_field_name] = extra_field_value
 
     if destination:
-        # TODO test
         make_links_relative_to_path(destination, catalog_2)
     else:
         destination = dirname(catalog_2.get_self_href())
