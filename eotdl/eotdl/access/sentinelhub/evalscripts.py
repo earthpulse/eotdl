@@ -54,6 +54,10 @@ class EvalScripts:
                     };
                 }
 
+                function updateOutputMetadata(scenes, inputMetadata, outputMetadata) {
+                    outputMetadata.userData = {"scenes" : scenes};
+                }
+
                 function evaluatePixel(sample) {
                     return [sample.B01, 
                             sample.B02, 

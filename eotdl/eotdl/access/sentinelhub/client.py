@@ -4,7 +4,7 @@ Module for managing the Sentinel Hub configuration and data access
 
 import json
 from os import getenv
-from os.path import join, exists
+from os.path import exists
 from sentinelhub import (SHConfig, 
                          SentinelHubCatalog, 
                          BBox, 
@@ -16,6 +16,8 @@ from sentinelhub import (SHConfig,
 
 from ...repos.AuthRepo import AuthRepo
 from .parameters import SHParameters
+from ...tools.time_utils import prepare_time_interval
+from ...tools.geo_utils import compute_image_size
 
 
 class SHClient():
@@ -73,8 +75,8 @@ class SHClient():
                      ) -> list:
         """
         """
-        time_interval = self.prepare_time_interval(time_interval)
-        bounding_box, bounding_box_size = self.compute_image_size(bounding_box, parameters)
+        time_interval = prepare_time_interval(time_interval)
+        bounding_box, bounding_box_size = compute_image_size(bounding_box, parameters)
 
         return SentinelHubRequest(
                     data_folder=self.tmp_dir,
