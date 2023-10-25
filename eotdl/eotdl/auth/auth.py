@@ -25,7 +25,8 @@ def auth(max_t=30, interval=2):
             print("- Id Token: {}...".format(token_data["id_token"][:10]))
             # get user credentials
             credentials = api_repo.retrieve_credentials(token_data["id_token"])[0]
-            token_data.update(credentials)
+            if credentials:
+                token_data.update(credentials)
             # save token data in file
             creds_path = repo.save_creds(token_data)
             print("Saved credentials to: ", creds_path)
