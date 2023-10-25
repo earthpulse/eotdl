@@ -40,7 +40,7 @@ class UnlabeledStrategy(LabelingStrategy):
 class LabeledStrategy(LabelingStrategy):
     """
     Assumes the images are already labeled, and returns the labels.
-    The images filenames must follow the pattern: <label>_<id>.<ext> or <label>-<id>.<ext>
+    The images filenames must follow the pattern: <label>_<id>.<ext>
     """
 
     def __init__(self):
@@ -52,16 +52,7 @@ class LabeledStrategy(LabelingStrategy):
         labels = list()
         for image in images:
             image_basename = basename(image).split('.')[0]   # Get filename without extension
-            if '_' in image_basename:
-                separator = '_'
-            elif '-' in image_basename:
-                separator = '-'
-            try:
-                # Ensure the image has format <label>_<number> or <label>-<number>
-                int(image_basename.split(separator)[1])
-                label = image_basename.split(separator)[0]
-            except ValueError:
-                label = image_basename
+            label = image_basename.split('_')[0]
             labels.append(label)
 
         ixs = [labels.index(x) for x in labels]
