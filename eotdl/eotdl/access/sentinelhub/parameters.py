@@ -54,7 +54,10 @@ class SHS1Parameters(SHParameters):
 class SHDEMParameters(SHParameters):
     DATA_COLLECTION = DataCollection.DEM_COPERNICUS_30
     RESOLUTION = 3
+    MOSAICKING_ORDER = None
     EVALSCRIPT = EvalScripts.DEM
+    FILTER = None
+    FIELDS = None
 
 
 SUPPORTED_SENSORS = ('sentinel-1-grd', 'sentinel-2-l1c', 'sentinel-2-l2a', 'dem')

@@ -31,7 +31,7 @@ def evaluate_sentinel_parameters(sensor: str,
     if not time_interval:
         raise ValueError("Time interval must be specified.")
     else:
-        if not is_time_interval(time_interval):
+        if len(time_interval) == 2 and not is_time_interval(time_interval):
             raise ValueError(f"Time interval must be a list or tuple with two elements in format YYYY-MM-DD.")
     if not bounding_box:
         raise ValueError("Bounding box must be specified.")
@@ -75,7 +75,7 @@ def generate_raster_metadata(raster: str,
     payload_data = json_content['request']['payload']['input']['data'][0]
     sensor_type = payload_data['type']
     # Get day between from and to
-    if 'timeRange' in payload_data['dataFilter']:
+    if 'timeRange' in payload_data['dataFilter'] and sensor_type != 'dem':
         time_range = payload_data['dataFilter']['timeRange']
         acquisition_date = get_day_between(time_range['from'], time_range['to'])
     else:   # DEM data does not have a timeRange
