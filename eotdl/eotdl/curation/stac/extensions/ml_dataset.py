@@ -309,11 +309,10 @@ class MLDatasetQualityMetrics:
     @staticmethod
     def _search_spatial_duplicates(catalog: pystac.Catalog):
         """ """
-        print("Looking for spatial duplicates...")
         items = list(
             set(
                 [item 
-                 for item in tqdm(catalog.get_items(recursive=True)) 
+                 for item in tqdm(catalog.get_items(recursive=True), desc="Looking for spatial duplicates...") 
                  if not LabelExtension.has_extension(item)
                  ]
                 )
@@ -374,7 +373,6 @@ class MLDatasetQualityMetrics:
             properties = dict()
             for label in labels:
                 asset_path = label.assets["labels"].href
-                print(asset_path)
                 # Open the linked geoJSON to obtain the label properties
                 try:
                     with open(asset_path) as f:
@@ -439,12 +437,6 @@ def add_ml_extension(
 ) -> None:
     """
     Adds the ML Dataset extension to a STAC catalog.
-
-    Args:
-        catalog : The STAC catalog to add the extension to.
-        destination : The destination path to save the catalog to.
-        splits : The splits to make.
-        split_proportions : The proportions of the splits.
     """
     if not isinstance(catalog, pystac.Catalog) and isinstance(catalog, str):
         catalog = pystac.read_file(catalog)
@@ -456,7 +448,10 @@ def add_ml_extension(
         )
 
     catalog_ml_dataset = MLDatasetExtension.ext(catalog, add_if_missing=True)
-    catalog_ml_dataset.set_self_href(destination + "/catalog.json")
+    if destination:
+        catalog_ml_dataset.set_self_href(destination + "/catalog.json")
+    else:
+        destination = dirname(catalog.get_self_href())
     catalog_ml_dataset.set_root(catalog_ml_dataset)
 
     # Set extension properties
@@ -480,10 +475,7 @@ def add_ml_extension(
 
     # Normalize the ref on the same folder
     if destination:
-        make_links_relative_to_path(destination, catalog_ml_dataset)
-        # TODO not working
-    else:
-        destination = dirname(catalog.get_self_href())
+        catalog_ml_dataset = make_links_relative_to_path(destination, catalog_ml_dataset)
 
     try:
         print("Validating and saving...")
@@ -507,13 +499,6 @@ def make_splits(
 ) -> None:
     """
     Makes the splits of the labels collection.
-
-    Args:
-        labels_collection : The STAC Collection make the splits on.
-        train_size : The percentage of the dataset to use for training.
-        test_size : The percentage of the dataset to use for testing.
-        val_size : The percentage of the dataset to use for validation.
-        verbose : Whether to print the sizes of the splits.
     """
     if isinstance(labels_collection, str):
         labels_collection = pystac.read_file(labels_collection)

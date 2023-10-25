@@ -90,7 +90,7 @@
   ],
   "assets": {
     "Jaca_3": {
-      "href": "../../../../../example_data/jaca_dataset/Jaca_3.tif",
+      "href": "../../../jaca_dataset/Jaca_3.tif",
       "type": "image/tiff; application=geotiff",
       "title": "Jaca_3",
       "raster:bands": [
