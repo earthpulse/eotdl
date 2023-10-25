@@ -4,12 +4,13 @@ Module for STAC Asset Generators
 
 from os import remove, listdir
 from os.path import dirname, join, basename, abspath
-from .utils.metadata import remove_raster_metadata
+from ...tools.metadata import remove_raster_metadata
 from typing import List
 
 import pandas as pd
 import rasterio
 import pystac
+
 
 MEDIA_TYPES_DICT = {
     'tif': pystac.MediaType.GEOTIFF,

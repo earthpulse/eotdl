@@ -112,3 +112,19 @@ def get_day_between(from_date: Union[datetime, str],
     date_between = date_between.strftime("%Y-%m-%d") 
     
     return date_between
+
+
+def format_time_acquired(dt: Union[str, datetime]) -> str:
+    """
+    Format the date time to the required format for STAC
+
+    :param dt: date time to format
+    """
+    from dateutil import parser
+    
+    dt_str = parser.parse(dt).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    # convert the string to datetime object
+    dt_obj = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S.%f")
+
+    return dt_obj
