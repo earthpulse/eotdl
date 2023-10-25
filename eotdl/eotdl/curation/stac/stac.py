@@ -67,7 +67,7 @@ class STACGenerator:
         description: str,
         stac_dataframe: pd.DataFrame = None,
         output_folder: str = "stac",
-        kwargs: dict = {},
+        **kwargs,
     ) -> None:
         """
         Generate STAC metadata for a given directory containing the assets to generate metadata
