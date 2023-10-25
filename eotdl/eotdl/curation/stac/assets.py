@@ -4,7 +4,7 @@ Module for STAC Asset Generators
 
 from os import remove, listdir
 from os.path import dirname, join, basename, abspath
-from ..metadata import remove_raster_metadata
+from .utils.metadata import remove_raster_metadata
 from typing import List
 
 import pandas as pd

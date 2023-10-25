@@ -15,13 +15,10 @@
 3. Creating and ingesting Q1 datasets ([notebook](notebooks/02_q1_datasets.ipynb))
 4. Creating and ingesting Q2 datasets ([notebook](notebooks/03_q2_datasets.ipynb))
 
-### Sentinel Hub
+### Data access
 
-1. Authenticate in Sentinel Hub ([notebook](notebooks/10_sh_authenticate.ipynb))
-2. Search imagery from Sentinel Hub ([notebook](notebooks/11_sh_search.ipynb))
-3. Download imagery from Sentinel Hub ([notebook](notebooks/12_sh_download.ipynb))
-4. Format the download data directory from Sentinel Hub ([notebook](notebooks/13_sh_format.ipynb))
-5. Introducing the Sentinel Hub parameters ([notebook](notebooks/14_sh_parameters.ipynb))
+2. Search Sentinel imagery ([notebook](notebooks/10_search_sentinel_imagery.ipynb))
+3. Download Sentinel imagery ([notebook](notebooks/11_download_sentinel_imagery.ipynb))
 
 ### STAC
 
@@ -34,7 +31,6 @@
 5. Add the ML-Dataset STAC extension to a Catalog ([notebook](notebooks/26_stac_ml_dataset.ipynb))
 6. Calculate Quality metrics from your Catalog with the ML-Dataset extension ([notebook](notebooks/27_ml_dataset_quality_metrics.ipynb))
 6. Get a GeoDataFrame from STAC items ([notebook](notebooks/28_stac_to_geodataframe.ipynb))
-7. Export STAC to GeoDB and back from it ([notebook](notebooks/29_stac_to_geodb.ipynb))
 
 ### Do it yourself
 
