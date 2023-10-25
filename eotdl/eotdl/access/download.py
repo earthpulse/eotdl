@@ -1,21 +1,19 @@
 from .sentinelhub import SHClient
-from .sentinelhub.parameters import (SUPPORTED_SENSORS, SH_PARAMETERS_DICT)
+from .sentinelhub.parameters import SH_PARAMETERS_DICT
+from .sentinelhub.utils import evaluate_sentinel_parameters
 from .search import search_imagery
 
 from shutil import rmtree
 from datetime import datetime
-from typing import Union
+from typing import Union, List
 
 
 def download_sentinel_imagery(output: str,
-                     sensor: str,
-                     time_interval: Union[str, datetime],
-                     bounding_box: list
-                     ) -> None:
-    if not output:
-        raise ValueError("Output path must be specified.")
-    if sensor not in SUPPORTED_SENSORS:
-        raise ValueError(f"Sensor {sensor} is not supported. Supported sensors are: {SUPPORTED_SENSORS}")
+                              sensor: str,
+                              time_interval: Union[str, datetime, List[Union[str, datetime]]],
+                              bounding_box: List[Union[int, float]]
+                              ) -> None:
+    evaluate_sentinel_parameters(output, sensor, time_interval, bounding_box)
 
     client = SHClient()
     parameters = SH_PARAMETERS_DICT[sensor]()
@@ -26,14 +24,11 @@ def download_sentinel_imagery(output: str,
 
 
 def search_and_download_sentinel_imagery(output: str,
-                                sensor: str,
-                                time_interval: Union[str, datetime],
-                                bounding_box: list
-                                ) -> None:
-    if not output:
-        raise ValueError("Output path must be specified.")
-    if sensor not in SUPPORTED_SENSORS:
-        raise ValueError(f"Sensor {sensor} is not supported. Supported sensors are: {SUPPORTED_SENSORS}")
+                                         sensor: str,
+                                         time_interval: Union[str, datetime, List[Union[str, datetime]]],
+                                         bounding_box: List[Union[int, float]]
+                                         ) -> None:
+    evaluate_sentinel_parameters(output, sensor, time_interval, bounding_box)
 
     client = SHClient()
     parameters = SH_PARAMETERS_DICT[sensor]()

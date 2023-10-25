@@ -16,11 +16,6 @@ from sentinelhub import (SHConfig,
 
 from ...repos.AuthRepo import AuthRepo
 from .parameters import SHParameters
-from .utils import check_time_interval_is_range
-from datetime import datetime, timedelta
-
-
-SUPPORTED_SENTINEL_MISSIONS = ('sentinel-2-l1c', 'sentinel-2-l2a', 'sentinel-1-grd')
 
 
 class SHClient():
@@ -52,32 +47,7 @@ class SHClient():
                     self.config.sh_client_id = creds['SH_CLIENT_ID']
                     self.config.sh_client_secret = creds['SH_CLIENT_SECRET']
         self.catalog = SentinelHubCatalog(config=self.config)
-        self.tmp_dir = '/tmp/sentinelhub'
-
-    def compute_image_size(self, bounding_box, parameters):
-        bbox = BBox(bbox=bounding_box, crs=CRS.WGS84)
-        bbox_size = bbox_to_dimensions(bbox, resolution=parameters.RESOLUTION)
-
-        return bbox, bbox_size   
-    
-    def prepare_time_interval(self, date):
-        if isinstance(date, str):
-            date = datetime.strptime(date, "%Y-%m-%d")
-        elif isinstance(date, datetime):
-            date = date.strftime("%Y-%m-%d")
-        elif isinstance(date, tuple):
-            if not check_time_interval_is_range(date):
-                raise ValueError('The time interval must be a range of two dates, with format YYYY-MM-DD or a datetime object')
-            else:
-                return date
-        else:
-            raise ValueError('The date must be a string with format YYYY-MM-DD or a datetime object')
-        date_day_before = date - timedelta(days=1)
-        date_next_day = date + timedelta(days=1)
-        date_day_before = date_day_before.strftime("%Y-%m-%d")
-        date_next_day = date_next_day.strftime("%Y-%m-%d")
-
-        return (date_day_before, date_next_day)
+        self.tmp_dir = '/tmp/sentinelhub' 
 
     def search_data(self,
                     bounding_box: list,
