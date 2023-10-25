@@ -20,16 +20,11 @@ def auth(max_t=30, interval=2):
     while not authenticated and time.time() - t0 < max_t:
         response = api_repo.token(data["code"])
         token_data = response.json()
-        print(token_data)
         if response.status_code == 200:
             print("Authenticated!")
             print("- Id Token: {}...".format(token_data["id_token"][:10]))
             # get user credentials
-            credentials, error = api_repo.retrieve_credentials(token_data["id_token"])[
-                0
-            ]
-            if error:
-                print("No third party credentials")
+            credentials = api_repo.retrieve_credentials(token_data["id_token"])[0]
             if credentials:
                 token_data.update(credentials)
             # save token data in file
