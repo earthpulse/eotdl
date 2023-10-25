@@ -11,7 +11,7 @@ from glob import glob
 from shutil import copyfile, rmtree
 
 from .parameters import SUPPORTED_SENSORS
-from ...tools.geo_utils import is_bounding_box
+from ...tools.geo_utils import is_bounding_box, get_image_bbox
 from ...tools.time_utils import is_time_interval, get_day_between
 
 
@@ -51,16 +51,40 @@ def imagery_from_tmp_to_dir(output_dir: str,
     makedirs(output_dir, exist_ok=True)
 
     for downloaded_file in downloaded_files:
-        downloaded_json = downloaded_file.replace('response.tiff', 'request.json')
-        json_content = json.load(open(downloaded_json))
-        sensor_type = json_content['request']['payload']['input']['data'][0]['type']
-        # Get day between from and to
-        time_range = json_content['request']['payload']['input']['data'][0]['dataFilter']['timeRange']
-        timestamp = get_day_between(time_range['from'], time_range['to'])
-        output_filename = f"{sensor_type}_{timestamp}"
+        request_json = downloaded_file.replace('response.tiff', 'request.json')
+        metadata = generate_raster_metadata(downloaded_file, request_json)
+        if metadata['acquisition-date']:
+            output_filename = f"{metadata['type']}_{metadata['acquisition-date']}"
+        else:
+            output_filename = metadata['type']
 
-        for file, format in zip([downloaded_file, downloaded_json], ['tif', 'json']):
-            output_file = f"{output_dir}/{output_filename}.{format}"
-            copyfile(file, output_file)
+        copyfile(downloaded_file, f"{output_dir}/{output_filename}.tif")
+        json.dump(metadata, open(f"{output_dir}/{output_filename}.json", "w"))
     
     rmtree(tmp_dir)
+
+
+def generate_raster_metadata(raster: str,
+                             request_json: str
+                             ) -> None:
+    """
+    """
+    bbox = get_image_bbox(raster)
+    json_content = json.load(open(request_json))
+
+    payload_data = json_content['request']['payload']['input']['data'][0]
+    sensor_type = payload_data['type']
+    # Get day between from and to
+    if 'timeRange' in payload_data['dataFilter']:
+        time_range = payload_data['dataFilter']['timeRange']
+        acquisition_date = get_day_between(time_range['from'], time_range['to'])
+    else:   # DEM data does not have a timeRange
+        acquisition_date = None
+    
+    metadata = {
+        "acquisition-date": acquisition_date,
+        "bounding-box": bbox,
+        "type": sensor_type,
+    }
+
+    return metadata

@@ -1,5 +1,6 @@
 import geopandas as gpd
 import rasterio
+import rasterio.warp
 import tarfile
 
 from typing import Union
@@ -33,7 +34,12 @@ def compute_image_size(bounding_box, parameters):
 
 def get_image_bbox(raster: Union[tarfile.ExFileObject, str]):
     with rasterio.open(raster) as src:
-        bbox = src.bounds
+        bounds = src.bounds
+        dst_crs = "EPSG:4326"
+        left, bottom, right, top = rasterio.warp.transform_bounds(
+            src.crs, dst_crs, *bounds
+        )
+        bbox = [left, bottom, right, top]
     return bbox
 
 
