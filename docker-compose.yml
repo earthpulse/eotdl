@@ -36,10 +36,6 @@ services:
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
       - API_BASE_URL=http://localhost:8010 # used to generate file urls
-      - EOX_PROVISIONINGS_URL=https://provisionings-dev.api.eotdl.com/provisionings
-      - EOX_VAULT_URL=https://vault.api.eotdl.com/v1
-      - EOX_VAULT_ROLE_ID=0fb065f7-dd9f-447b-e8fc-819c7678090e
-      - EOX_VAULT_SECRET_ID=54c64c8f-2a7a-af90-82b2-f62dfa16b3a4
     env_file: # auth0 and geodb credentials
       - .env
     volumes:
