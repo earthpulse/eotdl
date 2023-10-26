@@ -4,7 +4,7 @@
   import Recent from "./Recent.svelte";
   import Popular from "./Popular.svelte";
   import Posts from "./Posts.svelte";
-  import Leaderboard from "./datasets/Leaderboard.svelte";
+  import Leaderboard from "../components/Leaderboard.svelte";
   import { browser } from "$app/environment";
   import retrieveDatasets from "../lib/datasets/retrieveDatasets";
   import retrieveDatasetsLeaderboard from "../lib/datasets/retrieveDatasetsLeaderboard";

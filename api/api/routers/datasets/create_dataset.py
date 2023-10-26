@@ -33,7 +33,7 @@ def create(
         )
         return {"dataset_id": dataset_id}
     except Exception as e:
-        logger.exception("datasets:ingest")
+        logger.exception("datasets:create")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
@@ -43,7 +43,7 @@ def version_dataset(dataset_id: str, user: User = Depends(get_current_user)):
         version = create_dataset_version(user, dataset_id)
         return {"dataset_id": dataset_id, "version": version}
     except Exception as e:
-        logger.exception("datasets:ingest")
+        logger.exception("datasets:version")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 

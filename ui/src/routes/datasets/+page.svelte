@@ -1,15 +1,15 @@
 <script>
-	import { datasets } from "../../stores/datasets";
-	import { user } from "../../stores/auth";
-	import Leaderboard from "./Leaderboard.svelte";
-	import Card from "./Card.svelte";
+	import { datasets } from "$stores/datasets";
+	import { user } from "$stores/auth";
+	import Leaderboard from "$components/Leaderboard.svelte";
+	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
-	import retrieveDatasetsLeaderboard from "../../lib/datasets/retrieveDatasetsLeaderboard";
-	import Ingest from "./Ingest.svelte";
-	import Pagination from "./Pagination.svelte";
-	import Tags from "./Tags.svelte";
-	import Skeleton from "./Skeleton.svelte";
+	import retrieveDatasetsLeaderboard from "$lib/datasets/retrieveDatasetsLeaderboard";
+	// import Ingest from "./Ingest.svelte";
+	import Pagination from "$components/Pagination.svelte";
+	import Tags from "$components/Tags.svelte";
+	import Skeleton from "$components/Skeleton.svelte";
 
 	export let data;
 
@@ -126,7 +126,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each visible_datasets as dataset}
 					<Card
-						{dataset}
+						data={dataset}
 						liked={$user?.liked_datasets.includes(dataset.id)}
 					/>
 				{/each}

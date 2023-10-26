@@ -20,6 +20,7 @@ from .routers.datasets import (
     update_dataset,
     # delete_dataset,
 )
+from .routers.models import retrieve_models, create_model
 from .routers import admin, migrate
 
 app = FastAPI()
@@ -48,6 +49,9 @@ app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 # # app.include_router(upload_large_files.router, prefix="/datasets", tags=["datasets"])
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
+# models
+app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
+app.include_router(create_model.router, prefix="/models", tags=["models"])
 # other
 app.include_router(admin.router)
 app.include_router(migrate.router)

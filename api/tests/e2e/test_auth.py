@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from api.main import app
+from api.api.main import app
 import os
 
 from ...routers.auth import get_current_user
