@@ -1,6 +1,7 @@
 from ...models import Model
 from ...errors import ModelDoesNotExistError, UserUnauthorizedError
 from ...repos import ModelsDBRepo
+from ..files import retrieve_files
 
 
 def retrieve(data):
@@ -26,3 +27,8 @@ def retrieve_owned_model(model_id, uid):
     if model.uid != uid:
         raise UserUnauthorizedError()
     return model
+
+
+def retrieve_model_files(model_id, version=None):
+    model = retrieve_model(model_id)
+    return retrieve_files(model.version, model.files, version)

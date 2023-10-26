@@ -50,6 +50,13 @@ class FilesAPIRepo(APIRepo):
         response = requests.get(url)
         return self.format_response(response)
 
+    def retrieve_model_files(self, model_id, version=None):
+        url = self.url + "models/" + model_id + "/files"
+        if version is not None:
+            url += "?version=" + str(version)
+        response = requests.get(url)
+        return self.format_response(response)
+
     def download_file(self, dataset_id, file_name, id_token, path, file_version):
         url = self.url + "datasets/" + dataset_id + "/download/" + file_name
         if file_version is not None:
