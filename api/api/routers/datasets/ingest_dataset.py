@@ -7,9 +7,9 @@ from typing import Optional
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.usecases.datasets import (
-    ingest_file,
-    ingest_existing_file,
-)  # , ingest_stac, ingest_file_url
+    ingest_dataset_file,
+    ingest_existing_dataset_file,
+)  # , ingest_stac, ingest_dataset_file_url
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ async def ingest(
             assert not file, "File provided as both file and filename"
             assert not parent, "Parent provided as both parent and filename"
             assert fileversion, "Fileversion not provided"
-            dataset_id, dataset_name, file_name = await ingest_existing_file(
+            dataset_id, dataset_name, file_name = await ingest_existing_dataset_file(
                 filename, dataset_id, fileversion, version, checksum, user
             )
         else:
@@ -39,7 +39,7 @@ async def ingest(
                 raise Exception(
                     "File too large, please use the CLI to upload large files."
                 )
-            dataset_id, dataset_name, file_name = await ingest_file(
+            dataset_id, dataset_name, file_name = await ingest_dataset_file(
                 file, dataset_id, version, parent, checksum, user
             )
         return {
@@ -79,7 +79,7 @@ async def ingest(
 #     user: User = Depends(get_current_user),
 # ):
 #     # try:
-#     dataset_id, dataset_name, file_name = await ingest_file_url(
+#     dataset_id, dataset_name, file_name = await ingest_dataset_file_url(
 #         body.url, dataset_id, user
 #     )
 #     return {

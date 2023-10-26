@@ -1,49 +1,49 @@
 from datetime import datetime
 
-from .retrieve_dataset import retrieve_owned_dataset
-from ...errors import DatasetVersionDoesNotExistError
-from ...repos import DatasetsDBRepo
+from .retrieve_model import retrieve_owned_model
+from ...errors import ModelVersionDoesNotExistError
+from ...repos import ModelsDBRepo
 from ..files import ingest_file, ingest_existing_file
 
 
-async def ingest_dataset_file(file, dataset_id, version, parent, checksum, user):
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
-    versions = [v.version_id for v in dataset.versions]
+async def ingest_model_file(file, model_id, version, parent, checksum, user):
+    model = retrieve_owned_model(model_id, user.uid)
+    versions = [v.version_id for v in model.versions]
     if not version in versions:
-        raise DatasetVersionDoesNotExistError()
+        raise ModelVersionDoesNotExistError()
     filename, file_size = await ingest_file(
-        file, version, parent, dataset_id, checksum, dataset.quality, dataset.files
+        file, version, parent, model_id, checksum, model.quality, model.files
     )
-    version = [v for v in dataset.versions if v.version_id == version][0]
+    version = [v for v in model.versions if v.version_id == version][0]
     version.size += file_size  # for Q0+ will add, so put to 0 before if necessary
-    dataset.updatedAt = datetime.now()
-    dataset_db_repo = DatasetsDBRepo()
-    dataset_db_repo.update_dataset(dataset.id, dataset.dict())
-    return dataset.id, dataset.name, filename
+    model.updatedAt = datetime.now()
+    model_db_repo = ModelsDBRepo()
+    model_db_repo.update_model(model.id, model.dict())
+    return model.id, model.name, filename
 
 
-async def ingest_existing_dataset_file(
-    filename, dataset_id, file_version, version, checksum, user
+async def ingest_existing_model_file(
+    filename, model_id, file_version, version, checksum, user
 ):
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
-    versions = [v.version_id for v in dataset.versions]
+    model = retrieve_owned_model(model_id, user.uid)
+    versions = [v.version_id for v in model.versions]
     if not version in versions:
-        raise DatasetVersionDoesNotExistError()
+        raise ModelVersionDoesNotExistError()
     filename, file_size = await ingest_existing_file(
         filename,
         version,
-        dataset.files,
+        model.files,
         file_version,
-        dataset_id,
+        model_id,
         checksum,
-        dataset.quality,
+        model.quality,
     )
-    version = [v for v in dataset.versions if v.version_id == version][0]
+    version = [v for v in model.versions if v.version_id == version][0]
     version.size += file_size  # for Q0+ will add, so put to 0 before if necessary
-    dataset.updatedAt = datetime.now()
-    dataset_db_repo = DatasetsDBRepo()
-    dataset_db_repo.update_dataset(dataset.id, dataset.dict())
-    return dataset.id, dataset.name, filename
+    model.updatedAt = datetime.now()
+    model_db_repo = ModelsDBRepo()
+    model_db_repo.update_model(model.id, model.dict())
+    return model.id, model.name, filename
 
 
 def ingest_file_url():
@@ -52,8 +52,8 @@ def ingest_file_url():
     # def get_file_name(self, file):
     #     return file.split("/")[-1]
 
-    # def persist_file(self, file, dataset_id, filename):
-    #     return os_repo.persist_file_url(file, dataset_id, filename)
+    # def persist_file(self, file, model_id, filename):
+    #     return os_repo.persist_file_url(file, model_id, filename)
 
 
 def ingest_stac():

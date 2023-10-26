@@ -7,7 +7,7 @@ import os
 from ..auth import with_auth
 from .metadata import Metadata
 from ..repos import DatasetsAPIRepo, FilesAPIRepo
-from ..shared import calculate_checksum
+from ..files import ingest_file
 
 
 def ingest_dataset(path, verbose=False, logger=print):
@@ -77,101 +77,8 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             verbose=verbose,
             user=user,
             current_files=current_files,
+            endpoint="datasets",
         )
-    return data
-
-
-def ingest_file(
-    file,
-    dataset_id,
-    version,
-    parent,
-    logger=None,
-    verbose=True,
-    root=None,
-    user=None,
-    current_files=[],
-):
-    id_token = user["id_token"]
-    if verbose:
-        logger(f"Uploading file {file}...")
-    repo = FilesAPIRepo()
-    if file.startswith("http://") or file.startswith("https://"):
-        raise NotImplementedError("URL ingestion not implemented yet")
-        # data, error = repo.ingest_file_url(file, dataset_id, id_token)
-    else:
-        file_path = Path(file)
-        if not file_path.is_absolute():
-            # file_path = glob(
-            #     str(root) + "/**/" + os.path.basename(file_path),
-            #     recursive=True,
-            # )
-            # if len(file_path) == 0:
-            #     raise Exception(f"File {file} not found")
-            # elif len(file_path) > 1:
-            #     raise Exception(f"Multiple files found for {file}")
-            # file_path = file_path[0]
-            file_path = str(file_path.absolute())
-        if verbose:
-            logger("Computing checksum...")
-        checksum = calculate_checksum(file_path)
-        # check if file already exists in dataset
-        filename = os.path.basename(file_path)
-        if parent != ".":
-            filename = parent + "/" + filename
-        if len(current_files) > 0:
-            matches = [
-                f
-                for f in current_files
-                if f["filename"] == filename and f["checksum"] == checksum
-            ]  # this could slow down ingestion in large datasets... should think of faster search algos, puede que sea mejor hacer el re-upload simplemente...
-            if len(matches) == 1:
-                if verbose:
-                    print(f"File {file_path} already exists in dataset, skipping...")
-                data, error = repo.ingest_existing_file(
-                    filename,
-                    dataset_id,
-                    version,
-                    matches[0]["version"],
-                    id_token,
-                    checksum,
-                )
-                if error:
-                    raise Exception(error)
-                if verbose:
-                    logger("Done")
-                return data
-        if verbose:
-            logger("Ingesting file...")
-        filesize = os.path.getsize(file_path)
-        # ingest small file
-        if filesize < 1024 * 1024 * 16:  # 16 MB
-            data, error = repo.ingest_file(
-                file_path,
-                dataset_id,
-                version,
-                parent,
-                id_token,
-                checksum,
-            )
-            if error:
-                raise Exception(error)
-            if verbose:
-                logger("Done")
-            return data
-        raise NotImplementedError("Large file ingestion not implemented yet")
-        # # ingest large file
-        # upload_id, parts = repo.prepare_large_upload(
-        #     file_path, dataset_id, checksum, id_token
-        # )
-        # repo.ingest_large_dataset(file_path, upload_id, id_token, parts)
-        # if verbose:
-        #     logger("\nCompleting upload...")
-        # data, error = repo.complete_upload(id_token, upload_id)
-    if error:
-        raise Exception(error)
-    if verbose:
-        logger("Done")
     return data
 
 

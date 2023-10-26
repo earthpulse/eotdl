@@ -1,4 +1,4 @@
-from ..repos import ModelsAPIRepo
+from ..repos import ModelsAPIRepo, FilesAPIRepo
 
 
 def retrieve_models(name=None, limit=None):
@@ -10,17 +10,17 @@ def retrieve_models(name=None, limit=None):
     return []
 
 
-# def retrieve_dataset(name):
-#     repo = DatasetsAPIRepo()
-#     data, error = repo.retrieve_dataset(name)
-#     if error:
-#         raise Exception(error)
-#     return data
+def retrieve_model(name):
+    repo = ModelsAPIRepo()
+    data, error = repo.retrieve_model(name)
+    if error:
+        raise Exception(error)
+    return data
 
 
-# def retrieve_dataset_files(dataset_id, version):
-#     repo = FilesAPIRepo()
-#     data, error = repo.retrieve_dataset_files(dataset_id, version)
-#     if error:
-#         raise Exception(error)
-#     return data
+def retrieve_model_files(model_id, version):
+    repo = FilesAPIRepo()
+    data, error = repo.retrieve_model_files(model_id, version)
+    if error:
+        raise Exception(error)
+    return data

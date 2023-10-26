@@ -11,7 +11,11 @@ from .datasets import (
     ChecksumMismatch,
     DatasetVersionDoesNotExistError,
 )
-from .models import ModelDoesNotExistError, ModelAlreadyExistsError
+from .models import (
+    ModelDoesNotExistError,
+    ModelAlreadyExistsError,
+    ModelVersionDoesNotExistError,
+)
 from .user import (
     UserUnauthorizedError,
     TierLimitError,
