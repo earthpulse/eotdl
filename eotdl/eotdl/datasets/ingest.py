@@ -34,8 +34,6 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     # load metadata
     metadata = yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
     metadata = Metadata(**metadata)
-    # remove metadata.yml from files
-    items = [item for item in items if item.name != "metadata.yml"]
     # if zip or tar file, send error
     if any(item.suffix.endswith((".zip", ".tar", ".tar.gz", ".gz")) for item in items):
         raise Exception(
