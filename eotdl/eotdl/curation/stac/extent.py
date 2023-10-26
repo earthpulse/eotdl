@@ -11,7 +11,7 @@ from glob import glob
 from os.path import dirname
 from typing import List
 
-from .utils import get_item_metadata
+from ...tools import get_item_metadata
 
 
 def get_dem_temporal_interval() -> pystac.TemporalExtent:

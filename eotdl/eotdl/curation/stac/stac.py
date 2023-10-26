@@ -24,7 +24,7 @@ from typing import Union, Optional
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
 from .dataframe_labeling import LabelingStrategy, UnlabeledStrategy
-from .utils import (format_time_acquired, 
+from ...tools import (format_time_acquired, 
                     cut_images, 
                     get_item_metadata,
                     get_all_images_in_path)
