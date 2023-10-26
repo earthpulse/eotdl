@@ -31,4 +31,4 @@ def retrieve_owned_dataset(dataset_id, uid):
 
 def retrieve_dataset_files(dataset_id, version=None):
     dataset = retrieve_dataset(dataset_id)
-    return retrieve_files(dataset.version, dataset.files, version)
+    return retrieve_files(dataset.versions, dataset.files, version)

@@ -9,9 +9,18 @@ class FilesAPIRepo(APIRepo):
     def __init__(self, url=None):
         super().__init__(url)
 
-    def ingest_file(self, file, dataset_id, version, parent, id_token, checksum=None):
+    def ingest_file(
+        self,
+        file,
+        dataset_or_model_id,
+        version,
+        parent,
+        id_token,
+        checksum,
+        endpoint,
+    ):
         reponse = requests.post(
-            self.url + "datasets/" + dataset_id,
+            self.url + f"{endpoint}/{dataset_or_model_id}",
             files={"file": open(file, "rb")},
             data={"checksum": checksum, "version": version, "parent": parent}
             if checksum
@@ -23,14 +32,15 @@ class FilesAPIRepo(APIRepo):
     def ingest_existing_file(
         self,
         filename,
-        dataset_id,
+        dataset_or_model_id,
         version,
         file_version,
         id_token,
-        checksum=None,
+        checksum,
+        endpoint,
     ):
         reponse = requests.post(
-            self.url + "datasets/" + dataset_id,
+            self.url + f"{endpoint}/{dataset_or_model_id}",
             data={
                 "checksum": checksum,
                 "version": version,
@@ -57,8 +67,16 @@ class FilesAPIRepo(APIRepo):
         response = requests.get(url)
         return self.format_response(response)
 
-    def download_file(self, dataset_id, file_name, id_token, path, file_version):
-        url = self.url + "datasets/" + dataset_id + "/download/" + file_name
+    def download_file(
+        self,
+        dataset_or_model_id,
+        file_name,
+        id_token,
+        path,
+        file_version,
+        endpoint="datasets",
+    ):
+        url = self.url + f"{endpoint}/{dataset_or_model_id}/download/{file_name}"
         if file_version is not None:
             url += "?version=" + str(file_version)
         return self.download_file_url(url, file_name, path, id_token)

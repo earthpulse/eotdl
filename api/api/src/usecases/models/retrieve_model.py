@@ -31,4 +31,4 @@ def retrieve_owned_model(model_id, uid):
 
 def retrieve_model_files(model_id, version=None):
     model = retrieve_model(model_id)
-    return retrieve_files(model.version, model.files, version)
+    return retrieve_files(model.versions, model.files, version)

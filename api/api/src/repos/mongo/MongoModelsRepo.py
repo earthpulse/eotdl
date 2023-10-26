@@ -40,3 +40,6 @@ class MongoModelsRepo(MongoRepo):
 
     def retrieve_models_leaderboard(self):
         return self.find_top("users", "models_count", 5)
+
+    def update_model(self, model_id, model):
+        return self.update("models", model_id, model)
