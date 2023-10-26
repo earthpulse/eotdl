@@ -27,4 +27,12 @@ def test_scaneo_labeler(tmp_stac_catalog):
     summaries = labels_collection.summaries.to_dict()
     assert summaries['label:classes']
     assert summaries['label:type'] == 'vector'
-    assert summaries['label:methods'] == ["manual"]
+    
+    items = labels_collection.get_all_items()
+    for i in items:
+        props = i.properties
+        assert props['label:methods'] == ["manual"]
+        assert props['label:properties'] == ['label']
+        i.make_asset_hrefs_absolute()
+        asset = i.to_dict()['assets']['labels']
+        assert os.path.exists(asset['href'])
