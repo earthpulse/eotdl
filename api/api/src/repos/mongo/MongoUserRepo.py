@@ -28,3 +28,6 @@ class MongoUserRepo(MongoRepo):
 
     def retrieve_dataset_download_usage(self, uid):
         return self.find_in_time_range("usage", uid, "dataset_download", "type")
+
+    def retrieve_model_ingestion_usage(self, uid):
+        return self.find_in_time_range("usage", uid, "model_ingested", "type")

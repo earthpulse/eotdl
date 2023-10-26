@@ -6,7 +6,7 @@ from .validators import validate_name
 from .verison import Version
 
 
-class Dataset(BaseModel):
+class Model(BaseModel):
     uid: str
     id: str
     name: str
@@ -35,25 +35,3 @@ class Dataset(BaseModel):
             if not source.startswith("http") and not source.startswith("https"):
                 raise ValueError("source must be a valid url")
         return source
-
-
-class STACDataset(BaseModel):
-    uid: str
-    id: str
-    name: str
-    description: str = ""
-    tags: List[str] = []
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
-    likes: int = 0
-    downloads: int = 0
-    quality: int = 1
-    size: int = 0
-    catalog: dict = {}
-    versions: List[Version] = []
-
-    # @validator("name")
-    # def check_name_is_valid(cls, name):
-    #     if name is not None:
-    #         assert validate_name(name) == name
-    #     return name

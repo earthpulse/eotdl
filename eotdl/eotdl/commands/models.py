@@ -1,8 +1,9 @@
 import typer
+from pathlib import Path
 
 from ..models import (
     retrieve_models,
-    # ingest_dataset,
+    ingest_model,
     # download_dataset,
 )
 
@@ -21,15 +22,15 @@ def list(
         typer.echo(e)
 
 
-# @app.command()
-# def ingest(
-#     path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
-#     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
-# ):
-#     try:
-#         ingest_dataset(path, verbose, typer.echo)
-#     except Exception as e:
-#         typer.echo(e)
+@app.command()
+def ingest(
+    path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
+):
+    try:
+        ingest_model(path, verbose, typer.echo)
+    except Exception as e:
+        typer.echo(e)
 
 
 # @app.command()

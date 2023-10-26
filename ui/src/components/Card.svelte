@@ -4,22 +4,23 @@
     import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
     import Sd from "svelte-material-icons/Sd.svelte";
     import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
-    import formatFileSize from "../../lib/datasets/formatFileSize.js";
+    import formatFileSize from "$lib/datasets/formatFileSize.js";
 
-    export let dataset;
+    export let data;
     export let liked = null;
+    export let link = "dataset";
 </script>
 
 <a
-    href="/datasets/{dataset.name}"
+    href="/{link}/{data.name}"
     class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left"
 >
     <span>
-        <p class="font-bold">{dataset.name}</p>
+        <p class="font-bold">{data.name}</p>
     </span>
     <span>
         <div class="flex flex-wrap gap-1 content-start mt-1">
-            {#each dataset.tags as tag}
+            {#each data.tags as tag}
                 <p
                     class="badge badge-outline bg-white border-slate-300 text-slate-400 text-xs h-full"
                 >
@@ -31,28 +32,28 @@
             class="flex flex-row w-full justify-between text-gray-400 text-xs mt-1"
         >
             <p>
-                Created {formatDistanceToNow(parseISO(dataset.createdAt))} ago
+                Created {formatDistanceToNow(parseISO(data.createdAt))} ago
             </p>
             <span class="flex flex-row gap-2 items-center">
                 <span class="flex flex-row items-center gap-1">
                     <HeartOutline color={liked ? "red" : "gray"} />
-                    <p>{dataset.likes}</p>
+                    <p>{data.likes}</p>
                 </span>
                 <!-- <span class="flex flex-row items-center gap-1">
                     <Download color="gray" size={14} />
-                    <p>{dataset.downloads}</p>
+                    <p>{data.downloads}</p>
                 </span> -->
                 <span class="flex flex-row items-center gap-1">
                     <Sd color="gray" size={14} />
                     <p>
                         {formatFileSize(
-                            dataset.versions[dataset.versions.length - 1].size
+                            data.versions[data.versions.length - 1].size
                         )}
                     </p>
                 </span>
                 <span class="flex flex-row items-center gap-1">
                     <CheckDecagramOutline color="gray" size={14} />
-                    <p>Q{dataset.quality}</p>
+                    <p>Q{data.quality}</p>
                 </span>
             </span>
         </span>

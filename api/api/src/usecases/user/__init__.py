@@ -5,3 +5,4 @@ from .accept_user_terms_and_conditions import accept_user_terms_and_conditions
 from .retrieve_credentials import retrieve_user_credentials
 from .check_user_can_create_dataset import check_user_can_create_dataset
 from .check_user_can_download_dataset import check_user_can_download_dataset
+from .check_user_can_create_model import check_user_can_create_model

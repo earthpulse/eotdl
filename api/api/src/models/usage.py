@@ -23,5 +23,12 @@ class DatasetLimits(BaseModel):
     count: int
 
 
+class ModelLimits(BaseModel):
+    upload: int
+    download: int
+    count: int
+
+
 class Limits(BaseModel):
     datasets: DatasetLimits
+    models: ModelLimits

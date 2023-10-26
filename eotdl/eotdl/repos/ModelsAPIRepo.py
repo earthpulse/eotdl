@@ -19,3 +19,22 @@ class ModelsAPIRepo(APIRepo):
                 url += "&limit=" + str(limit)
         response = requests.get(url)
         return self.format_response(response)
+
+    def create_model(self, metadata, id_token):
+        response = requests.post(
+            self.url + "models",
+            json=metadata,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(response)
+
+    def retrieve_model(self, name):
+        response = requests.get(self.url + "models?name=" + name)
+        return self.format_response(response)
+
+    def create_version(self, model_id, id_token):
+        response = requests.post(
+            self.url + "models/version/" + model_id,
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(response)

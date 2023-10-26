@@ -11,6 +11,7 @@ from .datasets import (
     ChecksumMismatch,
     DatasetVersionDoesNotExistError,
 )
+from .models import ModelDoesNotExistError, ModelAlreadyExistsError
 from .user import (
     UserUnauthorizedError,
     TierLimitError,

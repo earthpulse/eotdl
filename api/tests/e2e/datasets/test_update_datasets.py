@@ -4,7 +4,7 @@ import pytest
 import os
 
 from fastapi.testclient import TestClient
-from api.main import app
+from api.api.main import app
 
 from ....routers.auth import get_current_user, key_auth
 from ....src.models import User

@@ -1,5 +1,8 @@
 <script>
     export let leaderboard;
+    export let field = "datasets";
+
+    $: console.log(leaderboard);
 </script>
 
 <div class="w-full bg-gray-200 grid place-items-center">
@@ -10,7 +13,7 @@
                 <tr>
                     <th />
                     <th>Name</th>
-                    <th>Datasets</th>
+                    <th>{field}</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,7 +22,7 @@
                         <tr class={i % 2 && "active"}>
                             <th>{i + 1}</th>
                             <td><p class="w-[200px]">{user.name}</p></td>
-                            <td>{user.datasets}</td>
+                            <td>{user[field]}</td>
                         </tr>
                     {/each}
                 {:else}
