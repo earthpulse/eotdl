@@ -43,7 +43,7 @@ class MongoFilesRepo(MongoRepo):
     def add_folder(self, files_id, folder):
         return self.push("files", files_id, {"folders": folder})
 
-    def retrieve_dataset_files(self, files_id, version):
+    def retrieve_files(self, files_id, version):
         return list(
             self.db["files"].aggregate(
                 [

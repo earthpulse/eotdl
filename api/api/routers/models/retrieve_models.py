@@ -9,6 +9,7 @@ from ...src.usecases.models import (
     retrieve_models,
     retrieve_model_by_name,
     retrieve_models_leaderboard,
+    retrieve_model_files,
 )
 
 router = APIRouter()
@@ -32,4 +33,16 @@ def leaderboard():
         return retrieve_models_leaderboard()
     except Exception as e:
         logger.exception("models:leaderboard")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/{model_id}/files")
+def retrieve_files(
+    model_id: str,
+    version: int = None,
+):
+    try:
+        return retrieve_model_files(model_id, version)
+    except Exception as e:
+        logger.exception("datasets:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -59,15 +59,14 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     if error:
         raise Exception(error)
     version = data["version"]
-    # # upload files
-    # current_files = []
-    # if version > 1:
-    #     current_files, error = files_repo.retrieve_dataset_files(
-    #         dataset_id, version - 1
-    #     )
-    #     if error:
-    #         # print("retreive dataset files error: ", error)
-    #         current_files = []
+    # upload files
+    current_files = []
+    if version > 1:
+        current_files, error = files_repo.retrieve_model_files(model_id, version - 1)
+        print(current_files, error)
+        if error:
+            # print("retreive dataset files error: ", error)
+            current_files = []
     # for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
     #     data = ingest_file(
     #         str(item),
