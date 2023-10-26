@@ -12,7 +12,7 @@ from os import makedirs
 from typing import Union, Optional
 
 from math import isnan
-from .utils import convert_df_geom_to_shape, get_all_children
+from ...tools import convert_df_geom_to_shape, get_all_children
 from pathlib import Path
 
 
