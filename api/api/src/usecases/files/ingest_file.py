@@ -79,6 +79,7 @@ def ingest_existing_file(filename, version, files_id, dataset_or_model_id, quali
     # retrieve latest version file
     # Problem: existing file could not be the latest version...
     matches = db_repo.retrieve_file(files_id, filename)["files"]
+    print(matches)
     current_file = sorted(matches, key=lambda x: x["version"])[-1]
     file_version = current_file["version"]
     # check file is in storage
