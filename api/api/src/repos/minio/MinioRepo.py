@@ -17,25 +17,16 @@ class MinioRepo:
         return f"{dataset_id}/{file_name}"
 
     def persist_file(self, file, dataset_id, filename):
-        file_version = 1
-        while True:
-            try:
-                object = self.get_object(dataset_id, f"{filename}_{file_version}")
-                self.client.stat_object(self.bucket, object)
-                file_version += 1
-            except:
-                break
+        object = self.get_object(dataset_id, filename)
         if isinstance(file, str):
-            self.client.fput_object(self.bucket, object, file)
-        else:
-            self.client.put_object(
-                self.bucket,
-                object,
-                file,
-                length=-1,
-                part_size=10 * 1024 * 1024,
-            )
-        return file_version
+            return self.client.fput_object(self.bucket, object, file)
+        return self.client.put_object(
+            self.bucket,
+            object,
+            file,
+            length=-1,
+            part_size=10 * 1024 * 1024,
+        )
 
     def persist_file_url(self, url, dataset_id, filename):
         # This won't work for large files :(

@@ -46,14 +46,12 @@ class MongoFilesRepo(MongoRepo):
     def add_folder(self, files_id, folder):
         return self.push("files", files_id, {"folders": folder})
 
-    def retrieve_files(self, files_id, version):
-        return list(
-            self.db["files"].aggregate(
-                [
-                    {"$match": {"id": files_id}},
-                    {"$unwind": "$files"},
-                    {"$match": {"files.versions": version}},
-                    {"$group": {"_id": "$_id", "files": {"$push": "$files"}}},
-                ]
-            )
-        )
+    def retrieve_files(self, files_id, version=None):
+        query = [
+            {"$match": {"id": files_id}},
+            {"$unwind": "$files"},
+            {"$group": {"_id": "$_id", "files": {"$push": "$files"}}},
+        ]
+        if version:
+            query.append({"$match": {"files.versions": version}})
+        return list(self.db["files"].aggregate(query))
