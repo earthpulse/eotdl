@@ -5,9 +5,10 @@ import tarfile
 
 from typing import Union
 from shapely import geometry
-from shapely.geometry import box, Polygon
+from shapely.geometry import box, Polygon, shape
 from pyproj import Transformer
 from sentinelhub import BBox, CRS, bbox_to_dimensions
+from pandas import isna
 
 
 def is_bounding_box(bbox: list) -> bool:
@@ -199,3 +200,16 @@ def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
         latest_id += 1
 
     return bbox_by_new_location
+
+
+def convert_df_geom_to_shape(row):
+    """
+    Convert the geometry of a dataframe row to a shapely shape
+    """
+    if not isna(row["geometry"]):
+        geo = shape(row["geometry"])
+        wkt = geo.wkt
+    else:
+        wkt = "POLYGON EMPTY"
+
+    return wkt
