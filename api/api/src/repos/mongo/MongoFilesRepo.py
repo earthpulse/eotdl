@@ -5,12 +5,15 @@ class MongoFilesRepo(MongoRepo):
     def __init__(self):
         super().__init__()
 
-    def retrieve_file(self, files_id, filename, version):
+    def retrieve_file(self, files_id, filename, version=None):
+        query = {"name": filename}
+        if version:
+            query["version"] = version
         return self._retrieve(
             "files",
             {
                 "id": files_id,
-                "files": {"$elemMatch": {"name": filename, "version": version}},
+                "files": {"$elemMatch": query},
             },
             {"files.$": 1},
         )
