@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from ..auth import with_auth
 from .retrieve import retrieve_dataset, retrieve_dataset_files
-from .utils import calculate_checksum
+from ..shared import calculate_checksum
 from ..repos import FilesAPIRepo
 
 
