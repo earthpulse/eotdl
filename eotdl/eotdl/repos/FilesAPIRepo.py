@@ -29,17 +29,20 @@ class FilesAPIRepo(APIRepo):
         )
         return self.format_response(reponse)
 
-    def add_file_to_version(
+    def add_files_batch_to_version(
         self,
-        filename,
+        batch,
         dataset_or_model_id,
         version,
         id_token,
         endpoint,
     ):
         reponse = requests.post(
-            self.url
-            + f"{endpoint}/{dataset_or_model_id}/file/{filename}?version={str(version)}",
+            self.url + f"{endpoint}/{dataset_or_model_id}/files?version={str(version)}",
+            data={
+                "filenames": [f["path"] for f in batch],
+                "checksums": [f["checksum"] for f in batch],
+            },
             headers={"Authorization": "Bearer " + id_token},
         )
         return self.format_response(reponse)

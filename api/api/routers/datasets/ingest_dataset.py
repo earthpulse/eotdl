@@ -8,7 +8,7 @@ from ..auth import get_current_user
 from ...src.models import User
 from ...src.usecases.datasets import (
     ingest_dataset_files_batch,
-    add_file_to_dataset_version,
+    add_files_batch_to_dataset_version,
 )
 
 router = APIRouter()
@@ -37,16 +37,17 @@ async def ingest_files_batch(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/{dataset_id}/file/{filename}")
+@router.post("/{dataset_id}/files")
 def ingest_exsiting_file(
     dataset_id: str,
-    filename: str,
     version: int,
+    filenames: List[str] = Form(),
+    checksums: List[str] = Form(),
     user: User = Depends(get_current_user),
 ):
     try:
-        dataset_id, dataset_name, filename = add_file_to_dataset_version(
-            filename, dataset_id, version, user
+        dataset_id, dataset_name, filename = add_files_batch_to_dataset_version(
+            filenames, checksums, dataset_id, version, user
         )
         return {
             "dataset_id": dataset_id,

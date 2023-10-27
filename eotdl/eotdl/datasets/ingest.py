@@ -62,6 +62,7 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     dataset_id = data["id"]
     # retrieve files
     current_files, error = files_repo.retrieve_dataset_files(dataset_id)
+    # print(len(current_files), len(items) - len(current_files))
     # print(current_files, error)
     if error:
         current_files = []
@@ -73,13 +74,13 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     for item in tqdm(items):
         data = prepare_item(item, folder)
         if data["path"] in current_names and data["checksum"] in current_checksums:
-            logger(f"File {data['path']} already exists in dataset")
             existing_files.append(data)
         else:
-            logger(f"File {data['path']} will be uploaded")
             upload_files.append(data)
-    if len(upload_files) == 0 and len(existing_files) == 0:
+    if len(upload_files) == 0:
         raise Exception("No files to upload")
+    print(len(upload_files), "new files will be ingested")
+    print(len(existing_files), "files already exist in dataset")
     # create new version
     data, error = repo.create_version(dataset_id, user["id_token"])
     if error:
@@ -90,20 +91,24 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     # ingest files in batches
     if len(upload_files) > 0:
         logger("generating batches...")
-        max_batch_size = 1024 * 1024 * 50  # 50 MB
+        max_batch_size = 1024 * 1024 * 10  # 10 MB
+        max_batch_files = 10
         batches = []
         for item in tqdm(upload_files):
             if len(batches) == 0:
                 batches.append([item])
             else:
-                if sum([i["size"] for i in batches[-1]]) < max_batch_size:
+                if (
+                    sum([i["size"] for i in batches[-1]]) < max_batch_size
+                    and len(batches[-1]) < max_batch_files
+                ):
                     batches[-1].append(item)
                 else:
                     batches.append([item])
         logger(f"Uploading {len(batches)} batches...")
         repo = FilesAPIRepo()
         for batch in tqdm(
-            batches, desc="Uploading files", unit="files", disable=verbose
+            batches, desc="Uploading batches", unit="batches", disable=verbose
         ):
             # compress batch
             memory_file = io.BytesIO()
@@ -122,15 +127,24 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             )
     if len(existing_files) > 0:
         # ingest existing files
-        for file in tqdm(
-            existing_files,
+        max_batch_files = 10
+        batches = []
+        for item in tqdm(existing_files):
+            if len(batches) == 0:
+                batches.append([item])
+            else:
+                if len(batches[-1]) < max_batch_files:
+                    batches[-1].append(item)
+                else:
+                    batches.append([item])
+        for batch in tqdm(
+            batches,
             desc="Ingesting existing files",
-            unit="files",
+            unit="batches",
             disable=verbose,
         ):
-            print(file["path"])
-            data, error = files_repo.add_file_to_version(
-                file["path"],
+            data, error = files_repo.add_files_batch_to_version(
+                batch,
                 dataset_id,
                 version,
                 user["id_token"],

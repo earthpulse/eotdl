@@ -5,98 +5,97 @@ from ...models import File, Folder
 # TODO: al ingestar file, comprobar que es la última versión y que el file no está ya en esa versión
 
 
+async def save_file(path, dataset_or_model_id, filename, file_version, checksum):
+    os_repo = OSRepo()
+    filename += "_" + str(file_version)
+    os_repo.persist_file(path, dataset_or_model_id, filename)
+    _checksum = await os_repo.calculate_checksum(dataset_or_model_id, filename)
+    if checksum and checksum != _checksum:
+        os_repo.delete(dataset_or_model_id, filename)
+        raise ChecksumMismatch()
+    file_size = os_repo.object_info(dataset_or_model_id, filename).size
+    return file_size
+
+
 async def ingest_file(
     filename, path, version, dataset_or_model_id, checksum, quality, files_id
 ):
-    db_repo, os_repo = FilesDBRepo(), OSRepo()
-    # save file in storage
-    file_version = os_repo.persist_file(path, dataset_or_model_id, filename)
-    filename0 = filename
-    filename += "_" + str(file_version)
-    print(filename)
-    # delete if checksums don't match
-    _checksum = await os_repo.calculate_checksum(dataset_or_model_id, filename)
-    if checksum and checksum != _checksum:
-        os_repo.delete(dataset_or_model_id, file.name)
-        raise ChecksumMismatch()
-    file_size = os_repo.object_info(dataset_or_model_id, filename).size
-    if quality == 0:
-        files = db_repo.retrieve_file(files_id, filename0, file_version - 1)
-        if files and "files" in files and len(files["files"]) == 1:
-            # update file
-            print(filename0, "already exists")
-            file = files["files"][0]
-            if file["checksum"] != checksum:  # the file has been modified
-                print("new version of", filename0, filename)
-                new_file = File(
-                    name=filename0,
-                    size=file_size,
-                    checksum=checksum,
-                    version=file_version,
-                    versions=[version],
-                )
-                db_repo.add_file(files_id, new_file.model_dump())
-            else:
-                print("same version of", filename0, filename)
-                os_repo.delete(dataset_or_model_id, filename)
-                new_file = File(
-                    name=filename0,
-                    size=file_size,
-                    checksum=checksum,
-                    version=file["version"],
-                    versions=file["versions"] + [version],
-                )
-                db_repo.update_file(
-                    files_id, filename0, file_version - 1, new_file.model_dump()
-                )
-                # for f in files_id:
-                #     print(f.name, f.version, f.name != filename0 or f.version != file.version)
-                # files = [f for f in files if (f['name'] != filename0 or f['version'] != file.version)] + [file.dict()]
-                # print([(f.name, f.version) for f in files_id])
-        else:
-            print("new file", filename)
+    db_repo = FilesDBRepo()
+    # retrieve all files with same name
+    files = db_repo.retrieve_file(files_id, filename)
+    if files and "files" in files:
+        # retrieve most recent file
+        file = sorted(files["files"], key=lambda x: x["version"])[-1]
+        # print(filename, "already exists")
+        if file["checksum"] != checksum:  # the file has been modified
+            # print("new version of", filename)
+            file_size = await save_file(
+                path, dataset_or_model_id, filename, file["version"] + 1, checksum
+            )
             new_file = File(
-                name=filename0,
+                name=filename,
                 size=file_size,
                 checksum=checksum,
-                version=file_version,
+                version=file["version"] + 1,
                 versions=[version],
             )
             db_repo.add_file(files_id, new_file.model_dump())
-        folders = filename0.split("/")
-        # TODO: esto no está bien
-        if len(folders) > 1:
-            folder_name = "/".join(folders[:-1])
-            result = db_repo.add_folder_version(files_id, folder_name, version)
-            if result.matched_count == 0:
-                new_folder = Folder(name=folder_name, versions=[version])
-                db_repo.add_folder(files_id, new_folder.dict())
-    return file_size
-
-
-def ingest_existing_file(filename, version, files_id, dataset_or_model_id, quality):
-    db_repo, os_repo = FilesDBRepo(), OSRepo()
-    # retrieve latest version file
-    # Problem: existing file could not be the latest version...
-    matches = db_repo.retrieve_file(files_id, filename)["files"]
-    print(matches)
-    current_file = sorted(matches, key=lambda x: x["version"])[-1]
-    file_version = current_file["version"]
-    # check file is in storage
-    filename0 = f"{filename}_{file_version}"
-    if not os_repo.exists(dataset_or_model_id, filename0):
-        raise Exception("File does not exist")
-    file_size = os_repo.object_info(dataset_or_model_id, filename0).size
-    if quality == 0:
+        else:  # the file is the same
+            # print("same version of", filename)
+            new_file = File(
+                name=filename,
+                size=file["size"],
+                checksum=checksum,
+                version=file["version"],
+                versions=file["versions"] + [version],
+            )
+            db_repo.update_file(
+                files_id, filename, file["version"], new_file.model_dump()
+            )
+    else:
+        # print("new file", filename)
+        file_size = await save_file(path, dataset_or_model_id, filename, 1, checksum)
         new_file = File(
             name=filename,
             size=file_size,
-            checksum=current_file["checksum"],
-            version=file_version,
-            versions=current_file["versions"] + [version],
+            checksum=checksum,
+            version=1,
+            versions=[version],
         )
-        db_repo.update_file(files_id, filename, file_version, new_file.model_dump())
-    return file_size
+        db_repo.add_file(files_id, new_file.model_dump())
+    # folders = filename.split("/")
+    # TODO: esto no está bien
+    # if len(folders) > 1:
+    #     folder_name = "/".join(folders[:-1])
+    #     result = db_repo.add_folder_version(files_id, folder_name, version)
+    #     if result.matched_count == 0:
+    #         new_folder = Folder(name=folder_name, versions=[version])
+    #         db_repo.add_folder(files_id, new_folder.dict())
+    return new_file.size
+
+
+def ingest_existing_file(
+    filename, checksum, version, files_id, dataset_or_model_id, quality
+):
+    db_repo = FilesDBRepo()
+    # retrieve latest version file
+    # Problem: existing file could not be the latest version...
+    files = db_repo.retrieve_file(files_id, filename)
+    if not files or "files" not in files:
+        raise Exception("File does not exist")
+    file = sorted(files["files"], key=lambda x: x["version"])[-1]
+    if file["checksum"] != checksum:
+        raise ChecksumMismatch()
+    file_version = file["version"]
+    new_file = File(
+        name=filename,
+        size=file["size"],
+        checksum=file["checksum"],
+        version=file_version,
+        versions=file["versions"] + [version],
+    )
+    db_repo.update_file(files_id, filename, file_version, new_file.model_dump())
+    return file["size"]
 
 
 def ingest_file_url():
