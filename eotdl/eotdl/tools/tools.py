@@ -5,13 +5,12 @@ Module for data engineeringt
 import geopandas as gpd
 import pandas as pd
 import tarfile
-import rasterio
 import re
 import datetime
 import json
 
-from shapely.geometry import box, Polygon
-from pyproj import Transformer
+from .geo_utils import get_image_bbox
+from shapely.geometry import box
 from os.path import exists
 from typing import Union, Optional
 

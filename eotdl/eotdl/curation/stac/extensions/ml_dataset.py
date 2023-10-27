@@ -15,7 +15,7 @@ from os.path import dirname, exists
 from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
 from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
-from ..utils import make_links_relative_to_path
+from ....tools import make_links_relative_to_path
 
 T = TypeVar("T", pystac.Item, pystac.Collection, pystac.Catalog)
 
@@ -273,16 +273,16 @@ class MLDatasetQualityMetrics:
     @classmethod
     def calculate(self, catalog: Union[pystac.Catalog, str]) -> None:
         """ """
-
         if isinstance(catalog, str):
             catalog = MLDatasetExtension(pystac.read_file(catalog))
+        elif isinstance(catalog, pystac.Catalog):
+            catalog = MLDatasetExtension(catalog)
         # Check the catalog has the extension
         if not MLDatasetExtension.has_extension(catalog):
             raise pystac.ExtensionNotImplemented(
                 f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"
             )
 
-        catalog.make_all_asset_hrefs_absolute()
         try:
             catalog.add_metric(self._search_spatial_duplicates(catalog))
             catalog.add_metric(self._get_classes_balance(catalog))
@@ -300,7 +300,8 @@ class MLDatasetQualityMetrics:
             rmtree(
                 destination
             )  # Remove the old catalog and replace it with the new one
-            catalog.save(dest_href=destination)
+            catalog.set_root(catalog)
+            catalog.normalize_and_save(root_href=destination)
             print("Success!")
         except STACValidationError as error:
             # Return full callback
@@ -465,6 +466,10 @@ def add_ml_extension(
         splits_collection = catalog.get_child(
             splits_collection_id
         )  # Get the collection to split
+        if not splits_collection:
+            raise AttributeError(
+                f"The catalog does not have a collection with the id {splits_collection_id}"
+            )
         make_splits(
             splits_collection,
             train_size=train_size,
