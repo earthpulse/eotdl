@@ -35,3 +35,17 @@ def tmp_stac_catalog_labels():
     yield copied_catalog
     
     shutil.rmtree('tmp')
+
+
+@pytest.fixture
+def tmp_stac_collection():
+    original_collection_path = os.path.join(EXAMPLE_DATA_DIR, 'jaca_dataset_stac', 'collection.json')
+
+    os.makedirs('tmp', exist_ok=True)
+    tmp_collection_path = os.path.join('tmp', "copied_collection")
+    shutil.copy(original_collection_path, tmp_collection_path)
+
+    copied_collection = Catalog.from_file(os.path.join(tmp_collection_path, 'collection.json'))
+    yield copied_collection
+    
+    shutil.rmtree('tmp')

@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from eotdl.tools.time_utils import is_time_interval, create_time_slots, is_valid_date, get_day_between
+from eotdl.tools.time_utils import *
 
 
 @pytest.mark.parametrize("input_time_interval, expected_output", [
@@ -63,3 +63,45 @@ def test_is_valid_date(input_date, expected_output):
 )
 def test_get_day_between(from_date, to_date, expected):
     assert get_day_between(from_date, to_date) == expected
+
+
+def test_expand_time_interval():
+    pass
+
+
+def test_prepare_time_interval():
+    # Test para input en formato string
+    assert prepare_time_interval("2022-01-01") == ("2021-12-31", "2022-01-02")
+    
+    # Test para input en formato datetime
+    test_date = datetime.strptime("2022-01-01", "%Y-%m-%d")
+    assert prepare_time_interval(test_date) == ("2021-12-31", "2022-01-02")
+    
+    # Test para input en formato de tuple válido
+    assert prepare_time_interval(("2022-01-01", "2022-01-02")) == ("2022-01-01", "2022-01-02")
+    
+    # Test para input en formato de tuple inválido
+    with pytest.raises(ValueError, match=r".*range of two dates.*"):
+        prepare_time_interval(("2022-01-01",))
+    
+    # Test para input no válido
+    with pytest.raises(ValueError, match=r".*string with format YYYY-MM-DD or a datetime object.*"):
+        prepare_time_interval(1234)
+
+
+@pytest.mark.parametrize(
+    "dt, expected",
+    [
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+    ],
+)
+def test_format_time_acquired(dt, expected):
+    assert format_time_acquired(dt) == expected
