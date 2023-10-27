@@ -25,13 +25,16 @@ class MinioRepo:
                 file_version += 1
             except:
                 break
-        self.client.put_object(
-            self.bucket,
-            object,
-            file,
-            length=-1,
-            part_size=10 * 1024 * 1024,
-        )
+        if isinstance(file, str):
+            self.client.fput_object(self.bucket, object, file)
+        else:
+            self.client.put_object(
+                self.bucket,
+                object,
+                file,
+                length=-1,
+                part_size=10 * 1024 * 1024,
+            )
         return file_version
 
     def persist_file_url(self, url, dataset_id, filename):

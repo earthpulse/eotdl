@@ -6,16 +6,14 @@ from ...models import File, Folder
 
 
 async def ingest_file(
-    file, version, parent, dataset_or_model_id, checksum, quality, files_id
+    filename, path, version, dataset_or_model_id, checksum, quality, files_id
 ):
     db_repo, os_repo = FilesDBRepo(), OSRepo()
     # save file in storage
-    filename = file.filename
-    if parent != ".":
-        filename = parent + "/" + filename
-    file_version = os_repo.persist_file(file.file, dataset_or_model_id, filename)
+    file_version = os_repo.persist_file(path, dataset_or_model_id, filename)
     filename0 = filename
     filename += "_" + str(file_version)
+    print(filename)
     # delete if checksums don't match
     _checksum = await os_repo.calculate_checksum(dataset_or_model_id, filename)
     if checksum and checksum != _checksum:
@@ -26,10 +24,10 @@ async def ingest_file(
         files = db_repo.retrieve_file(files_id, filename0, file_version - 1)
         if files and "files" in files and len(files["files"]) == 1:
             # update file
-            # print(filename0, "already exists")
+            print(filename0, "already exists")
             file = files["files"][0]
             if file["checksum"] != checksum:  # the file has been modified
-                # print("new version of", filename0, filename)
+                print("new version of", filename0, filename)
                 new_file = File(
                     name=filename0,
                     size=file_size,
@@ -39,7 +37,7 @@ async def ingest_file(
                 )
                 db_repo.add_file(files_id, new_file.model_dump())
             else:
-                # print("same version of", filename0, filename)
+                print("same version of", filename0, filename)
                 os_repo.delete(dataset_or_model_id, filename)
                 new_file = File(
                     name=filename0,
@@ -56,7 +54,7 @@ async def ingest_file(
                 # files = [f for f in files if (f['name'] != filename0 or f['version'] != file.version)] + [file.dict()]
                 # print([(f.name, f.version) for f in files_id])
         else:
-            # print("new file", filename)
+            print("new file", filename)
             new_file = File(
                 name=filename0,
                 size=file_size,
@@ -73,44 +71,31 @@ async def ingest_file(
             if result.matched_count == 0:
                 new_folder = Folder(name=folder_name, versions=[version])
                 db_repo.add_folder(files_id, new_folder.dict())
-    return filename, file_size
+    return file_size
 
 
-async def ingest_existing_file(
-    filename, version, files_id, file_version, dataset_or_model_id, checksum, quality
-):
+def ingest_existing_file(filename, version, files_id, dataset_or_model_id, quality):
     db_repo, os_repo = FilesDBRepo(), OSRepo()
-    # retrieve file
-    current_file = db_repo.retrieve_file(files_id, filename, file_version)["files"][0]
+    # retrieve latest version file
+    # Problem: existing file could not be the latest version...
+    matches = db_repo.retrieve_file(files_id, filename)["files"]
+    current_file = sorted(matches, key=lambda x: x["version"])[-1]
+    file_version = current_file["version"]
     # check file is in storage
     filename0 = f"{filename}_{file_version}"
     if not os_repo.exists(dataset_or_model_id, filename0):
         raise Exception("File does not exist")
-    # check checksums match
-    _checksum = await os_repo.calculate_checksum(dataset_or_model_id, filename0)
-    if _checksum != checksum:
-        raise ChecksumMismatch()
     file_size = os_repo.object_info(dataset_or_model_id, filename0).size
     if quality == 0:
         new_file = File(
             name=filename,
             size=file_size,
-            checksum=checksum,
-            version=current_file["version"],
+            checksum=current_file["checksum"],
+            version=file_version,
             versions=current_file["versions"] + [version],
         )
         db_repo.update_file(files_id, filename, file_version, new_file.model_dump())
-    # TODO: report usage
-    # usage = Usage.FileIngested(
-    #     uid=uid,
-    #     payload={
-    #         "dataset": dataset_or_model_id,
-    #         "file": filename,
-    #         "size": file_size,
-    #     },
-    # )
-    # db_repo.persist("usage", usage.dict())
-    return filename, file_size
+    return file_size
 
 
 def ingest_file_url():

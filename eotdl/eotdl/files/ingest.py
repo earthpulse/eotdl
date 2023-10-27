@@ -5,6 +5,60 @@ from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
 
 
+def ingest_files_batch(
+    batch,
+    dataset_or_model_id,
+    version,
+    logger=None,
+    verbose=True,
+    user=None,
+    endpoint="datasets",
+):
+    id_token = user["id_token"]
+    if verbose:
+        logger(f"Uploading files {batch}...")
+    repo = FilesAPIRepo()
+    print(batch)
+    # if file.startswith("http://") or file.startswith("https://"):
+    #     raise NotImplementedError("URL ingestion not implemented yet")
+    #     # data, error = repo.ingest_file_url(file, dataset_or_model_id, id_token)
+    # ingest small file
+    data, error = repo.ingest_files_batch(
+        batch,
+        dataset_or_model_id,
+        version,
+        parent,
+        id_token,
+        checksum,
+        endpoint,
+    )
+    if error:
+        raise Exception(error)
+    return data
+
+
+def ingest_existing_file(
+    file,
+    dataset_or_model_id,
+    version,
+    user,
+    endpoint="datasets",
+    logger=None,
+    verbose=True,
+):
+    repo = FilesAPIRepo()
+    id_token = user["id_token"]
+    data, error = repo.ingest_existing_file(
+        file["filename"],
+        dataset_or_model_id,
+        version,
+        file["version"],
+        id_token,
+        file["checksum"],
+        endpoint,
+    )
+
+
 def ingest_file(
     file,
     dataset_or_model_id,

@@ -9,6 +9,41 @@ class FilesAPIRepo(APIRepo):
     def __init__(self, url=None):
         super().__init__(url)
 
+    def ingest_files_batch(
+        self,
+        batch,  # ziped batch of files
+        checksums,
+        dataset_or_model_id,
+        id_token,
+        endpoint,
+        version=None,
+    ):
+        url = self.url + f"{endpoint}/{dataset_or_model_id}"
+        if version is not None:
+            url += "?version=" + str(version)
+        reponse = requests.post(
+            url,
+            files={"batch": ("batch.zip", batch)},
+            data={"checksums": checksums},
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
+
+    def add_file_to_version(
+        self,
+        filename,
+        dataset_or_model_id,
+        version,
+        id_token,
+        endpoint,
+    ):
+        reponse = requests.post(
+            self.url
+            + f"{endpoint}/{dataset_or_model_id}/file/{filename}?version={str(version)}",
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
+
     def ingest_file(
         self,
         file,
@@ -23,30 +58,6 @@ class FilesAPIRepo(APIRepo):
             self.url + f"{endpoint}/{dataset_or_model_id}",
             files={"file": open(file, "rb")},
             data={"checksum": checksum, "version": version, "parent": parent}
-            if checksum
-            else None,
-            headers={"Authorization": "Bearer " + id_token},
-        )
-        return self.format_response(reponse)
-
-    def ingest_existing_file(
-        self,
-        filename,
-        dataset_or_model_id,
-        version,
-        file_version,
-        id_token,
-        checksum,
-        endpoint,
-    ):
-        reponse = requests.post(
-            self.url + f"{endpoint}/{dataset_or_model_id}",
-            data={
-                "checksum": checksum,
-                "version": version,
-                "filename": filename,
-                "fileversion": file_version,
-            }
             if checksum
             else None,
             headers={"Authorization": "Bearer " + id_token},
