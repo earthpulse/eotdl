@@ -56,6 +56,8 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
         # create dataset
         data, error = repo.create_dataset(metadata.dict(), user["id_token"])
         # print(data, error)
+        if error:
+            raise Exception(error)
         data["id"] = data["dataset_id"]
     dataset_id = data["id"]
     # retrieve files
@@ -68,13 +70,13 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     upload_files, existing_files = [], []
     current_names = [f["filename"] for f in current_files]
     current_checksums = [f["checksum"] for f in current_files]
-    print(current_names)
     for item in tqdm(items):
         data = prepare_item(item, folder)
         if data["path"] in current_names and data["checksum"] in current_checksums:
-            logger(f"File {item.name} already exists in dataset")
+            logger(f"File {data['path']} already exists in dataset")
             existing_files.append(data)
         else:
+            logger(f"File {data['path']} will be uploaded")
             upload_files.append(data)
     if len(upload_files) == 0 and len(existing_files) == 0:
         raise Exception("No files to upload")
@@ -120,13 +122,13 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             )
     if len(existing_files) > 0:
         # ingest existing files
-        logger("ingesting existing files...")
         for file in tqdm(
             existing_files,
             desc="Ingesting existing files",
             unit="files",
             disable=verbose,
         ):
+            print(file["path"])
             data, error = files_repo.add_file_to_version(
                 file["path"],
                 dataset_id,
