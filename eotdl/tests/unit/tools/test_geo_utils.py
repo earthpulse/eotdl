@@ -3,11 +3,12 @@ import numpy as np
 import rasterio
 import os
 import shutil
+import pandas as pd
 
 from sentinelhub import BBox
 
 from eotdl.tools.geo_utils import *
-from shapely.geometry import box
+from shapely.geometry import box, Point
 
 
 @pytest.mark.parametrize("bbox, expected", [
@@ -81,3 +82,50 @@ def test_get_image_resolution(mock_raster):
     resolution = get_image_resolution(mock_raster)
     assert isinstance(resolution, tuple)
     assert resolution == (0.05, 0.05)
+
+
+def test_bbox_to_coordinates():
+    bbox = [1, 2, 3, 4]
+    coordinates = bbox_to_coordinates(bbox)
+    assert isinstance(coordinates, list)
+    assert len(coordinates) == 5
+    assert coordinates == [(1, 2), (1, 4), (3, 4), (3, 2), (1, 2)]
+
+
+def test_bbox_to_polygon():
+    bbox = [1, 2, 3, 4]
+    polygon = bbox_to_polygon(bbox)
+    assert isinstance(polygon, Polygon)
+    assert polygon.bounds == (1, 2, 3, 4)
+
+
+def test_bbox_from_centroid():
+    bbox = bbox_from_centroid(0, 0, 10, 2, 2)
+    assert isinstance(bbox, list)
+    assert len(bbox) == 4
+    assert bbox == [-8.983152841195213e-05, -8.983152841191533e-05, 8.983152841195213e-05, 8.983152841191533e-05]
+
+
+def test_generate_bounding_box():
+    point = Point(0, 0)
+    differences = [2, 2]
+
+    bbox = generate_bounding_box(point, differences)
+    expected_bbox = [-1, -1, 1, 1]
+
+    assert bbox == expected_bbox
+
+
+def test_convert_df_geom_to_shape():
+    data = {'geometry': [Point(0, 0).__geo_interface__]}
+    df = pd.DataFrame(data)
+
+    row_with_geom = df.iloc[0]
+    result_wkt_with_geom = convert_df_geom_to_shape(row_with_geom)
+
+    assert result_wkt_with_geom == "POINT (0 0)"
+
+    row_without_geom = pd.Series({"geometry": None})
+    result_wkt_without_geom = convert_df_geom_to_shape(row_without_geom)
+
+    assert result_wkt_without_geom == "POLYGON EMPTY"
