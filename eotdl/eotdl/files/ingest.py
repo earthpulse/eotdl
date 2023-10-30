@@ -1,146 +1,173 @@
 from pathlib import Path
 import os
+from tqdm import tqdm
+import zipfile
+import io
+from glob import glob
+import os
 
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
+from ..shared import calculate_checksum
 
 
-def ingest_files_batch(
-    batch,
-    dataset_or_model_id,
-    version,
-    logger=None,
-    verbose=True,
-    user=None,
-    endpoint="datasets",
+def retrieve_files(folder):
+    # get all files in directory recursively
+    items = [Path(item) for item in glob(str(folder) + "/**/*", recursive=True)]
+    if not any(item.name == "metadata.yml" for item in items):
+        raise Exception("metadata.yml not found in directory")
+    # remove directories
+    items = [item for item in items if not item.is_dir()]
+    if len(items) == 0:
+        raise Exception("No files found in directory")
+    return items
+
+
+def prepare_item(item, folder):
+    return {
+        "filename": item.name,
+        "path": str(item.relative_to(folder)),
+        "absolute_path": item.absolute(),
+        "size": os.path.getsize(item.absolute()),
+        "checksum": calculate_checksum(item.absolute()),
+    }
+
+
+def generate_batches(files, max_batch_size=1024 * 1024 * 10, max_batch_files=10):
+    batches = []
+    for item in tqdm(files):
+        if not batches:
+            batches.append([item])
+            continue
+        if max_batch_size:
+            size_check = sum([i["size"] for i in batches[-1]]) < max_batch_size
+        else:
+            size_check = True
+        if size_check and len(batches[-1]) < max_batch_files:
+            batches[-1].append(item)
+        else:
+            batches.append([item])
+    return batches
+
+
+def compress_batch(batch):
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, "w") as zf:
+        for f in batch:
+            zf.write(f["absolute_path"], arcname=f["path"])
+    memory_file.seek(0)
+    return memory_file
+
+
+def generate_files_lists(
+    items, folder, dataset_or_model_id, endpoint, logger, max_size=1024 * 1024 * 16
 ):
-    id_token = user["id_token"]
-    if verbose:
-        logger(f"Uploading files {batch}...")
-    repo = FilesAPIRepo()
-    print(batch)
-    # if file.startswith("http://") or file.startswith("https://"):
-    #     raise NotImplementedError("URL ingestion not implemented yet")
-    #     # data, error = repo.ingest_file_url(file, dataset_or_model_id, id_token)
-    # ingest small file
-    data, error = repo.ingest_files_batch(
-        batch,
-        dataset_or_model_id,
-        version,
-        parent,
-        id_token,
-        checksum,
-        endpoint,
-    )
+    files_repo = FilesAPIRepo()
+    current_files, error = files_repo.retrieve_files(dataset_or_model_id, endpoint)
+    # print(len(current_files), len(items) - len(current_files))
+    # print(current_files, error)
+    if error:
+        current_files = []
+    # generate list of files to upload
+    logger("generating list of files to upload...")
+    upload_files, existing_files, large_files = [], [], []
+    current_names = [f["filename"] for f in current_files]
+    current_checksums = [f["checksum"] for f in current_files]
+    for item in tqdm(items):
+        data = prepare_item(item, folder)
+        if data["path"] in current_names and data["checksum"] in current_checksums:
+            existing_files.append(data)
+        else:
+            if data["size"] > max_size:
+                large_files.append(data)
+            else:
+                upload_files.append(data)
+    if len(upload_files) == 0 and len(large_files) == 0:
+        raise Exception("No files to upload")
+    return upload_files, existing_files, large_files
+
+
+def create_new_version(repo, dataset_or_model_id, user):
+    data, error = repo.create_version(dataset_or_model_id, user["id_token"])
     if error:
         raise Exception(error)
-    return data
+    return data["version"]
 
 
-def ingest_existing_file(
-    file,
-    dataset_or_model_id,
-    version,
-    user,
-    endpoint="datasets",
-    logger=None,
-    verbose=True,
-):
-    repo = FilesAPIRepo()
-    id_token = user["id_token"]
-    data, error = repo.ingest_existing_file(
-        file["filename"],
-        dataset_or_model_id,
-        version,
-        file["version"],
-        id_token,
-        file["checksum"],
-        endpoint,
+def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpoint):
+    files_repo = FilesAPIRepo()
+    logger(f"Uploading directory {folder}...")
+    items = retrieve_files(folder)
+    # retrieve files
+    upload_files, existing_files, large_files = generate_files_lists(
+        items, folder, dataset_or_model_id, endpoint, logger
     )
-
-
-def ingest_file(
-    file,
-    dataset_or_model_id,
-    version,
-    parent,
-    logger=None,
-    verbose=True,
-    user=None,
-    current_files=[],
-    endpoint="datasets",
-):
-    id_token = user["id_token"]
-    if verbose:
-        logger(f"Uploading file {file}...")
-    repo = FilesAPIRepo()
-    if file.startswith("http://") or file.startswith("https://"):
-        raise NotImplementedError("URL ingestion not implemented yet")
-        # data, error = repo.ingest_file_url(file, dataset_or_model_id, id_token)
-    else:
-        file_path = Path(file)
-        if not file_path.is_absolute():
-            file_path = str(file_path.absolute())
-        if verbose:
-            logger("Computing checksum...")
-        checksum = calculate_checksum(file_path)
-        # check if file already exists in dataset
-        filename = os.path.basename(file_path)
-        if parent != ".":
-            filename = parent + "/" + filename
-        if len(current_files) > 0:
-            matches = [
-                f
-                for f in current_files
-                if f["filename"] == filename and f["checksum"] == checksum
-            ]  # this could slow down ingestion in large datasets... should think of faster search algos, puede que sea mejor hacer el re-upload simplemente...
-            if len(matches) == 1:
-                if verbose:
-                    print(f"File {file_path} already exists, skipping...")
-                data, error = repo.ingest_existing_file(
-                    filename,
-                    dataset_or_model_id,
-                    version,
-                    matches[0]["version"],
-                    id_token,
-                    checksum,
-                    endpoint,
-                )
-                if error:
-                    raise Exception(error)
-                if verbose:
-                    logger("Done")
-                return data
-        if verbose:
-            logger("Ingesting file...")
-        filesize = os.path.getsize(file_path)
-        # ingest small file
-        if filesize < 1024 * 1024 * 160:  # 160 MB
-            data, error = repo.ingest_file(
-                file_path,
+    logger(f"{len(upload_files) + len(large_files)} new files will be ingested")
+    logger(f"{len(existing_files)} files already exist in dataset")
+    logger(f"{len(large_files)} large files will be ingested separately")
+    # create new version
+    version = create_new_version(repo, dataset_or_model_id, user)
+    logger("New version created, version: " + str(version))
+    # ingest new large files
+    if len(large_files) > 0:
+        logger("ingesting large files...")
+        for file in large_files:
+            logger("ingesting file: " + file["path"])
+            upload_id, parts = files_repo.prepare_large_upload(
+                file["path"],
+                dataset_or_model_id,
+                file["checksum"],
+                user["id_token"],
+                endpoint,
+            )
+            # print(upload_id, parts)
+            files_repo.ingest_large_file(
+                file["absolute_path"],
+                file["size"],
+                upload_id,
+                user["id_token"],
+                parts,
+                endpoint,
+            )
+            files_repo.complete_upload(user["id_token"], upload_id, version)
+    # ingest new small files in batches
+    if len(upload_files) > 0:
+        logger("generating batches...")
+        batches = generate_batches(upload_files)
+        logger(
+            f"Uploading {len(upload_files)} small files in {len(batches)} batches..."
+        )
+        repo = FilesAPIRepo()
+        for batch in tqdm(
+            batches, desc="Uploading batches", unit="batches", disable=verbose
+        ):
+            # compress batch
+            memory_file = compress_batch(batch)
+            # ingest batch
+            data, error = repo.ingest_files_batch(
+                memory_file,
+                [f["checksum"] for f in batch],
+                dataset_or_model_id,
+                user["id_token"],
+                "datasets",
+                version,
+            )
+    # ingest existing files
+    if len(existing_files) > 0:
+        batches = generate_batches(existing_files, max_batch_size=None)
+        for batch in tqdm(
+            batches,
+            desc="Ingesting existing files",
+            unit="batches",
+            disable=verbose,
+        ):
+            data, error = files_repo.add_files_batch_to_version(
+                batch,
                 dataset_or_model_id,
                 version,
-                parent,
-                id_token,
-                checksum,
-                endpoint,
+                user["id_token"],
+                "datasets",
             )
             if error:
                 raise Exception(error)
-            if verbose:
-                logger("Done")
-            return data
-        raise NotImplementedError("Large file ingestion not implemented yet")
-        # # ingest large file
-        # upload_id, parts = repo.prepare_large_upload(
-        #     file_path, dataset_or_model_id, checksum, id_token
-        # )
-        # repo.ingest_large_dataset(file_path, upload_id, id_token, parts)
-        # if verbose:
-        #     logger("\nCompleting upload...")
-        # data, error = repo.complete_upload(id_token, upload_id)
-    if error:
-        raise Exception(error)
-    if verbose:
-        logger("Done")
     return data

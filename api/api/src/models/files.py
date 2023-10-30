@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 
 class File(BaseModel):
@@ -32,7 +32,8 @@ class UploadingFile(BaseModel):
     upload_id: str
     filename: str
     version: int
-    dataset: str
+    dataset: Optional[str] = None
+    model: Optional[str] = None
     checksum: str
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
