@@ -18,10 +18,15 @@ from .routers.datasets import (
     ingest_dataset,
     download_dataset,
     update_dataset,
-    upload_large_files,
-    # delete_dataset,
+    upload_large_dataset_files,
 )
-from .routers.models import retrieve_models, create_model, ingest_model, download_model
+from .routers.models import (
+    retrieve_models,
+    create_model,
+    ingest_model,
+    download_model,
+    upload_large_model_files,
+)
 from .routers import admin, migrate
 
 app = FastAPI()
@@ -48,13 +53,17 @@ app.include_router(create_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
-app.include_router(upload_large_files.router, prefix="/datasets", tags=["datasets"])
+app.include_router(
+    upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
+)
+# files
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # models
 app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
 app.include_router(create_model.router, prefix="/models", tags=["models"])
 app.include_router(ingest_model.router, prefix="/models", tags=["models"])
 app.include_router(download_model.router, prefix="/models", tags=["models"])
+app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
 # other
 app.include_router(admin.router)
 app.include_router(migrate.router)
