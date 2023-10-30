@@ -50,10 +50,10 @@ class MongoFilesRepo(MongoRepo):
         query = [
             {"$match": {"id": files_id}},
             {"$unwind": "$files"},
-            {"$group": {"_id": "$_id", "files": {"$push": "$files"}}},
         ]
         if version:
             query.append({"$match": {"files.versions": version}})
+        query.append({"$group": {"_id": "$_id", "files": {"$push": "$files"}}})
         return list(self.db["files"].aggregate(query))
 
     def find_upload(self, uid, filename, file_version, dataset_id):

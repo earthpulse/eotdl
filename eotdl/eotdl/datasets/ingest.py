@@ -72,6 +72,7 @@ def generate_files_lists(items, folder, dataset_id, logger, max_size=1024 * 1024
     upload_files, existing_files, large_files = [], [], []
     current_names = [f["filename"] for f in current_files]
     current_checksums = [f["checksum"] for f in current_files]
+    print(items)
     for item in tqdm(items):
         data = prepare_item(item, folder)
         if data["path"] in current_names and data["checksum"] in current_checksums:
@@ -81,7 +82,7 @@ def generate_files_lists(items, folder, dataset_id, logger, max_size=1024 * 1024
                 large_files.append(data)
             else:
                 upload_files.append(data)
-    if len(upload_files) == 0:
+    if len(upload_files) == 0 and len(large_files) == 0:
         raise Exception("No files to upload")
     return upload_files, existing_files, large_files
 
