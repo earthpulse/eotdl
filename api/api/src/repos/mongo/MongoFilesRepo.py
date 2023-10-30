@@ -56,10 +56,15 @@ class MongoFilesRepo(MongoRepo):
             query.append({"$match": {"files.versions": version}})
         return list(self.db["files"].aggregate(query))
 
-    def find_upload(self, uid, filename, dataset_id):
+    def find_upload(self, uid, filename, file_version, dataset_id):
         return self.find_one(
             "uploading",
-            {"uid": uid, "filename": filename, "dataset": dataset_id},
+            {
+                "uid": uid,
+                "filename": filename,
+                "dataset": dataset_id,
+                "version": file_version,
+            },
         )
 
     def find_upload_by_id(self, uid, upload_id):

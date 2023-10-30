@@ -164,7 +164,7 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
             files_repo.ingest_large_file(
                 file["absolute_path"], file["size"], upload_id, user["id_token"], parts
             )
-            files_repo.complete_upload(user["id_token"], upload_id)
+            files_repo.complete_upload(user["id_token"], upload_id, version)
     # ingest files in batches
     if len(upload_files) > 0:
         logger("generating batches...")

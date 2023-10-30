@@ -17,8 +17,11 @@ def generate_upload_id(user, checksum, filename, dataset_id):
         file = sorted(files["files"], key=lambda x: x["version"])[-1]
         if file["checksum"] == checksum:  # the file has not been modified
             raise Exception("File already exists")
+        file_version = file["version"] + 1
+    else:
+        file_version = 1
     # check if upload already exists
-    data = files_repo.find_upload(user.uid, filename, dataset_id)
+    data = files_repo.find_upload(user.uid, filename, file_version, dataset_id)
     if data:
         uploading = UploadingFile(**data)
         # abort if trying to resume existing upload with a different file
@@ -29,7 +32,7 @@ def generate_upload_id(user, checksum, filename, dataset_id):
     # TODO: check if user can ingest file
     # create new upload
     id = files_repo.generate_id()
-    storage = os_repo.get_object(dataset.id, filename)
+    storage = os_repo.get_object(dataset.id, f"{filename}_{file_version}")
     upload_id = s3_repo.multipart_upload_id(
         storage
     )  # does this work if the file already exists ?
@@ -38,6 +41,7 @@ def generate_upload_id(user, checksum, filename, dataset_id):
         id=id,
         upload_id=upload_id,
         dataset=dataset_id,
+        version=file_version,
         filename=filename,
         checksum=checksum,
     )
@@ -51,7 +55,9 @@ def ingest_dataset_chunk(file, part_number, upload_id, checksum, user):
     if not data or data["uid"] != user.uid:
         raise UploadIdDoesNotExist()
     uploading = UploadingFile(**data)
-    storage = os_repo.get_object(uploading.dataset, uploading.filename)
+    storage = os_repo.get_object(
+        uploading.dataset, f"{uploading.filename}_{uploading.version}"
+    )
     _checksum = s3_repo.store_chunk(file, storage, part_number, upload_id)
     if checksum != _checksum:
         raise ChunkUploadChecksumMismatch()
@@ -61,8 +67,8 @@ def ingest_dataset_chunk(file, part_number, upload_id, checksum, user):
     return "Chunk uploaded"
 
 
-def complete_multipart_upload(user, upload_id):
-    datasets_repo = files_repo, os_repo, s3_repo = (
+def complete_multipart_upload(user, upload_id, version):
+    datasets_repo, files_repo, os_repo, s3_repo = (
         DatasetsDBRepo(),
         FilesDBRepo(),
         OSRepo(),
@@ -75,45 +81,29 @@ def complete_multipart_upload(user, upload_id):
     uploading = UploadingFile(**data)
     # check if dataset exists
     dataset = retrieve_owned_dataset(uploading.dataset, user.uid)
-    # TODO: check if user can ingest
-    storage = os_repo.get_object(dataset.id, uploading.filename)
+    # complete upload
+    storage = os_repo.get_object(
+        dataset.id, f"{uploading.filename}_{uploading.version}"
+    )
     s3_repo.complete_multipart_upload(storage, upload_id)
-    object_info = os_repo.object_info(dataset.id, uploading.filename)
-    # # calculate checksum (too expensive for big files)
-    # checksum = await self.os_repo.calculate_checksum(
-    #     dataset.id, uploading.name
-    # )
-    # if checksum != uploading.checksum:
-    #     self.os_repo.delete_file(dataset.id, uploading.name)
-    #     if len(dataset.files) == 0:
-    #         self.db_repo.delete("datasets", dataset.id)
-    #     raise ChecksumMismatch()
-
-    # TODO: versioning
-    # if uploading.filename in [f.name for f in dataset.files]:
-    #     dataset.files = [f for f in dataset.files if f.name != uploading.name]
-    # dataset.files.append(
-    #     File(
-    #         name=uploading.filename,
-    #         size=object_info.size,
-    #         checksum=uploading.checksum,
-    #         version=1,
-    #     )
-    # )
-
+    object_info = os_repo.object_info(
+        dataset.id, f"{uploading.filename}_{uploading.version}"
+    )
+    # we don't compute checksum since for very large files will take a long time...
+    # We are not checking if the fil already exists here...
+    new_file = File(
+        name=uploading.filename,
+        size=object_info.size,
+        checksum=uploading.checksum,  # should compute again, but can be expensive...
+        version=uploading.version,
+        versions=[version],
+    )
+    files_repo.add_file(dataset.files, new_file.model_dump())
+    # TODO: check if user can ingest
+    version = [v for v in dataset.versions if v.version_id == version][0]
+    version.size += object_info.size
     dataset.updatedAt = datetime.now()
-    # TODO: update version size
-    # dataset.size = dataset.size + object_info.size
     datasets_repo.update_dataset(dataset.id, dataset.model_dump())
     # TODO: report usage
-    # usage = Usage.FileIngested(
-    #     uid=inputs.uid,
-    #     payload={
-    #         "dataset": dataset.id,
-    #         "file": uploading.name,
-    #         "size": object_info.size,
-    #     },
-    # )
-    # self.db_repo.persist("usage", usage.dict())
     files_repo.delete_upload(uploading.id)
     return dataset

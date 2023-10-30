@@ -90,11 +90,12 @@ class FilesAPIRepo(APIRepo):
         path,
         file_version,
         endpoint="datasets",
+        progress=False,
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}/download/{file_name}"
         if file_version is not None:
             url += "?version=" + str(file_version)
-        return self.download_file_url(url, file_name, path, id_token)
+        return self.download_file_url(url, file_name, path, id_token, progress=progress)
 
     def download_file_url(self, url, filename, path, id_token, progress=False):
         headers = {"Authorization": "Bearer " + id_token}
@@ -106,9 +107,14 @@ class FilesAPIRepo(APIRepo):
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
             block_size = 1024 * 1024 * 10
+            progress = progress and total_size > 1024 * 1024 * 16
             if progress:
                 progress_bar = tqdm(
-                    total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+                    total=total_size,
+                    unit="iB",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    position=1,
                 )
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
@@ -194,9 +200,9 @@ class FilesAPIRepo(APIRepo):
         pbar.close()
         return
 
-    def complete_upload(self, id_token, upload_id):
+    def complete_upload(self, id_token, upload_id, version):
         r = requests.post(
-            self.url + "datasets/complete/" + upload_id,
+            self.url + "datasets/complete/" + upload_id + "?version=" + str(version),
             headers={"Authorization": "Bearer " + id_token},
         )
         return self.format_response(r)
