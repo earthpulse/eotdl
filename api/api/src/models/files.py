@@ -31,6 +31,7 @@ class UploadingFile(BaseModel):
     id: str
     upload_id: str
     filename: str
+    version: int
     dataset: str
     checksum: str
     createdAt: datetime = datetime.now()
