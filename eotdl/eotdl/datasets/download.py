@@ -61,7 +61,7 @@ def download_dataset(
             # return Outputs(dst_path=dst_path)
         dataset_files = retrieve_dataset_files(dataset["id"], version)
         repo = FilesAPIRepo()
-        for file in tqdm(dataset_files, disable=verbose, unit="file"):
+        for file in tqdm(dataset_files, disable=verbose, unit="file", position=0):
             filename, file_version = file["filename"], file["version"]
             if verbose:
                 logger(f"Downloading {file['filename']}...")
@@ -71,12 +71,13 @@ def download_dataset(
                 user["id_token"],
                 download_path,
                 file_version,
+                progress=True,
             )
             # if calculate_checksum(dst_path) != checksum:
             #     logger(f"Checksum for {file} does not match")
             if verbose:
                 logger(f"Done")
-        return "/".join(dst_path.split("/")[:-1])
+        return download_path
     else:
         raise NotImplementedError("Downloading a STAC dataset is not implemented")
     #     logger("Downloading STAC metadata...")
