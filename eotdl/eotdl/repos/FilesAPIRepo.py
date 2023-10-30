@@ -1,6 +1,7 @@
 import requests
 import os
 from tqdm import tqdm
+import hashlib
 
 from ..repos import APIRepo
 
@@ -8,6 +9,44 @@ from ..repos import APIRepo
 class FilesAPIRepo(APIRepo):
     def __init__(self, url=None):
         super().__init__(url)
+
+    def ingest_files_batch(
+        self,
+        batch,  # ziped batch of files
+        checksums,
+        dataset_or_model_id,
+        id_token,
+        endpoint,
+        version=None,
+    ):
+        url = self.url + f"{endpoint}/{dataset_or_model_id}"
+        if version is not None:
+            url += "?version=" + str(version)
+        reponse = requests.post(
+            url,
+            files={"batch": ("batch.zip", batch)},
+            data={"checksums": checksums},
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
+
+    def add_files_batch_to_version(
+        self,
+        batch,
+        dataset_or_model_id,
+        version,
+        id_token,
+        endpoint,
+    ):
+        reponse = requests.post(
+            self.url + f"{endpoint}/{dataset_or_model_id}/files?version={str(version)}",
+            data={
+                "filenames": [f["path"] for f in batch],
+                "checksums": [f["checksum"] for f in batch],
+            },
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(reponse)
 
     def ingest_file(
         self,
@@ -23,30 +62,6 @@ class FilesAPIRepo(APIRepo):
             self.url + f"{endpoint}/{dataset_or_model_id}",
             files={"file": open(file, "rb")},
             data={"checksum": checksum, "version": version, "parent": parent}
-            if checksum
-            else None,
-            headers={"Authorization": "Bearer " + id_token},
-        )
-        return self.format_response(reponse)
-
-    def ingest_existing_file(
-        self,
-        filename,
-        dataset_or_model_id,
-        version,
-        file_version,
-        id_token,
-        checksum,
-        endpoint,
-    ):
-        reponse = requests.post(
-            self.url + f"{endpoint}/{dataset_or_model_id}",
-            data={
-                "checksum": checksum,
-                "version": version,
-                "filename": filename,
-                "fileversion": file_version,
-            }
             if checksum
             else None,
             headers={"Authorization": "Bearer " + id_token},
@@ -75,11 +90,12 @@ class FilesAPIRepo(APIRepo):
         path,
         file_version,
         endpoint="datasets",
+        progress=False,
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}/download/{file_name}"
         if file_version is not None:
             url += "?version=" + str(file_version)
-        return self.download_file_url(url, file_name, path, id_token)
+        return self.download_file_url(url, file_name, path, id_token, progress=progress)
 
     def download_file_url(self, url, filename, path, id_token, progress=False):
         headers = {"Authorization": "Bearer " + id_token}
@@ -91,9 +107,14 @@ class FilesAPIRepo(APIRepo):
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
             block_size = 1024 * 1024 * 10
+            progress = progress and total_size > 1024 * 1024 * 16
             if progress:
                 progress_bar = tqdm(
-                    total=total_size, unit="iB", unit_scale=True, unit_divisor=1024
+                    total=total_size,
+                    unit="iB",
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    position=1,
                 )
             with open(path, "wb") as f:
                 for chunk in r.iter_content(block_size):
@@ -115,79 +136,76 @@ class FilesAPIRepo(APIRepo):
     #         return None, reponse.json()["detail"]
     #     return reponse.json(), None
 
-    # def read_in_chunks(self, file_object, CHUNK_SIZE):
-    #     while True:
-    #         data = file_object.read(CHUNK_SIZE)
-    #         if not data:
-    #             break
-    #         yield data
+    def prepare_large_upload(self, filename, dataset_id, checksum, id_token):
+        response = requests.post(
+            self.url + f"datasets/{dataset_id}/uploadId",
+            json={"filname": filename, "checksum": checksum},
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        if response.status_code != 200:
+            raise Exception(response.json()["detail"])
+        data = response.json()
+        upload_id, parts = (
+            data["upload_id"],
+            data["parts"] if "parts" in data else [],
+        )
+        return upload_id, parts
 
-    # def prepare_large_upload(self, file, dataset_id, checksum, id_token):
-    #     filename = Path(file).name
-    #     response = requests.post(
-    #         self.url + f"datasets/{dataset_id}/uploadId",
-    #         json={"name": filename, "checksum": checksum},
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if response.status_code != 200:
-    #         raise Exception(response.json()["detail"])
-    #     data = response.json()
-    #     upload_id, parts = (
-    #         data["upload_id"],
-    #         data["parts"] if "parts" in data else [],
-    #     )
-    #     return upload_id, parts
+    def get_chunk_size(self, content_size):
+        # adapt chunk size to content size to avoid S3 limits (10000 parts, 500MB per part, 5TB per object)
+        chunk_size = 1024 * 1024 * 10  # 10 MB (up to 100 GB, 10000 parts)
+        if content_size >= 1024 * 1024 * 1024 * 100:  # 100 GB
+            chunk_size = 1024 * 1024 * 100  # 100 MB (up to 1 TB, 10000 parts)
+        elif content_size >= 1024 * 1024 * 1024 * 1000:  # 1 TB
+            chunk_size = 1024 * 1024 * 500  # 0.5 GB (up to 5 TB, 10000 parts)
+        return chunk_size
 
-    # def get_chunk_size(self, content_size):
-    #     # adapt chunk size to content size to avoid S3 limits (10000 parts, 500MB per part, 5TB per object)
-    #     chunk_size = 1024 * 1024 * 10  # 10 MB (up to 100 GB, 10000 parts)
-    #     if content_size >= 1024 * 1024 * 1024 * 100:  # 100 GB
-    #         chunk_size = 1024 * 1024 * 100  # 100 MB (up to 1 TB, 10000 parts)
-    #     elif content_size >= 1024 * 1024 * 1024 * 1000:  # 1 TB
-    #         chunk_size = 1024 * 1024 * 500  # 0.5 GB (up to 5 TB, 10000 parts)
-    #     return chunk_size
+    def read_in_chunks(self, file_object, CHUNK_SIZE):
+        while True:
+            data = file_object.read(CHUNK_SIZE)
+            if not data:
+                break
+            yield data
 
-    # def ingest_large_dataset(self, file, upload_id, id_token, parts):
-    #     content_path = os.path.abspath(file)
-    #     content_size = os.stat(content_path).st_size
-    #     chunk_size = self.get_chunk_size(content_size)
-    #     total_chunks = content_size // chunk_size
-    #     # upload chunks sequentially
-    #     pbar = tqdm(
-    #         self.read_in_chunks(open(content_path, "rb"), chunk_size),
-    #         total=total_chunks,
-    #     )
-    #     index = 0
-    #     for chunk in pbar:
-    #         part = index // chunk_size + 1
-    #         offset = index + len(chunk)
-    #         index = offset
-    #         if part not in parts:
-    #             checksum = hashlib.md5(chunk).hexdigest()
-    #             response = requests.post(
-    #                 self.url + "datasets/chunk/" + upload_id,
-    #                 files={"file": chunk},
-    #                 data={"part_number": part, "checksum": checksum},
-    #                 headers={"Authorization": "Bearer " + id_token},
-    #             )
-    #             if response.status_code != 200:
-    #                 raise Exception(response.json()["detail"])
-    #         pbar.set_description(
-    #             "{:.2f}/{:.2f} MB".format(
-    #                 offset / 1024 / 1024, content_size / 1024 / 1024
-    #             )
-    #         )
-    #     pbar.close()
-    #     return
+    def ingest_large_file(self, file_path, files_size, upload_id, id_token, parts):
+        # content_path = os.path.abspath(file)
+        # content_size = os.stat(content_path).st_size
+        chunk_size = self.get_chunk_size(files_size)
+        total_chunks = files_size // chunk_size
+        # upload chunks sequentially
+        pbar = tqdm(
+            self.read_in_chunks(open(file_path, "rb"), chunk_size),
+            total=total_chunks,
+        )
+        index = 0
+        for chunk in pbar:
+            part = index // chunk_size + 1
+            offset = index + len(chunk)
+            index = offset
+            if part not in parts:
+                checksum = hashlib.md5(chunk).hexdigest()
+                response = requests.post(
+                    self.url + "datasets/chunk/" + upload_id,
+                    files={"file": chunk},
+                    data={"part_number": part, "checksum": checksum},
+                    headers={"Authorization": "Bearer " + id_token},
+                )
+                if response.status_code != 200:
+                    raise Exception(response.json()["detail"])
+            pbar.set_description(
+                "{:.2f}/{:.2f} MB".format(
+                    offset / 1024 / 1024, files_size / 1024 / 1024
+                )
+            )
+        pbar.close()
+        return
 
-    # def complete_upload(self, id_token, upload_id):
-    #     r = requests.post(
-    #         self.url + "datasets/complete/" + upload_id,
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if r.status_code != 200:
-    #         return None, r.json()["detail"]
-    #     return r.json(), None
+    def complete_upload(self, id_token, upload_id, version):
+        r = requests.post(
+            self.url + "datasets/complete/" + upload_id + "?version=" + str(version),
+            headers={"Authorization": "Bearer " + id_token},
+        )
+        return self.format_response(r)
 
     # def update_dataset(self, name, path, id_token, checksum):
     #     # check that dataset exists
