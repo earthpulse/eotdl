@@ -6,13 +6,18 @@ from typing import Optional
 
 from ..auth import get_current_user
 from ...src.models import User
-from ...src.usecases.datasets import generate_upload_id, ingest_dataset_chunk, complete_multipart_upload
+from ...src.usecases.datasets import (
+    generate_upload_id,
+    ingest_dataset_chunk,
+    complete_multipart_upload,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
 class UploadIdBody(BaseModel):
-    name: str
+    filname: str
     checksum: str
 
 
@@ -24,7 +29,7 @@ def start_large_dataset_upload(
 ):
     try:
         upload_id, parts = generate_upload_id(
-            user, body.checksum, body.name, dataset_id
+            user, body.checksum, body.filname, dataset_id
         )
         return {"upload_id": upload_id, "parts": parts}
     except Exception as e:
@@ -48,12 +53,6 @@ def ingest_large_dataset_chunk(
     except Exception as e:
         logger.exception("datasets:ingest_large_dataset_chunk")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-class CompleteBody(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
-    checksum: str
 
 
 @router.post("/complete/{upload_id}", include_in_schema=False)

@@ -18,6 +18,7 @@ from .routers.datasets import (
     ingest_dataset,
     download_dataset,
     update_dataset,
+    upload_large_files,
     # delete_dataset,
 )
 from .routers.models import retrieve_models, create_model, ingest_model, download_model
@@ -47,7 +48,7 @@ app.include_router(create_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
-# # app.include_router(upload_large_files.router, prefix="/datasets", tags=["datasets"])
+app.include_router(upload_large_files.router, prefix="/datasets", tags=["datasets"])
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # models
 app.include_router(retrieve_models.router, prefix="/models", tags=["models"])

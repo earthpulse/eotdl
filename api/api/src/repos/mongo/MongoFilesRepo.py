@@ -55,3 +55,27 @@ class MongoFilesRepo(MongoRepo):
         if version:
             query.append({"$match": {"files.versions": version}})
         return list(self.db["files"].aggregate(query))
+
+    def find_upload(self, uid, filename, dataset_id):
+        return self.find_one(
+            "uploading",
+            {"uid": uid, "filename": filename, "dataset": dataset_id},
+        )
+
+    def find_upload_by_id(self, uid, upload_id):
+        return self.find_one(
+            "uploading",
+            {"uid": uid, "upload_id": upload_id},
+        )
+
+    def delete_upload(self, upload_id):
+        return self.delete("uploading", upload_id)
+
+    def persist_upload(self, upload_id, data):
+        return self.persist("uploading", data, upload_id)
+
+    def retrieve_upload(self, upload_id):
+        return self.retrieve("uploading", upload_id, "upload_id")
+
+    def update_upload(self, upload_id, data):
+        return self.update("uploading", upload_id, data)

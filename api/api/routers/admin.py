@@ -36,9 +36,9 @@ def env_vars(isAdmin: bool = Depends(key_auth)):
 def initialize_db(isAdmin: bool = Depends(key_auth)):
     try:
         db = get_db()
-        # collections = db.list_collection_names()
-        # for collection in collections:
-        #     db[collection].drop()
+        collections = db.list_collection_names()
+        for collection in collections:
+            db[collection].drop()
         db["tiers"].insert_many(
             [
                 {
