@@ -37,7 +37,6 @@ def ingest(
 def get(
     dataset: str,
     path: str = typer.Option(None, "--path", "-p", help="Download to a specific path"),
-    file: str = typer.Option(None, "--file", "-f", help="Download a specific file"),
     version: int = typer.Option(None, "--version", "-v", help="Dataset version"),
     assets: bool = typer.Option(False, "--assets", "-a", help="Download assets"),
     force: bool = typer.Option(
@@ -47,7 +46,7 @@ def get(
 ):
     try:
         dst_path = download_dataset(
-            dataset, version, path, file, typer.echo, assets, force, verbose
+            dataset, version, path, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:

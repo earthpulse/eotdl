@@ -13,12 +13,12 @@ def download_dataset(
     dataset_name,
     version=None,
     path=None,
-    file=None,
     logger=None,
     assets=False,
     force=False,
     verbose=False,
     user=None,
+    file=None,
 ):
     dataset = retrieve_dataset(dataset_name)
     if version is None:
