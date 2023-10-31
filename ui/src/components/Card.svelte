@@ -8,7 +8,7 @@
 
     export let data;
     export let liked = null;
-    export let link = "dataset";
+    export let link = "datasets";
 </script>
 
 <a

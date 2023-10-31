@@ -1,6 +1,6 @@
 <script>
     import Twitter from "svelte-material-icons/Twitter.svelte";
-    import Youtube from "svelte-material-icons/Youtube.svelte";
+    import Discord from "svelte-material-icons/Discord.svelte";
     import Linkedin from "svelte-material-icons/Linkedin.svelte";
 </script>
 
@@ -48,9 +48,20 @@
         <div class="flex flex-col">
             <h2 class="opacity-30">Follow Us</h2>
             <div class="flex flex-row gap-2 text-2xl pt-3">
-                <a href="/" class="opacity-30 hover:opacity-100"><Twitter /></a>
-                <a href="/" class="opacity-30 hover:opacity-100"><Youtube /></a>
-                <a href="/" class="opacity-30 hover:opacity-100"><Linkedin /></a
+                <a
+                    href="https://twitter.com/eotdl"
+                    target="_blank"
+                    class="opacity-30 hover:opacity-100"><Twitter /></a
+                >
+                <a
+                    href="https://discord.gg/hYxc5AJB92"
+                    target="_blank"
+                    class="opacity-30 hover:opacity-100"><Discord /></a
+                >
+                <a
+                    href="https://www.linkedin.com/company/eotdl"
+                    target="_blank"
+                    class="opacity-30 hover:opacity-100"><Linkedin /></a
                 >
             </div>
         </div>

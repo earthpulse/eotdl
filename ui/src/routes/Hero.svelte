@@ -7,7 +7,7 @@
       Create, share and use training datasets for Earth Observation Machine
       Learning applications with our open source tools.
     </p>
-    <span>
+    <span class="flex flex-row gap-1">
       <a
         href="https://github.com/earthpulse/eotdl"
         target="_blank"
