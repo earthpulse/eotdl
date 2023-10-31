@@ -41,7 +41,7 @@
 			});
 		if (show_liked) {
 			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_modelss.includes(models.id)
+				$user?.liked_models.includes(models.id)
 			);
 		}
 	}

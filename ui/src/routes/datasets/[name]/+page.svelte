@@ -1,10 +1,11 @@
 <script>
 	import { user, id_token } from "$stores/auth";
 	import { browser } from "$app/environment";
+	import { datasets } from "$stores/datasets";
 	import "$styles/dataset.css";
 	import Update from "./Update.svelte";
 	import retrieveDataset from "$lib/datasets/retrieveDataset";
-	import Info from "./Info.svelte";
+	import Info from "../../../components/Info.svelte";
 	import Metadata from "$components/Metadata.svelte";
 	import FileExplorer from "./FileExplorer.svelte";
 
@@ -69,7 +70,12 @@
 			{/if} -->
 			</div>
 
-			<Info {dataset} bind:version />
+			<Info
+				data={dataset}
+				store={datasets}
+				field="liked_datasets"
+				bind:version
+			/>
 
 			<div class="grid grid-cols-[auto,425px] gap-3">
 				<div>
