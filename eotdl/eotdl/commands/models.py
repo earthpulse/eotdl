@@ -12,8 +12,8 @@ app = typer.Typer(help="EOTDL CLI models module.")
 
 @app.command()
 def list(
-    name: str = typer.Option(None, "--name", "-n", help="Filter by name"),
-    limit: int = typer.Option(None, "--limit", "-l", help="Limit number of results"),
+    name: str = typer.Option(None, "--name", "-n", help="Filter the returned models by name"),
+    limit: int = typer.Option(None, "--limit", "-l", help="Limit the number of returned results"),
 ):
     """
     Retrieve a list with all the models in the EOTDL.
@@ -35,8 +35,8 @@ def list(
 
 @app.command()
 def ingest(
-    path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
+    path: Path = typer.Option(..., "--path", "-p", help="Path to the model to ingest"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the ingestion"),
 ):
     """
     Ingest a model to the EOTDL.
@@ -71,14 +71,14 @@ def ingest(
 @app.command()
 def get(
     model: str = typer.Argument(None, help="Name of the model to download"),
-    path: str = typer.Option(None, "--path", "-p", help="Download to a specific path"),
-    file: str = typer.Option(None, "--file", "-f", help="Download a specific file"),
+    path: str = typer.Option(None, "--path", "-p", help="Download the model to a specific output path"),
+    file: str = typer.Option(None, "--file", "-f", help="Download a specific file from the model"),
     version: int = typer.Option(None, "--version", "-v", help="Model version"),
-    assets: bool = typer.Option(False, "--assets", "-a", help="Download assets"),
+    assets: bool = typer.Option(False, "--assets", "-a", help="Download STAC assets from the model"),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
     ),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the download"),
 ):
     """
     Download a model from the EOTDL.
@@ -86,7 +86,7 @@ def get(
     If using --path, it will download the model to the specified path. If no path is provided, it will download to the current directory.\n
     If using --file, it will download the specified file. If no file is provided, it will download the entire model.\n
     If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
-    If using --assets, it will download the assets of the model.\n
+    If using --assets when the model is STAC, it will also download the STAC assets of the model. If not provided, it will only download the STAC metadata.\n
     If using --force, it will download the model even if the file already exists.\n
     If using --verbose, it will print the progress of the download.
     \n\n
