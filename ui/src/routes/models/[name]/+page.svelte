@@ -4,7 +4,7 @@
 	import "$styles/dataset.css";
 	import retrieveModel from "$lib/models/retrieveModel";
 	import { models } from "$stores/models";
-	// import Info from "./Info.svelte";
+	import Info from "$components/Info.svelte";
 	import Metadata from "$components/Metadata.svelte";
 	// import FileExplorer from "./FileExplorer.svelte";
 
@@ -44,7 +44,7 @@
 				</span>
 			</div>
 
-			<!-- <Info {dataset} bind:version /> -->
+			<Info data={model} bind:version />
 
 			<div class="grid grid-cols-[auto,425px] gap-3">
 				<div>
