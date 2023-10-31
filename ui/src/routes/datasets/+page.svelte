@@ -1,26 +1,23 @@
 <script>
 	import { datasets } from "$stores/datasets";
 	import { user } from "$stores/auth";
-	import Leaderboard from "$components/Leaderboard.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
-	import retrieveDatasetsLeaderboard from "$lib/datasets/retrieveDatasetsLeaderboard";
 	// import Ingest from "./Ingest.svelte";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
+	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
 
 	export let data;
 
-	let leaderboard,
-		loading = true;
+	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
 
 	const load = async () => {
 		await datasets.retrieve(fetch);
-		leaderboard = await retrieveDatasetsLeaderboard(fetch);
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
 		filtered_datasets = JSON.parse(
@@ -136,5 +133,5 @@
 		{/if}
 		<Pagination {numPages} bind:currentPage />
 	</div>
-	<Leaderboard {leaderboard} />
+	<DatasetsLeaderboard />
 </div>

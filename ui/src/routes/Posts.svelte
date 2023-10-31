@@ -3,7 +3,7 @@
     export let posts;
 </script>
 
-<div class="flex flex-col items-center w-full pt-10">
+<div class="flex flex-col items-center w-full pt-[100px]">
     <div class="gap-3 w-full max-w-4xl text-center flex flex-col px-4">
         <h1 class="text-xl text-left">Recent posts</h1>
         <div class="flex flex-col gap-3 w-full mt-3">

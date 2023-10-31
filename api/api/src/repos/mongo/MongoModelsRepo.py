@@ -43,3 +43,6 @@ class MongoModelsRepo(MongoRepo):
 
     def update_model(self, model_id, model):
         return self.update("models", model_id, model)
+
+    def retrieve_popular_models(self, limit):
+        return self.find_top("models", "likes", limit)
