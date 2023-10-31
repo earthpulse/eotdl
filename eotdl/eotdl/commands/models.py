@@ -83,7 +83,7 @@ def get(
     """
     Download a model from the EOTDL.
     \n\n
-    If using --path, it will download the model to the specified path. If no path is provided, it will download to the current directory.\n
+    If using --path, it will download the model to the specified path. If no path is provided, it will download to ~/.eotdl/models.\n
     If using --file, it will download the specified file. If no file is provided, it will download the entire model.\n
     If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
     If using --assets when the model is STAC, it will also download the STAC assets of the model. If not provided, it will only download the STAC metadata.\n

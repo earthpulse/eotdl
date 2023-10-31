@@ -1,12 +1,14 @@
 from fastapi.exceptions import HTTPException
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Path, Body
 import logging
 from typing import Optional, List
 from pydantic import BaseModel
 
 from ..auth import get_current_user
 from ...src.models import User
+from ...src.models import Dataset
 from ...src.usecases.datasets import toggle_like_dataset, update_dataset
+from .responses import update_dataset_responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -33,12 +35,21 @@ class UpdateBody(BaseModel):
     license: Optional[str] = None
 
 
-@router.put("/{dataset_id}")
+@router.put("/{dataset_id}", summary="Update a dataset", responses=update_dataset_responses)
 def update(
-    dataset_id: str,
-    body: UpdateBody,
+    dataset_id: str = Path(..., description="ID of the dataset"),
+    body: UpdateBody = Body(..., description="Metadata of the dataset"),
     user: User = Depends(get_current_user),
 ):
+    """
+    Update a dataset. A request body must be provided, and must contain the following fields:
+    - name: the name of the dataset.
+    - description: a brief description of the dataset.
+    - tags: the tags of the dataset.
+    - authors: the author or authors of the dataset.
+    - license: the license of the dataset.
+    - source: the source of the dataset.
+    """
     try:
         return update_dataset(
             dataset_id,
