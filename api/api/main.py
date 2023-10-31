@@ -26,6 +26,7 @@ from .routers.models import (
     ingest_model,
     download_model,
     upload_large_model_files,
+    update_model,
 )
 from .routers import admin, migrate
 
@@ -64,6 +65,7 @@ app.include_router(create_model.router, prefix="/models", tags=["models"])
 app.include_router(ingest_model.router, prefix="/models", tags=["models"])
 app.include_router(download_model.router, prefix="/models", tags=["models"])
 app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
+app.include_router(update_model.router, prefix="/models", tags=["models"])
 # other
 app.include_router(admin.router)
 app.include_router(migrate.router)

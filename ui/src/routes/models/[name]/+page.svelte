@@ -44,7 +44,12 @@
 				</span>
 			</div>
 
-			<Info data={model} bind:version />
+			<Info
+				data={model}
+				store={models}
+				field="liked_models"
+				bind:version
+			/>
 
 			<div class="grid grid-cols-[auto,425px] gap-3">
 				<div>
