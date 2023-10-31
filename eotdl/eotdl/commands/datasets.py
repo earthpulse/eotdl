@@ -7,7 +7,7 @@ from ..datasets import (
     download_dataset,
 )
 
-app = typer.Typer()
+app = typer.Typer(help="EOTDL CLI datasets module.")
 
 
 @app.command()
@@ -15,6 +15,17 @@ def list(
     name: str = typer.Option(None, "--name", "-n", help="Filter by name"),
     limit: int = typer.Option(None, "--limit", "-l", help="Limit number of results"),
 ):
+    """
+    Retrieve a list with all the datasets in the EOTDL.
+    
+    If using --name, it will filter the results by name. If no name is provided, it will return all the datasets.\n
+    If using --limit, it will limit the number of results. If no limit is provided, it will return all the datasets.
+    \n\n
+    Examples\n
+    --------\n
+    $ eotdl datasets list\n
+    $ eotdl datasets list --name YourModel --limit 5
+    """
     try:
         datasets = retrieve_datasets(name, limit)
         typer.echo(datasets)
@@ -27,6 +38,30 @@ def ingest(
     path: Path = typer.Option(..., "--path", "-p", help="Path to dataset"),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ):
+    """
+    Ingest a dataset to the EOTDL.
+
+    This command ingests the dataset to the EOTDL. The dataset must be a folder with the dataset files,
+    and at least a metadata.yml file or a catalog.json file. If there are not these files, the ingestion
+    will not work. All the files in the folder will be uploaded to the EOTDL.
+    \n\n
+    The following constraints apply to the dataset name:\n
+    - It must be unique\n
+    - It must be between 3 and 45 characters long\n
+    - It can only contain alphanumeric characters and dashes.\n
+    \n
+    The metadata.yml file must contain the following fields:\n
+    - name: the name of the dataset\n
+    - authors: the author or authors of the dataset\n
+    - license: the license of the dataset\n
+    - source: the source of the dataset\n
+    \n
+    If using --verbose, it will print the progress of the ingestion.
+    \n\n
+    Examples\n
+    --------\n
+    $ eotdl dataset ingest --path /path/to/folder-with-dataset --verbose True
+    """
     try:
         ingest_dataset(path, verbose, typer.echo)
     except Exception as e:
@@ -35,7 +70,7 @@ def ingest(
 
 @app.command()
 def get(
-    dataset: str,
+    dataset: str = typer.Argument(None, help="Name of the dataset to download"),
     path: str = typer.Option(None, "--path", "-p", help="Download to a specific path"),
     file: str = typer.Option(None, "--file", "-f", help="Download a specific file"),
     version: int = typer.Option(None, "--version", "-v", help="Dataset version"),
@@ -45,6 +80,21 @@ def get(
     ),
     verbose: bool = typer.Option(False, "--verbose", help="Verbose output"),
 ):
+    """
+    Download a dataset from the EOTDL.
+    \n\n
+    If using --path, it will download the dataset to the specified path. If no path is provided, it will download to the current directory.\n
+    If using --file, it will download the specified file. If no file is provided, it will download the entire dataset.\n
+    If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
+    If using --assets, it will download the assets of the dataset.\n
+    If using --force, it will download the dataset even if the file already exists.\n
+    If using --verbose, it will print the progress of the download.
+    \n\n
+    Examples\n
+    --------\n
+    $ eotdl dataset get YourDataset\n
+    $ eotdl dataset get YourDataset --path /path/to/download --file dataset.zip --version 1 --assets True --force True --verbose True
+    """
     try:
         dst_path = download_dataset(
             dataset, version, path, file, typer.echo, assets, force, verbose
