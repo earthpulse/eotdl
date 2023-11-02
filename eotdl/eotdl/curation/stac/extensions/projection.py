@@ -2,16 +2,20 @@
 Module for projection STAC extensions object
 """
 
+from typing import Union
+
 import pystac
 import pandas as pd
 import rasterio
 
-from typing import Union
-from .base import STACExtensionObject
 from pystac.extensions.projection import ProjectionExtension
+from .base import STACExtensionObject
 
 
 class ProjExtensionObject(STACExtensionObject):
+    """
+    Projection extension object
+    """
     def __init__(self) -> None:
         super().__init__()
 

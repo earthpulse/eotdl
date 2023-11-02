@@ -2,16 +2,20 @@
 Module for raster STAC extensions object
 """
 
+from typing import Union, Optional
+
 import pystac
 import rasterio
 import pandas as pd
 
 from pystac.extensions.raster import RasterExtension, RasterBand
-from typing import Union, Optional
 from .base import STACExtensionObject
 
 
 class RasterExtensionObject(STACExtensionObject):
+    """
+    Raster extension object
+    """
     def __init__(self) -> None:
         super().__init__()
 
@@ -31,7 +35,7 @@ class RasterExtensionObject(STACExtensionObject):
         else:
             raster_ext = RasterExtension.ext(obj, add_if_missing=True)
             src = rasterio.open(obj.href)
-            bands = list()
+            bands = []
             for band in src.indexes:
                 bands.append(
                     RasterBand.create(

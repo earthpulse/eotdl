@@ -1,25 +1,17 @@
 """
-Module for generating STAC metadata 
+Module for generating STAC metadata
 """
 
-import traceback
-from typing import Union
+import random
+from datetime import datetime
+from typing import Union, Optional
+from os.path import join, basename, dirname
+
 import pandas as pd
 import pystac
-from tqdm import tqdm
-
-from os.path import join, basename, dirname
-from shutil import rmtree
-
 import rasterio
-import random
-from rasterio.warp import transform_bounds
-from typing import Union, List
-
-from datetime import datetime
+from tqdm import tqdm
 from shapely.geometry import Polygon, mapping
-from glob import glob
-from typing import Union, Optional
 
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
@@ -33,12 +25,15 @@ from ...tools import (
 from .extensions import (
     type_stac_extensions_dict,
     SUPPORTED_EXTENSIONS,
-    LabelExtensionObject,
 )
-from .extent import get_unknow_extent, get_collection_extent
+from .extent import get_collection_extent
 
 
 class STACGenerator:
+    """
+    STAC generator class
+    """
+
     def __init__(
         self,
         image_format: str = "tiff",
@@ -66,7 +61,7 @@ class STACGenerator:
 
     def generate_stac_metadata(
         self,
-        id: str,
+        stac_id: str,
         description: str,
         stac_dataframe: pd.DataFrame = None,
         output_folder: str = "stac",
@@ -87,7 +82,7 @@ class STACGenerator:
             raise ValueError("No STAC dataframe provided")
 
         # Create an empty catalog
-        catalog = pystac.Catalog(id=id, description=description, **kwargs)
+        catalog = pystac.Catalog(id=stac_id, description=description, **kwargs)
 
         # Add the collections to the catalog
         collections = self._stac_dataframe.collection.unique()
@@ -202,7 +197,7 @@ class STACGenerator:
         if not items:
             # Create list of None with the same length as the labels list
             return [None for _ in labels]
-        items_list = list()
+        items_list = []
         for label in labels:
             if label in items.keys():
                 items_list.append(items[label])
@@ -239,7 +234,7 @@ class STACGenerator:
         # Return the collection
         return collection
 
-    def create_stac_item(self, raster_path: str, kwargs: dict = {}) -> pystac.Item:
+    def create_stac_item(self, raster_path: str) -> pystac.Item:
         """
         Create a STAC item from a directory containing the raster files and the metadata.json file
 
@@ -270,8 +265,8 @@ class STACGenerator:
         )
 
         # Initialize pySTAC item parameters
-        params = dict()
-        params["properties"] = dict()
+        params = {}
+        params["properties"] = {}
 
         # Obtain the date acquired
         start_time, end_time = None, None
@@ -294,15 +289,15 @@ class STACGenerator:
                 time_acquired = datetime.strptime("2000-01-01", "%Y-%m-%d")
 
         # Obtain the item ID. The approach depends on the item parser
-        id = self._item_parser.get_item_id(raster_path)
+        item_id = self._item_parser.get_item_id(raster_path)
         # Add the item ID to the dataframe, to be able to get it later
         self._stac_dataframe.loc[
             self._stac_dataframe["image"] == raster_path, "id"
-        ] = id
+        ] = item_id
 
         # Instantiate pystac item
         item = pystac.Item(
-            id=id, geometry=geom, bbox=bbox, datetime=time_acquired, **params
+            id=item_id, geometry=geom, bbox=bbox, datetime=time_acquired, **params
         )
 
         # Get the item info, from the raster path
@@ -343,6 +338,6 @@ class STACGenerator:
                             else:
                                 extension_obj = self._extensions_dict[extension]
                                 extension_obj.add_extension_to_object(asset, item_info)
-        item.set_self_href(join(dirname(raster_path), f"{id}.json"))
+        item.set_self_href(join(dirname(raster_path), f"{item_id}.json"))
         item.make_asset_hrefs_relative()
         return item

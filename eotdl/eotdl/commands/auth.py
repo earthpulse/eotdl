@@ -37,14 +37,14 @@ def logout():
     user = is_logged()
     if user:
         typer.echo(f"You are logged in as {user['email']}")
-        typer.confirm(f"Are you sure you want to logout?", abort=True)
+        typer.confirm("Are you sure you want to logout?", abort=True)
         logout_url = logout_user()
-        typer.echo(f"You are logged out.")
+        typer.echo("You are logged out.")
         typer.echo(
             f"If you want to login with a different account, visit {logout_url} and login again."
         )
     else:
-        typer.echo(f"You are not logged in.")
+        typer.echo("You are not logged in.")
 
 
 if __name__ == "__main__":

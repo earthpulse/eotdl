@@ -1,5 +1,4 @@
 import requests
-import os
 from .APIRepo import APIRepo
 
 

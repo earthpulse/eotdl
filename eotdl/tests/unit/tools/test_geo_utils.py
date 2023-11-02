@@ -15,7 +15,7 @@ from shapely.geometry import box, Point
     ((1, 2, 3, 4), True),
     ((-10, -20, 10, 20), True),
     ((0, 0, 100, 100), True),
-    ((1, 2, 3), False), 
+    ((1, 2, 3), False),
     ((3, 2, 1, 4), False),
     ((1, 4, 3, 2), False),
     (("a", "b", "c", "d"), False),

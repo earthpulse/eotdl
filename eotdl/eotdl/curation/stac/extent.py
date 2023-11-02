@@ -2,14 +2,12 @@
 Module for STAC extent
 """
 
-import pystac
 from datetime import datetime
-import rasterio
-import json
-
-from glob import glob
-from os.path import dirname
 from typing import List
+
+import pystac
+
+import rasterio
 
 from ...tools import get_item_metadata
 
@@ -35,7 +33,9 @@ def get_unknow_temporal_interval() -> pystac.TemporalExtent:
 
 
 def get_unknow_extent() -> pystac.Extent:
-    """ """
+    """
+    Get an unknown extent
+    """
     return pystac.Extent(
         spatial=pystac.SpatialExtent([[0, 0, 0, 0]]),
         temporal=pystac.TemporalExtent(
@@ -72,7 +72,7 @@ def get_collection_spatial_extent(rasters: List[str]) -> pystac.SpatialExtent:
     :param path: path to the directory
     """
     # Get the bounding boxes of all the given rasters
-    bboxes = list()
+    bboxes = []
     for raster in rasters:
         with rasterio.open(raster) as ds:
             bounds = ds.bounds
@@ -88,10 +88,10 @@ def get_collection_spatial_extent(rasters: List[str]) -> pystac.SpatialExtent:
             bboxes.append(bbox)
     # Get the minimum and maximum values of the bounding boxes
     try:
-        left = min([bbox[0] for bbox in bboxes])
-        bottom = min([bbox[1] for bbox in bboxes])
-        right = max([bbox[2] for bbox in bboxes])
-        top = max([bbox[3] for bbox in bboxes])
+        left = min(bbox[0] for bbox in bboxes)
+        bottom = min(bbox[1] for bbox in bboxes)
+        right = max(bbox[2] for bbox in bboxes)
+        top = max(bbox[3] for bbox in bboxes)
         spatial_extent = pystac.SpatialExtent([[left, bottom, right, top]])
     except ValueError:
         spatial_extent = pystac.SpatialExtent([[0, 0, 0, 0]])
@@ -106,7 +106,7 @@ def get_collection_temporal_interval(rasters: List[str]) -> pystac.TemporalExten
     :param path: path to the directory
     """
     # Get all the metadata.json files in the directory of all the given rasters
-    metadata_jsons = list()
+    metadata_jsons = []
     for raster in rasters:
         metadata_json = get_item_metadata(raster)
         if metadata_json:
@@ -118,8 +118,8 @@ def get_collection_temporal_interval(rasters: List[str]) -> pystac.TemporalExten
         )  # If there is no metadata, set a generic temporal interval
 
     # Get the temporal interval of every metadata.json file and the type of the data
-    data_types = list()
-    temporal_intervals = list()
+    data_types = []
+    temporal_intervals = []
     for metadata in metadata_jsons:
         # Append the temporal interval to the list as a datetime object
         temporal_intervals.append(metadata["acquisition-date"]) if metadata[
@@ -129,19 +129,16 @@ def get_collection_temporal_interval(rasters: List[str]) -> pystac.TemporalExten
         data_types.append(metadata["type"]) if metadata["type"] else None
 
     if temporal_intervals:
+        min_date, max_date = None, None
         try:
             # Get the minimum and maximum values of the temporal intervals
             min_date = min(
-                [
-                    datetime.strptime(interval, "%Y-%m-%d")
-                    for interval in temporal_intervals
-                ]
+                datetime.strptime(interval, "%Y-%m-%d")
+                for interval in temporal_intervals
             )
             max_date = max(
-                [
-                    datetime.strptime(interval, "%Y-%m-%d")
-                    for interval in temporal_intervals
-                ]
+                datetime.strptime(interval, "%Y-%m-%d")
+                for interval in temporal_intervals
             )
         except ValueError:
             min_date = datetime.strptime("2000-01-01", "%Y-%m-%d")

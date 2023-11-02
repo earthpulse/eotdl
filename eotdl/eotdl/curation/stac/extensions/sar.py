@@ -2,17 +2,21 @@
 Module for SAR STAC extensions object
 """
 
+from typing import Optional, Union
+
 import pystac
 import pandas as pd
 
-from .base import STACExtensionObject
-
-from typing import Optional, Union
 from pystac.extensions.sar import SarExtension
 from pystac.extensions.sar import FrequencyBand, Polarization
 
+from .base import STACExtensionObject
+
 
 class SarExtensionObject(STACExtensionObject):
+    """
+    SAR extension object
+    """
     def __init__(self) -> None:
         super().__init__()
         self.polarizations = [Polarization.VV, Polarization.VH]
