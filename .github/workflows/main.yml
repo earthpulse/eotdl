@@ -69,7 +69,8 @@ jobs:
       - name: Lint with Pylint
         run: |
           cd eotdl
-          poetry run pylint --fail-under=8 $(find . -type f -name "*.py" -not -path "./.venv/*")
+          poetry run pylint $(find . -type f -name "*.py" -not -path "./.venv/*")
+        # --fail-under=9
 
       - name: Lint with Flake8
         run: |
