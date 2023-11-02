@@ -255,7 +255,6 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
     properties: Dict[str, Any]
 
     def __init__(self, collection: pystac.Collection):
-        super().__init__(collection)
         self.collection = collection
         self.properties = collection.extra_fields
         self.properties[f"{PREFIX}split-items"] = []
@@ -319,7 +318,6 @@ class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
     properties: Dict[str, Any]
 
     def __init__(self, item: pystac.Item):
-        super().__init__(item)
         self.item = item
         self.properties = item.properties
 
