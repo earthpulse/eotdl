@@ -47,8 +47,8 @@ class SHClient:
                 with open(creds_file, "r", encoding="utd-8") as f:
                     creds = json.load(f)
                 if (
-                    not "SH_CLIENT_ID" in creds.keys()
-                    or not "SH_CLIENT_SECRET" in creds.keys()
+                    "SH_CLIENT_ID" not in creds.keys()
+                    or "SH_CLIENT_SECRET" not in creds.keys()
                 ):
                     raise ValueError(
                         "If you already had a Sentinel HUB account before accepting the Terms and Conditions, your SH credentials will NOT appear here. You can retrieve them from you Sentinel HUB dashboard)"
@@ -62,7 +62,7 @@ class SHClient:
     def search_data(
         self, bounding_box: list, time_interval: list, parameters: SHParameters
     ) -> list:
-        """ 
+        """
         Search data from Sentinel Hub
         """
         search_iterator = self.catalog.search(

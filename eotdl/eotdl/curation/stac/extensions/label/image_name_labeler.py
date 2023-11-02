@@ -78,7 +78,7 @@ class ImageNameLabeler(LabelExtensionObject):
         print("Generating labels collection...")
         for source_item in tqdm(source_items):
             # There must be an item ID column in the STAC dataframe
-            if not "id" in stac_dataframe.columns:
+            if "id" not in stac_dataframe.columns:
                 raise ValueError(
                     "No item ID column found in the STAC dataframe, please provide a STAC dataframe with the item ID column"
                 )

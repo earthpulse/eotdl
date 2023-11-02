@@ -3,6 +3,7 @@ import os
 import json
 from eotdl.tools import get_item_metadata, remove_raster_metadata
 
+
 # Create a fixture for a temporary directory and sample files
 @pytest.fixture
 def temp_dir(tmpdir):
@@ -21,6 +22,7 @@ def temp_dir(tmpdir):
     
     return str(tmpdir), str(raster_file)
 
+
 def test_get_item_metadata(temp_dir):
     dir_path, raster_path = temp_dir
     metadata = get_item_metadata(raster_path)
@@ -36,6 +38,7 @@ def test_get_item_metadata(temp_dir):
     # Further, you can remove 'sample.json' and ensure the function returns None
     os.remove(os.path.join(dir_path, 'sample.json'))
     assert get_item_metadata(raster_path) is None
+
 
 def test_remove_raster_metadata(temp_dir):
     dir_path, _ = temp_dir

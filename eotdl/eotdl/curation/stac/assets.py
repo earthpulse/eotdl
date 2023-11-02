@@ -4,12 +4,12 @@ Module for STAC Asset Generators
 
 from os import remove, listdir
 from os.path import dirname, join, basename, abspath
-from ...tools.metadata import remove_raster_metadata
-from typing import List
 
 import pandas as pd
 import rasterio
 import pystac
+
+from ...tools.metadata import remove_raster_metadata
 
 
 MEDIA_TYPES_DICT = {
@@ -22,13 +22,17 @@ MEDIA_TYPES_DICT = {
 
 
 class STACAssetGenerator:
+    """
+    Standard STAC Asset Generator
+    """
+
     type = "None"
 
     def __init__(self):
         pass
 
     @classmethod
-    def extract_assets(self, obj_info: pd.DataFrame):
+    def extract_assets(cls, obj_info: pd.DataFrame):
         """
         Generate a single asset from the raster file
 
@@ -50,6 +54,10 @@ class STACAssetGenerator:
 
 
 class BandsAssetGenerator(STACAssetGenerator):
+    """
+    Bands STAC Asset Generator
+    """
+
     type = "Bands"
 
     def __init__(self) -> None:
@@ -106,6 +114,10 @@ class BandsAssetGenerator(STACAssetGenerator):
 
 
 class ExtractedAssets(STACAssetGenerator):
+    """
+    Extracted STAC Asset Generator
+    """
+
     type = "Extracted"
 
     def __init__(self) -> None:

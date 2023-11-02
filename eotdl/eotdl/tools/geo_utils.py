@@ -201,17 +201,17 @@ def generate_new_locations_bounding_boxes(
     gdf: gpd.GeoDataFrame, mean_differences: list, latest_id: int
 ) -> dict:
     """
-    Generate the bounding box of every new location, using 
-    the mean difference between the maximum and minimum calculated 
-    longitude and latitude. This function also returns the time 
+    Generate the bounding box of every new location, using
+    the mean difference between the maximum and minimum calculated
+    longitude and latitude. This function also returns the time
     interval which we want to request from Sentinel Hub Services.
 
     :param gdf: GeoDataFrame wiht the new locations that
     are going to be added to the dataset
-    :param mean_differences: list with the longitude 
-    and latitude mean differences, which are going to be used to generate 
+    :param mean_differences: list with the longitude
+    and latitude mean differences, which are going to be used to generate
     the bounding boxes.
-    :return: bbox_by_new_location: dict with format {<location_id>: 
+    :return: bbox_by_new_location: dict with format {<location_id>:
     {'bounding_box': list(), 'time_interval': list()}, ... }
     that contains the bounding box and time interval of the imagery for each location
     """

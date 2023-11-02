@@ -1,3 +1,7 @@
+"""
+STAC extensions module
+"""
+
 from .sar import SarExtensionObject
 from .raster import RasterExtensionObject
 from .projection import ProjExtensionObject

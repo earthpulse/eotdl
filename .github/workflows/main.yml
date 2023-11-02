@@ -29,7 +29,7 @@ jobs:
         run: |
           cd eotdl
           poetry install --no-interaction --no-root
-          pip3 install pytest pytest-cov fastapi uvicorn pymongo minio auth0-python python-multipart httpx boto3 stac_validator
+        # pip3 install pytest pytest-cov fastapi uvicorn pymongo minio auth0-python python-multipart httpx boto3 stac_validator
         # put the dependencies in a requirements.txt file
 
       - name: lib tests
@@ -56,27 +56,26 @@ jobs:
         with:
           python-version: 3.8
 
-      # - name: Install Poetry
-      #   uses: snok/install-poetry@v1
-      #   with:
-      #     virtualenvs-create: false
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
 
-      # - name: Install dependencies
-      #   run: |
-      #     cd eotdl
-      #     poetry install --no-interaction --no-root
+      - name: Install dependencies
+        run: |
+          cd eotdl
+          poetry install --no-interaction --no-root
 
-      # - name: Lint with Pylint
-      #   run: |
-      #     cd eotdl
-      #     poetry run pylint $(find . -type f -name "*.py" -not -path "./.venv/*")
-      #   # --fail-under=9 to fail if score is less than 9
+      - name: Lint with Pylint
+        run: |
+          cd eotdl
+          poetry run pylint --fail-under=8 $(find . -type f -name "*.py" -not -path "./.venv/*")
 
-      # - name: Lint with Flake8
-      #   run: |
-      #     cd eotdl
-      #     poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --count --select=E9,F63,F7,F82 --show-source --statistics
-      #     poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --max-complexity=10 --max-line-length=79 --statistics
+      - name: Lint with Flake8
+        run: |
+          cd eotdl
+          poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --max-complexity=10 --statistics
 
   publish:
     needs: lint

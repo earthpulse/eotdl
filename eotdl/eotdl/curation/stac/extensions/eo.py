@@ -2,15 +2,20 @@
 Module for EO STAC extensions object
 """
 
+from typing import Union
+
 import pystac
 import pandas as pd
 
-from typing import Union
-from .base import STACExtensionObject
 from pystac.extensions.eo import Band, EOExtension
+
+from .base import STACExtensionObject
 
 
 class EOS2ExtensionObject(STACExtensionObject):
+    """
+    EO STAC extension object
+    """
     def __init__(self) -> None:
         super().__init__()
         self.bands_dict = {

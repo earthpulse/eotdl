@@ -2,7 +2,6 @@
 Module for the labeling strategy when creating a STAC catalog from a dataframe
 """
 
-import pystac
 from os.path import basename
 
 
@@ -11,11 +10,11 @@ class LabelingStrategy:
     Labeling strategy interface to be implemented by concrete labeling strategies
     """
 
-    def __init__(self):
-        pass
-
     def get_images_labels(self, images):
-        pass
+        """
+        Get the labels of the images
+        """
+        return
 
 
 class UnlabeledStrategy(LabelingStrategy):
@@ -27,8 +26,10 @@ class UnlabeledStrategy(LabelingStrategy):
         super().__init__()
 
     def get_images_labels(self, images):
-        """ """
-        labels = list()
+        """
+        Get the labels of the images
+        """
+        labels = []
         for image in images:
             labels.append(basename(image).split(".")[0])
         ixs = [labels.index(x) for x in labels]
@@ -46,8 +47,10 @@ class LabeledStrategy(LabelingStrategy):
         super().__init__()
 
     def get_images_labels(self, images):
-        """ """
-        labels = list()
+        """
+        Get the labels of the images
+        """
+        labels = []
         for image in images:
             image_basename = basename(image).split(".")[
                 0
