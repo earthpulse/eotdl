@@ -97,7 +97,7 @@ def get(
     """
     try:
         dst_path = download_model(
-            model, version, path, file, typer.echo, assets, force, verbose
+            model, version, path, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:

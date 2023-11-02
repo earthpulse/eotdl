@@ -18,3 +18,12 @@ def retrieve_models_leaderboard():
         {"name": user["name"], "models": user["models_count"]} for user in users
     ]
     return leaderboard
+
+
+def retrieve_popular_models(limit):
+    repo = ModelsDBRepo()
+    data = repo.retrieve_popular_models(limit)
+    models = []
+    for d in data:
+        models.append(Model(**d))
+    return models

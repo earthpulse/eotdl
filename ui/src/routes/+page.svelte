@@ -1,23 +1,13 @@
 <script>
   import Hero from "./Hero.svelte";
   import Consortium from "./Consortium.svelte";
-  import Recent from "./Recent.svelte";
-  import Popular from "./Popular.svelte";
+  import RecentDatasets from "./RecentDatasets.svelte";
+  import PopularDatasets from "./PopularDatasets.svelte";
+  import DatasetsLeaderboard from "./DatasetsLeaderboard.svelte";
+  import RecentModels from "./RecentModels.svelte";
+  import PopularModels from "./PopularModels.svelte";
+  import ModelsLeaderboard from "./ModelsLeaderboard.svelte";
   import Posts from "./Posts.svelte";
-  import Leaderboard from "../components/Leaderboard.svelte";
-  import { browser } from "$app/environment";
-  import retrieveDatasets from "../lib/datasets/retrieveDatasets";
-  import retrieveDatasetsLeaderboard from "../lib/datasets/retrieveDatasetsLeaderboard";
-  import retrievePopularDatasets from "../lib/datasets/retrievePopularDatasets";
-
-  let datasets, leaderboard, popular_datasets;
-  const load = async () => {
-    datasets = await retrieveDatasets(fetch, 3);
-    leaderboard = await retrieveDatasetsLeaderboard(fetch);
-    popular_datasets = await retrievePopularDatasets(fetch, 3);
-  };
-
-  $: if (browser) load();
 
   export let data;
 </script>
@@ -26,17 +16,19 @@
   <title>EOTDL | Home</title>
   <meta
     name="description"
-    content="EOTDL is a platform for sharing and discovering training datasets."
+    content="EOTDL is a platform for sharing and discovering training Models."
   />
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
   <Hero />
-  <Recent {datasets} />
-  <Popular datasets={popular_datasets} />
-  <div class="mt-[100px] w-full">
-    <Leaderboard {leaderboard} />
-  </div>
+  <RecentDatasets />
+  <PopularDatasets />
+  <DatasetsLeaderboard />
+  <div class="mt-[100px]" />
+  <RecentModels />
+  <PopularModels />
+  <ModelsLeaderboard />
   <Posts posts={data.posts} />
   <Consortium />
 </div>

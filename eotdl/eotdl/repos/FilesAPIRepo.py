@@ -68,15 +68,8 @@ class FilesAPIRepo(APIRepo):
         )
         return self.format_response(reponse)
 
-    def retrieve_dataset_files(self, dataset_id, version=None):
-        url = self.url + "datasets/" + dataset_id + "/files"
-        if version is not None:
-            url += "?version=" + str(version)
-        response = requests.get(url)
-        return self.format_response(response)
-
-    def retrieve_model_files(self, model_id, version=None):
-        url = self.url + "models/" + model_id + "/files"
+    def retrieve_files(self, dataset_or_model_id, endpoint, version=None):
+        url = f"{self.url}{endpoint}/{dataset_or_model_id}/files"
         if version is not None:
             url += "?version=" + str(version)
         response = requests.get(url)
@@ -136,9 +129,11 @@ class FilesAPIRepo(APIRepo):
     #         return None, reponse.json()["detail"]
     #     return reponse.json(), None
 
-    def prepare_large_upload(self, filename, dataset_id, checksum, id_token):
+    def prepare_large_upload(
+        self, filename, dataset_or_model_id, checksum, id_token, endpoint
+    ):
         response = requests.post(
-            self.url + f"datasets/{dataset_id}/uploadId",
+            self.url + f"{endpoint}/{dataset_or_model_id}/uploadId",
             json={"filname": filename, "checksum": checksum},
             headers={"Authorization": "Bearer " + id_token},
         )
@@ -167,7 +162,10 @@ class FilesAPIRepo(APIRepo):
                 break
             yield data
 
-    def ingest_large_file(self, file_path, files_size, upload_id, id_token, parts):
+    def ingest_large_file(
+        self, file_path, files_size, upload_id, id_token, parts, endpoint
+    ):
+        print(endpoint)
         # content_path = os.path.abspath(file)
         # content_size = os.stat(content_path).st_size
         chunk_size = self.get_chunk_size(files_size)
@@ -185,7 +183,7 @@ class FilesAPIRepo(APIRepo):
             if part not in parts:
                 checksum = hashlib.md5(chunk).hexdigest()
                 response = requests.post(
-                    self.url + "datasets/chunk/" + upload_id,
+                    f"{self.url}{endpoint}/chunk/{upload_id}",
                     files={"file": chunk},
                     data={"part_number": part, "checksum": checksum},
                     headers={"Authorization": "Bearer " + id_token},

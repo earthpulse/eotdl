@@ -1,14 +1,11 @@
 from pathlib import Path
-from glob import glob
 import yaml
-from tqdm import tqdm
-import os
 
 from ..auth import with_auth
 from .metadata import Metadata
-from ..repos import ModelsAPIRepo, FilesAPIRepo
+from ..repos import ModelsAPIRepo
 from ..shared import calculate_checksum
-from ..files import ingest_file
+from ..files import ingest_files
 
 
 def ingest_model(path, verbose=False, logger=print):
@@ -20,64 +17,31 @@ def ingest_model(path, verbose=False, logger=print):
     return ingest_folder(path, verbose, logger)
 
 
+def retrieve_model(metadata, user):
+    repo = ModelsAPIRepo()
+    data, error = repo.retrieve_model(metadata.name)
+    # print(data, error)
+    if data and data["uid"] != user["sub"]:
+        raise Exception("Model already exists.")
+    if error and error == "Model doesn't exist":
+        # create dataset
+        data, error = repo.create_model(metadata.dict(), user["id_token"])
+        # print(data, error)
+        if error:
+            raise Exception(error)
+        data["id"] = data["model_id"]
+    return data["id"]
+
+
 @with_auth
 def ingest_folder(folder, verbose=False, logger=print, user=None):
-    repo, files_repo = ModelsAPIRepo(), FilesAPIRepo()
-    logger(f"Uploading directory {folder}...")
-    # get all files in directory recursively
-    items = [Path(item) for item in glob(str(folder) + "/**/*", recursive=True)]
-    # remove directories
-    items = [item for item in items if not item.is_dir()]
-    if len(items) == 0:
-        raise Exception("No files found in directory")
-    if not any(item.name == "metadata.yml" for item in items):
-        raise Exception("metadata.yml not found in directory")
+    repo = ModelsAPIRepo()
     # load metadata
     metadata = yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
     metadata = Metadata(**metadata)
-    # if zip or tar file, send error
-    if any(item.suffix.endswith((".zip", ".tar", ".tar.gz", ".gz")) for item in items):
-        raise Exception(
-            f"At least one zip, tar or gz file found in {folder}, please unzip and try again"
-        )
-    # create model
-    data, error = repo.create_model(metadata.dict(), user["id_token"])
-    # print(data, error)
-    # dataset may already exist, and will return an error, but if user is owner continue ingesting files
-    current_files = []
-    if error:
-        data, error2 = repo.retrieve_model(metadata.name)
-        # print(data, error2)
-        if error2:
-            raise Exception(error)
-        if data["uid"] != user["sub"]:
-            raise Exception("Model already exists.")
-        data["model_id"] = data["id"]
-    model_id = data["model_id"]
-    # create new version
-    data, error = repo.create_version(model_id, user["id_token"])
-    # print(data, error)
-    if error:
-        raise Exception(error)
-    version = data["version"]
-    # upload files
-    current_files = []
-    if version > 1:
-        current_files, error = files_repo.retrieve_model_files(model_id, version - 1)
-        # print(current_files, error)
-        if error:
-            # print("retreive dataset files error: ", error)
-            current_files = []
-    for item in tqdm(items, desc="Uploading files", unit="files", disable=verbose):
-        data = ingest_file(
-            str(item),
-            model_id,
-            version,
-            str(item.relative_to(folder).parent),
-            logger=logger,
-            verbose=verbose,
-            user=user,
-            current_files=current_files,
-            endpoint="models",
-        )
-    return data
+    # retrieve model (create if doesn't exist)
+    model_id = retrieve_model(metadata, user)
+    # ingest files
+    return ingest_files(
+        repo, model_id, folder, verbose, logger, user, endpoint="models"
+    )
