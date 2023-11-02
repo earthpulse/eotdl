@@ -1,6 +1,8 @@
 <script>
     export let leaderboard;
     export let field = "datasets";
+
+    $: leaderboard = leaderboard?.filter((l) => l[field] > 0);
 </script>
 
 <div class="w-full bg-gray-200 grid place-items-center">
