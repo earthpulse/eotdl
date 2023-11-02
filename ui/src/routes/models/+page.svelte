@@ -1,25 +1,22 @@
 <script>
 	import { models } from "$stores/models";
 	import { user } from "$stores/auth";
-	import Leaderboard from "$components/Leaderboard.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
-	import retrieveModelsLeaderboard from "$lib/models/retrieveModelsLeaderboard";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
+	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
 
 	export let data;
 
-	let leaderboard,
-		loading = true;
+	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
 
 	const load = async () => {
 		await models.retrieve(fetch);
-		leaderboard = await retrieveModelsLeaderboard(fetch);
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
 		filtered_models = JSON.parse(localStorage.getItem("filtered_models"));
@@ -44,7 +41,7 @@
 			});
 		if (show_liked) {
 			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_modelss.includes(models.id)
+				$user?.liked_models.includes(models.id)
 			);
 		}
 	}
@@ -134,5 +131,5 @@
 		{/if}
 		<Pagination {numPages} bind:currentPage />
 	</div>
-	<Leaderboard {leaderboard} field="models" />
+	<ModelsLeaderboard />
 </div>

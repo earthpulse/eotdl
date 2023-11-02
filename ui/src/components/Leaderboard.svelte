@@ -1,8 +1,6 @@
 <script>
     export let leaderboard;
     export let field = "datasets";
-
-    $: console.log(leaderboard);
 </script>
 
 <div class="w-full bg-gray-200 grid place-items-center">

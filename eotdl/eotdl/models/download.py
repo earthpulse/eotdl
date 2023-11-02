@@ -13,12 +13,12 @@ def download_model(
     model_name,
     version=None,
     path=None,
-    file=None,
     logger=None,
     assets=False,
     force=False,
     verbose=False,
     user=None,
+    file=None,
 ):
     model = retrieve_model(model_name)
     if version is None:

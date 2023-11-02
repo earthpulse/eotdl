@@ -10,6 +10,7 @@ from ...src.usecases.models import (
     retrieve_model_by_name,
     retrieve_models_leaderboard,
     retrieve_model_files,
+    retrieve_popular_models,
 )
 from .responses import retrieve_models_responses, retrieve_files_responses
 
@@ -54,5 +55,14 @@ def retrieve_files(
     try:
         return retrieve_model_files(model_id, version)
     except Exception as e:
-        logger.exception("datasets:retrieve")
+        logger.exception("models:retrieve")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.get("/popular", include_in_schema=False)
+def retrieve_popular(limit: Union[int, None] = None):
+    try:
+        return retrieve_popular_models(limit)
+    except Exception as e:
+        logger.exception("models:retrieve_popular")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

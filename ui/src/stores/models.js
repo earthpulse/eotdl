@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
-import retrieveModels from "../lib/models/retrieveModels";
+import retrieveModels from "$lib/models/retrieveModels";
+import likeModel from "$lib/models/likeModel";
 
 
 const createModels = () => {
@@ -18,6 +19,9 @@ const createModels = () => {
       } catch (e) {
         set({ loading: false, error: e.message });
       }
+    },
+    like: async (id, token) => {
+      likeModel(id, token);
     },
   };
 };

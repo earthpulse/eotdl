@@ -27,6 +27,7 @@ class User(BaseModel):
     models_count: int = 0
     tier: Tier = Tier.FREE
     liked_datasets: list = []
+    liked_models: list = []
     terms: TermsAndConditions = TermsAndConditions()
 
     # class Config:
