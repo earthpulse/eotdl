@@ -15,7 +15,6 @@
 
 	const load = async () => {
 		model = await retrieveModel(data.name);
-		console.log(model);
 	};
 
 	$: if (browser) load();
