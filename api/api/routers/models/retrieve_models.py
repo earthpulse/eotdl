@@ -60,11 +60,11 @@ def retrieve_files(
     """
     Retrieve a list with the files of a given model. Files can be optionally filtered by version.
     """
-    # try:
-    return retrieve_model_files(model_id, version)
-    # except Exception as e:
-    #     logger.exception("models:retrieve")
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    try:
+        return retrieve_model_files(model_id, version)
+    except Exception as e:
+        logger.exception("models:retrieve")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("/popular", include_in_schema=False)
