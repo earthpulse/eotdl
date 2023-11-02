@@ -1,5 +1,5 @@
 from fastapi.exceptions import HTTPException
-from fastapi import APIRouter, status, Depends, File, Form, UploadFile
+from fastapi import APIRouter, status, Depends, File, Form, UploadFile, Path, Query
 import logging
 from pydantic import BaseModel
 from typing import Optional
@@ -10,22 +10,27 @@ from ...src.usecases.models import (
     ingest_model_file,
     ingest_existing_model_file,
 )  # , ingest_stac, ingest_file_url
+from .responses import ingest_model_responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/{model_id}")
+@router.post("/{model_id}", summary="Ingest a model", responses=ingest_model_responses)
 async def ingest(
-    model_id: str,
-    file: Optional[UploadFile] = File(None),
-    version: int = Form(),  # debería quitarlo (un file solo se puede subir a la última versión si no está ya)
-    parent: str = Form(None),  # debería quitarlo (sacarlo del nombre?)
-    checksum: str = Form(None),  # optional bc browser
-    filename: str = Form(None),
-    fileversion: int = Form(None),
+    model_id: str = Path(..., description="ID of the model"),
+    file: Optional[UploadFile] = File(None, description="File to ingest"),
+    version: int = Form(..., description="Version of the model to ingest"),  # debería quitarlo (un file solo se puede subir a la última versión si no está ya)
+    parent: str = Form(None, description="Parent of the file in the model"),  # debería quitarlo (sacarlo del nombre?)
+    checksum: str = Form(None, description="Checksum of the model to ingest, calculated with SHA-1"),  # optional bc browser
+    filename: str = Form(None, description="Filename of the model to ingest"),
+    fileversion: int = Form(None, description="Version of the file to ingest"),
     user: User = Depends(get_current_user),
 ):
+    """
+    Ingest a model to the EOTDL. A file can be optionally provided, in order to ingest an existing file.
+    The checksums are calculated using the SHA-1 checksums algorithm.
+    """
     # try:
     if filename:
         assert not file, "File provided as both file and filename"

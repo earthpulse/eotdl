@@ -17,8 +17,8 @@
 
 ### Data access
 
-2. Search Sentinel imagery ([notebook](notebooks/10_search_sentinel_imagery.ipynb))
-3. Download Sentinel imagery ([notebook](notebooks/11_download_sentinel_imagery.ipynb))
+1. Search Sentinel imagery ([notebook](notebooks/10_search_sentinel_imagery.ipynb))
+2. Download Sentinel imagery ([notebook](notebooks/11_download_sentinel_imagery.ipynb))
 
 ### STAC
 
