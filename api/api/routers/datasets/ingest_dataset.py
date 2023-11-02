@@ -20,12 +20,13 @@ logger = logging.getLogger(__name__)
 async def ingest_files_batch(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(None, description="Version of the dataset"),
-    batch: UploadFile = File(..., description="Batch file containing the list of files to ingest"),
-    checksums: List[str] = Form(..., description="List of checksums of the files to ingest"),
+    batch: UploadFile = File(..., description="Batch file (.zip, .tar or .gz) containing the files to ingest"),
+    checksums: List[str] = Form(..., description="List of checksums of the files to ingest, calculated with SHA-1"),
     user: User = Depends(get_current_user),
 ):
     """
-    Batch ingest of files to an existing dataset.
+    Batch ingest of files to an existing dataset. The batch file must be a compressed file (.zip, .tar or .gz).
+    The checksums are calculated using the SHA-1 checksums algorithm.
     """
     try:
         dataset_id, dataset_name, filenames = await ingest_dataset_files_batch(
@@ -45,7 +46,7 @@ async def ingest_files_batch(
 def ingest_existing_file(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(..., description="Version of the dataset"),
-    filenames: List[str] = Form(..., description="List of filenames to ingest"),
+    filenames: List[str] = Form(..., description="Filenames to ingest"),
     checksums: List[str] = Form(..., description="List of checksums of the files to ingest"),
     user: User = Depends(get_current_user),
 ):
