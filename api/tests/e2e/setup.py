@@ -2,9 +2,9 @@ import pytest
 import os
 from bson import ObjectId
 
-from ...src.repos.mongo.client import get_db
-from ...src.repos.minio.client import get_client
-from ...src.repos.boto3.client import get_client as get_boto_client
+from api.src.repos.mongo.client import get_db
+from api.src.repos.minio.client import get_client
+from api.src.repos.boto3.client import get_client as get_boto_client
 
 datasets = [
     {

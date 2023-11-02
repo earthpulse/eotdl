@@ -1,12 +1,12 @@
- import pytest
+import pytest
 from unittest import mock
 from unittest.mock import MagicMock, AsyncMock
 from fastapi import UploadFile
 from io import BytesIO
 import asyncio
 
-from ....src.usecases.datasets.ingest_file import IngestFile
-from ....src.errors import DatasetDoesNotExistError, TierLimitError
+from api.src.usecases.datasets.ingest_file import IngestFile
+from api.src.errors import DatasetDoesNotExistError, TierLimitError
 
 
 @pytest.fixture

@@ -3,7 +3,8 @@ name: "EOTDL GitHub Actions"
 on:
   push:
     branches:
-      - ci-cd
+      - main
+      - develop
 
 jobs:
   test:
@@ -28,22 +29,18 @@ jobs:
         run: |
           cd eotdl
           poetry install --no-interaction --no-root
+          pip3 install pytest pytest-cov fastapi uvicorn pymongo minio auth0-python python-multipart httpx boto3 stac_validator
+        # put the dependencies in a requirements.txt file
 
       - name: lib tests
         run: |
           cd eotdl
           poetry run pytest --cov .
 
-      # - name: Install API dependencies
-      #   run: |
-      #     cd eotdl
-      #     poetry add fastapi uvicorn pymongo minio auth0-python python-multipart httpx boto3 stac_validator
-      #   # put the dependencies in the requirements.txt file
-
       # - name: API tests
       #   run: |
-      #     cd eotdl
-      #     poetry run pytest ../api --cov .
+      #     cd api
+      #     pytest --cov .
 
   lint:
     needs: test
@@ -83,6 +80,8 @@ jobs:
 
   publish:
     needs: lint
+    # only publish on main branch
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:

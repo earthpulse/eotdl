@@ -1,6 +1,6 @@
 import pytest
 
-from ...src.repos.auth import Auth0Repo
+from api.src.repos.auth import Auth0Repo
 
 
 def test_generate_login_url():
