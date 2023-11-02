@@ -28,13 +28,13 @@ def cut_images(images_list: Union[list, tuple]) -> list:
 
     :return: list of unique directories
     """
-    dirnames = list()
-    images = list()
+    dirnames = []
+    images = []
 
     for image in images_list:
-        dir = dirname(image)
-        if dir not in dirnames:
-            dirnames.append(dir)
+        directory = dirname(image)
+        if directory not in dirnames:
+            dirnames.append(directory)
             images.append(image)
 
     return images

@@ -26,6 +26,7 @@ def get_airbus_access_token(api_key: str) -> str:
         "https://authenticate.foundation.api.oneatlas.airbus.com/auth/realms/IDP/protocol/openid-connect/token",
         headers=headers,
         data=data,
+        timeout=60
     )
 
     access_token = response.json()["access_token"]

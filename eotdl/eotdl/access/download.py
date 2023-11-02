@@ -1,3 +1,10 @@
+"""
+Download imagery
+"""
+
+from datetime import datetime
+from typing import Union, List
+
 from .sentinelhub import (
     SHClient,
     SH_PARAMETERS_DICT,
@@ -6,10 +13,6 @@ from .sentinelhub import (
 )
 from .search import search_sentinel_imagery
 
-from shutil import rmtree
-from datetime import datetime
-from typing import Union, List
-
 
 def download_sentinel_imagery(
     output: str,
@@ -17,6 +20,9 @@ def download_sentinel_imagery(
     bounding_box: List[Union[int, float]],
     sensor: str,
 ) -> None:
+    """
+    Download Sentinel imagery
+    """
     evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output)
 
     client = SHClient()
@@ -33,6 +39,9 @@ def search_and_download_sentinel_imagery(
     bounding_box: List[Union[int, float]],
     sensor: str,
 ) -> None:
+    """
+    Search and download Sentinel imagery
+    """
     evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output)
 
     client = SHClient()
@@ -41,7 +50,7 @@ def search_and_download_sentinel_imagery(
     results = search_sentinel_imagery(time_interval, bounding_box, sensor)
     timestamps = [date.strftime("%Y-%m-%d") for date in results.get_timestamps()]
 
-    requests_list = list()
+    requests_list = []
     for date in timestamps:
         requests_list.append(client.request_data(date, bounding_box, parameters))
     client.download_data(requests_list)

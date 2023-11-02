@@ -8,11 +8,17 @@ from .evalscripts import EvalScripts
 
 
 class SHParameters:
+    """
+    Sentinel Hub Parameters base class
+    """
     def __init__(self):
         pass
 
 
 class SHS2L2AParameters(SHParameters):
+    """
+    Sentinel-2-L2A parameters
+    """
     DATA_COLLECTION = DataCollection.SENTINEL2_L2A
     RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
@@ -25,6 +31,9 @@ class SHS2L2AParameters(SHParameters):
 
 
 class SHS2L1CParameters(SHParameters):
+    """
+    Sentinel-2-L1C parameters
+    """
     DATA_COLLECTION = DataCollection.SENTINEL2_L1C
     RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
@@ -36,6 +45,9 @@ class SHS2L1CParameters(SHParameters):
 
 
 class SHS1Parameters(SHParameters):
+    """
+    Sentinel-1 parameters
+    """
     DATA_COLLECTION = DataCollection.SENTINEL1
     RESOLUTION = 3
     EVALSCRIPT = EvalScripts.SENTINEL_1
@@ -57,6 +69,9 @@ class SHS1Parameters(SHParameters):
 
 
 class SHDEMParameters(SHParameters):
+    """
+    Copernicus DEM parameters
+    """
     DATA_COLLECTION = DataCollection.DEM_COPERNICUS_30
     RESOLUTION = 3
     MOSAICKING_ORDER = None

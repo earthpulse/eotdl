@@ -2,14 +2,14 @@
 Module for the STAC label extension ScaneoLabeler object
 """
 
-import pystac
-import pandas as pd
 import json
-
-from glob import glob
-from tqdm import tqdm
 from os.path import join, dirname, exists, splitext, basename, abspath
 from typing import List, Optional, Union
+from glob import glob
+
+import pystac
+
+from tqdm import tqdm
 from pystac.extensions.label import LabelExtension
 
 from .base import LabelExtensionObject
@@ -17,6 +17,9 @@ from ...extent import get_unknow_extent
 
 
 class ScaneoLabeler(LabelExtensionObject):
+    """
+    STAC label extension ScaneoLabeler object in EOTDL
+    """
     def __init__(self) -> None:
         super().__init__()
 
@@ -155,11 +158,11 @@ class ScaneoLabeler(LabelExtensionObject):
         """
         Get the label classes from the labels.json file if exists, or from the GeoJSON files instead
         """
-        label_classes = list()
+        label_classes = []
 
         labels_json = glob(join(root_folder, "labels.json"))[0]
         if exists(labels_json):
-            with open(labels_json, "r") as f:
+            with open(labels_json, "r", encoding="utf-8") as f:
                 labels = json.load(f)
             for value in labels["labels"]:
                 label_classes.append(value["name"]) if value[
@@ -167,7 +170,7 @@ class ScaneoLabeler(LabelExtensionObject):
                 ] not in label_classes else None
         else:
             for geojson in geojsons:
-                with open(geojson, "r") as f:
+                with open(geojson, "r", encoding="utf-8") as f:
                     labels = json.load(f)
                 for value in labels["features"]:
                     label_classes.append(value["properties"]["labels"]) if value[
@@ -203,9 +206,9 @@ class ScaneoLabeler(LabelExtensionObject):
 
         :return: list of tasks
         """
-        with open(geojson_path, "r") as f:
+        with open(geojson_path, "r", encoding="utf-8") as f:
             geojson = json.load(f)
-            tasks = list()
+            tasks = []
             for feature in geojson["features"]:
                 for task in feature["properties"]["tasks"]:
                     tasks.append(task) if task not in tasks else None

@@ -32,7 +32,7 @@ def get_item_metadata(raster_path: str) -> str:
             return None
 
     # Open the metadata file and return it
-    with open(metadata_json, "r") as f:
+    with open(metadata_json, "r", encoding="utf-8") as f:
         metadata = json.load(f)
 
     return metadata
@@ -50,5 +50,5 @@ def remove_raster_metadata(
     # Search for all the metadata files in the folder
     metadata_files = glob(join(folder, "**", metadata_file), recursive=True)
     # Remove all the metadata files
-    for metadata_file in metadata_files:
-        remove(metadata_file)
+    for metadata in metadata_files:
+        remove(metadata)

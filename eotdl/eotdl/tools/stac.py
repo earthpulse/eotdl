@@ -2,16 +2,17 @@
 Module for data engineering with STAC elements
 """
 
-import geopandas as gpd
-import pystac
-
 from os.path import dirname, join, abspath
 from os import makedirs
 from json import dumps
 from typing import Union, Optional
-from tqdm import tqdm
-from traceback import print_exc
 from shutil import rmtree
+from traceback import print_exc
+
+import geopandas as gpd
+import pystac
+
+from tqdm import tqdm
 
 
 def stac_items_to_gdf(items: pystac.ItemCollection) -> gpd.GeoDataFrame:
@@ -79,7 +80,7 @@ def make_links_relative_to_path(
     # Create a temporary catalog in the destination path to set as root
     future_path = join(path, "catalog.json")
     makedirs(path, exist_ok=True)
-    with open(future_path, "w") as f:
+    with open(future_path, "w", encoding="utf-8") as f:
         f.write(dumps(catalog.to_dict(), indent=4))
     temp_catalog = pystac.Catalog.from_file(future_path)
 
@@ -89,7 +90,7 @@ def make_links_relative_to_path(
     for collection in catalog.get_children():
         # Create new collection
         new_collection = collection.clone()
-        new_collection.set_self_href(join(path, collection.id, f"collection.json"))
+        new_collection.set_self_href(join(path, collection.id, "collection.json"))
         new_collection.set_root(catalog)
         new_collection.set_parent(catalog)
         # Remove old collection and add new one to catalog
@@ -129,7 +130,7 @@ def merge_stac_catalogs(
     for col1 in tqdm(catalog_1.get_children(), desc="Merging catalogs..."):
         # Check if the collection exists in catalog_2
         col2 = catalog_2.get_child(col1.id)
-        if col2 is None:
+        if not col2:
             # If it does not exist, add it
             col1_ = col1.clone()
             catalog_2.add_child(col1)
