@@ -2,17 +2,17 @@
 Module for data engineeringt
 """
 
-import geopandas as gpd
-import pandas as pd
-import tarfile
 import re
+import tarfile
 import datetime
 import json
-
-from .geo_utils import get_image_bbox
-from shapely.geometry import box
 from os.path import exists
 from typing import Union, Optional
+import geopandas as gpd
+import pandas as pd
+
+from shapely.geometry import box
+from .geo_utils import get_image_bbox
 
 
 def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
@@ -60,12 +60,12 @@ def generate_location_payload(
     payload_cache = f"{path}/location_payload.json"
     if exists(payload_cache):
         # Read as dict
-        with open(payload_cache, "r") as f:
+        with open(payload_cache, "r", encoding="utf-8") as f:
             payload = json.load(f)
         return payload
 
-    bbox_date_by_location = dict()
-    for i, row in gdf.iterrows():
+    bbox_date_by_location = {}
+    for _, row in gdf.iterrows():
         # Get list from dates_list column
         dates_list = list(row["dates_list"])
         for date in dates_list:
@@ -81,7 +81,7 @@ def generate_location_payload(
             }
 
     # Save to json
-    with open(payload_cache, "w") as f:
+    with open(payload_cache, "w", encoding="utf-8") as f:
         json.dump(bbox_date_by_location, f)
 
     return bbox_date_by_location
@@ -93,7 +93,9 @@ def get_tarfile_image_info(
     pattern: Optional[str] = r"\d{8}T\d{6}",
     level: Optional[int] = 2,
 ):
-    """ """
+    """
+    Generate a GeoDataFrame with the available images for each location in the dataset.
+    """
     if path:
         gdf_cache = f"{path}/tarfile_images_info.csv"
         if exists(gdf_cache):
@@ -105,24 +107,21 @@ def get_tarfile_image_info(
             return images_gdf
 
     images_df = pd.DataFrame()
-    with tarfile.open(tar, "r:gz") as tar:
+    with tarfile.open(tar, "r:gz") as tarf:
         rasters = [
-            i for i in tar.getnames() if i.endswith(".tif") or i.endswith(".tiff")
+            i for i in tarf.getnames() if i.endswith(".tif") or i.endswith(".tiff")
         ]
         for raster in rasters:
-            r = tar.extractfile(raster)
+            r = tarf.extractfile(raster)
             bbox = get_image_bbox(r)
             date = extract_image_date_in_folder(raster, pattern)
-            date_formatted = datetime.datetime.strptime(
-                date, "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).strftime("%Y-%m-%d")
-            id = extract_image_id_in_folder(raster, level)
+            image_id = extract_image_id_in_folder(raster, level)
             # Use pd.concat to append to dataframe
             images_df = pd.concat(
                 [
                     images_df,
                     pd.DataFrame(
-                        {"location_id": [id], "datetime": [date], "bbox": [bbox]}
+                        {"location_id": [image_id], "datetime": [date], "bbox": [bbox]}
                     ),
                 ]
             )
@@ -149,6 +148,9 @@ def get_tarfile_image_info(
 
 
 def extract_image_date_in_folder(raster_path: str, pattern: str):
+    """
+    Extract the date from the folder name of the image.
+    """
     case = re.findall(pattern, raster_path)
 
     if case:
@@ -163,14 +165,19 @@ def extract_image_date_in_folder(raster_path: str, pattern: str):
 
 
 def extract_image_id_in_folder(raster_path: str, level: int):
+    """
+    Extract the location id from the folder name of the image, given the level of the folder.
+    """
     return raster_path.split("/")[level]
 
 
 def format_product_location_payload(
     location_payload: dict, images_response: dict, all_info: bool = False
 ) -> dict:
-    """ """
-    for id, info in location_payload.items():
+    """
+    Format the location payload with the images response.
+    """
+    for _, _ in location_payload.items():
         # Add new key to the dictionary
         if all_info:
             location_payload[id]["image"] = (

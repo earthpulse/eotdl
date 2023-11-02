@@ -1,11 +1,19 @@
+"""
+Time utils
+"""
+
+from datetime import datetime, timedelta
+from typing import Union, Optional
+from dateutil import parser
+
 import geopandas as gpd
 import pandas as pd
 
-from datetime import datetime, timedelta
-from typing import Union, Optional, List
-
 
 def is_time_interval(time_interval: list) -> bool:
+    """
+    Check if is time interval and is valid
+    """
     if not isinstance(time_interval, (list, tuple)) or len(time_interval) != 2:
         return False
 
@@ -19,6 +27,9 @@ def is_time_interval(time_interval: list) -> bool:
 
 
 def is_valid_date(date_str: str) -> bool:
+    """
+    Check if a date is valid
+    """
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
         return True
@@ -30,7 +41,9 @@ def get_first_last_dates(
     dataframe: Union[pd.DataFrame, gpd.GeoDataFrame],
     dates_column: Optional[str] = "datetime",
 ):
-    """ """
+    """
+    Get first and last dates from a dataframe
+    """
     dataframe[dates_column] = dataframe[dates_column].apply(lambda x: sorted(x))
     dataframe["first_date"] = dataframe["dates_list"].apply(lambda x: x[0])
     dataframe["last_date"] = dataframe["dates_list"].apply(lambda x: x[-1])
@@ -45,7 +58,9 @@ def get_first_last_dates(
 
 
 def create_time_slots(start_date: datetime, end_date: datetime, n_chunks: int):
-    """ """
+    """
+    Create time slots from start date to end date, with n_chunks
+    """
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
     if isinstance(end_date, str):
@@ -58,16 +73,18 @@ def create_time_slots(start_date: datetime, end_date: datetime, n_chunks: int):
 
 
 def expand_time_interval(
-    time_interval: Union[list, tuple], format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+    time_interval: Union[list, tuple], time_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 ) -> list:
-    """ """
+    """
+    Expand time interval to get more data
+    """
     start_date = time_interval[0]
     end_date = time_interval[1]
 
     if isinstance(start_date, str):
-        start_date = datetime.datetime.strptime(start_date, format)
+        start_date = datetime.datetime.strptime(start_date, time_format)
     if isinstance(end_date, str):
-        end_date = datetime.datetime.strptime(end_date, format)
+        end_date = datetime.datetime.strptime(end_date, time_format)
 
     # Add one day to start date and remove one day to end date
     new_start_date = start_date - datetime.timedelta(days=1)
@@ -81,15 +98,18 @@ def expand_time_interval(
 
 
 def prepare_time_interval(date):
+    """
+    Prepare time interval to request data
+    """
     if isinstance(date, str):
         date = datetime.strptime(date, "%Y-%m-%d")
     elif isinstance(date, tuple):
-        if not is_time_interval(date):
+        if is_time_interval(date):
+            return date
+        else:
             raise ValueError(
                 "The time interval must be a range of two dates, with format YYYY-MM-DD or a datetime object"
             )
-        else:
-            return date
     elif not isinstance(date, datetime):
         raise ValueError(
             "The date must be a string with format YYYY-MM-DD or a datetime object"
@@ -107,7 +127,9 @@ def prepare_time_interval(date):
 def get_day_between(
     from_date: Union[datetime, str], to_date: Union[datetime, str]
 ) -> str:
-    """ """
+    """
+    Get the day between two dates
+    """
     if isinstance(from_date, str):
         from_date = datetime.strptime(from_date, "%Y-%m-%dT%H:%M:%SZ")
     if isinstance(to_date, str):
@@ -125,8 +147,6 @@ def format_time_acquired(dt: Union[str, datetime]) -> str:
 
     :param dt: date time to format
     """
-    from dateutil import parser
-
     dt_str = parser.parse(dt).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     return dt_str

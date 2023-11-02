@@ -2,27 +2,31 @@
 Module for the STAC label extension base object
 """
 
-import pystac
-
 from typing import List, Union
-from ..base import STACExtensionObject
+
+import pystac
 from pystac.extensions.label import (
     LabelClasses,
     LabelExtension,
     SummariesLabelExtension,
 )
 
+from ..base import STACExtensionObject
+
 
 class LabelExtensionObject(STACExtensionObject):
+    """
+    STAC Label extension base object in EOTDL
+    """
     def __init__(self) -> None:
         super().__init__()
 
     @classmethod
-    def generate_stac_labels(self) -> None:
+    def generate_stac_labels(cls) -> None:
         """
         Generate a labels collection from a STAC dataframe.
         """
-        pass
+        return
 
     def add_extension_to_item(
         self,
@@ -52,7 +56,7 @@ class LabelExtensionObject(STACExtensionObject):
             id=obj.id,
             geometry=obj.geometry,
             bbox=obj.bbox,
-            properties=dict(),
+            properties={},
             datetime=obj.datetime,
         )
 
@@ -129,4 +133,4 @@ class LabelExtensionObject(STACExtensionObject):
         Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         https://github.com/stac-extensions/label#assets
         """
-        pass
+        return

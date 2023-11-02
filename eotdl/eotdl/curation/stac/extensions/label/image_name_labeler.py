@@ -2,19 +2,23 @@
 Module for the STAC label extension ImageNameLabeler object
 """
 
-import pystac
-import pandas as pd
 import json
-
-from tqdm import tqdm
 from os.path import join, dirname
 from typing import List, Optional, Union
+
+import pystac
+import pandas as pd
+
+from tqdm import tqdm
+from pystac.extensions.label import LabelExtension
 from ...extent import get_unknow_extent
 from .base import LabelExtensionObject
-from pystac.extensions.label import LabelExtension
 
 
 class ImageNameLabeler(LabelExtensionObject):
+    """
+    STAC label extension ImageNameLabeler object in EOTDL
+    """
     def __init__(self) -> None:
         super().__init__()
 
@@ -180,7 +184,7 @@ class ImageNameLabeler(LabelExtensionObject):
             labels_properties = (
                 dict(zip(item.properties["label:properties"], labels))
                 if label_type == "vector"
-                else dict()
+                else {}
             )
             labels_properties["datetime"] = datetime
 
@@ -195,5 +199,5 @@ class ImageNameLabeler(LabelExtensionObject):
                 ],
             }
 
-            with open(geojson_path, "w") as f:
+            with open(geojson_path, "w", encoding="utf-8") as f:
                 json.dump(geojson, f)

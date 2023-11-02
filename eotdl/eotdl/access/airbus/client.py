@@ -3,16 +3,15 @@ Module for managing the Airbus configuration and data access
 """
 
 import json
-import requests
-from requests.exceptions import ConnectTimeout, ReadTimeout
-from urllib3.exceptions import TimeoutError
 import time
-
 from typing import Optional, Iterable
 from os.path import join, exists
-from .parameters import *
+import requests
+from requests.exceptions import ConnectTimeout, ReadTimeout
+
+from .parameters import AirbusURL, AirbusProductType, AirbusImageFormat, AirbusRadiometricProcessing
 from .utils import get_airbus_access_token
-from ...tools.tools import expand_time_interval, bbox_to_coordinates
+from ...tools import expand_time_interval, bbox_to_coordinates
 
 
 class AirbusClient:
@@ -41,15 +40,17 @@ class AirbusClient:
     def get_total_products_price(
         self, payload: dict, all_info: Optional[bool] = False
     ) -> dict:
-        """ """
+        """
+        Get total products price
+        """
         if all_info:
-            response = list()
+            response = []
         else:
             response = 0
 
-        for location_id, location_data in payload.items():
+        for _, location_data in payload.items():
             product_id = location_data["image"]
-            if id:
+            if product_id:
                 price_response = self.get_product_price(
                     product_id, location_data["bounding_box"]
                 )
@@ -92,7 +93,7 @@ class AirbusClient:
         dict
             Product price
         """
-        if (isinstance(coordinates, tuple) or isinstance(coordinates, list)) and len(
+        if isinstance(coordinates, (list, tuple)) and len(
             coordinates
         ) == 4:
             coordinates = bbox_to_coordinates(coordinates)
@@ -119,7 +120,7 @@ class AirbusClient:
             ],
         }
         response = requests.request(
-            "POST", AirbusURL.PRICES, json=payload, headers=headers
+            "POST", AirbusURL.PRICES, json=payload, headers=headers, timeout=60000
         )
 
         return response.json()
@@ -156,7 +157,7 @@ class AirbusClient:
         dict
             Order data
         """
-        if (isinstance(coordinates, tuple) or isinstance(coordinates, list)) and len(
+        if isinstance(coordinates, (list, tuple)) and len(
             coordinates
         ) == 4:
             coordinates = bbox_to_coordinates(coordinates)
@@ -180,7 +181,7 @@ class AirbusClient:
         }
 
         response = requests.request(
-            "POST", AirbusURL.ORDERS, json=payload, headers=headers
+            "POST", AirbusURL.ORDERS, json=payload, headers=headers, timeout=60000
         )
 
         return response.json()
@@ -208,9 +209,9 @@ class AirbusClient:
         dict
             Image data
         """
-        if isinstance(acquisition_date, tuple) or isinstance(acquisition_date, list):
+        if isinstance(acquisition_date, (tuple, list)):
             acquisition_date = "[" + ",".join(acquisition_date) + "]"
-        if (isinstance(bounding_box, tuple) or isinstance(bounding_box, list)) and len(
+        if isinstance(bounding_box, (tuple, list)) and len(
             bounding_box
         ) == 4:
             bounding_box = ",".join(str(num) for num in bounding_box)
@@ -261,11 +262,11 @@ class AirbusClient:
             Dictionary with the image data, as {location_id: image_data}, to
             maintain track of the location
         """
-        responses = dict()
+        responses = {}
         if path:
             responses_path = join(path, "airbus_images_response.json")
             if exists(responses_path):
-                with open(responses_path, "r") as f:
+                with open(responses_path, "r", encoding="utf-8") as f:
                     responses = json.load(f)
 
         for location_id, location_info in list(payload_dict.items()):
@@ -299,7 +300,7 @@ class AirbusClient:
                         response["features"] = [response["features"][0]]
                     responses[location_id] = response["features"][0]
                     if path:
-                        with open(responses_path, "w") as f:
+                        with open(responses_path, "w", encoding="utf-8") as f:
                             json.dump(responses, f)
                     break
 
@@ -310,7 +311,7 @@ class AirbusClient:
             if total_results == 0:
                 responses[location_id] = None
                 if path:
-                    with open(responses_path, "w") as f:
+                    with open(responses_path, "w", encoding="utf-8") as f:
                         json.dump(responses, f)
 
         return responses
@@ -318,59 +319,67 @@ class AirbusClient:
     def format_product_payload(
         self, location_payload: dict, images_response: dict
     ) -> dict:
-        """ """
-        # TODO put in airbus.tools?
-        for id, info in location_payload.items():
+        """
+        Format product payload
+        """
+        for product_id, _ in location_payload.items():
             # Add new key to the dictionary
-            location_payload[id]["image_response"] = (
-                images_response[id] if id in images_response else None
+            location_payload[product_id]["image_response"] = (
+                images_response[product_id] if product_id in images_response else None
             )
 
         return location_payload
 
     def split_product_payload(self, product_payload: dict) -> dict:
-        """ """
-        # TODO put in airbus.tools?
+        """
+        Split product payload
+        """
         # split the product payload depending on if 'image' is None or not
-        product_payload_with_image = dict()
-        product_payload_without_image = dict()
+        product_payload_with_image = {}
+        product_payload_without_image = {}
 
-        for id, info in product_payload.items():
+        for product_id, info in product_payload.items():
             if info["image"]:
-                product_payload_with_image[id] = info
+                product_payload_with_image[product_id] = info
             else:
-                product_payload_without_image[id] = info
+                product_payload_without_image[product_id] = info
 
         return product_payload_with_image, product_payload_without_image
 
     def get_all_order_status(self):
-        """ """
+        """
+        Get all order status
+        """
         headers = {
             "Authorization": f"Bearer {self.airbus_access_token}",
             "Content-Type": "application/json",
             "Cache-Control": "no-cache",
         }
 
-        response = requests.request("GET", AirbusURL.ALL_ORDERS_STATUS, headers=headers)
+        response = requests.request("GET", AirbusURL.ALL_ORDERS_STATUS, headers=headers, timeout=60000)
 
         return response.text
 
     def get_account_information(self):
-        """ """
+        """
+        Get account information
+        """
         headers = {
             "Authorization": f"Bearer {self.airbus_access_token}",
             "Content-Type": "application/json",
             "Cache-Control": "no-cache",
         }
 
-        response = requests.request("GET", AirbusURL.ACCOUNT, headers=headers)
+        response = requests.request("GET", AirbusURL.ACCOUNT, headers=headers, timeout=60000)
 
         return response.json()
 
     def get_user_roles(self):
-        """ """
+        """
+        Get user roles
+        """
         headers = {"Authorization": f"Bearer {self.airbus_access_token}"}
 
-        response = requests.request("GET", AirbusURL.ROLES, headers=headers)
+        response = requests.request("GET", AirbusURL.ROLES, headers=headers, timeout=60000)
 
         return response.json()

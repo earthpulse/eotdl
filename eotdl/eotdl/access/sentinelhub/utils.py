@@ -22,7 +22,9 @@ def evaluate_sentinel_parameters(
     output: Optional[str] = None,
     output_needed: Optional[bool] = True,
 ) -> None:
-    """ """
+    """
+    Evaluate parameters for Sentinel Hub access
+    """
     if output_needed:
         if not output:
             raise ValueError("Output path must be specified.")
@@ -35,21 +37,23 @@ def evaluate_sentinel_parameters(
     else:
         if len(time_interval) == 2 and not is_time_interval(time_interval):
             raise ValueError(
-                f"Time interval must be a list or tuple with two elements in format YYYY-MM-DD."
+                "Time interval must be a list or tuple with two elements in format YYYY-MM-DD."
             )
     if not bounding_box:
         raise ValueError("Bounding box must be specified.")
     else:
         if not is_bounding_box(bounding_box):
             raise ValueError(
-                f"Bounding box must be a list or tuple with four elements in format (lon_min, lat_min, lon_max, lat_max)."
+                "Bounding box must be a list or tuple with four elements in format (lon_min, lat_min, lon_max, lat_max)."
             )
 
 
 def imagery_from_tmp_to_dir(
     output_dir: str, tmp_dir: Optional[str] = "/tmp/sentinelhub"
 ) -> None:
-    """ """
+    """
+    Copy imagery from tmp to output dir
+    """
     downloaded_files = glob(f"{tmp_dir}/**/response.tiff")
     assert len(downloaded_files) > 0, "No files downloaded"
 
@@ -64,15 +68,19 @@ def imagery_from_tmp_to_dir(
             output_filename = metadata["type"]
 
         copyfile(downloaded_file, f"{output_dir}/{output_filename}.tif")
-        json.dump(metadata, open(f"{output_dir}/{output_filename}.json", "w"))
+        with open(f"{output_dir}/{output_filename}.json", "w", encoding="utf-8") as f:
+            json.dump(metadata, f)
 
     rmtree(tmp_dir)
 
 
 def generate_raster_metadata(raster: str, request_json: str) -> None:
-    """ """
+    """
+    Generate metadata for raster
+    """
     bbox = get_image_bbox(raster)
-    json_content = json.load(open(request_json))
+    with open(request_json, "r", encoding="utf-8") as f:
+        json_content = json.load(f)
 
     payload_data = json_content["request"]["payload"]["input"]["data"][0]
     sensor_type = payload_data["type"]

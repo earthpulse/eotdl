@@ -44,7 +44,8 @@ class SHClient:
                     "Your are not logged in and have not provided Sentinel Hub credentials. Please, crete a .env file with your SH_CLIENT_ID and SH_CLIENT_SECRET, or login"
                 )
             else:
-                creds = json.load(open(creds_file, "r"))
+                with open(creds_file, "r", encoding="utd-8") as f:
+                    creds = json.load(f)
                 if (
                     not "SH_CLIENT_ID" in creds.keys()
                     or not "SH_CLIENT_SECRET" in creds.keys()
@@ -61,7 +62,9 @@ class SHClient:
     def search_data(
         self, bounding_box: list, time_interval: list, parameters: SHParameters
     ) -> list:
-        """ """
+        """ 
+        Search data from Sentinel Hub
+        """
         search_iterator = self.catalog.search(
             parameters.DATA_COLLECTION,
             bbox=BBox(bounding_box, crs=CRS.WGS84),
@@ -75,9 +78,11 @@ class SHClient:
     def request_data(
         self, time_interval, bounding_box: list, parameters: SHParameters
     ) -> list:
-        """ """
+        """
+        Request data from Sentinel Hub
+        """
         time_interval = prepare_time_interval(time_interval)
-        bounding_box, bounding_box_size = compute_image_size(bounding_box, parameters)
+        bounding_box, _ = compute_image_size(bounding_box, parameters)
 
         return SentinelHubRequest(
             data_folder=self.tmp_dir,
@@ -96,7 +101,9 @@ class SHClient:
         )
 
     def download_data(self, requests: list) -> list:
-        """ """
+        """
+        Download data from Sentinel Hub
+        """
         download_client = SentinelHubDownloadClient(config=self.config)
         if not isinstance(requests, list):
             requests = [requests]
