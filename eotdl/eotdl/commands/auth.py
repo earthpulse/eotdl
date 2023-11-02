@@ -2,7 +2,7 @@ import typer
 from ..auth import is_logged, auth, logout_user
 from ..auth.errors import LoginError
 
-app = typer.Typer(help="EOTDL CLI authentication module.")
+app = typer.Typer(help="Login to EOTDL.")
 
 
 @app.command()
