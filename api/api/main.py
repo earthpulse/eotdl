@@ -30,7 +30,7 @@ from .routers.models import (
 )
 from .routers import admin, migrate
 
-VERSION = "2023.10.17"
+VERSION = "2023.11.02"
 
 tags_metadata = [
     {
