@@ -1,6 +1,6 @@
-'''
+"""
 Module for the labeling strategy when creating a STAC catalog from a dataframe
-'''
+"""
 
 import pystac
 from os.path import basename
@@ -27,11 +27,10 @@ class UnlabeledStrategy(LabelingStrategy):
         super().__init__()
 
     def get_images_labels(self, images):
-        """
-        """
+        """ """
         labels = list()
         for image in images:
-            labels.append(basename(image).split('.')[0])
+            labels.append(basename(image).split(".")[0])
         ixs = [labels.index(x) for x in labels]
 
         return labels, ixs
@@ -47,12 +46,13 @@ class LabeledStrategy(LabelingStrategy):
         super().__init__()
 
     def get_images_labels(self, images):
-        """
-        """
+        """ """
         labels = list()
         for image in images:
-            image_basename = basename(image).split('.')[0]   # Get filename without extension
-            label = image_basename.split('_')[0]
+            image_basename = basename(image).split(".")[
+                0
+            ]  # Get filename without extension
+            label = image_basename.split("_")[0]
             labels.append(label)
 
         ixs = [labels.index(x) for x in labels]
