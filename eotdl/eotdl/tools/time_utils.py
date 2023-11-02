@@ -81,21 +81,21 @@ def expand_time_interval(time_interval: Union[list, tuple], format: str='%Y-%m-%
 def prepare_time_interval(date):
     if isinstance(date, str):
         date = datetime.strptime(date, "%Y-%m-%d")
-    elif isinstance(date, datetime):
-        date = date.strftime("%Y-%m-%d")
     elif isinstance(date, tuple):
         if not is_time_interval(date):
             raise ValueError('The time interval must be a range of two dates, with format YYYY-MM-DD or a datetime object')
         else:
             return date
-    else:
+    elif not isinstance(date, datetime):
         raise ValueError('The date must be a string with format YYYY-MM-DD or a datetime object')
+
     date_day_before = date - timedelta(days=1)
     date_next_day = date + timedelta(days=1)
-    date_day_before = date_day_before.strftime("%Y-%m-%d")
-    date_next_day = date_next_day.strftime("%Y-%m-%d")
 
-    return (date_day_before, date_next_day)
+    date_day_before_str = date_day_before.strftime("%Y-%m-%d")
+    date_next_day_str = date_next_day.strftime("%Y-%m-%d")
+
+    return (date_day_before_str, date_next_day_str)
 
 
 def get_day_between(from_date: Union[datetime, str], 
@@ -112,3 +112,16 @@ def get_day_between(from_date: Union[datetime, str],
     date_between = date_between.strftime("%Y-%m-%d") 
     
     return date_between
+
+
+def format_time_acquired(dt: Union[str, datetime]) -> str:
+    """
+    Format the date time to the required format for STAC
+
+    :param dt: date time to format
+    """
+    from dateutil import parser
+    
+    dt_str = parser.parse(dt).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    return dt_str

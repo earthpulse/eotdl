@@ -1,23 +1,27 @@
 from fastapi.exceptions import HTTPException
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query, Path
 import logging
 from fastapi.responses import StreamingResponse
 
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.usecases.datasets import download_dataset_file  # , download_stac_catalog
+from .responses import download_dataset_responses as responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/{dataset_id}/download/{filename:path}")
+@router.get("/{dataset_id}/download/{filename:path}", summary="Download a dataset", responses=responses)
 async def download_dataset(
-    dataset_id: str,
-    filename: str,  # podría ser un path... a/b/c/file.txt
-    version: int = None,
+    dataset_id: str = Path(..., description="ID of the dataset to download"),
+    filename: str = Path(..., description="Filename or path to the file to download from the dataset"),  # podría ser un path... a/b/c/file.txt
+    version: int = Query(None, description="Version of the dataset to download"),
     user: User = Depends(get_current_user),
 ):
+    """
+    Download an entire dataset or a specific dataset file from the EOTDL.
+    """
     try:
         data_stream, object_info, _filename = download_dataset_file(
             dataset_id, filename, user, version
