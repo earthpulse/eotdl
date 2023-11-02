@@ -150,11 +150,11 @@ class MLDatasetExtension(
         Args:
              metric : The metric to add.
         """
-        if not self.extra_fields.get(f'{PREFIX}quality-metrics'):
-            self.extra_fields[f'{PREFIX}quality-metrics'] = []
+        if not self.extra_fields.get(f"{PREFIX}quality-metrics"):
+            self.extra_fields[f"{PREFIX}quality-metrics"] = []
 
-        if metric not in self.extra_fields[f'{PREFIX}quality-metrics']:
-            self.extra_fields[f'{PREFIX}quality-metrics'].append(metric)
+        if metric not in self.extra_fields[f"{PREFIX}quality-metrics"]:
+            self.extra_fields[f"{PREFIX}quality-metrics"].append(metric)
 
     def add_metrics(self, metrics: List[dict]) -> None:
         """Add a list of metrics to this object's set of metrics.
@@ -238,7 +238,6 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
                 item_ml.split = split_type
 
 
-
 class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
     """A concrete implementation of :class:`MLDatasetExtension` on an
     :class:`~pystac.Item` that extends the properties of the Item to include properties
@@ -292,7 +291,7 @@ class MLDatasetQualityMetrics:
             )
         finally:
             catalog.make_all_asset_hrefs_relative()
-            
+
         try:
             print("Validating and saving...")
             catalog.validate()
@@ -312,12 +311,16 @@ class MLDatasetQualityMetrics:
         """ """
         items = list(
             set(
-                [item 
-                 for item in tqdm(catalog.get_items(recursive=True), desc="Looking for spatial duplicates...") 
-                 if not LabelExtension.has_extension(item)
-                 ]
-                )
+                [
+                    item
+                    for item in tqdm(
+                        catalog.get_items(recursive=True),
+                        desc="Looking for spatial duplicates...",
+                    )
+                    if not LabelExtension.has_extension(item)
+                ]
             )
+        )
 
         # Initialize the spatial duplicates dict
         spatial_duplicates = {"name": "spatial-duplicates", "values": [], "total": 0}
@@ -343,8 +346,7 @@ class MLDatasetQualityMetrics:
         """ """
 
         def get_label_properties(items: List[pystac.Item]) -> List:
-            """
-            """
+            """ """
             label_properties = list()
             for label in items:
                 label_ext = LabelExtension.ext(label)
@@ -353,17 +355,21 @@ class MLDatasetQualityMetrics:
                         label_properties.append(prop)
 
             return label_properties
-    
+
         catalog.make_all_asset_hrefs_absolute()
 
         labels = list(
             set(
-                [item 
-                 for item in tqdm(catalog.get_items(recursive=True), desc="Calculating classes balance...") 
-                 if LabelExtension.has_extension(item)
-                 ]
-                )
+                [
+                    item
+                    for item in tqdm(
+                        catalog.get_items(recursive=True),
+                        desc="Calculating classes balance...",
+                    )
+                    if LabelExtension.has_extension(item)
+                ]
             )
+        )
 
         # Initialize the classes balance dict
         classes_balance = {"name": "classes-balance", "values": []}
@@ -394,7 +400,7 @@ class MLDatasetQualityMetrics:
                     if property_value not in properties:
                         properties[property_value] = 0
                     properties[property_value] += 1
-            
+
             # Create the property balance dict
             total_labels = sum(properties.values())
             for key, value in properties.items():
@@ -480,15 +486,19 @@ def add_ml_extension(
 
     # Normalize the ref on the same folder
     if destination:
-        catalog_ml_dataset = make_links_relative_to_path(destination, catalog_ml_dataset)
+        catalog_ml_dataset = make_links_relative_to_path(
+            destination, catalog_ml_dataset
+        )
 
     try:
         print("Validating and saving...")
         catalog_ml_dataset.validate()
-        rmtree(destination) if exists(destination) else None # Remove the old catalog and replace it with the new one
-        catalog_ml_dataset.normalize_and_save(root_href=destination, 
-                                              catalog_type=catalog_type
-                                              )
+        rmtree(destination) if exists(
+            destination
+        ) else None  # Remove the old catalog and replace it with the new one
+        catalog_ml_dataset.normalize_and_save(
+            root_href=destination, catalog_type=catalog_type
+        )
         print("Success!")
     except STACValidationError:
         # Return full callback

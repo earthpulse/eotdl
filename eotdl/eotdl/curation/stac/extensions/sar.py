@@ -1,6 +1,6 @@
-'''
+"""
 Module for SAR STAC extensions object
-'''
+"""
 
 import pystac
 import pandas as pd
@@ -19,8 +19,9 @@ class SarExtensionObject(STACExtensionObject):
         self.polarizations_dict = {"VV": Polarization.VV, "VH": Polarization.VH}
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: Optional[pd.DataFrame] = None
+        self,
+        obj: Union[pystac.Item, pystac.Asset],
+        obj_info: Optional[pd.DataFrame] = None,
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object

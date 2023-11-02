@@ -3,11 +3,14 @@ from typing import Union, List
 from datetime import datetime
 
 
-def search_sentinel_imagery(time_interval: Union[str, datetime, List[Union[str, datetime]]],
-                            bounding_box: List[Union[int, float]],
-                            sensor: str,
-                            ) -> None:
-    evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output_needed=False)
+def search_sentinel_imagery(
+    time_interval: Union[str, datetime, List[Union[str, datetime]]],
+    bounding_box: List[Union[int, float]],
+    sensor: str,
+) -> None:
+    evaluate_sentinel_parameters(
+        sensor, time_interval, bounding_box, output_needed=False
+    )
 
     client = SHClient()
     parameters = SH_PARAMETERS_DICT[sensor]()

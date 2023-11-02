@@ -130,6 +130,7 @@ class STACDataFrame(gpd.GeoDataFrame):
 
         return row
 
+
 def read_stac(
     stac_file: Union[pystac.Catalog, pystac.Collection, str],
     geometry_column: Optional[str] = "geometry",
@@ -141,7 +142,7 @@ def read_stac(
     :param geometry_column: name of the geometry column
     """
     if isinstance(stac_file, str) or isinstance(stac_file, Path):
-        stac_file = pystac.read_file(stac_file) # we assume this is always a catalog
+        stac_file = pystac.read_file(stac_file)  # we assume this is always a catalog
     stac_file.make_all_asset_hrefs_absolute()
     children = get_all_children(stac_file)
 

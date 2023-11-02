@@ -1,6 +1,6 @@
-'''
+"""
 Module for the STAC label extension ScaneoLabeler object
-'''
+"""
 
 import pystac
 import pandas as pd
@@ -24,17 +24,17 @@ class ScaneoLabeler(LabelExtensionObject):
         self,
         catalog: Union[pystac.Catalog, str],
         root_folder: str,
-        collection: Optional[Union[pystac.Collection, str]] = 'source',
+        collection: Optional[Union[pystac.Collection, str]] = "source",
         label_description: Optional[str] = "Item label",
         label_type: Optional[str] = "vector",
         label_names: Optional[List[str]] = ["label"],
-        **kwargs
+        **kwargs,
     ) -> None:
         """
-        Generate a labels collection from a STAC dataframe. 
+        Generate a labels collection from a STAC dataframe.
         This class should be used when the items have been labeled using SCANEO, as is implemented
         taking into account the SCANEO labeling format.
-        
+
         :param catalog: catalog to add the labels collection to
         :param root_folder: root folder where are the images and the labels as GeoJSON files, following the SCANEO labeling format
         :param stac_dataframe: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
@@ -86,7 +86,7 @@ class ScaneoLabeler(LabelExtensionObject):
             # Get the tasks from the GeoJSON label
             tasks = self.get_tasks_from_geojson(geojson_label)
             # Add the tasks to the kwargs
-            kwargs['label_tasks'] = tasks
+            kwargs["label_tasks"] = tasks
 
             # Create the label item
             label_item = self.add_extension_to_item(
@@ -95,7 +95,7 @@ class ScaneoLabeler(LabelExtensionObject):
                 label_type=label_type,
                 label_names=label_names,
                 label_classes=label_classes,
-                **kwargs
+                **kwargs,
             )
             # Add the self href to the label item, following the Best Practices Layout
             # https://github.com/radiantearth/stac-spec/blob/master/best-practices.md
@@ -103,8 +103,8 @@ class ScaneoLabeler(LabelExtensionObject):
                 join(
                     dirname(collection.get_self_href()),
                     label_item.id,
-                    f"{label_item.id}.json"
-                    )
+                    f"{label_item.id}.json",
+                )
             )
             # Match the GeoJSON label with the label item
             self.add_geojson_to_item(label_item, geojson_label, label_type)
@@ -124,16 +124,16 @@ class ScaneoLabeler(LabelExtensionObject):
         # and then iterate over the items to add the geojson
         try:
             pystac.validation.validate(catalog)
-            catalog.normalize_and_save(dirname(catalog.get_self_href()), pystac.CatalogType.SELF_CONTAINED)
-            print('Success on labels generation!')
+            catalog.normalize_and_save(
+                dirname(catalog.get_self_href()), pystac.CatalogType.SELF_CONTAINED
+            )
+            print("Success on labels generation!")
         except pystac.STACValidationError as e:
             raise pystac.STACError(f"Catalog validation error: {e}")
 
-    def add_geojson_to_item(self, 
-                            item: pystac.Item,
-                            geojson_path: str,
-                            label_type: str
-                            ) -> None:
+    def add_geojson_to_item(
+        self, item: pystac.Item, geojson_path: str, label_type: str
+    ) -> None:
         """
         Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         https://github.com/stac-extensions/label#assets
@@ -142,19 +142,16 @@ class ScaneoLabeler(LabelExtensionObject):
         :param df: dataframe with the STAC metadata of a given directory containing the assets to generate metadata
         :param label_type: label type
         """
-        properties = {'roles': ['labels', f'labels-{label_type}']}
+        properties = {"roles": ["labels", f"labels-{label_type}"]}
 
         label_ext = LabelExtension.ext(item, add_if_missing=True)
         item.make_asset_hrefs_absolute()
-        label_ext.add_geojson_labels(href=abspath(geojson_path), 
-                                     title='Label', 
-                                     properties=properties)
+        label_ext.add_geojson_labels(
+            href=abspath(geojson_path), title="Label", properties=properties
+        )
         item.make_asset_hrefs_relative()
-        
-    def get_label_classes(self,
-                          root_folder: str,
-                          geojsons: List[str]
-                          ) -> List[str]:
+
+    def get_label_classes(self, root_folder: str, geojsons: List[str]) -> List[str]:
         """
         Get the label classes from the labels.json file if exists, or from the GeoJSON files instead
         """
@@ -162,23 +159,24 @@ class ScaneoLabeler(LabelExtensionObject):
 
         labels_json = glob(join(root_folder, "labels.json"))[0]
         if exists(labels_json):
-            with open(labels_json, 'r') as f:
+            with open(labels_json, "r") as f:
                 labels = json.load(f)
-            for value in labels['labels']:
-                label_classes.append(value['name']) if value['name'] not in label_classes else None
+            for value in labels["labels"]:
+                label_classes.append(value["name"]) if value[
+                    "name"
+                ] not in label_classes else None
         else:
             for geojson in geojsons:
-                with open(geojson, 'r') as f:
+                with open(geojson, "r") as f:
                     labels = json.load(f)
-                for value in labels['features']:
-                    label_classes.append(value['properties']['labels']) if value['properties']['labels'] not in label_classes else None
+                for value in labels["features"]:
+                    label_classes.append(value["properties"]["labels"]) if value[
+                        "properties"
+                    ]["labels"] not in label_classes else None
 
         return [label_classes]
 
-    def get_geojson_of_item(self,
-                            item: pystac.Item,
-                            geojsons: List[str]
-                            ) -> str:
+    def get_geojson_of_item(self, item: pystac.Item, geojsons: List[str]) -> str:
         """
         Get the GeoJSON label of the item from a list of GeoJSON files
 
@@ -190,14 +188,14 @@ class ScaneoLabeler(LabelExtensionObject):
         item_id = item.id
         # Get a dict with <geojson_filename>: <geojson_path>, as the geojson_filename
         # must match the item ID
-        geojsons_dict = dict(zip([splitext(basename(geojson))[0] for geojson in geojsons], geojsons))
+        geojsons_dict = dict(
+            zip([splitext(basename(geojson))[0] for geojson in geojsons], geojsons)
+        )
         geojson_path = geojsons_dict.get(item_id)
-        
+
         return geojson_path
 
-    def get_tasks_from_geojson(self, 
-                               geojson_path: str
-                               ) -> List[str]:
+    def get_tasks_from_geojson(self, geojson_path: str) -> List[str]:
         """
         Get the tasks from the GeoJSON label
 
@@ -205,11 +203,11 @@ class ScaneoLabeler(LabelExtensionObject):
 
         :return: list of tasks
         """
-        with open(geojson_path, 'r') as f:
+        with open(geojson_path, "r") as f:
             geojson = json.load(f)
             tasks = list()
-            for feature in geojson['features']:
-                for task in feature['properties']['tasks']:
+            for feature in geojson["features"]:
+                for task in feature["properties"]["tasks"]:
                     tasks.append(task) if task not in tasks else None
-        
+
         return tasks

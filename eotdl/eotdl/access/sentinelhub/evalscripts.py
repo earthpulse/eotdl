@@ -1,6 +1,6 @@
-'''
+"""
 Evalscripts for Sentinel Hub requests
-'''
+"""
 
 
 class EvalScripts:
@@ -26,7 +26,7 @@ class EvalScripts:
                     return [sample.VH, sample.VV];
                 }
                 """
-    
+
     SENTINEL_2_L1C = """
                 //VERSION=3
                 function setup() {
@@ -75,7 +75,6 @@ class EvalScripts:
                 }
                 """
 
-    
     SENTINEL_2_L2A = """
                 //VERSION=3
                 function setup() {
@@ -117,7 +116,7 @@ class EvalScripts:
                             sample.B12];
                 }
                 """
-    
+
     DEM = """
         //VERSION=3
 

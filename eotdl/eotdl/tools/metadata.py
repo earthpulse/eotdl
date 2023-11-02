@@ -1,6 +1,6 @@
-'''
+"""
 Metadata utilities for STAC
-'''
+"""
 
 import json
 
@@ -20,25 +20,27 @@ def get_item_metadata(raster_path: str) -> str:
     raster_dir_path = dirname(raster_path)
     # Get the metadata JSON file
     # Check if there is a metadata.json file in the directory
-    if 'metadata.json' in listdir(raster_dir_path):
-        metadata_json = join(raster_dir_path, 'metadata.json')
+    if "metadata.json" in listdir(raster_dir_path):
+        metadata_json = join(raster_dir_path, "metadata.json")
     else:
         # If there is no metadata.json file in the directory, check if there is
         # a json file with the same name as the raster file
         base = splitext(raster_path)[0]
-        metadata_json = base + '.json'
+        metadata_json = base + ".json"
         if not exists(metadata_json):
             # If there is no metadata file in the directory, return None
             return None
-    
+
     # Open the metadata file and return it
-    with open(metadata_json, 'r') as f:
+    with open(metadata_json, "r") as f:
         metadata = json.load(f)
-    
+
     return metadata
 
 
-def remove_raster_metadata(folder: str, metadata_file: Optional[str] = 'metadata.json') -> None:
+def remove_raster_metadata(
+    folder: str, metadata_file: Optional[str] = "metadata.json"
+) -> None:
     """
     Remove metadata.json file from a folder
 
