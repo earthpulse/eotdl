@@ -7,17 +7,21 @@ from ..models import (
     download_model,
 )
 
-app = typer.Typer(help="EOTDL CLI models module.")
+app = typer.Typer(help="Explore, ingest and download ML models.")
 
 
 @app.command()
 def list(
-    name: str = typer.Option(None, "--name", "-n", help="Filter the returned models by name"),
-    limit: int = typer.Option(None, "--limit", "-l", help="Limit the number of returned results"),
+    name: str = typer.Option(
+        None, "--name", "-n", help="Filter the returned models by name"
+    ),
+    limit: int = typer.Option(
+        None, "--limit", "-l", help="Limit the number of returned results"
+    ),
 ):
     """
     Retrieve a list with all the models in the EOTDL.
-    
+
     If using --name, it will filter the results by name. If no name is provided, it will return all the models.\n
     If using --limit, it will limit the number of results. If no limit is provided, it will return all the models.
     \n\n
@@ -36,7 +40,11 @@ def list(
 @app.command()
 def ingest(
     path: Path = typer.Option(..., "--path", "-p", help="Path to the model to ingest"),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the ingestion"),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Verbose output. This will print the progress of the ingestion",
+    ),
 ):
     """
     Ingest a model to the EOTDL.
@@ -71,14 +79,24 @@ def ingest(
 @app.command()
 def get(
     model: str = typer.Argument(None, help="Name of the model to download"),
-    path: str = typer.Option(None, "--path", "-p", help="Download the model to a specific output path"),
-    file: str = typer.Option(None, "--file", "-f", help="Download a specific file from the model"),
+    path: str = typer.Option(
+        None, "--path", "-p", help="Download the model to a specific output path"
+    ),
+    file: str = typer.Option(
+        None, "--file", "-f", help="Download a specific file from the model"
+    ),
     version: int = typer.Option(None, "--version", "-v", help="Model version"),
-    assets: bool = typer.Option(False, "--assets", "-a", help="Download STAC assets from the model"),
+    assets: bool = typer.Option(
+        False, "--assets", "-a", help="Download STAC assets from the model"
+    ),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
     ),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the download"),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Verbose output. This will print the progress of the download",
+    ),
 ):
     """
     Download a model from the EOTDL.

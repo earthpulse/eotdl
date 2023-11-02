@@ -7,17 +7,21 @@ from ..datasets import (
     download_dataset,
 )
 
-app = typer.Typer(help="EOTDL CLI datasets module.")
+app = typer.Typer(help="Explore, ingest and download training datasets.")
 
 
 @app.command()
 def list(
-    name: str = typer.Option(None, "--name", "-n", help="Filter the returned datasets by name"),
-    limit: int = typer.Option(None, "--limit", "-l", help="Limit the number of returned results"),
+    name: str = typer.Option(
+        None, "--name", "-n", help="Filter the returned datasets by name"
+    ),
+    limit: int = typer.Option(
+        None, "--limit", "-l", help="Limit the number of returned results"
+    ),
 ):
     """
     Retrieve a list with all the datasets in the EOTDL.
-    
+
     If using --name, it will filter the results by name. If no name is provided, it will return all the datasets.\n
     If using --limit, it will limit the number of results. If no limit is provided, it will return all the datasets.
     \n\n
@@ -35,8 +39,14 @@ def list(
 
 @app.command()
 def ingest(
-    path: Path = typer.Option(..., "--path", "-p", help="Path to the dataset to ingest"),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the ingestion"),
+    path: Path = typer.Option(
+        ..., "--path", "-p", help="Path to the dataset to ingest"
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Verbose output. This will print the progress of the ingestion",
+    ),
 ):
     """
     Ingest a dataset to the EOTDL.
@@ -71,14 +81,24 @@ def ingest(
 @app.command()
 def get(
     dataset: str = typer.Argument(None, help="Name of the dataset to download"),
-    path: str = typer.Option(None, "--path", "-p", help="Download the dataset to a specific output path"),
-    file: str = typer.Option(None, "--file", "-f", help="Download a specific file from the dataset"),
+    path: str = typer.Option(
+        None, "--path", "-p", help="Download the dataset to a specific output path"
+    ),
+    file: str = typer.Option(
+        None, "--file", "-f", help="Download a specific file from the dataset"
+    ),
     version: int = typer.Option(None, "--version", "-v", help="Dataset version"),
-    assets: bool = typer.Option(False, "--assets", "-a", help="Download STAC assets from the dataset"),
+    assets: bool = typer.Option(
+        False, "--assets", "-a", help="Download STAC assets from the dataset"
+    ),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force download even if file exists"
     ),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose output. This will print the progress of the download"),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        help="Verbose output. This will print the progress of the download",
+    ),
 ):
     """
     Download a dataset from the EOTDL.

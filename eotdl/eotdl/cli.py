@@ -2,7 +2,7 @@ import typer
 from .commands import auth, datasets, models
 from . import __version__
 
-app = typer.Typer(help='EOTDL command line interface.')
+app = typer.Typer(help="Welcome to EOTDL. Learn more at https://www.eotdl.com/")
 
 app.add_typer(auth.app, name="auth")
 app.add_typer(datasets.app, name="datasets")
