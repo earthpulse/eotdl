@@ -19,10 +19,16 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("", response_model=Dataset, summary="Retrieve list of datasets", responses=retrieve_datasets_responses)
-def retrieve(name: str = Query(None, description="Name of the dataset"), 
-             match: str = Query(None, description="Match datasets by name"), 
-             limit: Union[int, None] = Query(None, description="Limit the number of datasets returned")):
+@router.get(
+    "", summary="Retrieve list of datasets", responses=retrieve_datasets_responses
+)
+def retrieve(
+    name: str = Query(None, description="Name of the dataset"),
+    match: str = Query(None, description="Match datasets by name"),
+    limit: Union[int, None] = Query(
+        None, description="Limit the number of datasets returned"
+    ),
+):
     """
     Retrieve a list of the datasets in the EOTDL, with dataset information such as name, license and authors.
     Datasets can be optionally filtered by name and limited by number.
@@ -36,7 +42,11 @@ def retrieve(name: str = Query(None, description="Name of the dataset"),
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/{dataset_id}/files", summary="Retrieve list of files of a dataset", responses=retrieve_files_responses)
+@router.get(
+    "/{dataset_id}/files",
+    summary="Retrieve list of files of a dataset",
+    responses=retrieve_files_responses,
+)
 def retrieve_files(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(None, description="Version of the dataset"),
