@@ -6,7 +6,6 @@ from .retrieve_models import (
 )
 from .create_model import create_model
 from .create_model_version import create_model_version
-from .ingest_file import ingest_model_file, ingest_existing_model_file
 from .download_model import download_model_file
 from .upload_large_file import (
     generate_upload_id,
@@ -14,3 +13,7 @@ from .upload_large_file import (
     complete_multipart_upload,
 )
 from .update_model import toggle_like_model
+from .ingest_file import (
+    ingest_model_files_batch,
+    add_files_batch_to_model_version,
+)  # , ingest_stac, ingest_file_url

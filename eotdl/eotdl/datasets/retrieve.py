@@ -20,7 +20,7 @@ def retrieve_dataset(name):
 
 def retrieve_dataset_files(dataset_id, version):
     repo = FilesAPIRepo()
-    data, error = repo.retrieve_dataset_files(dataset_id, version)
+    data, error = repo.retrieve_files(dataset_id, "datasets", version)
     if error:
         raise Exception(error)
     return data

@@ -11,6 +11,7 @@ def retrieve_files(versions, files_id, version=None):
         print("No version provided, retrieving all files")
     if version and version not in [v.version_id for v in versions]:
         raise Exception("Version not found")
+    print(files_id, version)
     data = files_repo.retrieve_files(files_id, version)
     if len(data) != 1:
         raise Exception("No files found")

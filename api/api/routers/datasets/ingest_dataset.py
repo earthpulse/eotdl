@@ -16,16 +16,25 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/{dataset_id}", summary="Batch ingest files to a dataset", responses=ingest_files_responses)
+@router.post(
+    "/{dataset_id}",
+    summary="Batch ingest files to a dataset",
+    responses=ingest_files_responses,
+)
 async def ingest_files_batch(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(None, description="Version of the dataset"),
-    batch: UploadFile = File(..., description="Batch file (.zip, .tar or .gz) containing the files to ingest"),
-    checksums: List[str] = Form(..., description="List of checksums of the files to ingest, calculated with SHA-1"),
+    batch: UploadFile = File(
+        ..., description="Batch file (.zip) containing the files to ingest"
+    ),
+    checksums: List[str] = Form(
+        ...,
+        description="List of checksums of the files to ingest, calculated with SHA-1",
+    ),
     user: User = Depends(get_current_user),
 ):
     """
-    Batch ingest of files to an existing dataset. The batch file must be a compressed file (.zip, .tar or .gz).
+    Batch ingest of files to an existing dataset. The batch file must be a compressed file (.zip).
     The checksums are calculated using the SHA-1 checksums algorithm.
     """
     try:
@@ -42,12 +51,18 @@ async def ingest_files_batch(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/{dataset_id}/files", summary="Ingest existing files", responses=ingest_files_responses)
+@router.post(
+    "/{dataset_id}/files",
+    summary="Ingest existing files",
+    responses=ingest_files_responses,
+)
 def ingest_existing_file(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(..., description="Version of the dataset"),
     filenames: List[str] = Form(..., description="Filenames to ingest"),
-    checksums: List[str] = Form(..., description="List of checksums of the files to ingest"),
+    checksums: List[str] = Form(
+        ..., description="List of checksums of the files to ingest"
+    ),
     user: User = Depends(get_current_user),
 ):
     """

@@ -55,13 +55,13 @@ def ingest_large_dataset_chunk(
 
 
 @router.post("/complete/{upload_id}", include_in_schema=False)
-async def complete_large_dataset_upload(
+def complete_large_dataset_upload(
     upload_id: str,
     version: int,
     user: User = Depends(get_current_user),
 ):
     try:
-        dataset = await complete_multipart_upload(user, upload_id, version)
+        dataset = complete_multipart_upload(user, upload_id, version)
         return {"dataset": dataset}
     except Exception as e:
         logger.exception("datasets:complete_large_dataset_upload")

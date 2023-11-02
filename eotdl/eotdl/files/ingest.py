@@ -63,7 +63,9 @@ def generate_files_lists(
     items, folder, dataset_or_model_id, endpoint, logger, max_size=1024 * 1024 * 16
 ):
     files_repo = FilesAPIRepo()
-    current_files, error = files_repo.retrieve_files(dataset_or_model_id, endpoint)
+    current_files, error = files_repo.retrieve_files(
+        dataset_or_model_id, "models", endpoint
+    )
     # print(len(current_files), len(items) - len(current_files))
     # print(current_files, error)
     if error:
@@ -129,7 +131,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 parts,
                 endpoint,
             )
-            files_repo.complete_upload(user["id_token"], upload_id, version)
+            files_repo.complete_upload(user["id_token"], upload_id, version, endpoint)
     # ingest new small files in batches
     if len(upload_files) > 0:
         logger("generating batches...")
@@ -149,7 +151,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 [f["checksum"] for f in batch],
                 dataset_or_model_id,
                 user["id_token"],
-                "datasets",
+                endpoint,
                 version,
             )
     # ingest existing files
@@ -166,7 +168,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 dataset_or_model_id,
                 version,
                 user["id_token"],
-                "datasets",
+                endpoint,
             )
             if error:
                 raise Exception(error)
