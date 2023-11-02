@@ -16,7 +16,6 @@
 
 	const load = async () => {
 		dataset = await retrieveDataset(data.name);
-		console.log(dataset);
 	};
 
 	$: if (browser) load();
