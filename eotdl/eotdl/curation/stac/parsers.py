@@ -1,12 +1,11 @@
-'''
+"""
 Module for STAC parsers
-'''
+"""
 
 from os.path import dirname, basename
 
 
 class STACIdParser:
-    
     def get_item_id(self, raster_path: str):
         """
         Get the ID of the STAC Item from the given raster path
@@ -17,10 +16,9 @@ class STACIdParser:
 
 
 class StructuredParser(STACIdParser):
-
     def __init__(self) -> None:
         super().__init__()
-    
+
     def get_item_id(self, raster_path: str):
         """
         Get the ID of the STAC Item from the given raster path.
@@ -30,16 +28,15 @@ class StructuredParser(STACIdParser):
         :param raster_path: path to the raster file
         """
         tiff_dir_path = dirname(raster_path)
-        id = tiff_dir_path.split('/')[-1]
+        id = tiff_dir_path.split("/")[-1]
 
         return id
 
 
 class UnestructuredParser(STACIdParser):
-
     def __init__(self) -> None:
         super().__init__()
-    
+
     def get_item_id(self, raster_path: str):
         """
         Get the ID of the STAC Item from the given raster path.
@@ -48,6 +45,6 @@ class UnestructuredParser(STACIdParser):
 
         :param raster_path: path to the raster file
         """
-        id = basename(raster_path).split('.')[0]
+        id = basename(raster_path).split(".")[0]
 
         return id

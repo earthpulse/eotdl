@@ -24,15 +24,18 @@ from typing import Union, Optional
 from .parsers import STACIdParser, StructuredParser
 from .assets import STACAssetGenerator
 from .dataframe_labeling import LabelingStrategy, UnlabeledStrategy
-from ...tools import (format_time_acquired, 
-                    cut_images, 
-                    get_item_metadata,
-                    get_all_images_in_path)
-from .extensions import (type_stac_extensions_dict, 
-                         SUPPORTED_EXTENSIONS, 
-                         LabelExtensionObject)
-from .extent import (get_unknow_extent, 
-                     get_collection_extent)
+from ...tools import (
+    format_time_acquired,
+    cut_images,
+    get_item_metadata,
+    get_all_images_in_path,
+)
+from .extensions import (
+    type_stac_extensions_dict,
+    SUPPORTED_EXTENSIONS,
+    LabelExtensionObject,
+)
+from .extent import get_unknow_extent, get_collection_extent
 
 
 class STACGenerator:
@@ -85,7 +88,7 @@ class STACGenerator:
 
         # Create an empty catalog
         catalog = pystac.Catalog(id=id, description=description, **kwargs)
-        
+
         # Add the collections to the catalog
         collections = self._stac_dataframe.collection.unique()
         for collection_path in collections:
@@ -97,7 +100,9 @@ class STACGenerator:
         # Check there have been generate all the items from the images
         items_count = 0
         for collection in catalog.get_children():
-            items = list(set([item.id for item in collection.get_items(recursive=True)]))
+            items = list(
+                set([item.id for item in collection.get_items(recursive=True)])
+            )
             items_count += len(items)
         if len(self._stac_dataframe) != items_count:
             raise pystac.STACError(
@@ -117,13 +122,14 @@ class STACGenerator:
             print(f"Catalog validation error: {e}")
             return
 
-    def get_stac_dataframe(self, 
-                           path: str, 
-                           collections: Optional[Union[str, dict]]='source',
-                           bands: Optional[dict]=None, 
-                           extensions: Optional[dict]=None,
-                           sample: Optional[int]=None
-                           ) -> pd.DataFrame:
+    def get_stac_dataframe(
+        self,
+        path: str,
+        collections: Optional[Union[str, dict]] = "source",
+        bands: Optional[dict] = None,
+        extensions: Optional[dict] = None,
+        sample: Optional[int] = None,
+    ) -> pd.DataFrame:
         """
         Get a dataframe with the STAC metadata of a given directory containing the assets to generate metadata
 
@@ -134,16 +140,20 @@ class STACGenerator:
         """
         images = get_all_images_in_path(path, self._image_format)
         if len(images) == 0:
-            raise ValueError("No images found in the given path with the given extension. Please check the path and the extension")
-        
-        if self._assets_generator.type == 'Extracted':
+            raise ValueError(
+                "No images found in the given path with the given extension. Please check the path and the extension"
+            )
+
+        if self._assets_generator.type == "Extracted":
             images = cut_images(images)
 
         if sample:
             try:
                 images = random.sample(images, sample)
             except ValueError:
-                raise ValueError(f"Sample size must be smaller than the number of images ({len(images)}). May be there are no images found in the given path with the given extension")
+                raise ValueError(
+                    f"Sample size must be smaller than the number of images ({len(images)}). May be there are no images found in the given path with the given extension"
+                )
 
         labels, ixs = self._labeling_strategy.get_images_labels(images)
         bands_values = self._get_items_list_from_dict(labels, bands)
@@ -152,22 +162,32 @@ class STACGenerator:
         if collections == "source":
             # List of path with the same value repeated as many times as the number of images
             collections_values = [join(path, "source") for i in range(len(images))]
-        elif collections == '*':
-            collections_values = [join(path, basename(dirname(image))) for image in images]
+        elif collections == "*":
+            collections_values = [
+                join(path, basename(dirname(image))) for image in images
+            ]
         else:
             try:
-                collections_values = [join(path, value) for value in self._get_items_list_from_dict(labels, collections)]
+                collections_values = [
+                    join(path, value)
+                    for value in self._get_items_list_from_dict(labels, collections)
+                ]
             except TypeError:
-                raise pystac.STACError('There is an error generating the collections. Please check the collections dictionary')
+                raise pystac.STACError(
+                    "There is an error generating the collections. Please check the collections dictionary"
+                )
 
-        df = pd.DataFrame({'image': images, 
-                           'label': labels, 
-                           'ix': ixs, 
-                           'collection': collections_values, 
-                           'extensions': extensions_values, 
-                           'bands': bands_values
-                           })
-        
+        df = pd.DataFrame(
+            {
+                "image": images,
+                "label": labels,
+                "ix": ixs,
+                "collection": collections_values,
+                "extensions": extensions_values,
+                "bands": bands_values,
+            }
+        )
+
         self._stac_dataframe = df
 
         return df
@@ -255,7 +275,11 @@ class STACGenerator:
 
         # Obtain the date acquired
         start_time, end_time = None, None
-        if metadata and metadata["acquisition-date"] and metadata["type"] not in ('dem', 'DEM'):
+        if (
+            metadata
+            and metadata["acquisition-date"]
+            and metadata["type"] not in ("dem", "DEM")
+        ):
             time_acquired = format_time_acquired(metadata["acquisition-date"])
         else:
             # Check if the type of the data is DEM
@@ -275,7 +299,7 @@ class STACGenerator:
         self._stac_dataframe.loc[
             self._stac_dataframe["image"] == raster_path, "id"
         ] = id
-        
+
         # Instantiate pystac item
         item = pystac.Item(
             id=id, geometry=geom, bbox=bbox, datetime=time_acquired, **params

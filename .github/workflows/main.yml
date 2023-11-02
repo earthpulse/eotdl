@@ -1,6 +1,9 @@
-name: CI
+name: "EOTDL GitHub Actions"
 
-on: [push]
+on:
+  push:
+    branches:
+      - ci-cd
 
 jobs:
   test:
@@ -18,9 +21,91 @@ jobs:
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
 
-      # - name: lib tests
+      - name: Install dependencies
+        run: |
+          cd eotdl
+          poetry install --no-interaction --no-root
+
+      - name: lib tests
+        run: |
+          cd eotdl
+          poetry run pytest --cov .
+
+      # - name: Install API dependencies
       #   run: |
       #     cd eotdl
-      #     poetry install --no-interaction
-      #     poetry run pytest tests --cov .
+      #     poetry add fastapi uvicorn pymongo minio auth0-python python-multipart httpx boto3 stac_validator
+      #   # put the dependencies in the requirements.txt file
+
+      # - name: API tests
+      #   run: |
+      #     cd eotdl
+      #     poetry run pytest ../api --cov .
+
+  lint:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      # - name: Install Poetry
+      #   uses: snok/install-poetry@v1
+      #   with:
+      #     virtualenvs-create: false
+
+      # - name: Install dependencies
+      #   run: |
+      #     cd eotdl
+      #     poetry install --no-interaction --no-root
+
+      # - name: Lint with Pylint
+      #   run: |
+      #     cd eotdl
+      #     poetry run pylint $(find . -type f -name "*.py" -not -path "./.venv/*")
+      #   # --fail-under=9 to fail if score is less than 9
+
+      # - name: Lint with Flake8
+      #   run: |
+      #     cd eotdl
+      #     poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --count --select=E9,F63,F7,F82 --show-source --statistics
+      #     poetry run flake8 $(find . -type f -name "*.py" -not -path "./.venv/*") --max-complexity=10 --max-line-length=79 --statistics
+
+  publish:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      # - name: Install Poetry
+      #   uses: snok/install-poetry@v1
+      #   with:
+      #     virtualenvs-create: false
+
+      # - name: Build
+      #   run: |
+      #     cd eotdl
+      #     make build
+
+      # - name: Publish
+      #   run: |
+      #     cd eotld
+      #     make publish

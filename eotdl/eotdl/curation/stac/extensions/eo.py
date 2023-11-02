@@ -1,6 +1,6 @@
-'''
+"""
 Module for EO STAC extensions object
-'''
+"""
 
 import pystac
 import pandas as pd
@@ -82,8 +82,7 @@ class EOS2ExtensionObject(STACExtensionObject):
         }
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: pd.DataFrame
+        self, obj: Union[pystac.Item, pystac.Asset], obj_info: pd.DataFrame
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object

@@ -1,3 +1,7 @@
+"""
+Sentinel-Hub data access module.
+"""
+
 from .client import SHClient
 from .parameters import SHParameters, SH_PARAMETERS_DICT
 from .evalscripts import EvalScripts

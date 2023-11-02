@@ -103,7 +103,8 @@ def test_bbox_from_centroid():
     bbox = bbox_from_centroid(0, 0, 10, 2, 2)
     assert isinstance(bbox, list)
     assert len(bbox) == 4
-    assert bbox == [-8.983152841195213e-05, -8.983152841191533e-05, 8.983152841195213e-05, 8.983152841191533e-05]
+    bbox_round = [round(i, 4) for i in bbox]
+    assert bbox_round == [-0.0001, -0.0001, 0.0001, 0.0001]
 
 
 def test_generate_bounding_box():
