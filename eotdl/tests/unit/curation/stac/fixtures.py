@@ -4,7 +4,7 @@ import pytest
 
 from pystac import Catalog
 
-EXAMPLE_DATA_DIR = 'tutorials/notebooks/example_data'
+EXAMPLE_DATA_DIR = 'tests/unit/curation/stac/test_data'
 
 
 @pytest.fixture

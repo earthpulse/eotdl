@@ -1,0 +1,98 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Jaca_1",
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "grass"
+        ],
+        "name": "label"
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "vector",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "manual"
+    ],
+    "label:tasks": [
+      "segmentation",
+      "markerPrompts"
+    ],
+    "datetime": "2020-01-09T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -0.557034,
+          42.569409
+        ],
+        [
+          -0.557034,
+          42.57571
+        ],
+        [
+          -0.547706,
+          42.57571
+        ],
+        [
+          -0.547706,
+          42.569409
+        ],
+        [
+          -0.557034,
+          42.569409
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../sentinel-2-l2a/Jaca_1/Jaca_1.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "../../../labels_scaneo/Jaca_1.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-vector"
+      ]
+    }
+  },
+  "bbox": [
+    -0.557034,
+    42.569409,
+    -0.547706,
+    42.57571
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+  ],
+  "collection": "labels"
+}
