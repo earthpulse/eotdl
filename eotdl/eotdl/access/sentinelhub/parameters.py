@@ -8,7 +8,6 @@ from .evalscripts import EvalScripts
 
 
 class SHParameters:
-
     def __init__(self):
         pass
 
@@ -18,10 +17,10 @@ class SHS2L2AParameters(SHParameters):
     RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
     EVALSCRIPT = EvalScripts.SENTINEL_2_L2A
-    FIELDS = {"include": ["id", 
-                        "properties.datetime",
-                        "properties.eo:cloud_cover"], 
-            "exclude": []}
+    FIELDS = {
+        "include": ["id", "properties.datetime", "properties.eo:cloud_cover"],
+        "exclude": [],
+    }
     FILTER = None
 
 
@@ -30,24 +29,30 @@ class SHS2L1CParameters(SHParameters):
     RESOLUTION = 10
     MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
     EVALSCRIPT = EvalScripts.SENTINEL_2_L1C
-    FIELDS = {"include": ["id", 
-                        "properties.datetime",
-                        "properties.eo:cloud_cover"], 
-            "exclude": []}
-    
+    FIELDS = {
+        "include": ["id", "properties.datetime", "properties.eo:cloud_cover"],
+        "exclude": [],
+    }
+
 
 class SHS1Parameters(SHParameters):
     DATA_COLLECTION = DataCollection.SENTINEL1
     RESOLUTION = 3
     EVALSCRIPT = EvalScripts.SENTINEL_1
-    FIELDS = {"include": ["id", 
-                        "properties.datetime",
-                        "sar:instrument_mode", 
-                        "s1:polarization",
-                        "sat:orbit_state",
-                        "s1:resolution",
-                        "s1:timeliness"], 
-            "exclude": []},
+    FIELDS = (
+        {
+            "include": [
+                "id",
+                "properties.datetime",
+                "sar:instrument_mode",
+                "s1:polarization",
+                "sat:orbit_state",
+                "s1:resolution",
+                "s1:timeliness",
+            ],
+            "exclude": [],
+        },
+    )
     FILTER = None
 
 
@@ -60,11 +65,11 @@ class SHDEMParameters(SHParameters):
     FIELDS = None
 
 
-SUPPORTED_SENSORS = ('sentinel-1-grd', 'sentinel-2-l1c', 'sentinel-2-l2a', 'dem')
+SUPPORTED_SENSORS = ("sentinel-1-grd", "sentinel-2-l1c", "sentinel-2-l2a", "dem")
 
 SH_PARAMETERS_DICT = {
-    'sentinel-1-grd': SHS1Parameters,
-    'sentinel-2-l1c': SHS2L1CParameters,
-    'sentinel-2-l2a': SHS2L2AParameters,
-    'dem': SHDEMParameters
+    "sentinel-1-grd": SHS1Parameters,
+    "sentinel-2-l1c": SHS2L1CParameters,
+    "sentinel-2-l2a": SHS2L2AParameters,
+    "dem": SHDEMParameters,
 }

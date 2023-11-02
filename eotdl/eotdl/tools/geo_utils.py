@@ -14,7 +14,7 @@ from pandas import isna
 def is_bounding_box(bbox: list) -> bool:
     if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
         return False
-    
+
     for value in bbox:
         if not isinstance(value, (int, float)):
             return False
@@ -30,7 +30,7 @@ def compute_image_size(bounding_box, parameters):
     bbox = BBox(bbox=bounding_box, crs=CRS.WGS84)
     bbox_size = bbox_to_dimensions(bbox, resolution=parameters.RESOLUTION)
 
-    return bbox, bbox_size  
+    return bbox, bbox_size
 
 
 def get_image_bbox(raster: Union[tarfile.ExFileObject, str]):
@@ -51,37 +51,36 @@ def get_image_resolution(raster: Union[tarfile.ExFileObject, str]):
 
 
 def bbox_to_coordinates(bounding_box: list) -> list:
-    """
-    """
+    """ """
     polygon_coordinates = [
         (bounding_box[0], bounding_box[1]),  # bottom left
         (bounding_box[0], bounding_box[3]),  # top left
         (bounding_box[2], bounding_box[3]),  # top right
         (bounding_box[2], bounding_box[1]),  # bottom right
-        (bounding_box[0], bounding_box[1])   # back to bottom left
+        (bounding_box[0], bounding_box[1]),  # back to bottom left
     ]
 
     return polygon_coordinates
 
 
 def bbox_to_polygon(bounding_box: list) -> Polygon:
-    """
-    """
+    """ """
     polygon = box(bounding_box[0], bounding_box[1], bounding_box[2], bounding_box[3])
 
     return polygon
 
 
-from_4326_transformer = Transformer.from_crs('EPSG:4326', 'EPSG:3857')
-from_3857_transformer = Transformer.from_crs('EPSG:3857', 'EPSG:4326')
+from_4326_transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857")
+from_3857_transformer = Transformer.from_crs("EPSG:3857", "EPSG:4326")
 
 
-def bbox_from_centroid(x: Union[int, float], 
-                       y: Union[int, float],
-                       pixel_size: Union[int, float],
-                       width: Union[int, float],
-                       height: Union[int, float]
-                       ) -> list:
+def bbox_from_centroid(
+    x: Union[int, float],
+    y: Union[int, float],
+    pixel_size: Union[int, float],
+    width: Union[int, float],
+    height: Union[int, float],
+) -> list:
     """
     Generate a bounding box from a centroid, pixel size and image dimensions.
 
@@ -122,9 +121,7 @@ def bbox_from_centroid(x: Union[int, float],
     return [min_y, min_x, max_y, max_x]
 
 
-def generate_bounding_box(geom: geometry.point.Point, 
-                          differences: list
-                          ) -> list:
+def generate_bounding_box(geom: geometry.point.Point, differences: list) -> list:
     """
     Generate the bounding box of a given point using the difference
     between the maximum and mininum coordinates of the bounding box
@@ -137,12 +134,14 @@ def generate_bounding_box(geom: geometry.point.Point,
     """
     long_diff, lat_diff = differences[0], differences[1]
     lon, lat = geom.x, geom.y
-    
-    bbox = (lon - (long_diff/2), 
-            lat - (lat_diff/2), 
-            lon + (long_diff/2), 
-            lat + (lat_diff/2))
-    
+
+    bbox = (
+        lon - (long_diff / 2),
+        lat - (lat_diff / 2),
+        lon + (long_diff / 2),
+        lat + (lat_diff / 2),
+    )
+
     # Round the coordinates to 6 decimals
     bounding_box = [round(i, 6) for i in bbox]
 
@@ -152,7 +151,7 @@ def generate_bounding_box(geom: geometry.point.Point,
 def calculate_average_coordinates_distance(bounding_box_by_location: dict) -> list:
     """
     Calculate the mean distance between maximum and minixum longitude and latitude of the bounding boxes
-    from the existing locations. This is intended to use these mean distance to generate the bounding 
+    from the existing locations. This is intended to use these mean distance to generate the bounding
     boxes of the new locations given a centroid.
 
     :param bounding_box_by_location: dictionary with format location_id : bounding_box for the existing
@@ -175,10 +174,9 @@ def calculate_average_coordinates_distance(bounding_box_by_location: dict) -> li
     return mean_long_diff, mean_lat_diff
 
 
-def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
-                                          mean_differences: list,
-                                          latest_id: int
-                                          ) -> dict:
+def generate_new_locations_bounding_boxes(
+    gdf: gpd.GeoDataFrame, mean_differences: list, latest_id: int
+) -> dict:
     """
     Generate the bounding box of every new location, using the mean difference between the maximum and
     minimum calculated longitude and latitude. This function also returns the time interval which we
@@ -194,9 +192,14 @@ def generate_new_locations_bounding_boxes(gdf: gpd.GeoDataFrame,
 
     for i, row in gdf.iterrows():
         new_location_id = str(latest_id + 1)
-        time_interval = row['Began'].strftime("%Y-%m-%d"), row['Ended'].strftime("%Y-%m-%d")
-        bbox = generate_bounding_box(row['geometry'], mean_differences)
-        bbox_by_new_location[new_location_id] = {'bounding_box': bbox, 'time_interval': time_interval}
+        time_interval = row["Began"].strftime("%Y-%m-%d"), row["Ended"].strftime(
+            "%Y-%m-%d"
+        )
+        bbox = generate_bounding_box(row["geometry"], mean_differences)
+        bbox_by_new_location[new_location_id] = {
+            "bounding_box": bbox,
+            "time_interval": time_interval,
+        }
         latest_id += 1
 
     return bbox_by_new_location

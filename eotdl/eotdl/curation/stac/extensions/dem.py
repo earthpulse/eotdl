@@ -1,6 +1,6 @@
-'''
+"""
 Module for DEM STAC extensions object
-'''
+"""
 
 from .base import STACExtensionObject
 

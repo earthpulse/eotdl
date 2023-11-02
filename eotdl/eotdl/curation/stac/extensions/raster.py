@@ -1,6 +1,6 @@
-'''
+"""
 Module for raster STAC extensions object
-'''
+"""
 
 import pystac
 import rasterio
@@ -16,8 +16,9 @@ class RasterExtensionObject(STACExtensionObject):
         super().__init__()
 
     def add_extension_to_object(
-        self, obj: Union[pystac.Item, pystac.Asset],
-        obj_info: Optional[pd.DataFrame] = None
+        self,
+        obj: Union[pystac.Item, pystac.Asset],
+        obj_info: Optional[pd.DataFrame] = None,
     ) -> Union[pystac.Item, pystac.Asset]:
         """
         Add the extension to the given object
@@ -32,14 +33,17 @@ class RasterExtensionObject(STACExtensionObject):
             src = rasterio.open(obj.href)
             bands = list()
             for band in src.indexes:
-                bands.append(RasterBand.create(
-                    nodata=src.nodatavals[band - 1],
-                    data_type=src.dtypes[band - 1],
-                    spatial_resolution=src.res) if src.nodatavals else RasterBand.create(
+                bands.append(
+                    RasterBand.create(
+                        nodata=src.nodatavals[band - 1],
                         data_type=src.dtypes[band - 1],
-                        spatial_resolution=src.res))
+                        spatial_resolution=src.res,
+                    )
+                    if src.nodatavals
+                    else RasterBand.create(
+                        data_type=src.dtypes[band - 1], spatial_resolution=src.res
+                    )
+                )
             raster_ext.apply(bands=bands)
-                
+
         return obj
-
-

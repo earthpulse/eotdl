@@ -1,4 +1,9 @@
-from .sentinelhub import SHClient, SH_PARAMETERS_DICT, evaluate_sentinel_parameters, imagery_from_tmp_to_dir
+from .sentinelhub import (
+    SHClient,
+    SH_PARAMETERS_DICT,
+    evaluate_sentinel_parameters,
+    imagery_from_tmp_to_dir,
+)
 from .search import search_sentinel_imagery
 
 from shutil import rmtree
@@ -6,11 +11,12 @@ from datetime import datetime
 from typing import Union, List
 
 
-def download_sentinel_imagery(output: str,
-                              time_interval: Union[str, datetime, List[Union[str, datetime]]],
-                              bounding_box: List[Union[int, float]],
-                              sensor: str,
-                              ) -> None:
+def download_sentinel_imagery(
+    output: str,
+    time_interval: Union[str, datetime, List[Union[str, datetime]]],
+    bounding_box: List[Union[int, float]],
+    sensor: str,
+) -> None:
     evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output)
 
     client = SHClient()
@@ -21,11 +27,12 @@ def download_sentinel_imagery(output: str,
     imagery_from_tmp_to_dir(output)
 
 
-def search_and_download_sentinel_imagery(output: str,
-                              time_interval: Union[str, datetime, List[Union[str, datetime]]],
-                              bounding_box: List[Union[int, float]],
-                              sensor: str,
-                              ) -> None:
+def search_and_download_sentinel_imagery(
+    output: str,
+    time_interval: Union[str, datetime, List[Union[str, datetime]]],
+    bounding_box: List[Union[int, float]],
+    sensor: str,
+) -> None:
     evaluate_sentinel_parameters(sensor, time_interval, bounding_box, output)
 
     client = SHClient()

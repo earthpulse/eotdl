@@ -8,7 +8,7 @@ from typing import Union, Optional, List
 def is_time_interval(time_interval: list) -> bool:
     if not isinstance(time_interval, (list, tuple)) or len(time_interval) != 2:
         return False
-    
+
     for value in time_interval:
         if not isinstance(value, str):
             return False
@@ -26,25 +26,26 @@ def is_valid_date(date_str: str) -> bool:
         return False
 
 
-def get_first_last_dates(dataframe: Union[pd.DataFrame, gpd.GeoDataFrame], dates_column: Optional[str] = 'datetime'):
-    """
-    """
+def get_first_last_dates(
+    dataframe: Union[pd.DataFrame, gpd.GeoDataFrame],
+    dates_column: Optional[str] = "datetime",
+):
+    """ """
     dataframe[dates_column] = dataframe[dates_column].apply(lambda x: sorted(x))
-    dataframe['first_date'] = dataframe['dates_list'].apply(lambda x: x[0])
-    dataframe['last_date'] = dataframe['dates_list'].apply(lambda x: x[-1])
-    dataframe = dataframe.sort_values(by=['first_date', 'last_date'])
+    dataframe["first_date"] = dataframe["dates_list"].apply(lambda x: x[0])
+    dataframe["last_date"] = dataframe["dates_list"].apply(lambda x: x[-1])
+    dataframe = dataframe.sort_values(by=["first_date", "last_date"])
     # Sort by sequence id
-    dataframe = dataframe.sort_values(by=['location_id'])
+    dataframe = dataframe.sort_values(by=["location_id"])
     # Convert first_date and last_date to datetime, in format YYYY-MM-DD
-    dataframe['first_date'] = pd.to_datetime(dataframe['first_date'], format='%Y-%m-%d')
-    dataframe['last_date'] = pd.to_datetime(dataframe['last_date'], format='%Y-%m-%d')
+    dataframe["first_date"] = pd.to_datetime(dataframe["first_date"], format="%Y-%m-%d")
+    dataframe["last_date"] = pd.to_datetime(dataframe["last_date"], format="%Y-%m-%d")
 
     return dataframe
 
 
 def create_time_slots(start_date: datetime, end_date: datetime, n_chunks: int):
-    """
-    """
+    """ """
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
     if isinstance(end_date, str):
@@ -56,9 +57,10 @@ def create_time_slots(start_date: datetime, end_date: datetime, n_chunks: int):
     return slots
 
 
-def expand_time_interval(time_interval: Union[list, tuple], format: str='%Y-%m-%dT%H:%M:%S.%fZ') -> list:
-    """
-    """
+def expand_time_interval(
+    time_interval: Union[list, tuple], format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+) -> list:
+    """ """
     start_date = time_interval[0]
     end_date = time_interval[1]
 
@@ -83,11 +85,15 @@ def prepare_time_interval(date):
         date = datetime.strptime(date, "%Y-%m-%d")
     elif isinstance(date, tuple):
         if not is_time_interval(date):
-            raise ValueError('The time interval must be a range of two dates, with format YYYY-MM-DD or a datetime object')
+            raise ValueError(
+                "The time interval must be a range of two dates, with format YYYY-MM-DD or a datetime object"
+            )
         else:
             return date
     elif not isinstance(date, datetime):
-        raise ValueError('The date must be a string with format YYYY-MM-DD or a datetime object')
+        raise ValueError(
+            "The date must be a string with format YYYY-MM-DD or a datetime object"
+        )
 
     date_day_before = date - timedelta(days=1)
     date_next_day = date + timedelta(days=1)
@@ -98,19 +104,18 @@ def prepare_time_interval(date):
     return (date_day_before_str, date_next_day_str)
 
 
-def get_day_between(from_date: Union[datetime, str], 
-                    to_date: Union[datetime, str]
-                    ) -> str:
-    """
-    """
+def get_day_between(
+    from_date: Union[datetime, str], to_date: Union[datetime, str]
+) -> str:
+    """ """
     if isinstance(from_date, str):
         from_date = datetime.strptime(from_date, "%Y-%m-%dT%H:%M:%SZ")
     if isinstance(to_date, str):
         to_date = datetime.strptime(to_date, "%Y-%m-%dT%H:%M:%SZ")
 
     date_between = from_date + timedelta(days=1)
-    date_between = date_between.strftime("%Y-%m-%d") 
-    
+    date_between = date_between.strftime("%Y-%m-%d")
+
     return date_between
 
 
@@ -121,7 +126,7 @@ def format_time_acquired(dt: Union[str, datetime]) -> str:
     :param dt: date time to format
     """
     from dateutil import parser
-    
+
     dt_str = parser.parse(dt).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     return dt_str
