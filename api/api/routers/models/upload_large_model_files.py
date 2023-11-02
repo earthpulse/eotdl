@@ -53,13 +53,13 @@ def ingest_large_model_chunk(
 
 
 @router.post("/complete/{upload_id}", include_in_schema=False)
-async def complete_large_model_upload(
+def complete_large_model_upload(
     upload_id: str,
     version: int,
     user: User = Depends(get_current_user),
 ):
     try:
-        model = await complete_multipart_upload(user, upload_id, version)
+        model = complete_multipart_upload(user, upload_id, version)
         return {"model": model}
     except Exception as e:
         logger.exception("models:complete_large_model_upload")

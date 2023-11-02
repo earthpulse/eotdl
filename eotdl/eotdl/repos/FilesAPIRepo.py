@@ -198,9 +198,9 @@ class FilesAPIRepo(APIRepo):
         pbar.close()
         return
 
-    def complete_upload(self, id_token, upload_id, version):
+    def complete_upload(self, id_token, upload_id, version, endpoint):
         r = requests.post(
-            self.url + "datasets/complete/" + upload_id + "?version=" + str(version),
+            f"{self.url}{endpoint}/complete/{upload_id}?version={version}",
             headers={"Authorization": "Bearer " + id_token},
         )
         return self.format_response(r)

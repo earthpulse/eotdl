@@ -20,7 +20,7 @@ def retrieve_model(name):
 
 def retrieve_model_files(model_id, version):
     repo = FilesAPIRepo()
-    data, error = repo.retrieve_model_files(model_id, version)
+    data, error = repo.retrieve_files(model_id, "models", version)
     if error:
         raise Exception(error)
     return data
