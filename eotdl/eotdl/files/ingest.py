@@ -63,9 +63,7 @@ def generate_files_lists(
     items, folder, dataset_or_model_id, endpoint, logger, max_size=1024 * 1024 * 16
 ):
     files_repo = FilesAPIRepo()
-    current_files, error = files_repo.retrieve_files(
-        dataset_or_model_id, "models", endpoint
-    )
+    current_files, error = files_repo.retrieve_files(dataset_or_model_id, endpoint)
     # print(len(current_files), len(items) - len(current_files))
     # print(current_files, error)
     if error:
@@ -85,7 +83,7 @@ def generate_files_lists(
             else:
                 upload_files.append(data)
     if len(upload_files) == 0 and len(large_files) == 0:
-        raise Exception("No files to upload")
+        raise Exception("No new files to upload")
     return upload_files, existing_files, large_files
 
 
