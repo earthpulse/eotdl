@@ -148,5 +148,7 @@ def format_time_acquired(dt: Union[str, datetime]) -> str:
     :param dt: date time to format
     """
     dt_str = parser.parse(dt).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    # convert to datetime object
+    dt = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S.%f")
 
-    return dt_str
+    return dt
