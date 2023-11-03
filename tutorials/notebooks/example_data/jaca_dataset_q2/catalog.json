@@ -36,40 +36,5 @@
     "Training",
     "Validation",
     "Test"
-  ],
-  "ml-dataset:quality-metrics": [
-    {
-      "name": "spatial-duplicates",
-      "values": [
-        {
-          "item": "Jaca_2",
-          "duplicate": "Jaca_1"
-        },
-        {
-          "item": "Jaca_3",
-          "duplicate": "Jaca_1"
-        },
-        {
-          "item": "Jaca_4",
-          "duplicate": "Jaca_1"
-        }
-      ],
-      "total": 3
-    },
-    {
-      "name": "classes-balance",
-      "values": [
-        {
-          "name": "label",
-          "values": [
-            {
-              "class": "grass",
-              "total": 19,
-              "percentage": 100
-            }
-          ]
-        }
-      ]
-    }
   ]
 }

@@ -161,8 +161,9 @@ class ScaneoLabeler(LabelExtensionObject):
         """
         label_classes = []
 
-        labels_json = glob(join(root_folder, "labels.json"))[0]
-        if exists(labels_json):
+        labels_json = glob(join(root_folder, "labels.json"))
+        if len(labels_json) > 0 and exists(labels_json[0]):
+            labels_json = labels_json[0]
             with open(labels_json, "r", encoding="utf-8") as f:
                 labels = json.load(f)
             for value in labels["labels"]:
