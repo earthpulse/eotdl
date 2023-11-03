@@ -1,0 +1,131 @@
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Code from "../../components/Code.svelte";
+	import BadgeWarning from "../../BadgeWarning.svelte";
+</script>
+
+Learn more about the datasets [quality levels](/docs/datasets/quality).
+
+# Ingest datasets
+
+You can upload your own datasets to the EOTDL platform. 
+
+The following constraints apply to the dataset name:
+- It must be unique
+- It must be between 3 and 45 characters long
+- It can only contain alphanumeric characters and dashes.
+
+<!-- ## User interface
+
+<UI>In the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> section, use the INGEST button to upload a dataset.</UI>
+
+You'll have to select the files to upload and fill in the information about the dataset.
+
+A limit of **10 files** per dataset is enforced. Additionally, the file size limit is **1 GB**. If you need to ingest larger files, please use the CLI.
+
+You'll need to be logged in to ingest datasets.
+
+You can use the `EDIT` button in the dataset page to update the information or data. -->
+
+## CLI 
+
+The CLI is the most convenient way to ingest datasets. You can ingest a dataset using the following CLI command:
+
+<CLI><Code>eotdl datasets ingest "dataset path"</Code></CLI>
+
+Where `dataset-path` is the path to a folder containing your dataset. 
+
+For Q0 datasets, a file named `metadata.yml` is expected in the root of the folder. This file should contain the following information:
+
+```yaml
+name: dataset-name
+authors: 
+  - author 1 name
+  - author 2 name
+  - ...
+license: dataset license
+source: link to source
+```
+
+If this file is not present, the ingestion process will fail.
+
+> After uploading a dataset with the CLI we recommend visiting the dataset page to fill in the rest of the information.
+
+You can update your dataset in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
+
+For Q1+ datasets, a file called `catalog.json` is expected in the root of the folder containing the STAC metadata for your dataset, that will be used as an entrypoint to ingest all the assets.
+
+<!-- ## API 
+
+In order to ingest a dataset using the API, you must first create the dataset:
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/datasets' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json' \
+  -d '{'{'}
+    "name": "dataset-name",
+    "authors": [
+      "author1",
+      "author2"
+    ],
+    "source": "link to source",
+    "license": "dataset license"
+  }'</Code></Api>
+
+You will receive the `id` of the dataset for further operations, such as ingesting a file:
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/datasets/dataset-id' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@{'<'}file-path>;type=application/zip' \
+  -F 'checksum={'<'}sha1 checksum (optional)>'</Code></Api>
+
+You can upload up to **10 files**. 
+
+> ⚠ The API can work well for small files, but for the ingestion of large datasets (> 1 GB) we recommend using the CLI.
+
+You can also fill in additional information about the dataset with the following API call:
+
+<Api><Code>curl -X 'PUT' \
+  'https://api.eotdl.com/datasets/dataset-id' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json' \
+  -F 'file=@"dataset path";type=application/zip' \
+  -d '{'{'}
+    "name": "new-name",
+    "description": "dataset description",
+    "tags": [
+      "tag1",
+      "tag2"
+    ],
+    "authors": [
+      "author1",
+      "author2"
+    ],
+    "source": "link to source",
+    "license": "dataset license"
+  }'</Code></Api>
+
+In this case, all fields are optional.
+
+You can retrieve a list of valid tags with the following API call:
+
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/tags' \
+  -H 'accept: application/json'</Code></Api>
+
+If you ingest a file that already exists, it will be overwritten. If you want to delete a file, you can use the following API call:
+
+<Api><Code>curl -X 'DELETE' \
+  'https://api.eotdl.com/datasets/dataset-id/file/file-name' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json'</Code></Api> -->

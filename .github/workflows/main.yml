@@ -1,6 +1,10 @@
-name: CI
+name: "EOTDL GitHub Actions"
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - develop
 
 jobs:
   test:
@@ -18,15 +22,75 @@ jobs:
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+
+      - name: Install dependencies
+        run: |
+          cd eotdl
+          poetry install --no-interaction --no-root
 
       - name: lib tests
         run: |
-          cd lib
-          poetry install --no-interaction
-          poetry run pytest tests --cov .
+          cd eotdl
+          poetry run pytest --cov .
 
-      - name: cli tests
+  lint:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+
+      - name: Install dependencies
         run: |
-          cd cli
-          poetry install --no-interaction
-          poetry run pytest tests --cov .
+          cd eotdl
+          poetry install --no-interaction --no-root
+
+      - name: Lint with Pylint
+        run: |
+          cd eotdl
+          poetry run pylint --fail-under=7 $(find . -type f -name "*.py" -not -path "./.venv/*")
+
+  publish:
+    needs: lint
+    # only publish on main branch and when the commit is made by earthpulse
+    if: github.ref == 'refs/heads/main' && github.actor == 'earthpulse'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      # - name: Install Poetry
+      #   uses: snok/install-poetry@v1
+      #   with:
+      #     virtualenvs-create: false
+
+      # - name: Build
+      #   run: |
+      #     cd eotdl
+      #     make build
+
+      # - name: Publish
+      #   run: |
+      #     cd eotld
+      #     make publish
