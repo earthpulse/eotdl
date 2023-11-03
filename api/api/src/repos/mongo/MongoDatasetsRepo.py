@@ -24,9 +24,6 @@ class MongoDatasetsRepo(MongoRepo):
     def retrieve_files(self, id):
         return self.retrieve("files", id)
 
-    # def retrieve_file(self, files_id, file_id):
-    #     return self.retrieve("files", id)
-
     def delete_files(self, id):
         return self.delete("files", id)
 
@@ -68,3 +65,6 @@ class MongoDatasetsRepo(MongoRepo):
 
     def retrieve_tags(self):
         return self.retrieve("tags")
+
+    def delete_dataset(self, dataset_id):
+        return self.delete("datasets", dataset_id)

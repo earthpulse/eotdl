@@ -29,7 +29,6 @@ async def ingest_model_files_batch(batch, model_id, checksums, user, version):
             version,
             model_id,
             checksum,
-            model.quality,
             model.files,
         )
         batch_size += file_size

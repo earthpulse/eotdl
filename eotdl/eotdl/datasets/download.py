@@ -4,8 +4,8 @@ from tqdm import tqdm
 
 from ..auth import with_auth
 from .retrieve import retrieve_dataset, retrieve_dataset_files
-from ..shared import calculate_checksum
-from ..repos import FilesAPIRepo
+from ..repos import FilesAPIRepo, DatasetsAPIRepo
+from ..curation.stac import STACDataFrame
 
 
 @with_auth
@@ -13,7 +13,7 @@ def download_dataset(
     dataset_name,
     version=None,
     path=None,
-    logger=None,
+    logger=print,
     assets=False,
     force=False,
     verbose=False,
@@ -45,20 +45,6 @@ def download_dataset(
     if dataset["quality"] == 0:
         if file:
             raise NotImplementedError("Downloading a specific file is not implemented")
-            # files = [f for f in dataset["files"] if f["name"] == file]
-            # if not files:
-            #     raise Exception(f"File {file} not found")
-            # if len(files) > 1:
-            #     raise Exception(f"Multiple files with name {file} found")
-            # dst_path = download(
-            #     dataset,
-            #     dataset["id"],
-            #     file,
-            #     files[0]["checksum"],
-            #     download_path,
-            #     user,
-            # )
-            # return Outputs(dst_path=dst_path)
         dataset_files = retrieve_dataset_files(dataset["id"], version)
         repo = FilesAPIRepo()
         for file in tqdm(dataset_files, disable=verbose, unit="file", position=0):
@@ -77,43 +63,44 @@ def download_dataset(
             #     logger(f"Checksum for {file} does not match")
             if verbose:
                 logger("Done")
-        return download_path
     else:
-        raise NotImplementedError("Downloading a STAC dataset is not implemented")
-    #     logger("Downloading STAC metadata...")
-    #     gdf, error = repo.download_stac(
-    #         dataset["id"],
-    #         user["id_token"],
-    #     )
-    #     if error:
-    #         raise Exception(error)
-    #     df = STACDataFrame(gdf)
-    #     # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
-    #     path = path
-    #     if path is None:
-    #         path = download_base_path + "/" + dataset["name"]
-    #     df.to_stac(path)
-    #     # download assets
-    #     if assets:
-    #         logger("Downloading assets...")
-    #         df = df.dropna(subset=["assets"])
-    #         for row in tqdm(df.iterrows(), total=len(df)):
-    #             id = row[1]["stac_id"]
-    #             # print(row[1]["links"])
-    #             for k, v in row[1]["assets"].items():
-    #                 href = v["href"]
-    #                 repo.download_file_url(
-    #                     href, f"{path}/assets/{id}", user["id_token"]
-    #                 )
-    #     else:
-    #         logger("To download assets, set assets=True or -a in the CLI.")
-    #     return Outputs(dst_path=path)
+        # raise NotImplementedError("Downloading a STAC dataset is not implemented")
+        if verbose:
+            logger("Downloading STAC metadata...")
+        repo = DatasetsAPIRepo()
+        gdf, error = repo.download_stac(
+            dataset["id"],
+            user["id_token"],
+        )
+        if error:
+            raise Exception(error)
+        df = STACDataFrame(gdf)
+        # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
+        df.to_stac(download_path)
+        # download assets
+        if assets:
+            if verbose:
+                logger("Downloading assets...")
+            repo = FilesAPIRepo()
+            df = df.dropna(subset=["assets"])
+            for row in tqdm(df.iterrows(), total=len(df)):
+                for k, v in row[1]["assets"].items():
+                    href = v["href"]
+                    _, filename = href.split("/download/")
+                    # will overwrite assets with same name :(
+                    repo.download_file_url(
+                        href, filename, f"{download_path}/assets", user["id_token"]
+                    )
+        else:
+            if verbose:
+                logger("To download assets, set assets=True or -a in the CLI.")
+    return download_path
 
 
-# @with_auth
-# def download_file_url(url, path, progress=True, logger=None, user=None):
-#     api_repo = APIRepo()
-#     download = DownloadFileURL(api_repo, logger, progress)
-#     inputs = DownloadFileURL.Inputs(url=url, path=path, user=user)
-#     outputs = download(inputs)
-#     return outputs.dst_path
+@with_auth
+def download_file_url(url, path, progress=True, logger=print, user=None):
+    repo = FilesAPIRepo()
+    _, filename = url.split("/download/")
+    return repo.download_file_url(
+        url, filename, f"{path}/assets", user["id_token"], progress
+    )

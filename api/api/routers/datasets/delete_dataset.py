@@ -20,19 +20,3 @@ def delete(
     except Exception as e:
         logger.exception("datasets:delete")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# no need with versioning
-
-# @router.delete("/{dataset_id}/file/{file_name}")
-# def delete(
-#     dataset_id: str,
-#     file_name: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         message = delete_dataset_file(user, dataset_id, file_name)
-#         return {"message": message}
-#     except Exception as e:
-#         logger.exception("datasets:delete")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

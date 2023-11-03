@@ -17,3 +17,5 @@ from .ingest_file import (
     ingest_model_files_batch,
     add_files_batch_to_model_version,
 )  # , ingest_stac, ingest_file_url
+
+from .delete_model import delete_model

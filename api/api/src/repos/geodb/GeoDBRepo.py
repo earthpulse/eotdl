@@ -45,7 +45,6 @@ class GeoDBRepo:
         stac_collection = {"crs": 4326, "properties": {}}
         for column in columns:
             if column not in ("geometry", "id"):
-                stac_collection["properties"][column] = "text"
+                # stac_collection["properties"][column] = "text"
+                stac_collection["properties"][column] = "json"
         return stac_collection
-    
-

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post(
-    "/{model_id}",
+    "/{model_id}/batch",
     summary="Batch ingest files to a model",
     responses=ingest_files_responses,
 )
@@ -36,18 +36,18 @@ async def ingest_files_batch(
     Batch ingest of files to an existing model. The batch file must be a compressed file (.zip).
     The checksums are calculated using the SHA-1 checksums algorithm.
     """
-    try:
-        model_id, model_name, filenames = await ingest_model_files_batch(
-            batch, model_id, checksums, user, version
-        )
-        return {
-            "model_id": model_id,
-            "model_name": model_name,
-            "filenames": filenames,
-        }
-    except Exception as e:
-        logger.exception("models:ingest")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    model_id, model_name, filenames = await ingest_model_files_batch(
+        batch, model_id, checksums, user, version
+    )
+    return {
+        "model_id": model_id,
+        "model_name": model_name,
+        "filenames": filenames,
+    }
+    # except Exception as e:
+    #     logger.exception("models:ingest")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.post(

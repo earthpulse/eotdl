@@ -1,0 +1,89 @@
+{
+  "type": "Collection",
+  "id": "boadella-sentinel-2",
+  "stac_version": "1.0.0",
+  "description": "Collection",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2021-07-16/Boadella_2021-07-16.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-06-21/Boadella_2020-06-21.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-02-02/Boadella_2020-02-02.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-01-28/Boadella_2020-01-28.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2022-03-08/Boadella_2022-03-08.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-01-13/Boadella_2020-01-13.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2022-06-01/Boadella_2022-06-01.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-09-14/Boadella_2020-09-14.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2021-06-26/Boadella_2021-06-26.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2021-07-21/Boadella_2021-07-21.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          2.7920278066359443,
+          42.330578684998784,
+          2.8380215491828635,
+          42.36457137143557
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2000-01-01T00:00:00Z",
+          "2023-12-31T00:00:00Z"
+        ]
+      ]
+    }
+  },
+  "license": "proprietary"
+}

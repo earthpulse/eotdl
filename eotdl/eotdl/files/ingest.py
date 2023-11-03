@@ -8,7 +8,6 @@ import os
 
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
-from ..shared import calculate_checksum
 
 
 def retrieve_files(folder):
@@ -82,6 +81,7 @@ def generate_files_lists(
                 large_files.append(data)
             else:
                 upload_files.append(data)
+    # TODO: should ingest new version if files removed
     if len(upload_files) == 0 and len(large_files) == 0:
         raise Exception("No new files to upload")
     return upload_files, existing_files, large_files
