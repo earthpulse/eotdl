@@ -1,0 +1,66 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Highway_1067",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Highway_1067": {
+      "href": "../../../EuroSAT-RGB-small/Highway/Highway_1067.jpg",
+      "type": "image/jpeg",
+      "title": "Highway_1067",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

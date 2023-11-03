@@ -5,10 +5,12 @@ from ...models import File, Folder
 # TODO: al ingestar file, comprobar que es la última versión y que el file no está ya en esa versión
 
 
-async def save_file(path, dataset_or_model_id, filename, file_version, checksum):
+async def save_file(
+    path_or_file, dataset_or_model_id, filename, file_version, checksum
+):
     os_repo = OSRepo()
     filename += "_" + str(file_version)
-    os_repo.persist_file(path, dataset_or_model_id, filename)
+    os_repo.persist_file(path_or_file, dataset_or_model_id, filename)
     _checksum = await os_repo.calculate_checksum(dataset_or_model_id, filename)
     if checksum and checksum != _checksum:
         os_repo.delete(dataset_or_model_id, filename)
@@ -18,7 +20,7 @@ async def save_file(path, dataset_or_model_id, filename, file_version, checksum)
 
 
 async def ingest_file(
-    filename, path, version, dataset_or_model_id, checksum, quality, files_id
+    filename, path_or_file, version, dataset_or_model_id, checksum, files_id
 ):
     db_repo = FilesDBRepo()
     # retrieve all files with same name
@@ -30,7 +32,11 @@ async def ingest_file(
         if file["checksum"] != checksum:  # the file has been modified
             # print("new version of", filename)
             file_size = await save_file(
-                path, dataset_or_model_id, filename, file["version"] + 1, checksum
+                path_or_file,
+                dataset_or_model_id,
+                filename,
+                file["version"] + 1,
+                checksum,
             )
             new_file = File(
                 name=filename,
@@ -54,7 +60,9 @@ async def ingest_file(
             )
     else:
         # print("new file", filename)
-        file_size = await save_file(path, dataset_or_model_id, filename, 1, checksum)
+        file_size = await save_file(
+            path_or_file, dataset_or_model_id, filename, 1, checksum
+        )
         new_file = File(
             name=filename,
             size=file_size,

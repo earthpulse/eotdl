@@ -9,7 +9,8 @@ from ...src.models import User
 from ...src.usecases.datasets import (
     create_dataset,
     create_dataset_version,
-)  # , create_stac_dataset
+    create_stac_dataset,
+)
 from .responses import create_dataset_responses, get_dataset_version_responses
 
 router = APIRouter()
@@ -45,9 +46,15 @@ def create(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/version/{dataset_id}", summary="Get the version of a dataset", responses=get_dataset_version_responses)
-def version_dataset(dataset_id: str = Path(..., description="The ID of the dataset"), 
-                    user: User = Depends(get_current_user)):
+@router.post(
+    "/version/{dataset_id}",
+    summary="Get the version of a dataset",
+    responses=get_dataset_version_responses,
+)
+def version_dataset(
+    dataset_id: str = Path(..., description="The ID of the dataset"),
+    user: User = Depends(get_current_user),
+):
     """
     Get the version of a dataset.
     """
@@ -59,17 +66,18 @@ def version_dataset(dataset_id: str = Path(..., description="The ID of the datas
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-# class CreateSTACDatasetBody(BaseModel):
-#     name: str
+class CreateSTACDatasetBody(BaseModel):
+    name: str
 
-# @router.post("/stac")
-# def create_stac(
-#     body: CreateSTACDatasetBody,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         dataset_id = create_stac_dataset(user, body.name)
-#         return {"dataset_id": dataset_id}
-#     except Exception as e:
-#         logger.exception("datasets:ingest")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@router.post("/stac", summary="Create a new stac dataset")
+def create_stac(
+    body: CreateSTACDatasetBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        dataset_id = create_stac_dataset(user, body.name)
+        return {"dataset_id": dataset_id}
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

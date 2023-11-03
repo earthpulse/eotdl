@@ -8,7 +8,6 @@ import os
 
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
-from ..shared import calculate_checksum
 
 
 def retrieve_files(folder):

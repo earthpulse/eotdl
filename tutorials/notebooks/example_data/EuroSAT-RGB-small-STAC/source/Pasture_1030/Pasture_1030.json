@@ -1,0 +1,66 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Pasture_1030",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Pasture_1030": {
+      "href": "../../../EuroSAT-RGB-small/Pasture/Pasture_1030.jpg",
+      "type": "image/jpeg",
+      "title": "Pasture_1030",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}
