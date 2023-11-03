@@ -74,17 +74,17 @@
   "links": [
     {
       "rel": "root",
-      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_stac/boadella-sentinel-2/collection.json",
+      "href": "../../catalog.json",
       "type": "application/json"
     },
     {
       "rel": "collection",
-      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_stac/boadella-sentinel-2/collection.json",
+      "href": "../collection.json",
       "type": "application/json"
     },
     {
       "rel": "parent",
-      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_stac/boadella-sentinel-2/collection.json",
+      "href": "../collection.json",
       "type": "application/json"
     }
   ],

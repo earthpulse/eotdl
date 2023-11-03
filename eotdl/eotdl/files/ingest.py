@@ -63,7 +63,6 @@ def generate_files_lists(
 ):
     files_repo = FilesAPIRepo()
     current_files, error = files_repo.retrieve_files(dataset_or_model_id, endpoint)
-    print(current_files)
     # print(len(current_files), len(items) - len(current_files))
     # print(current_files, error)
     if error:
@@ -99,7 +98,6 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
     files_repo = FilesAPIRepo()
     logger(f"Uploading directory {folder}...")
     items = retrieve_files(folder)
-    print(items)
     # retrieve files
     upload_files, existing_files, large_files = generate_files_lists(
         items, folder, dataset_or_model_id, endpoint, logger
