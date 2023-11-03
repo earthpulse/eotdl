@@ -76,7 +76,7 @@
   ],
   "assets": {
     "labels": {
-      "href": "../../../labels_scaneo/Jaca_1.geojson",
+      "href": "../../../labels_scaneo/Jaca_1_labels.geojson",
       "type": "application/geo+json",
       "title": "Label",
       "roles": [

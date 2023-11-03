@@ -462,6 +462,8 @@ class MLDatasetQualityMetrics:
             property_balance = {"name": prop, "values": []}
             properties = {}
             for label in labels:
+                if 'labels' not in label.assets:
+                    continue
                 asset_path = label.assets["labels"].href
                 # Open the linked geoJSON to obtain the label properties
                 try:
