@@ -53,3 +53,24 @@ def tmp_stac_collection():
     yield copied_collection
 
     shutil.rmtree("tmp")
+
+
+@pytest.fixture
+def sentinel_2():
+    os.makedirs("tmp", exist_ok=True)
+
+    yield os.path.join(EXAMPLE_DATA_DIR, 'sentinel_2')
+
+    shutil.rmtree("tmp")
+
+
+@pytest.fixture
+def tmp_sentinel_2():
+    original_dataset_path = os.path.join(EXAMPLE_DATA_DIR, "sentinel_2")
+
+    os.makedirs("tmp", exist_ok=True)
+    shutil.copytree(original_dataset_path, "tmp/sentinel_2")
+
+    yield "tmp/sentinel_2"
+
+    shutil.rmtree("tmp")

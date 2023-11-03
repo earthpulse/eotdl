@@ -55,7 +55,8 @@ def imagery_from_tmp_to_dir(
     Copy imagery from tmp to output dir
     """
     downloaded_files = glob(f"{tmp_dir}/**/response.tiff")
-    assert len(downloaded_files) > 0, "No files downloaded"
+    if len(downloaded_files) == 0:
+        return
 
     makedirs(output_dir, exist_ok=True)
 

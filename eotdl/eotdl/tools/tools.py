@@ -15,7 +15,7 @@ from shapely.geometry import box
 from .geo_utils import get_image_bbox
 
 
-def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+def get_images_by_location(gdf: gpd.GeoDataFrame, column: str) -> pd.DataFrame:
     """
     Generate a GeoDataFrame with the available images for each location in the dataset.
 
@@ -27,7 +27,7 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
                 - images_count: the count of available images of each location.
                 - images_dates: list with the dates of the available images of each location.
     """
-    uniques_location_id = gdf["scene_id"].unique()  # List of unique location ids
+    uniques_location_id = gdf[column].unique()  # List of unique location ids
     uniques_location_id.sort()
 
     images_count_list, images_dates_list = [], []
@@ -35,13 +35,13 @@ def get_images_by_location(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
     # Iterate the unique location ids, count the number of images per location and generate
     # a list with the dates of every image in a location
     for location_id in uniques_location_id:
-        dates = gdf[gdf["scene_id"] == location_id]["datetime"]
+        dates = gdf[gdf[column] == location_id]["datetime"]
         images_count_list.append(dates.count())
         images_dates_list.append(dates.tolist())
 
     images_dates_list.sort()  # Sort the list of dates
     data = {
-        "scene_id": uniques_location_id,
+        column: uniques_location_id,
         "dates_count": images_count_list,
         "dates_list": images_dates_list,
     }
