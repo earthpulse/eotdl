@@ -87,7 +87,7 @@ class ScaneoLabeler(LabelExtensionObject):
             # Get the GeoJSON label of the item
             geojson_label = self.get_geojson_of_item(source_item, geojson_files)
             # Get the tasks from the GeoJSON label
-            tasks = self.get_tasks_from_geojson(geojson_label)
+            tasks = self.get_tasks_from_geojson(geojson_label) if geojson_label else None
             # Add the tasks to the kwargs
             kwargs["label_tasks"] = tasks
 
@@ -109,8 +109,9 @@ class ScaneoLabeler(LabelExtensionObject):
                     f"{label_item.id}.json",
                 )
             )
-            # Match the GeoJSON label with the label item
-            self.add_geojson_to_item(label_item, geojson_label, label_type)
+            # Match the GeoJSON label with the label item, if exists
+            if geojson_label and exists(geojson_label):
+                self.add_geojson_to_item(label_item, geojson_label, label_type)
             # Add the item to the collection
             collection.add_item(label_item)
 
@@ -189,12 +190,13 @@ class ScaneoLabeler(LabelExtensionObject):
         :return: path to the GeoJSON label of the item
         """
         item_id = item.id
+        geojson_name = f"{item_id}_labels"
         # Get a dict with <geojson_filename>: <geojson_path>, as the geojson_filename
         # must match the item ID
         geojsons_dict = dict(
             zip([splitext(basename(geojson))[0] for geojson in geojsons], geojsons)
         )
-        geojson_path = geojsons_dict.get(item_id)
+        geojson_path = geojsons_dict.get(geojson_name)
 
         return geojson_path
 
