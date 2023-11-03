@@ -1,13 +1,9 @@
 from .client import get_client
 import os
-<<<<<<< HEAD:apis/eotdl/src/repos/minio/MinioRepo.py
-from datetime import timedelta
-=======
 import hashlib
 import requests
 from io import BytesIO
 import copy
->>>>>>> develop:api/api/src/repos/minio/MinioRepo.py
 
 
 class MinioRepo:
@@ -17,27 +13,9 @@ class MinioRepo:
         if not self.client.bucket_exists(self.bucket):
             self.client.make_bucket(self.bucket)
 
-    def get_object(self, id):
-        return f"{id}.zip"
+    def get_object(self, dataset_id, file_name):
+        return f"{dataset_id}/{file_name}"
 
-<<<<<<< HEAD:apis/eotdl/src/repos/minio/MinioRepo.py
-    def retrieve_object_file(self, id):
-        return self.client.get_object(self.bucket, self.get_object(id)).read()
-
-    def retrieve_object_url(self, id):
-        return self.client.get_presigned_url(
-            "GET",
-            self.bucket,
-            self.get_object(id),
-            expires=timedelta(hours=1),
-        )
-
-    def persist_file(self, source, id):
-        return self.client.put_object(
-            self.bucket,
-            self.get_object(id),
-            source,
-=======
     def persist_file(self, path_or_file, dataset_id, filename):
         object = self.get_object(dataset_id, filename)
         if isinstance(path_or_file, str):
@@ -46,37 +24,48 @@ class MinioRepo:
             self.bucket,
             object,
             path_or_file,
->>>>>>> develop:api/api/src/repos/minio/MinioRepo.py
             length=-1,
             part_size=10 * 1024 * 1024,
         )
 
-    def persist_file_chunk(self, chunk, id, size):
-        return self.client.put_object(
-            self.bucket,
-            self.get_object(id),
-            chunk.file,
-            length=size,
-            part_size=chunk.size
-            # self.bucket, self.get_object(id), chunk.file, length=-1, part_size=size
-        )
+    def persist_file_url(self, url, dataset_id, filename):
+        # This won't work for large files :(
+        # but assets are expected to be small...
+        object = self.get_object(dataset_id, filename)
+        file_path = f"/tmp/{dataset_id}/{filename}"
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(file_path, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        with open(file_path, "rb") as f:
+            self.client.put_object(
+                self.bucket,
+                object,
+                f,
+                length=-1,
+                part_size=10 * 1024 * 1024,
+            )
+        os.remove(file_path)
+        return
 
-    def delete(self, id):
-        object = self.get_object(id)
+    def delete(self, dataset_id, file_name):
+        object = self.get_object(dataset_id, file_name)
         return self.client.remove_object(self.bucket, object)
 
-    async def data_stream(self, id):
-        with self.client.get_object(self.bucket, self.get_object(id)) as stream:
-            for chunk in stream.stream(1024 * 1024 * 10):  # Stream in chunks of 10MB
+    async def data_stream(self, dataset_id, file_name, chunk_size=1024 * 1024 * 10):
+        with self.client.get_object(
+            self.bucket, self.get_object(dataset_id, file_name)
+        ) as stream:
+            for chunk in stream.stream(chunk_size):
                 yield chunk
 
-    def object_info(self, id):
-        return self.client.stat_object(self.bucket, self.get_object(id))
+    def object_info(self, dataset_id, file_name):
+        return self.client.stat_object(
+            self.bucket, self.get_object(dataset_id, file_name)
+        )
 
-<<<<<<< HEAD:apis/eotdl/src/repos/minio/MinioRepo.py
-    def get_size(self, id):
-        return self.object_info(id).size
-=======
     def exists(self, dataset_id, file_name):
         try:
             self.object_info(dataset_id, file_name)
@@ -90,9 +79,8 @@ class MinioRepo:
         async for chunk in data_stream:
             sha1_hash.update(chunk)
         return sha1_hash.hexdigest()
->>>>>>> develop:api/api/src/repos/minio/MinioRepo.py
 
-    # def upload_id(self):
-    #     return self.client.initiate_multipart_upload(
-    #         self.bucket, self.get_object(id)
-    #     ).upload_id
+    def get_file_url(self, dataset_id, file_name):
+        return self.client.presigned_get_object(
+            self.bucket, self.get_object(dataset_id, file_name)
+        )

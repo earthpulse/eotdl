@@ -24,6 +24,7 @@ services:
   eotdl-api:
     build: ./api
     container_name: eotdl-api
+    # platform: linux/amd64
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl

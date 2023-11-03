@@ -2,9 +2,17 @@ from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
 
-class Tier(Enum):
-    FREE = 'free'
-    DEV = 'dev'
+
+class Tier(str, Enum):
+    FREE = "free"
+    DEV = "dev"
+
+
+class TermsAndConditions(BaseModel):
+    geodb: bool = False
+    sentinelhub: bool = False
+    eoxhub: bool = False
+    eotdl: bool = False
 
 
 class User(BaseModel):
@@ -16,15 +24,11 @@ class User(BaseModel):
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()
     dataset_count: int = 0
-    model_count: int = 0
+    models_count: int = 0
     tier: Tier = Tier.FREE
     liked_datasets: list = []
-<<<<<<< HEAD:apis/eotdl/src/models/user.py
-=======
     liked_models: list = []
     terms: TermsAndConditions = TermsAndConditions()
->>>>>>> develop:api/api/src/models/user.py
 
-    class Config:
-       use_enum_values = True
-
+    # class Config:
+    #     use_enum_values = True

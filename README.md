@@ -2,11 +2,9 @@
 
 This repository contains de source code of the [**Earth Observation Training Data Lab** (EOTDL)](https://eotdl.vercel.app/). It contains a set of Python libraries, APIs, CLIs and User Interfaces to explore, create, manage and share datasets and Machine Learning models for Earth Observations applications.
 
-> Meet us at the upcoming [BiDS'23](https://www.bigdatafromspace2023.org/) event, that will take place on 6-9 November 2023 in Vienna, Austria. A hands-on tutorial session on EOTDL will take place on November 6th from 9:00 to 12:30, and everyone is welcome to join! More information [here](https://www.bigdatafromspace2023.org/satellite-events).
+## Library and CLI
 
-## Library
-
-The [eotdl library](./lib) contains the main functionality for creating datasets and models.
+The [eotdl library](./eotdl) contains the main functionality for creating datasets and models, as well as the CLI.
 
 ## APIs
 
@@ -54,17 +52,30 @@ Then, run the tests
 
 ```
 docker exec eotdl-api-test pytest api --cov api --cov-report term-missing
-docker exec eotdl-cli-test poetry run pytest --cov cli --cov-report term-missing
+docker exec eotdl-test poetry run pytest --cov eotdl --cov-report term-missing
 ```
 
 During development, you may want to keep test alive with
 
 ```
 docker exec eotdl-api-test ptw api
-docker exec eotdl-cli-test poetry run ptw
+docker exec eotdl-test poetry run ptw
 ```
 
 You will need a `.env` file with the environment variables missing in the docker-compose file.
+
+E2E UI generate tests
+
+```
+cd uis/eotdl
+yarn dev
+
+# first time to login and save cookies
+yarn playwright codegen http://localhost:5173 --save-storage=auth.json
+
+# next times to run tests
+yarn playwright codegen http://localhost:5173 --load-storage=auth.json
+```
 
 #### Running the API
 
