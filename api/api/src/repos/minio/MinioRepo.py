@@ -16,14 +16,14 @@ class MinioRepo:
     def get_object(self, dataset_id, file_name):
         return f"{dataset_id}/{file_name}"
 
-    def persist_file(self, file, dataset_id, filename):
+    def persist_file(self, path_or_file, dataset_id, filename):
         object = self.get_object(dataset_id, filename)
-        if isinstance(file, str):
-            return self.client.fput_object(self.bucket, object, file)
+        if isinstance(path_or_file, str):
+            return self.client.fput_object(self.bucket, object, path_or_file)
         return self.client.put_object(
             self.bucket,
             object,
-            file,
+            path_or_file,
             length=-1,
             part_size=10 * 1024 * 1024,
         )

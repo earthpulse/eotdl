@@ -51,6 +51,7 @@ class STACDataset(BaseModel):
     size: int = 0
     catalog: dict = {}
     versions: List[Version] = []
+    files: str
 
     # @validator("name")
     # def check_name_is_valid(cls, name):
