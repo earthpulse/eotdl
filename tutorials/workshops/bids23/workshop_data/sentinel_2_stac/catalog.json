@@ -13,6 +13,11 @@
       "rel": "child",
       "href": "./boadella-sentinel-2/collection.json",
       "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./labels/collection.json",
+      "type": "application/json"
     }
   ]
 }
