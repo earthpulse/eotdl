@@ -8,6 +8,7 @@ build
 package
 .env
 .env.*
+.conda
 !.env.example
 yarn.lock
 poetry.lock
@@ -26,3 +27,10 @@ tutorials/*md
 !test.zip
 .vscode
 kk
+auth.json
+node_modules/
+/test-results/
+playwright-report
+playwright/.cache/
+test-results
+lightning_logs

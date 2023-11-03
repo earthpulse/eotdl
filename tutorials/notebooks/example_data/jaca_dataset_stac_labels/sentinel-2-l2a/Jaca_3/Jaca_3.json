@@ -1,0 +1,222 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Jaca_3",
+  "properties": {
+    "proj:epsg": 4326,
+    "proj:shape": [
+      72,
+      75
+    ],
+    "proj:transform": [
+      0.00012437333333333337,
+      0.0,
+      -0.557034,
+      0.0,
+      -8.751388888889661e-05,
+      42.57571,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "constellation": "Sentinel-2",
+    "platform": "Sentinel-2",
+    "instruments": [
+      "Sentinel-2"
+    ],
+    "gsd": 10,
+    "eo:bands": [
+      {
+        "name": "B02",
+        "common_name": "blue",
+        "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+      },
+      {
+        "name": "B03",
+        "common_name": "green",
+        "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+      },
+      {
+        "name": "B04",
+        "common_name": "red",
+        "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+      }
+    ],
+    "datetime": "2020-01-06T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -0.557034,
+          42.569409
+        ],
+        [
+          -0.557034,
+          42.57571
+        ],
+        [
+          -0.547706,
+          42.57571
+        ],
+        [
+          -0.547706,
+          42.569409
+        ],
+        [
+          -0.557034,
+          42.569409
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Jaca_3": {
+      "href": "../../../jaca_dataset/Jaca_3.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Jaca_3",
+      "raster:bands": [
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012437333333333337,
+            8.751388888889661e-05
+          ]
+        }
+      ],
+      "constellation": "Sentinel-2",
+      "platform": "Sentinel-2",
+      "instruments": [
+        "Sentinel-2"
+      ],
+      "gsd": 10,
+      "eo:bands": [
+        {
+          "name": "B02",
+          "common_name": "blue",
+          "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+        },
+        {
+          "name": "B03",
+          "common_name": "green",
+          "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+        },
+        {
+          "name": "B04",
+          "common_name": "red",
+          "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -0.557034,
+    42.569409,
+    -0.547706,
+    42.57571
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/projection/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "collection": "sentinel-2-l2a"
+}

@@ -31,11 +31,16 @@ In order to run the API, you need to set the following environment variables:
 - `AUTH0_CLIENT_SECRET`: the client secret of the Auth0 application
 - `ADMIN_API_KEY`: the API key to access the admin endpoints
 - `TZ`: Your time zone (for example, `Europe/Madrid`. Optional, `UTC` by default)
+- `API_BASE_URL`: the base url used to build the download links (in our case, https://eotdl.com)
+- `EOX_PROVISIONINGS_URL`: ...
+- `EOX_VAULT_URL`: ...
+- `EOX_VAULT_ROLE_ID`: ...
+- `EOX_VAULT_SECRET_ID`: ...
 
+CLI environment variables:
 
-To run the CLI against a different instance of the API (for example, locally) you need to set the following environment variables:
-
-- `EOTDL_API_URL`: the URL of the API
+- `EOTDL_API_URL`: the URL of the API to run the CLI against (by default, https://api.eotdl.com)
+- `EOTDL_DOWNLOAD_PATH`: the path to download the datasets (by default, `~/.cache/eotdl`)
 
 #### Running tests
 

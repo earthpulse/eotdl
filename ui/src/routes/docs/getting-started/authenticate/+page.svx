@@ -1,0 +1,69 @@
+
+<script>
+	import CLI from "../../components/CLI.svelte";
+	import Api from "../../components/Api.svelte";
+	import Code from "../../components/Code.svelte";
+	import Library from "../../components/Library.svelte";
+	import BadgeWarning from "../../BadgeWarning.svelte";
+	import {docs} from '../../../../stores/docs.js';
+
+	$: ({api_url} = $docs)
+</script>
+
+
+# Authenticate
+
+Some of the operations within EOTDL require authentication.
+
+## CLI
+
+You can authenticate in the CLI with the `auth` command.
+
+<CLI><Code>eotdl auth --help</Code></CLI>
+
+Executing the `login` command will return a URL that you can visit to authenticate. After authentication, your credentials will be stored locally. This enables future commands to be executed without having to authenticate again (at least while the credentials are valid).
+
+<CLI><Code>eotdl auth login</Code></CLI>
+
+
+You can logout by either deleting the credentials file or by executing the `logout` command. 
+
+<CLI><Code>eotdl auth logout</Code></CLI>
+
+You will receive a logout url that you can visit in case you want to authenticate with a different account.
+
+<!-- ## Library
+
+<BadgeWarning>🚧 Not implemented yet</BadgeWarning> -->
+
+<!-- ## API
+
+The interactive documentation is available at [https://api.eotdl.com/docs](https://api.eotdl.com/docs).
+
+You can authenticate in the API using the `login` endpoint.
+
+<Api><Code>curl -X 'GET' \
+  '{api_url}/auth/login' \
+  -H 'accept: application/json'</Code></Api>
+
+You'll reveice a URL that you can visit to authenticate and a code to retrieve your token. After authentication, you can retrieve your token with the `token` endpoint.
+
+<Api><Code>curl -X 'GET' \
+  '{api_url}/auth/token?code=your code here' \
+  -H 'accept: application/json'</Code></Api>
+
+You can now use the token to authenticate in any future request (at least while it is valid).
+
+If you want to use a different account in the future, you will have to visit the logout url provided at the `logout` endpoint.
+
+<Api><Code>curl -X 'GET' \
+  '{api_url}/auth/logout' \
+  -H 'accept: application/json'</Code></Api> -->
+
+
+
+## User Interface
+
+In order to authenticate through the user interface, you just have to click on the `Sign In` button in the top right corner. You will be redirected to the authentication page. After authentication, you will be redirected back to the application.
+
+To logout, you can click on the `Sign Out` button that will appear instead.
