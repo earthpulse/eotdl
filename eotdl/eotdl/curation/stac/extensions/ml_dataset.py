@@ -1,5 +1,9 @@
 """Implements the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>`."""
 
+from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
+from shutil import rmtree
+from os.path import dirname, exists
+
 import traceback
 import json
 import random
@@ -10,11 +14,8 @@ from tqdm import tqdm
 from pystac.extensions.base import ExtensionManagementMixin, PropertiesExtension
 from pystac.extensions.label import LabelExtension
 from pystac import STACValidationError
-from shutil import rmtree
-from os.path import dirname, exists
 from pystac.cache import ResolvedObjectCache
 from pystac.extensions.hooks import ExtensionHooks
-from typing import Any, Dict, List, Optional, Generic, TypeVar, Union, Set
 from ....tools import make_links_relative_to_path
 
 T = TypeVar("T", pystac.Item, pystac.Collection, pystac.Catalog)
@@ -74,74 +75,129 @@ class MLDatasetExtension(
         self._resolved_objects = ResolvedObjectCache()
 
     def apply(self, name: str = None) -> None:
+        """
+        Applies the :stac-ext:`Machine Learning Dataset Extension <ml-dataset>` to the extended
+        :class:`~pystac.Catalog`.
+        """
         self.name = name
 
     @property
     def name(self) -> str:
+        """
+        Name of the ML Dataset.
+        """
         return self.extra_fields[f"{PREFIX}name"]
 
     @name.setter
     def name(self, v: str) -> None:
+        """
+        Set the name of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}name"] = v
 
     @property
     def tasks(self) -> List:
+        """
+        Tasks of the ML Dataset.
+        """
         return self.extra_fields[f"{PREFIX}tasks"]
 
     @tasks.setter
     def tasks(self, v: Union[list, tuple]) -> None:
+        """
+        Set the tasks of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}tasks"] = v
 
     @property
     def type(self) -> str:
+        """
+        Type of the ML Dataset.
+        """
         return self.extra_fields[f"{PREFIX}type"]
 
     @type.setter
     def type(self, v: str) -> None:
+        """
+        Set the type of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}type"] = v
 
     @property
     def inputs_type(self) -> str:
+        """
+        Inputs type of the ML Dataset.
+        """
         return self.extra_fields[f"{PREFIX}inputs-type"]
 
     @inputs_type.setter
     def inputs_type(self, v: str) -> None:
+        """
+        Set the inputs type of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}inputs-type"] = v
 
     @property
     def annotations_type(self) -> str:
+        """
+        Annotations type of the ML Dataset.
+        """
         return self.extra_fields[f"{PREFIX}annotations-type"]
 
     @annotations_type.setter
     def annotations_type(self, v: str) -> None:
+        """
+        Set the annotations type of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}annotations-type"] = v
 
     @property
     def splits(self) -> List[str]:
-        self.extra_fields[f"{PREFIX}splits"]
+        """
+        Splits of the ML Dataset.
+        """
+        return self.extra_fields[f"{PREFIX}splits"]
 
     @splits.setter
     def splits(self, v: dict) -> None:
+        """
+        Set the splits of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}splits"] = v
 
     @property
     def quality_metrics(self) -> List[dict]:
-        self.extra_fields[f"{PREFIX}quality-metrics"]
+        """
+        Quality metrics of the ML Dataset.
+        """
+        return self.extra_fields[f"{PREFIX}quality-metrics"]
 
     @quality_metrics.setter
     def quality_metrics(self, v: dict) -> None:
+        """
+        Set the quality metrics of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}quality-metrics"] = v
 
     @property
     def version(self) -> str:
-        self.extra_fields[f"{PREFIX}version"]
+        """
+        Version of the ML Dataset.
+        """
+        return self.extra_fields[f"{PREFIX}version"]
 
     @version.setter
     def version(self, v: str) -> None:
+        """
+        Set the version of the ML Dataset.
+        """
         self.extra_fields[f"{PREFIX}version"] = v
 
     @classmethod
     def get_schema_uri(cls) -> str:
+        """
+        Get the JSON Schema URI that validates the extended object.
+        """
         return SCHEMA_URI
 
     def add_metric(self, metric: dict) -> None:
@@ -150,11 +206,11 @@ class MLDatasetExtension(
         Args:
              metric : The metric to add.
         """
-        if not self.extra_fields.get(f'{PREFIX}quality-metrics'):
-            self.extra_fields[f'{PREFIX}quality-metrics'] = []
+        if not self.extra_fields.get(f"{PREFIX}quality-metrics"):
+            self.extra_fields[f"{PREFIX}quality-metrics"] = []
 
-        if metric not in self.extra_fields[f'{PREFIX}quality-metrics']:
-            self.extra_fields[f'{PREFIX}quality-metrics'].append(metric)
+        if metric not in self.extra_fields[f"{PREFIX}quality-metrics"]:
+            self.extra_fields[f"{PREFIX}quality-metrics"].append(metric)
 
     def add_metrics(self, metrics: List[dict]) -> None:
         """Add a list of metrics to this object's set of metrics.
@@ -204,23 +260,34 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
         self.properties[f"{PREFIX}split-items"] = []
 
     def __repr__(self) -> str:
-        return "<CollectionMLDatasetExtension Item id={}>".format(self.collection.id)
+        return f"<CollectionMLDatasetExtension Item id={self.collection.id}>"
 
     @property
     def splits(self) -> List[dict]:
-        return self._splits
+        """
+        Splits of the ML Dataset.
+        """
+        return self.extra_fields[f"{PREFIX}splits"]
 
     @splits.setter
     def splits(self, v: dict) -> None:
+        """
+        Set the splits of the ML Dataset.
+        """
         self.properties[f"{PREFIX}split-items"] = v
 
     def add_split(self, v: dict) -> None:
+        """
+        Add a split to the ML Dataset.
+        """
         self.properties[f"{PREFIX}split-items"].append(v)
 
     def create_and_add_split(
         self, split_data: List[pystac.Item], split_type: str
     ) -> None:
-        """ """
+        """
+        Create and add a split to the ML Dataset.
+        """
         items_ids = [item.id for item in split_data]
         items_ids.sort()
 
@@ -236,7 +303,6 @@ class CollectionMLDatasetExtension(MLDatasetExtension[pystac.Collection]):
             if item:
                 item_ml = MLDatasetExtension.ext(item, add_if_missing=True)
                 item_ml.split = split_type
-
 
 
 class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
@@ -257,22 +323,32 @@ class ItemMLDatasetExtension(MLDatasetExtension[pystac.Item]):
 
     @property
     def split(self) -> str:
-        return self._split
+        """
+        Split of the ML Dataset.
+        """
+        return self.properties[f"{PREFIX}split"]
 
     @split.setter
     def split(self, v: str) -> None:
+        """
+        Set the split of the ML Dataset.
+        """
         self.properties[f"{PREFIX}split"] = v
 
     def __repr__(self) -> str:
-        return "<ItemMLDatasetExtension Item id={}>".format(self.item.id)
+        return f"<ItemMLDatasetExtension Item id={self.item.id}>"
 
 
 class MLDatasetQualityMetrics:
-    """ """
+    """
+    ML Dataset Quality Metrics
+    """
 
     @classmethod
-    def calculate(self, catalog: Union[pystac.Catalog, str]) -> None:
-        """ """
+    def calculate(cls, catalog: Union[pystac.Catalog, str]) -> None:
+        """
+        Calculate the quality metrics of the catalog
+        """
         if isinstance(catalog, str):
             catalog = MLDatasetExtension(pystac.read_file(catalog))
         elif isinstance(catalog, pystac.Catalog):
@@ -284,15 +360,15 @@ class MLDatasetQualityMetrics:
             )
 
         try:
-            catalog.add_metric(self._search_spatial_duplicates(catalog))
-            catalog.add_metric(self._get_classes_balance(catalog))
-        except AttributeError:
+            catalog.add_metric(cls._search_spatial_duplicates(catalog))
+            catalog.add_metric(cls._get_classes_balance(catalog))
+        except AttributeError as exc:
             raise pystac.ExtensionNotImplemented(
-                f"The catalog does not have the required properties or the ML-Dataset extension to calculate the metrics"
+                f"The catalog does not have the required properties or the ML-Dataset extension to calculate the metrics: {exc}"
             )
         finally:
             catalog.make_all_asset_hrefs_relative()
-            
+
         try:
             print("Validating and saving...")
             catalog.validate()
@@ -303,26 +379,32 @@ class MLDatasetQualityMetrics:
             catalog.set_root(catalog)
             catalog.normalize_and_save(root_href=destination)
             print("Success!")
-        except STACValidationError as error:
+        except STACValidationError:
             # Return full callback
             traceback.print_exc()
 
     @staticmethod
     def _search_spatial_duplicates(catalog: pystac.Catalog):
-        """ """
+        """
+        Search for spatial duplicates in the catalog
+        """
         items = list(
             set(
-                [item 
-                 for item in tqdm(catalog.get_items(recursive=True), desc="Looking for spatial duplicates...") 
-                 if not LabelExtension.has_extension(item)
-                 ]
-                )
+                [
+                    item
+                    for item in tqdm(
+                        catalog.get_items(recursive=True),
+                        desc="Looking for spatial duplicates...",
+                    )
+                    if not LabelExtension.has_extension(item)
+                ]
             )
+        )
 
         # Initialize the spatial duplicates dict
         spatial_duplicates = {"name": "spatial-duplicates", "values": [], "total": 0}
 
-        items_bboxes = dict()
+        items_bboxes = {}
         for item in items:
             # Get the item bounding box
             bbox = str(item.bbox)
@@ -340,12 +422,15 @@ class MLDatasetQualityMetrics:
 
     @staticmethod
     def _get_classes_balance(catalog: pystac.Catalog) -> dict:
-        """ """
+        """
+        Get the classes balance of the catalog
+        """
 
         def get_label_properties(items: List[pystac.Item]) -> List:
             """
+            Get the label properties of the catalog
             """
-            label_properties = list()
+            label_properties = []
             for label in items:
                 label_ext = LabelExtension.ext(label)
                 for prop in label_ext.label_properties:
@@ -353,30 +438,36 @@ class MLDatasetQualityMetrics:
                         label_properties.append(prop)
 
             return label_properties
-    
+
         catalog.make_all_asset_hrefs_absolute()
 
         labels = list(
             set(
-                [item 
-                 for item in tqdm(catalog.get_items(recursive=True), desc="Calculating classes balance...") 
-                 if LabelExtension.has_extension(item)
-                 ]
-                )
+                [
+                    item
+                    for item in tqdm(
+                        catalog.get_items(recursive=True),
+                        desc="Calculating classes balance...",
+                    )
+                    if LabelExtension.has_extension(item)
+                ]
             )
+        )
 
         # Initialize the classes balance dict
         classes_balance = {"name": "classes-balance", "values": []}
         label_properties = get_label_properties(labels)
 
-        for property in label_properties:
-            property_balance = {"name": property, "values": []}
-            properties = dict()
+        for prop in label_properties:
+            property_balance = {"name": prop, "values": []}
+            properties = {}
             for label in labels:
+                if 'labels' not in label.assets:
+                    continue
                 asset_path = label.assets["labels"].href
                 # Open the linked geoJSON to obtain the label properties
                 try:
-                    with open(asset_path) as f:
+                    with open(asset_path, mode="r", encoding="utf-8") as f:
                         label_data = json.load(f)
                 except FileNotFoundError:
                     raise FileNotFoundError(
@@ -384,8 +475,8 @@ class MLDatasetQualityMetrics:
                     )
                 # Get the property
                 for feature in label_data["features"]:
-                    if property in feature["properties"]:
-                        property_value = feature["properties"][property]
+                    if prop in feature["properties"]:
+                        property_value = feature["properties"][prop]
                     else:
                         if feature["properties"]["labels"]:
                             property_value = feature["properties"]["labels"][0]
@@ -394,7 +485,7 @@ class MLDatasetQualityMetrics:
                     if property_value not in properties:
                         properties[property_value] = 0
                     properties[property_value] += 1
-            
+
             # Create the property balance dict
             total_labels = sum(properties.values())
             for key, value in properties.items():
@@ -414,6 +505,9 @@ class MLDatasetQualityMetrics:
 
 
 class MLDatasetExtensionHooks(ExtensionHooks):
+    """
+    ML Dataset Extension Hooks
+    """
     schema_uri: str = SCHEMA_URI
     prev_extension_ids: Set[str] = set()
     stac_object_types = {
@@ -480,15 +574,19 @@ def add_ml_extension(
 
     # Normalize the ref on the same folder
     if destination:
-        catalog_ml_dataset = make_links_relative_to_path(destination, catalog_ml_dataset)
+        catalog_ml_dataset = make_links_relative_to_path(
+            destination, catalog_ml_dataset
+        )
 
     try:
         print("Validating and saving...")
         catalog_ml_dataset.validate()
-        rmtree(destination) if exists(destination) else None # Remove the old catalog and replace it with the new one
-        catalog_ml_dataset.normalize_and_save(root_href=destination, 
-                                              catalog_type=catalog_type
-                                              )
+        rmtree(destination) if exists(
+            destination
+        ) else None  # Remove the old catalog and replace it with the new one
+        catalog_ml_dataset.normalize_and_save(
+            root_href=destination, catalog_type=catalog_type
+        )
         print("Success!")
     except STACValidationError:
         # Return full callback
@@ -500,7 +598,7 @@ def make_splits(
     splits_names: Optional[List[str]] = ("Training", "Validation", "Test"),
     splits_proportions: Optional[List[int]] = (80, 10, 10),
     verbose: Optional[bool] = True,
-    **kwargs,
+    **kwargs: Optional[dict],
 ) -> None:
     """
     Makes the splits of the labels collection.
@@ -514,7 +612,7 @@ def make_splits(
         raise ValueError("The sum of the splits must be 100")
 
     # Get all items in the labels collection
-    items = [item for item in labels_collection.get_items(recursive=True)]
+    items = list(labels_collection.get_items(recursive=True))
 
     # Calculate indices to split the items
     length = len(items)
@@ -536,9 +634,9 @@ def make_splits(
 
     # Split the items
     train_items = items[:idx_train]
-    test_items = items[idx_train : idx_train + idx_test]
+    test_items = items[idx_train: idx_train + idx_test]
     if val_size:
-        val_items = items[idx_train + idx_test : idx_train + idx_test + idx_val]
+        val_items = items[idx_train + idx_test: idx_train + idx_test + idx_val]
 
     # Create the splits in the collection
     labels_collection = MLDatasetExtension.ext(labels_collection, add_if_missing=True)

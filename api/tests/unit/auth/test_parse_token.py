@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from ....src.usecases.auth import parse_token
+from api.src.usecases.auth import parse_token
 
 @patch('api.src.usecases.auth.parse_token.AuthRepo')
 def test_parse_token(mocked_repo):

@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.update_dataset import UpdateDataset
-from ....src.errors import (
+from api.src.usecases.datasets.update_dataset import UpdateDataset
+from api.src.errors import (
     InvalidTagError,
     DatasetDoesNotExistError,
     UserUnauthorizedError,

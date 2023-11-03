@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch
 
-from ....src.models import User
-from ....src.usecases.user import update_user 
-from ....src.errors import UserDoesNotExistError, UserAlreadyExistsError, NameLengthValidationError, NameCharsValidationError
+from api.src.models import User
+from api.src.usecases.user import update_user 
+from api.src.errors import UserDoesNotExistError, UserAlreadyExistsError, NameLengthValidationError, NameCharsValidationError
 
 @pytest.fixture
 def user():

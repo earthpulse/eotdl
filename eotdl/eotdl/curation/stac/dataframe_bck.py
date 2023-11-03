@@ -161,7 +161,7 @@ class STACDataFrame(gpd.GeoDataFrame):
                 # Curate the json row
                 row_json = self.curate_json_row(row_json, stac_id_exists)
 
-                with open(join(root_output_folder, f"catalog.json"), "w") as f:
+                with open(join(root_output_folder, "catalog.json"), "w") as f:
                     json.dump(row_json, f)
 
         # Second, create the collections and their folders, if exist
@@ -176,7 +176,7 @@ class STACDataFrame(gpd.GeoDataFrame):
             # Curate the json row
             row_json = self.curate_json_row(row_json, stac_id_exists)
 
-            with open(join(stac_output_folder, f"collection.json"), "w") as f:
+            with open(join(stac_output_folder, "collection.json"), "w") as f:
                 json.dump(row_json, f)
 
         # Then, create the items and their folders, if exist

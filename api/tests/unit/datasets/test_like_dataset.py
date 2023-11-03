@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.like_dataset import LikeDataset
-from ....src.errors import DatasetDoesNotExistError
+from api.src.usecases.datasets.like_dataset import LikeDataset
+from api.src.errors import DatasetDoesNotExistError
 
 
 @pytest.fixture
