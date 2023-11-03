@@ -19,6 +19,7 @@ from .routers.datasets import (
     download_dataset,
     update_dataset,
     upload_large_dataset_files,
+    delete_dataset,
 )
 from .routers.models import (
     retrieve_models,
@@ -27,10 +28,11 @@ from .routers.models import (
     download_model,
     upload_large_model_files,
     update_model,
+    delete_model,
 )
 from .routers import admin, migrate
 
-VERSION = "2023.11.03"
+VERSION = "2023.11.05"
 
 tags_metadata = [
     {
@@ -48,7 +50,7 @@ tags_metadata = [
     {
         "name": "models",
         "description": "Operations with models. Explore, ingest, retrieve or download models.",
-    }    
+    },
 ]
 
 description = """
@@ -69,9 +71,9 @@ app = FastAPI(
     contact={
         "name": "EOTDL support",
         "url": "https://www.eotdl.com/",
-        "mail": "support@eotdl.com"
+        "mail": "support@eotdl.com",
     },
-    openapi_tags=tags_metadata
+    openapi_tags=tags_metadata,
 )
 app.add_middleware(
     CORSMiddleware,
@@ -99,6 +101,7 @@ app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(
     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
 )
+app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # files
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # models
@@ -108,6 +111,7 @@ app.include_router(ingest_model.router, prefix="/models", tags=["models"])
 app.include_router(download_model.router, prefix="/models", tags=["models"])
 app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
 app.include_router(update_model.router, prefix="/models", tags=["models"])
+app.include_router(delete_model.router, prefix="/models", tags=["models"])
 # other
 app.include_router(admin.router)
 app.include_router(migrate.router)

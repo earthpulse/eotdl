@@ -1,9 +1,11 @@
-# Create your own dataset
+# BiDS'23 workshop
 
-Welcome to the workshop! In this hands-on tutorial, developed by [EarthPulse](https://earthpulse.ai/) for the [BiDS 23](https://www.bigdatafromspace2023.org/), we are going to explore and unleash the capabilities of the [Earth Observation Training Data Lab](https://www.eotdl.com/) (EOTDL) environment. 
+This is the scheduled agenda for the tutorial session:
 
-In this workshop, we will learn how to use the EO-TDL open source tools to create our very own dataset for Earth Observation Machine Learning applications. This tutorial aims to cover the end-to-end process of creating a usable dataset, from creating and sharing the dataset to training and deploying a ready-to-use AI model.
+- [Explore and download datasets and models](01_exploring.ipynb)
+- [Train models (locally or in the cloud)](02_training.ipynb)
+- [Ingest datasets and models](03_ingesting.ipynb)
+- [Create your own datasets](04_creating.ipynb)
+- [Data curation with STAC metadata](05_stac.ipynb)
+- [Getting involved and Contributing to the EOTDL](06_contributing.ipynb)
 
-Let's get started! Go to the `00_exploration` notebook and start the tutorial!
-
-For further information about the EOTDL, like an in-depth explanation, installation or nomenclature, check this [notebook](../00_eotdl.ipynb).

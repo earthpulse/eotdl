@@ -1,0 +1,227 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Boadella_2020-02-02",
+  "properties": {
+    "proj:epsg": 4326,
+    "proj:shape": [
+      377,
+      380
+    ],
+    "proj:transform": [
+      0.00012103616459715589,
+      0.0,
+      2.7920278066359443,
+      0.0,
+      -9.016627702064337e-05,
+      42.36457137143557,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "constellation": "Sentinel-2",
+    "platform": "Sentinel-2",
+    "instruments": [
+      "Sentinel-2"
+    ],
+    "gsd": 10,
+    "eo:bands": [
+      {
+        "name": "B02",
+        "common_name": "blue",
+        "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+      },
+      {
+        "name": "B03",
+        "common_name": "green",
+        "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+      },
+      {
+        "name": "B04",
+        "common_name": "red",
+        "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+      }
+    ],
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          2.7920278066359443,
+          42.330578684998784
+        ],
+        [
+          2.7920278066359443,
+          42.36457137143557
+        ],
+        [
+          2.8380215491828635,
+          42.36457137143557
+        ],
+        [
+          2.8380215491828635,
+          42.330578684998784
+        ],
+        [
+          2.7920278066359443,
+          42.330578684998784
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "self",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/boadella-sentinel-2/Boadella_2020-02-02/Boadella_2020-02-02.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/boadella-sentinel-2/collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Boadella_2020-02-02": {
+      "href": "../../../sentinel_2/Boadella_2020-02-02.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Boadella_2020-02-02",
+      "raster:bands": [
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00012103616459715589,
+            9.016627702064337e-05
+          ]
+        }
+      ],
+      "constellation": "Sentinel-2",
+      "platform": "Sentinel-2",
+      "instruments": [
+        "Sentinel-2"
+      ],
+      "gsd": 10,
+      "eo:bands": [
+        {
+          "name": "B02",
+          "common_name": "blue",
+          "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+        },
+        {
+          "name": "B03",
+          "common_name": "green",
+          "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+        },
+        {
+          "name": "B04",
+          "common_name": "red",
+          "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    2.7920278066359443,
+    42.330578684998784,
+    2.8380215491828635,
+    42.36457137143557
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/projection/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "collection": "boadella-sentinel-2"
+}

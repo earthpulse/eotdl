@@ -12,8 +12,8 @@ services:
     image: minio/minio
     container_name: eotdl-minio
     ports:
-      - 9020:9000
-      - 9021:9001
+      - 9030:9000
+      - 9031:9001
     volumes:
       - ./data/minio:/data
     environment:

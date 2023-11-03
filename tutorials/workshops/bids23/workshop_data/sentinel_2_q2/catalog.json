@@ -1,0 +1,104 @@
+{
+  "type": "Catalog",
+  "id": "boadella-dataset",
+  "stac_version": "1.0.0",
+  "description": "Boadella dataset",
+  "links": [
+    {
+      "rel": "root",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/boadella-sentinel-2/collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/labels/collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "self",
+      "href": "/home/juan/Desktop/eotdl/tutorials/workshops/bids23/workshop_data/sentinel_2_q2/catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "stac_extensions": [
+    "https://raw.githubusercontent.com/earthpulse/ml-dataset/main/json-schema/schema.json"
+  ],
+  "ml-dataset:name": "Boadella Q2 Dataset",
+  "ml-dataset:tasks": [
+    "segmentation"
+  ],
+  "ml-dataset:inputs-type": [
+    "satellite imagery"
+  ],
+  "ml-dataset:annotations-type": "raster",
+  "ml-dataset:version": "0.1.0",
+  "ml-dataset:splits": [
+    "Training",
+    "Validation",
+    "Test"
+  ],
+  "ml-dataset:quality-metrics": [
+    {
+      "name": "spatial-duplicates",
+      "values": [
+        {
+          "item": "Boadella_2020-01-13",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2021-07-21",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2021-07-16",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2020-02-02",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2020-01-28",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2022-06-01",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2021-06-26",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2020-09-14",
+          "duplicate": "Boadella_2022-03-08"
+        },
+        {
+          "item": "Boadella_2020-06-21",
+          "duplicate": "Boadella_2022-03-08"
+        }
+      ],
+      "total": 9
+    },
+    {
+      "name": "classes-balance",
+      "values": [
+        {
+          "name": "label",
+          "values": [
+            {
+              "class": "water",
+              "total": 7,
+              "percentage": 100
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
