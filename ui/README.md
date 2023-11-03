@@ -1,3 +1,3 @@
-# EOTDS UI
+# EOTDL UI
 
-website and main ui
+website 
