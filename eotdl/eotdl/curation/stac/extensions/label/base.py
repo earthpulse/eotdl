@@ -1,26 +1,32 @@
-'''
+"""
 Module for the STAC label extension base object
-'''
+"""
+
+from typing import List, Union
 
 import pystac
+from pystac.extensions.label import (
+    LabelClasses,
+    LabelExtension,
+    SummariesLabelExtension,
+)
 
-from typing import List,  Union
 from ..base import STACExtensionObject
-from pystac.extensions.label import (LabelClasses, LabelExtension, SummariesLabelExtension)
 
 
 class LabelExtensionObject(STACExtensionObject):
+    """
+    STAC Label extension base object in EOTDL
+    """
     def __init__(self) -> None:
         super().__init__()
 
     @classmethod
-    def generate_stac_labels(
-        self
-    ) -> None:
+    def generate_stac_labels(cls) -> None:
         """
         Generate a labels collection from a STAC dataframe.
         """
-        pass
+        return
 
     def add_extension_to_item(
         self,
@@ -46,13 +52,14 @@ class LabelExtensionObject(STACExtensionObject):
 
         :return: the item with the label extension
         """
-        label_item = pystac.Item(id=obj.id,
-                                 geometry=obj.geometry,
-                                 bbox=obj.bbox,
-                                 properties=dict(),
-                                 datetime=obj.datetime
-                                 )
-        
+        label_item = pystac.Item(
+            id=obj.id,
+            geometry=obj.geometry,
+            bbox=obj.bbox,
+            properties={},
+            datetime=obj.datetime,
+        )
+
         # Add the label extension to the item
         LabelExtension.add_to(label_item)
 
@@ -72,22 +79,30 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the label type
         label_ext.label_type = label_type
         # Add the label properties, if any
-        label_ext.label_properties = kwargs.get('label_properties') if kwargs.get('label_properties', None) else label_names
+        label_ext.label_properties = (
+            kwargs.get("label_properties")
+            if kwargs.get("label_properties", None)
+            else label_names
+        )
         # Add the label methods, if any
-        label_ext.label_methods = kwargs.get('label_methods') if kwargs.get('label_methods', None) else None
+        label_ext.label_methods = (
+            kwargs.get("label_methods") if kwargs.get("label_methods", None) else None
+        )
         # Add the label tasks, if any
-        label_ext.label_tasks = kwargs.get('label_tasks') if kwargs.get('label_tasks', None) else None
+        label_ext.label_tasks = (
+            kwargs.get("label_tasks") if kwargs.get("label_tasks", None) else None
+        )
         # Add the source
         label_ext.add_source(obj)
 
         return label_item
 
     def add_extension_to_collection(
-            self,
-            obj: pystac.Collection,
-            label_names: List[str],
-            label_classes: List[Union[list, tuple]],
-            label_type: str
+        self,
+        obj: pystac.Collection,
+        label_names: List[str],
+        label_classes: List[Union[list, tuple]],
+        label_type: str,
     ) -> None:
         """
         Add the label extension to the given collection
@@ -113,10 +128,9 @@ class LabelExtensionObject(STACExtensionObject):
         # Add the label type
         label_ext.label_type = label_type
 
-    def add_geojson_to_items(self
-                             ) -> None:
+    def add_geojson_to_items(self) -> None:
         """
         Add a GeoJSON FeatureCollection to every label item, as recommended by the spec
         https://github.com/stac-extensions/label#assets
         """
-        pass
+        return

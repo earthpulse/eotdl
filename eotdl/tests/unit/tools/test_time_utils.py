@@ -44,16 +44,16 @@ def test_create_time_slots(start_date, end_date, n_chunks, expected_output):
     ("2022-13-01", False),
     ("2022-02-30", False),
     ("2001-02-29", False),
-    ("22-01-01", False), 
-    ("", False), 
+    ("22-01-01", False),
+    ("", False),
     ("NotADate", False),
 ])
-
 def test_is_valid_date(input_date, expected_output):
     assert is_valid_date(input_date) == expected_output
 
+
 @pytest.mark.parametrize(
-    "from_date, to_date, expected", 
+    "from_date, to_date, expected",
     [
         ("2019-12-31T00:00:00Z", "2020-01-02T23:59:59Z", "2020-01-01"),
         (datetime(2019, 12, 31, 0, 0), datetime(2020, 1, 2, 23, 59, 59), "2020-01-01"),
@@ -83,7 +83,7 @@ def test_prepare_time_interval():
     # Test para input en formato de tuple inválido
     with pytest.raises(ValueError, match=r".*range of two dates.*"):
         prepare_time_interval(("2022-01-01",))
-    
+        
     # Test para input no válido
     with pytest.raises(ValueError, match=r".*string with format YYYY-MM-DD or a datetime object.*"):
         prepare_time_interval(1234)
@@ -92,15 +92,15 @@ def test_prepare_time_interval():
 @pytest.mark.parametrize(
     "dt, expected",
     [
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
-        ("2021-01-01", "2021-01-01T00:00:00.000000"),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
+        ("2021-01-01", datetime(2021, 1, 1, 0, 0)),
     ],
 )
 def test_format_time_acquired(dt, expected):

@@ -1,8 +1,8 @@
 import pytest
 import os
 
-from ...src.repos.minio.client import get_client
-from ...src.repos.minio import MinioRepo
+from api.src.repos.minio.client import get_client
+from api.src.repos.minio import MinioRepo
 
 bucket = os.environ.get("S3_BUCKET")
 

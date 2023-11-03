@@ -1,7 +1,7 @@
 import pytest 
 from unittest import mock
 
-from ....src.usecases.datasets.RetrievePopularDatasets import RetrievePopularDatasets
+from api.src.usecases.datasets.RetrievePopularDatasets import RetrievePopularDatasets
 
 @pytest.fixture
 def datasets():

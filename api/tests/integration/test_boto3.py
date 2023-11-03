@@ -1,8 +1,8 @@
 import pytest
 import os
 
-from ...src.repos.boto3.client import get_client
-from ...src.repos.boto3 import Boto3Repo
+from api.src.repos.boto3.client import get_client
+from api.src.repos.boto3 import Boto3Repo
 
 bucket = os.environ.get("S3_BUCKET")
 

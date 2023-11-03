@@ -78,7 +78,7 @@ def download_dataset(
             # if calculate_checksum(dst_path) != checksum:
             #     logger(f"Checksum for {file} does not match")
             if verbose:
-                logger(f"Done")
+                logger("Done")
         return download_path
     else:
         raise NotImplementedError("Downloading a STAC dataset is not implemented")

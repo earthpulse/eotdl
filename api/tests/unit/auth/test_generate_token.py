@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from ....src.usecases.auth import generate_id_token
+from api.src.usecases.auth import generate_id_token
 
 @patch('api.src.usecases.auth.generate_token.AuthRepo')
 def test_generate_token(mocked_repo):

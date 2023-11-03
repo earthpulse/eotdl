@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.eotdl.com/">
-    <img src="eotdl.png" width="350px" alt="EOTDL" />
+    <img src="eotdl.png" alt="EOTDL" />
   </a>
 </p>
 

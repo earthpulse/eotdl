@@ -1,6 +1,6 @@
-'''
+"""
 Paths utils
-'''
+"""
 
 from os.path import dirname
 from typing import Union, Optional
@@ -28,24 +28,24 @@ def cut_images(images_list: Union[list, tuple]) -> list:
 
     :return: list of unique directories
     """
-    dirnames = list()
-    images = list()
+    dirnames = []
+    images = []
 
     for image in images_list:
-        dir = dirname(image)
-        if dir not in dirnames:
-            dirnames.append(dir)
+        directory = dirname(image)
+        if directory not in dirnames:
+            dirnames.append(directory)
             images.append(image)
 
     return images
 
 
-def get_all_images_in_path(path: str, image_format: Optional[str] = 'tif') -> list:
-        """
-        Get all the images in a directory
+def get_all_images_in_path(path: str, image_format: Optional[str] = "tif") -> list:
+    """
+    Get all the images in a directory
 
-        :param path: path to the directory
+    :param path: path to the directory
 
-        :return: list of images
-        """
-        return glob(str(path) + f'/**/*.{image_format}', recursive=True)
+    :return: list of images
+    """
+    return glob(str(path) + f"/**/*.{image_format}", recursive=True)

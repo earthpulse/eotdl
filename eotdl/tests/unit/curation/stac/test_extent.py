@@ -5,7 +5,7 @@ from datetime import datetime
 from eotdl.curation.stac.extent import (
     get_dem_temporal_interval,
     get_unknow_temporal_interval,
-    get_unknow_extent
+    get_unknow_extent,
 )
 
 
@@ -23,9 +23,11 @@ def test_get_unknow_temporal_interval():
 
 def test_get_unknow_extent():
     expected_spatial_extent = [[0, 0, 0, 0]]
-    expected_temporal_extent = [(datetime(2000, 1, 1, 0, 0), datetime(2023, 12, 31, 0, 0))]
+    expected_temporal_extent = [
+        (datetime(2000, 1, 1, 0, 0), datetime(2023, 12, 31, 0, 0))
+    ]
 
     result_interval = get_unknow_extent()
-    
+
     assert result_interval.spatial.bboxes == expected_spatial_extent
     assert result_interval.temporal.intervals == expected_temporal_extent
