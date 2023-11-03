@@ -23,7 +23,8 @@
       "segmentation",
       "markerPrompts"
     ],
-    "datetime": "2020-01-01T00:00:00Z"
+    "datetime": "2020-01-01T00:00:00Z",
+    "ml-dataset:split": "Training"
   },
   "geometry": {
     "type": "Polygon",
@@ -76,7 +77,7 @@
   ],
   "assets": {
     "labels": {
-      "href": "../../../labels_scaneo/Jaca_2.geojson",
+      "href": "../../../../example_data/labels_scaneo/Jaca_2.geojson",
       "type": "application/geo+json",
       "title": "Label",
       "roles": [
@@ -92,7 +93,8 @@
     42.57571
   ],
   "stac_extensions": [
-    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json",
+    "https://raw.githubusercontent.com/earthpulse/ml-dataset/main/json-schema/schema.json"
   ],
   "collection": "labels"
 }

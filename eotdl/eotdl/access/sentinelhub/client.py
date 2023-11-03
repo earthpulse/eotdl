@@ -44,7 +44,7 @@ class SHClient:
                     "Your are not logged in and have not provided Sentinel Hub credentials. Please, crete a .env file with your SH_CLIENT_ID and SH_CLIENT_SECRET, or login"
                 )
             else:
-                with open(creds_file, "r", encoding="utd-8") as f:
+                with open(creds_file, "r", encoding="utf-8") as f:
                     creds = json.load(f)
                 if (
                     "SH_CLIENT_ID" not in creds.keys()

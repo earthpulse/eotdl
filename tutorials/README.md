@@ -31,11 +31,3 @@
 5. Add the ML-Dataset STAC extension to a Catalog ([notebook](notebooks/26_stac_ml_dataset.ipynb))
 6. Calculate Quality metrics from your Catalog with the ML-Dataset extension ([notebook](notebooks/27_ml_dataset_quality_metrics.ipynb))
 6. Get a GeoDataFrame from STAC items ([notebook](notebooks/28_stac_to_geodataframe.ipynb))
-
-### Do it yourself
-
-1. Introducing the Do it yourself in EOTDL ([notebook](notebooks/30_do_it_yourself.ipynb))
-2. Create your own STAC item parser ([notebook](notebooks/31_create_your_own_parser.ipynb))
-3. Create your own STACDataFrame labeler ([notebook](notebooks/32_create_your_own_df_labeler.ipynb))
-4. Create your own STAC labeler ([notebook](notebooks/33_create_your_own_stac_labeler.ipynb))
-5. Add a new STAC extension to the EOTDL ([notebook](notebooks/34_add_stac_extension.ipynb))
