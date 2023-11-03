@@ -76,7 +76,7 @@ def download_model(
             # if calculate_checksum(dst_path) != checksum:
             #     logger(f"Checksum for {file} does not match")
             if verbose:
-                logger(f"Done")
+                logger("Done")
         return "/".join(dst_path.split("/")[:-1])
     else:
         raise NotImplementedError("Downloading a STAC model is not implemented")

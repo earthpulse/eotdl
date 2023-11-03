@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from ....src.usecases.datasets.IngestDatasetChunk import IngestDatasetChunk
-from ....src.errors import UploadIdDoesNotExist, ChunkUploadChecksumMismatch
+from api.src.usecases.datasets.IngestDatasetChunk import IngestDatasetChunk
+from api.src.errors import UploadIdDoesNotExist, ChunkUploadChecksumMismatch
 
 
 @pytest.fixture

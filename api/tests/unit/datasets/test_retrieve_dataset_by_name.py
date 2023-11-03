@@ -1,8 +1,8 @@
 import pytest 
 from unittest import mock
 
-from ....src.usecases.datasets.RetrieveOneDatasetByName import RetrieveOneDatasetByName
-from ....src.errors import DatasetDoesNotExistError
+from api.src.usecases.datasets.RetrieveOneDatasetByName import RetrieveOneDatasetByName
+from api.src.errors import DatasetDoesNotExistError
 
 @pytest.fixture
 def dataset():

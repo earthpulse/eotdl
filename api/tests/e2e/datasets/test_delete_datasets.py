@@ -4,11 +4,11 @@ import pytest
 import os
 
 from fastapi.testclient import TestClient
-from api.api.main import app
+from api.main import app
 
-from ....routers.auth import get_current_user, key_auth
-from ....src.models import User
-from ..setup import users, db, s3, boto3, bucket
+from api.routers.auth import get_current_user, key_auth
+from api.src.models import User
+from tests.e2e.setup import users, db, s3, boto3, bucket
 
 client = TestClient(app)
 

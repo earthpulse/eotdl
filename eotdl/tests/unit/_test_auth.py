@@ -82,7 +82,7 @@ def test_is_not_logged_in():
     inputs = IsLogged.Inputs()
     outputs = is_logged(inputs)
     repo.load_creds.assert_called_once()
-    assert outputs.user == None
+    assert outputs.user is None
 
 
 def test_logout():

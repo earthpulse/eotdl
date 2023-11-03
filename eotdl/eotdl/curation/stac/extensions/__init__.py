@@ -1,3 +1,7 @@
+"""
+STAC extensions module
+"""
+
 from .sar import SarExtensionObject
 from .raster import RasterExtensionObject
 from .projection import ProjExtensionObject
@@ -7,7 +11,7 @@ from .label import LabelExtensionObject, ImageNameLabeler, ScaneoLabeler
 from .ml_dataset import add_ml_extension, MLDatasetQualityMetrics
 
 
-SUPPORTED_EXTENSIONS = ('eo', 'sar', 'proj', 'raster')
+SUPPORTED_EXTENSIONS = ("eo", "sar", "proj", "raster")
 
 
 type_stac_extensions_dict = {
@@ -15,5 +19,5 @@ type_stac_extensions_dict = {
     "eo": EOS2ExtensionObject(),
     "dem": DEMExtensionObject(),
     "raster": RasterExtensionObject(),
-    "proj": ProjExtensionObject()
+    "proj": ProjExtensionObject(),
 }

@@ -1,7 +1,7 @@
 import pytest 
 from unittest import mock
 
-from ....src.usecases.datasets.RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
+from api.src.usecases.datasets.RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
 
 @pytest.fixture
 def users():

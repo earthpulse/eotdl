@@ -2,8 +2,8 @@ import pytest
 from unittest import mock
 from pydantic import BaseModel
 
-from ....src.usecases.datasets.download_dataset import DownloadDataset
-from ....src.errors import (
+from api.src.usecases.datasets.download_dataset import DownloadDataset
+from api.src.errors import (
     TierLimitError,
     DatasetDoesNotExistError,
     FileDoesNotExistError,

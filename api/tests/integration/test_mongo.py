@@ -1,8 +1,8 @@
 import pytest
 from bson.objectid import ObjectId
 
-from ...src.repos.mongo.client import get_db
-from ...src.repos.mongo import MongoRepo
+from api.src.repos.mongo.client import get_db
+from api.src.repos.mongo import MongoRepo
 
 
 @pytest.fixture
