@@ -16,7 +16,8 @@ from .ingest_file import (
 from .download_dataset import download_dataset_file, download_stac_catalog
 from .update_dataset import toggle_like_dataset, update_dataset
 
-# from .delete_dataset import delete_dataset
+from .delete_dataset import delete_dataset
+
 # from .like_dataset import like_dataset
 from .upload_large_file import (
     generate_upload_id,
