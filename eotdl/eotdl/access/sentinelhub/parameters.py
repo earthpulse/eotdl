@@ -51,8 +51,8 @@ class SHS1Parameters(SHParameters):
     DATA_COLLECTION = DataCollection.SENTINEL1
     RESOLUTION = 3
     EVALSCRIPT = EvalScripts.SENTINEL_1
-    FIELDS = (
-        {
+    MOSAICKING_ORDER = None
+    FIELDS = {
             "include": [
                 "id",
                 "properties.datetime",
@@ -63,8 +63,7 @@ class SHS1Parameters(SHParameters):
                 "s1:timeliness",
             ],
             "exclude": [],
-        },
-    )
+        }
     FILTER = None
 
 

@@ -3,7 +3,7 @@ Module for STAC Asset Generators
 """
 
 from os import remove, listdir
-from os.path import dirname, join, basename, abspath
+from os.path import dirname, join, basename, abspath, basename
 
 import pandas as pd
 import rasterio
@@ -78,6 +78,7 @@ class BandsAssetGenerator(STACAssetGenerator):
 
         if bands:
             with rasterio.open(raster_path, "r") as raster:
+                raster_name = basename(raster_path).split(".")[0]
                 if isinstance(bands, str):
                     bands = [bands]
                 for band in bands:
@@ -89,7 +90,7 @@ class BandsAssetGenerator(STACAssetGenerator):
                         single_band = raster.read(i + 1)
                     except IndexError:
                         single_band = raster.read(1)
-                    band_name = f"{band}.{raster_format}"
+                    band_name = f"{raster_name}_{band}.{raster_format}"
                     output_band = join(dirname(raster_path), band_name)
                     # Copy the metadata
                     metadata = raster.meta.copy()
@@ -106,45 +107,4 @@ class BandsAssetGenerator(STACAssetGenerator):
                         )
                     )
 
-            # Remove the original raster file and its metadata
-            remove(raster_path)
-            remove_raster_metadata(dirname(raster_path))
-
             return asset_list
-
-
-class ExtractedAssets(STACAssetGenerator):
-    """
-    Extracted STAC Asset Generator
-    """
-
-    type = "Extracted"
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    def extract_assets(self, obj_info: pd.DataFrame):
-        """
-        Get all the files with the same extension as the image file as assets
-        """
-        asset_list = []
-        # File path
-        raster_path = obj_info["image"].values[0]
-        raster_dir = dirname(raster_path)
-        # Get the files with the same extension as the image file
-        files = [
-            f for f in listdir(raster_dir) if f.endswith(raster_path.split(".")[-1])
-        ]
-        # Instantiate pystac asset and append it to the list
-        for file in files:
-            # Get the file extension
-            raster_format = file.split(".")[-1]
-            asset_list.append(
-                pystac.Asset(
-                    href=join(raster_dir, file),
-                    title=basename(file),
-                    media_type=MEDIA_TYPES_DICT[raster_format],
-                )
-            )
-
-        return asset_list
