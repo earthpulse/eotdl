@@ -28,6 +28,9 @@ class MongoModelsRepo(MongoRepo):
     def increase_user_model_count(self, uid):
         return self.increase_counter("users", "uid", uid, "models_count")
 
+    def decrease_user_model_count(self, uid):
+        return self.increase_counter("users", "uid", uid, "models_count", -1)
+
     def create_model_version(self, model, version):
         return self._update(
             "models",
@@ -54,3 +57,9 @@ class MongoModelsRepo(MongoRepo):
     def unlike_model(self, model_id, uid):
         self.increase_counter("models", "_id", model_id, "likes", -1)
         return self.remove_from_list("users", "uid", uid, "liked_models", model_id)
+
+    def delete_model(self, model_id):
+        return self.delete("models", model_id)
+
+    def delete_files(self, files_id):
+        return self.delete("files", files_id)
