@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 from datetime import datetime
 
-from ....src.usecases.datasets.retrieve_datasets import RetrieveDatasets
+from api.src.usecases.datasets.retrieve_datasets import RetrieveDatasets
 
 
 @pytest.fixture

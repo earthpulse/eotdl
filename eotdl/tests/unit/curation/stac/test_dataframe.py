@@ -22,7 +22,12 @@ def test_to_stac(tmp_stac_catalog):
 
 
 def test_curate_json_row():
-    sample_row = {"created_at": datetime.now(), "modified_at": datetime.now(), "stac_id": "123", "id": "456"}
+    sample_row = {
+        "created_at": datetime.now(),
+        "modified_at": datetime.now(),
+        "stac_id": "123",
+        "id": "456",
+    }
     curated_row = STACDataFrame().curate_json_row(sample_row, True)
     # Assertions to ensure unnecessary keys are removed, "id" key exists, etc.
     assert "id" in curated_row

@@ -6,9 +6,9 @@ except ImportError:
 
 
 def test_sh_client():
-    client = SHClient(sh_client_id='my_client_id', 
-                     sh_client_secret='my_client_secret')
-    
+    client = SHClient(sh_client_id='my_client_id',
+    sh_client_secret='my_client_secret')
+
     assert client.config.sh_client_id is not None
 
 

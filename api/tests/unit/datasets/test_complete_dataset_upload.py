@@ -3,8 +3,8 @@ from unittest import mock
 from unittest.mock import AsyncMock
 from pydantic import BaseModel
 
-from ....src.usecases.datasets.CompleteMultipartUpload import CompleteMultipartUpload
-from ....src.errors import (
+from api.src.usecases.datasets.CompleteMultipartUpload import CompleteMultipartUpload
+from api.src.errors import (
     DatasetAlreadyExistsError,
     TierLimitError,
     UploadIdDoesNotExist,

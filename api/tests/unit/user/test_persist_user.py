@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch
 
-from ....src.models import User
-from ....src.usecases.user import persist_user
-from ....src.errors import UserDoesNotExistError
+from api.src.models import User
+from api.src.usecases.user import persist_user
+from api.src.errors import UserDoesNotExistError
 
 @pytest.fixture
 def user():

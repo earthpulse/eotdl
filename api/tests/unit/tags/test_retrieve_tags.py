@@ -1,7 +1,7 @@
 import pytest 
 from unittest.mock import patch
 
-from ....src.usecases.tags import retrieve_tags 
+from api.src.usecases.tags import retrieve_tags 
 
 @patch('api.src.usecases.tags.retrieve_tags.TagsDBRepo')
 def test_retrieve_tags(mocked_repo):

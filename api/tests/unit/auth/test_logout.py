@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from ....src.usecases.auth import generate_logout_url
+from api.src.usecases.auth import generate_logout_url
 
 @patch('api.src.usecases.auth.logout.AuthRepo')
 def test_logout(mocked_repo):

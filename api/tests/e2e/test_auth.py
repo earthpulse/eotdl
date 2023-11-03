@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from api.api.main import app
+from api.main import app
 import os
 
-from ...routers.auth import get_current_user
-from ...src.models import User
+from api.routers.auth import get_current_user
+from api.src.models import User
 from .setup import users, db
 
 client = TestClient(app)

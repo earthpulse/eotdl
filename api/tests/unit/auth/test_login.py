@@ -1,7 +1,7 @@
 import pytest 
 from unittest.mock import patch
 
-from ....src.usecases.auth import generate_login_url 
+from api.src.usecases.auth import generate_login_url 
 
 @patch('api.src.usecases.auth.login.AuthRepo')
 def test_generate_login_url(mocked_repo):
