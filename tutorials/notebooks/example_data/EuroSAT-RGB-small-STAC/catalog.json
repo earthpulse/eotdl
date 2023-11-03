@@ -1,6 +1,6 @@
 {
   "type": "Catalog",
-  "id": "eurosat-rgb",
+  "id": "EuroSAT-RGB-Q1",
   "stac_version": "1.0.0",
   "description": "EuroSAT-RGB dataset",
   "links": [
