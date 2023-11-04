@@ -8,12 +8,14 @@
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
+	import QualitySelector from "$components/QualitySelector.svelte";
 
 	export let data;
 
 	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
+	let selected_qualities = [];
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -44,6 +46,11 @@
 				$user?.liked_models.includes(models.id)
 			);
 		}
+		if (selected_qualities.length > 0) {
+			filtered_models = filtered_models?.filter((model) =>
+				selected_qualities?.includes(model.quality)
+			);
+		}
 	}
 
 	const maxVisibleModels = 9;
@@ -68,7 +75,7 @@
 	<title>EOTDL | Models</title>
 	<meta
 		name="description"
-		content="EOTDL is a platform for sharing and discovering training datasets."
+		content="EOTDL is a platform for sharing and discovering training datasets and models."
 	/>
 </svelte:head>
 
@@ -101,6 +108,7 @@
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
+					<QualitySelector bind:selected_qualities />
 				</span>
 				<!-- <Ingest tags={data?.tags} /> -->
 				<a

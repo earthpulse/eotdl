@@ -91,7 +91,7 @@
 				bind:version
 			/>
 
-			<div class="grid grid-cols-[auto,425px] gap-3">
+			<div class="grid grid-cols-[auto,425px] gap-3 mt-5">
 				<div>
 					<div class="content">
 						{#if dataset.description}
