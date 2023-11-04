@@ -3,7 +3,7 @@
 	import { browser } from "$app/environment";
 	import { datasets } from "$stores/datasets";
 	import "$styles/dataset.css";
-	import Update from "./Update.svelte";
+	import Update from "$components/Update.svelte";
 	import retrieveDataset from "$lib/datasets/retrieveDataset";
 	import Info from "$components/Info.svelte";
 	import Metadata from "$components/Metadata.svelte";
@@ -31,6 +31,8 @@
 			message = null;
 		}, 1000);
 	};
+
+	$: console.log($user);
 </script>
 
 <svelte:head>
@@ -54,31 +56,32 @@
 						{/each}
 					</div>
 				</span>
-				<!-- {#if $user}
-				<span class="flex flex-row gap-2">
-					<a
-						class="btn btn-outline"
-						href={`https://notebooks.api.eotdl.com/?search=${data.dataset.name}`}
-						target="_blank">Open</a
-					>
-					{#if $user.uid == data.dataset.uid}
-						<Update
-							dataset_id={data.dataset.id}
-							tags={data.tags}
-							current_tags={tags}
-							{name}
-							{quality}
-							bind:authors={data.dataset.authors}
-							bind:source={data.dataset.source}
-							bind:license={data.dataset.license}
-							bind:description={data.dataset.description}
-							bind:selected_tags={data.dataset.tags}
-							bind:size={data.dataset.size}
-							bind:files={data.dataset.files}
-						/>
-					{/if}
-				</span>
-			{/if} -->
+
+				{#if $user}
+					<span class="flex flex-row gap-2">
+						<!-- <a
+							class="btn btn-outline"
+							href={`https://notebooks.api.eotdl.com/?search=${dataset.name}`}
+							target="_blank">Open</a
+						> -->
+						{#if $user.uid == dataset.uid}
+							<Update
+								store={datasets}
+								route="datasets"
+								id={dataset.id}
+								tags={data.tags}
+								current_tags={dataset.tags}
+								bind:name={dataset.name}
+								quality={dataset.quality}
+								bind:authors={dataset.authors}
+								bind:source={dataset.source}
+								bind:license={dataset.license}
+								bind:description={dataset.description}
+								bind:selected_tags={dataset.tags}
+							/>
+						{/if}
+					</span>
+				{/if}
 			</div>
 
 			<Info

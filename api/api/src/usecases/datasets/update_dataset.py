@@ -31,8 +31,9 @@ def update_dataset(dataset_id, user, name, authors, source, license, tags, descr
     # validate name
     if name:
         try:
-            retrieve_dataset_by_name(name)
-            raise DatasetAlreadyExistsError()
+            _dataset = retrieve_dataset_by_name(name)
+            if _dataset.id != dataset_id:
+                raise DatasetAlreadyExistsError()
         except DatasetDoesNotExistError:
             pass
     # validate tags

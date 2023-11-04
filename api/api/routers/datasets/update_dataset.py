@@ -35,7 +35,9 @@ class UpdateBody(BaseModel):
     license: Optional[str] = None
 
 
-@router.put("/{dataset_id}", summary="Update a dataset", responses=update_dataset_responses)
+@router.put(
+    "/{dataset_id}", summary="Update a dataset", responses=update_dataset_responses
+)
 def update(
     dataset_id: str = Path(..., description="ID of the dataset"),
     body: UpdateBody = Body(..., description="Metadata of the dataset"),

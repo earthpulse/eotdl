@@ -11,6 +11,27 @@ version_model_responses = {
 }
 
 
+update_model_responses = {
+    200: {
+        "content": {
+            "application/json": {
+                "example": [
+                    {
+                        "id": "123acb",
+                        "user": "awesome-user",
+                        "name": "awesome-model",
+                        "authors": ["awesome-author-1", "awesome-author-2"],
+                        "source": "https://www.eotdl.com",
+                        "license": "MIT",
+                        "tags": ["sar", "vector"],
+                        "description": "My awesome model",
+                    }
+                ]
+            }
+        }
+    }
+}
+
 retrieve_models_responses = {
     200: {
         "content": {
