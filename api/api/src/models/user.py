@@ -29,6 +29,7 @@ class User(BaseModel):
     liked_datasets: list = []
     liked_models: list = []
     terms: TermsAndConditions = TermsAndConditions()
+    verified: bool = False
 
     # class Config:
     #     use_enum_values = True
