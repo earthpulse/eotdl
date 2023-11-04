@@ -31,7 +31,6 @@ Datasets and models in EOTDL are categorized into quality levels. The quality le
 - **Q2**: datasets with STAC metadata with the EOTDL custom extensions and automated QA. These datasets can leverage the full potential of the EOTDL.
 - **Q3**: Q2 datasets that are manually curated. These datasets are the most reliable and can be used as benchmark datasets.
 
-You will learn more about the quality levels in the [data curation](05_stac.ipynb) tutorial.
 
 ## The Command Line Interface
 
