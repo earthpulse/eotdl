@@ -31,8 +31,6 @@
 			message = null;
 		}, 1000);
 	};
-
-	$: console.log($user);
 </script>
 
 <svelte:head>
