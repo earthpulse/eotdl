@@ -56,6 +56,12 @@
 		Terms and Conditions, your SH credentials will NOT appear here (you can
 		retrieve them from you Sentinel HUB dashboard).
 	</p>
+	<p>
+		Note 2: If the credentials are not working, please contact us through <a
+			href="https://discord.gg/hYxc5AJB92"
+			target="_blank">Discord</a
+		>.
+	</p>
 {:else}
 	<p>Accept the Terms and Conditions to generate the credentials.</p>
 	<p>
