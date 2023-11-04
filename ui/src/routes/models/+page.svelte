@@ -111,13 +111,15 @@
 					<QualitySelector bind:selected_qualities />
 				</span>
 				<!-- <Ingest tags={data?.tags} /> -->
-				<a
-					href="/docs/models/ingest"
-					class="text-green-200 hover:underline">Ingest model</a
-				>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
+		<span class="flex flex-row w-full justify-between items-center">
+			<a href="/docs/models/ingest" class="text-green-200 hover:underline"
+				>Ingest model</a
+			>
+			<Pagination {numPages} bind:currentPage />
+		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
@@ -137,7 +139,6 @@
 		{:else}
 			<p class="text-gray-400 text-center">No models found</p>
 		{/if}
-		<Pagination {numPages} bind:currentPage />
 	</div>
 	<ModelsLeaderboard />
 </div>
