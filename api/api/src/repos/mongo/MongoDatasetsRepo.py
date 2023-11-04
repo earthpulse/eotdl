@@ -10,7 +10,9 @@ class MongoDatasetsRepo(MongoRepo):
         match = {}
         if name is not None:
             match = {"name": {"$regex": name, "$options": "i"}}
-        return self.retrieve("datasets", limit=limit, match=match)
+        return self.retrieve(
+            "datasets", limit=limit, match=match, sort="createdAt", order=-1
+        )
 
     def find_one_dataset_by_name(self, name):
         return self.find_one_by_name("datasets", name)

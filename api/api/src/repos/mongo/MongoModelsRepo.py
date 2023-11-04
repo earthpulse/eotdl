@@ -11,7 +11,9 @@ class MongoModelsRepo(MongoRepo):
         match = {}
         if name is not None:
             match = {"name": {"$regex": name, "$options": "i"}}
-        return self.retrieve("models", limit=limit, match=match)
+        return self.retrieve(
+            "models", limit=limit, match=match, sort="createdAt", order=-1
+        )
 
     def retrieve_model(self, model_id):
         return self.retrieve("models", model_id)
