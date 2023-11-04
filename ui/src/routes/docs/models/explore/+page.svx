@@ -1,0 +1,58 @@
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Code from "../../components/Code.svelte";
+	import Library from "../../components/Library.svelte";
+</script>
+
+
+# Explore models
+
+Exploring models is very similar to exploring models. You can use the user interface, the CLI, the library or the API to retrieve the list of all the available models.
+
+## User interface
+
+<UI>Visit the <a href="/models" class="text-green-200 hover:underline">models</a> section to explore all the available models.</UI>
+
+You can filter by different criteria and click on a model card to see more information about it, trying in a notebook, etc.
+
+
+## CLI 
+
+You can retrieve the list of all the models using the following CLI command:
+
+<CLI><Code>eotdl models list</Code></CLI>
+
+You can filter the models by name using the following CLI command:
+
+<CLI><Code>eotdl models list --name "model-name"</Code></CLI>
+
+This command will return all models that match the given name.
+
+## Library
+
+You can retrieve the list of all the models using the following Python code:
+
+<Library><Code>
+	from eotdl import retrieve_models<br/><br/>retrieve_models()</Code></Library>
+
+And similarly, retrieve all the models that match a particular name 
+
+<Library><Code>retrieve_models("model-name")</Code></Library>
+
+
+## API 
+
+You can retrieve the list of all models using the following API call:
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/models' \
+  -H 'accept: application/json'</Code></Api>
+
+You can also retrieve the information of one particular model using the following API call:
+
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/models?name=model-name' \
+  -H 'accept: application/json'</Code></Api> 

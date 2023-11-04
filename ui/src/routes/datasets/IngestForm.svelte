@@ -76,19 +76,19 @@
     on:submit|preventDefault={ingest}
     class="flex flex-col gap-2 text-sm modal-box"
   >
+    <slot />
+    <span>
+      <p>Name</p>
+      <input
+        class="input input-bordered w-full"
+        type="text"
+        placeholder="Dataset name"
+        {required}
+        bind:value={name}
+      />
+      <p class="text-sm text-gray-400">*Name should be unique</p>
+    </span>
     {#if quality == 0}
-      <slot />
-      <span>
-        <p>Name</p>
-        <input
-          class="input input-bordered w-full"
-          type="text"
-          placeholder="Dataset name"
-          {required}
-          bind:value={name}
-        />
-        <p class="text-sm text-gray-400">*Name should be unique</p>
-      </span>
       <span>
         <p>Authors (use comma for multiple authors)</p>
         <input
@@ -126,23 +126,23 @@
         />
         <p class="text-sm text-gray-400">*Provide a license for the dataset.</p>
       </span>
-      <p>Description</p>
-      <TextEditor bind:content />
-      <p>Select the appropriate tags:</p>
-      <div class="flex flex-wrap gap-1">
-        {#each tags as tag}
-          <p
-            class="badge badge-outline cursor-pointer text-slate-400 text-xs {selected_tags.includes(
-              tag
-            ) && 'badge-accent'}"
-            on:click={() => toggleTag(tag)}
-            on:keyup={() => {}}
-          >
-            {tag}
-          </p>
-        {/each}
-      </div>
     {/if}
+    <p>Description</p>
+    <TextEditor bind:content />
+    <p>Select the appropriate tags:</p>
+    <div class="flex flex-wrap gap-1">
+      {#each tags as tag}
+        <p
+          class="badge badge-outline cursor-pointer text-slate-400 text-xs {selected_tags.includes(
+            tag
+          ) && 'badge-accent'}"
+          on:click={() => toggleTag(tag)}
+          on:keyup={() => {}}
+        >
+          {tag}
+        </p>
+      {/each}
+    </div>
     <span class="self-end">
       <label for="ingest-dataset" class="btn btn-ghost btn-outline btn-error"
         >Close</label
