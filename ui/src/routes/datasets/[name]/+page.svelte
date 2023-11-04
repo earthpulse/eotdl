@@ -5,20 +5,32 @@
 	import "$styles/dataset.css";
 	import Update from "./Update.svelte";
 	import retrieveDataset from "$lib/datasets/retrieveDataset";
-	import Info from "../../../components/Info.svelte";
+	import Info from "$components/Info.svelte";
 	import Metadata from "$components/Metadata.svelte";
-	import FileExplorer from "./FileExplorer.svelte";
+	import FileExplorer from "$components/FileExplorer.svelte";
+	import { fade } from "svelte/transition";
+	import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
 
 	export let data;
 
 	let dataset = null;
 	let version = null;
+	let message = null;
 
 	const load = async () => {
 		dataset = await retrieveDataset(data.name);
 	};
 
 	$: if (browser) load();
+
+	const copyToClipboard = (text) => {
+		navigator.clipboard.writeText(text);
+		console.log("copied to clipboard");
+		message = "Copied!";
+		setTimeout(() => {
+			message = null;
+		}, 1000);
+	};
 </script>
 
 <svelte:head>
@@ -94,17 +106,34 @@
 							)}</pre>
 					{/if} -->
 				</div>
-				{#if dataset.quality == 0}
-					<div class="flex flex-col gap-3">
-						<Metadata data={dataset} />
-						<FileExplorer {dataset} {version} />
+				<div class="flex flex-col gap-3">
+					<p>Download the dataset with the CLI:</p>
+					<div class="relative">
+						<pre class="bg-gray-200 p-3"><button
+								on:click={() =>
+									copyToClipboard(
+										`eotdl datasets get ${dataset.name}`
+									)}>eotdl datasets get {dataset.name}</button
+							></pre>
+						{#if message}
+							<span
+								class="text-sm text-gray-400 absolute bottom-[-20px] right-0"
+								in:fade
+								out:fade>{message}</span
+							>
+						{/if}
 					</div>
-				{:else}
-					<div>
-						<p>Download the dataset with the CLI</p>
-						<p>eotdl datasets get {name}</p>
-					</div>
-				{/if}
+					{#if dataset.quality == 0}
+						<div class="flex flex-col gap-3">
+							<Metadata data={dataset} />
+							<FileExplorer
+								data={dataset}
+								{version}
+								retrieveFiles={retrieveDatasetFiles}
+							/>
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
