@@ -52,7 +52,9 @@
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
-    <div class="px-3 py-10 mt-10 w-full max-w-4xl flex flex-col items-center">
+    <div
+        class="px-3 py-10 mt-10 gap-3 w-full max-w-4xl flex flex-col items-center"
+    >
         <div class="grid grid-cols-1 sm:grid-cols-[200px,auto] gap-8 w-full">
             <div class="flex flex-col">
                 <div class="flex flew-row justify-between text-3xl">
@@ -66,10 +68,11 @@
                     bind:value={filterName}
                 />
             </div>
+
             <div class="flex flex-wrap gap-1 content-start">
                 {#each data?.tags as tag}
                     <button
-                        class="badge badge-outline {selected_tags.includes(
+                        class="badge badge-outline text-slate-400 text-xs {selected_tags.includes(
                             tag
                         ) && 'badge-accent'}"
                         on:click={() => toggleTag(tag)}
@@ -79,7 +82,12 @@
                 {/each}
             </div>
         </div>
-        <div class="flex flex-col gap-3 w-full mt-3 max-w-6xl">
+        <a
+            class="self-start text-green-200 hover:underline"
+            href="https://github.com/earthpulse/eotdl/tree/main/tutorials/notebooks"
+            target="_blank">Open on GitHub</a
+        >
+        <div class="flex flex-col gap-3 w-full max-w-6xl">
             {#if visible_posts?.length > 0}
                 {#each visible_posts as post}
                     <Card {post} />

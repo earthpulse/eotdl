@@ -1,11 +1,10 @@
 ---
-title: Q2 Training Datasets
-date: '2023-09-15T10:00:00.000Z'
-description: In this post you will learn about Q2 datasets and how to create and ingest them in EOTDL.
-tags: Q1, datasets
+title: Working with Q2 datasets
+date: '2023-11-04T04:00:00.000Z'
+description: In this post you will learn how to work with STAC metadata to create Q2 datasets.
+tags: STAC, Q2, datasets
+link: https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/04_q2_datasets.ipynb
 ---
-
-🚧 Under development, Q2 datasets are not yet stable. Let us know if you find any issue!
 
 # Q2 Training Datasets
 
@@ -23,26 +22,36 @@ Let's see how to generate a Q2 dataset using the EOTDL library for the EuroSAT d
 ```python
 import os 
 
-os.listdir('data')
+os.listdir('example_data')
 ```
 
 
 
 
-    ['EuroSAT',
-     'EuroSAT-STAC']
+    ['jaca_dataset_q2',
+     'sample_stacdataframe.csv',
+     'jaca_dataset',
+     'labels_scaneo',
+     'eurosat_rgb_stac',
+     'jaca_dataset_stac',
+     'EuroSAT-RGB-small',
+     'eurosat_rgb_dataset',
+     'EuroSAT-small',
+     'EuroSAT-RGB-small-STAC',
+     'eurosat_rgb_stac_labels',
+     'jaca_dataset_stac_labels']
 
 
 
 
 ```python
-from eotdl.curation.stac.ml_dataset import add_ml_extension
+from eotdl.curation.stac.extensions import add_ml_extension
 
-catalog = 'data/EuroSAT-STAC/catalog.json'
+catalog = 'example_data/EuroSAT-RGB-small-STAC/catalog.json'
 
 add_ml_extension(
 	catalog,
-	destination='data/EuroSAT-Q2',
+	destination='data/EuroSAT-RGB-Q2',
 	splits=True,
 	splits_collection_id="labels",
 	name='EuroSAT Q2 Dataset',
@@ -54,34 +63,51 @@ add_ml_extension(
 ```
 
     Generating splits...
-    Total size: 99
-    Train size: 79
-    Test size: 9
-    Validation size: 9
+    Total size: 100
+    Train size: 80
+    Test size: 10
+    Validation size: 10
     Generating Training split...
+
+
+    100%|██████████| 80/80 [00:00<00:00, 4967.64it/s]
+
+
     Generating Validation split...
+
+
+    100%|██████████| 10/10 [00:00<00:00, 3880.02it/s]
+
+
     Generating Test split...
+
+
+    100%|██████████| 10/10 [00:00<00:00, 5876.84it/s]
+
     Success on splits generation!
     Validating and saving...
-    Success!
 
 
     
+
+
+    Success!
 
 
 When ingesting a Q2 dataset, EOTDL will automatically compute quality metrics on your dataset, that will be reported in the metadata. Optionally, you can compute them to analyse your dataset before ingesting it.
 
 
 ```python
-from eotdl.curation.stac.ml_dataset import MLDatasetQualityMetrics
+from eotdl.curation.stac.extensions import MLDatasetQualityMetrics
 
-catalog = 'data/EuroSAT-Q2/catalog.json'
+catalog = 'data/EuroSAT-RGB-Q2/catalog.json'
 
 MLDatasetQualityMetrics.calculate(catalog)
 ```
 
-    Looking for spatial duplicates...
-    Calculating classes balance...
+    Looking for spatial duplicates...: 400it [00:00, 6256.56it/s]
+    Calculating classes balance...: 400it [00:00, 196110.06it/s]
+
     Validating and saving...
     Success!
 
@@ -99,12 +125,16 @@ Once the metadata has been generated, you can ingest, explore and download a Q2 
 ```python
 from eotdl.datasets import ingest_dataset
 
-ingest_dataset('data/EuroSAT-Q2')
+ingest_dataset('data/EuroSAT-RGB-Q2')
 ```
 
     Loading STAC catalog...
-    Uploading assets...
+    New version created, version: 1
+
+
+    100%|██████████| 400/400 [00:59<00:00,  6.71it/s]
+
+
     Ingesting STAC catalog...
     Done
-
 
