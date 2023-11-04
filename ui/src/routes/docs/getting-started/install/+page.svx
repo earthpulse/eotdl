@@ -17,8 +17,7 @@ To verify the installation you can run the `help` command, which will give you a
 
 <CLI><Code>eotdl --help</Code></CLI> 
 
-
-<BadgeWarning>🚧 Until we hit a stable release (v1.0 is planned for November 2023) it is recommended to upgrade the cli regularly to get the latest changes.</BadgeWarning>
+To upgrade the library and CLI to the latest version, you can run the following command.
 
 <CLI><Code>pip install eotdl --upgrade</Code></CLI> 
 

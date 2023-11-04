@@ -2,6 +2,7 @@
 	import Api from "../../components/Api.svelte";
 	import CLI from "../../components/CLI.svelte";
 	import UI from "../../components/UI.svelte";
+	import Library from "../../components/Library.svelte";
 	import Code from "../../components/Code.svelte";
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 
@@ -24,7 +25,7 @@ You can download a dataset with following CLI command:
 
 <CLI><Code>eotdl datasets get "dataset name"</Code></CLI>
 
-Your datasets will be downloaded to a default folder, but you can specify a different folder with the `--path` option. For example, to download the dataset to the current directory:
+Your datasets will be downloaded to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to download the dataset to the current directory:
 
 <CLI><Code>eotdl datasets get "dataset name" --path .</Code></CLI>
 
@@ -43,6 +44,17 @@ In order to overwrite a dataset that you already downloaded, you can use the `--
 If you know the specific version of the dataset to download, use the `--version` option.
 
 <CLI><Code>eotdl datasets get "dataset name" --version 1</Code></CLI>
+
+## Library
+
+You can download datasets using the following Python code:
+
+<Library><Code>
+	from eotdl import download_dataset<br/><br/>download_dataset("dataset-name")</Code></Library>
+
+And use the same options seen before.
+
+<Library><Code>download_dataset("dataset-name", force=True, path="data", version=1)</Code></Library>
 
 <!-- ## API 
 

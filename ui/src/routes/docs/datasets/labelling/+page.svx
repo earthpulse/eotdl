@@ -1,0 +1,11 @@
+# Labelling
+
+Labelling data is a very important step for training Machine Learning models. However, labelling satellite imagery is a very time consuming task. 
+
+In order to simplify this process, the following tools work out of the box with EOTDL:
+
+- [SCANEO](https://pypi.org/project/scaneo/) - A tool for labelling satellite imagery using a web interface.
+
+Feel free to use your preferred labelling tool. You can always ingest your labelled data into EOTDL.
+
+If you want to add new labelling tools to EOTDL, please refer to the [Contributing](#contributing) section or get in touch with us in [Discord](https://discord.gg/hYxc5AJB92).
