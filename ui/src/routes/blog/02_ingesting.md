@@ -135,7 +135,7 @@ And now your dataset is avilable at EOTDL
 
 > Since the `EuroSAT-small` name is already taken, this process should fail for you. To solve it, just upload the dataset with a different name. However, this will polute the EOTDL with test datasets so we encourage you to try the ingestion process with a real dataset that you want to ingest (or overwrite your test dataset in the future with useful data).
 
-In order to ingest Q1+ datasets, a valid STAC catalog is required instead of the `metadata.yml` file. We will explore this in the [data curation](tutorials/workshops/bids23/05_STAC_metadata.ipynb) notebook.
+In order to ingest Q1+ datasets, a valid STAC catalog is required instead of the `metadata.yml` file. 
 
 You can ingest a model exactly in the same way
 
