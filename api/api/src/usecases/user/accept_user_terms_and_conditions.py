@@ -12,9 +12,9 @@ def accept_user_terms_and_conditions(user):
     data = retrieve_user(user.uid).dict()
     # generate credentials
     errors = eox_repo.generate_credentials(user.uid, user.email)
-    print(errors)
     # For some reason this can return error even if it works, I prefer to accept and if it doesn't work support users
-    # if len(errors) > 0:
+    if len(errors) > 0:
+        print("eox provisioning errors", errors)
     #     raise Exception(errors)
     # update user
     data.update(
@@ -22,5 +22,5 @@ def accept_user_terms_and_conditions(user):
         updatedAt=datetime.now(),
     )
     user = User(**data)
-    repo.update_user(data["_id"], user.dict())
+    repo.update_user(user.id, user.dict())
     return user
