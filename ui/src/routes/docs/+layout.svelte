@@ -36,14 +36,6 @@
 			],
 		},
 		{
-			group: "Features",
-			link: "features",
-			links: [
-				{ name: "Versioning", link: "versioning" },
-				{ name: "STAC", link: "stac" },
-			],
-		},
-		{
 			group: "Contributing",
 			link: "contributing",
 		},

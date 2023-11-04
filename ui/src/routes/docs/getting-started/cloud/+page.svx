@@ -4,4 +4,4 @@ We offer the possibilty to access cloud resources for exploring and creating dat
 
 You can access you cloud workspace at [https://hub.api.eotdl.com/](https://hub.api.eotdl.com/).
 
-In case you need GPU resources, please contact us through [Discord](https://discord.gg/hYxc5AJB92).
+In case you need more resources, such as a GPU-powered machine, please contact us through [Discord](https://discord.gg/hYxc5AJB92).

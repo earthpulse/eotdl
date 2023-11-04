@@ -1,0 +1,134 @@
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Library from "../../components/Library.svelte";
+	import Code from "../../components/Code.svelte";
+	import BadgeWarning from "../../BadgeWarning.svelte";
+</script>
+
+# Ingest models
+
+You can ingest your models in the same way that you ingest datasets. 
+
+<!-- ## User interface
+
+<UI>In the <a href="/models" class="text-green-200 hover:underline">models</a> section, use the INGEST button to upload a model.</UI>
+
+You'll have to select the files to upload and fill in the information about the model.
+
+A limit of **10 files** per model is enforced. Additionally, the file size limit is **1 GB**. If you need to ingest larger files, please use the CLI.
+
+You'll need to be logged in to ingest models.
+
+You can use the `EDIT` button in the model page to update the information or data. -->
+
+## CLI 
+
+The CLI is the most convenient way to ingest models. You can ingest a model using the following CLI command:
+
+<CLI><Code>eotdl models ingest -p "model-path"</Code></CLI>
+
+Where `model-path` is the path to a folder containing your model and any other relevant files.
+
+For Q0 models, a file named `metadata.yml` is expected in the root of the folder. This file should contain the following information:
+
+```yaml
+name: model-name
+authors: 
+  - author 1 name
+  - author 2 name
+  - ...
+license: model license
+source: link to source code, paper or other relevant source
+```
+
+If this file is not present, the ingestion process will fail.
+
+> After uploading a model with the CLI we recommend visiting the model page to fill in the rest of the information.
+
+You can update your model in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
+
+<BadgeWarning>Q1+ models are not supported yet</BadgeWarning>
+
+## Library
+
+You can ingest models using the following Python code:
+
+<Library><Code>
+	from eotdl import ingest_model<br/><br/>ingest_model("model-path")</Code></Library>
+
+
+
+<!-- ## API 
+
+In order to ingest a model using the API, you must first create the model:
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/models' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json' \
+  -d '{'{'}
+    "name": "model-name",
+    "authors": [
+      "author1",
+      "author2"
+    ],
+    "source": "link to source",
+    "license": "model license"
+  }'</Code></Api>
+
+You will receive the `id` of the model for further operations, such as ingesting a file:
+
+<Api><Code>curl -X 'POST' \
+  'https://api.eotdl.com/models/model-id' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@{'<'}file-path>;type=application/zip' \
+  -F 'checksum={'<'}sha1 checksum (optional)>'</Code></Api>
+
+You can upload up to **10 files**. 
+
+> ⚠ The API can work well for small files, but for the ingestion of large models (> 1 GB) we recommend using the CLI.
+
+You can also fill in additional information about the model with the following API call:
+
+<Api><Code>curl -X 'PUT' \
+  'https://api.eotdl.com/models/model-id' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json' \
+  -F 'file=@"model path";type=application/zip' \
+  -d '{'{'}
+    "name": "new-name",
+    "description": "model description",
+    "tags": [
+      "tag1",
+      "tag2"
+    ],
+    "authors": [
+      "author1",
+      "author2"
+    ],
+    "source": "link to source",
+    "license": "model license"
+  }'</Code></Api>
+
+In this case, all fields are optional.
+
+You can retrieve a list of valid tags with the following API call:
+
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/tags' \
+  -H 'accept: application/json'</Code></Api>
+
+If you ingest a file that already exists, it will be overwritten. If you want to delete a file, you can use the following API call:
+
+<Api><Code>curl -X 'DELETE' \
+  'https://api.eotdl.com/models/model-id/file/file-name' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer {'<'}your-token> \
+  -H 'Content-Type: application/json'</Code></Api> -->

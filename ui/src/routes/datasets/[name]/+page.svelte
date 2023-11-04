@@ -113,8 +113,9 @@
 						<pre class="bg-gray-200 p-3"><button
 								on:click={() =>
 									copyToClipboard(
-										`eotdl datasets get ${dataset.name}`
-									)}>eotdl datasets get {dataset.name}</button
+										`eotdl datasets get ${dataset.name} -v ${version?.version_id}`
+									)}
+								>eotdl datasets get {dataset.name} -v {version?.version_id}</button
 							></pre>
 						{#if message}
 							<span

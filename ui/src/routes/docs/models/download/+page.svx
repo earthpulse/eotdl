@@ -1,0 +1,70 @@
+<script>
+	import Api from "../../components/Api.svelte";
+	import CLI from "../../components/CLI.svelte";
+	import UI from "../../components/UI.svelte";
+	import Library from "../../components/Library.svelte";
+	import Code from "../../components/Code.svelte";
+	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
+
+</script>
+
+
+# Download models
+
+In the same way, downloading models is similar to downloading datasets. 
+
+<!-- ## User interface
+
+<UI><p class="flex flex-row gap-2">Inside the model's page, click on the download icon <Download color="gray" size={20} /> in the file that you want to download.</p></UI>
+
+You'll need to be logged in to download models. -->
+
+## CLI 
+
+You can download a model with following CLI command:
+
+<CLI><Code>eotdl models get "model-name"</Code></CLI>
+
+Your models will be downloaded to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to download the model to the current directory:
+
+<CLI><Code>eotdl models get "model-name" --path .</Code></CLI>
+
+<!-- For Q0 models, you can also specify which file to download.
+
+<CLI><Code>eotdl models get "model name" --file file-name</Code></CLI> -->
+
+<!-- For Q1+ models, the previous command will only download the STAC metadata (which contains the links to all the assets). However, if you want to download the assets as well, you cann use the `--assets` option.
+
+<CLI><Code>eotdl models get "model name" --assets</Code></CLI> -->
+
+In order to overwrite a model that you already downloaded, you can use the `--force` option.
+
+<CLI><Code>eotdl models get "model-name" --force</Code></CLI>
+
+If you know the specific version of the model to download, use the `--version` option.
+
+<CLI><Code>eotdl models get "model-name" --version 1</Code></CLI>
+
+## Library
+
+You can download models using the following Python code:
+
+<Library><Code>
+	from eotdl import download_model<br/><br/>download_model("model-name")</Code></Library>
+
+And use the same options seen before.
+
+<Library><Code>download_model("model-name", force=True, path="data", version=1)</Code></Library>
+
+<!-- ## API 
+
+You can download a model file using the following API call:
+
+<Api><Code>curl -X 'GET' \
+  'https://api.eotdl.com/models/model-id/download/file-name' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer your-token'</Code></Api>
+
+Where you will need the `model-id` and `file-name` (see the [explore](/docs/models/explore) models section to learn how to retrieve these) and a valid `token` to access the API (see the [authenticate](/docs/getting-started/authenticate) section).
+ -->
+

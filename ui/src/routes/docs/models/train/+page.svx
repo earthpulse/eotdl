@@ -1,0 +1,11 @@
+# Training ML Models
+
+You can train your models with your preferred tools and frameworks. However, the following libraries offer integrations with EOTDL:
+
+- [PytorchEO](https://github.com/earthpulse/pytorchEO) is a Pytorch-based library for training Neural Networks with Earth Observation data.
+
+We encourage you to contribute with your own integrations for other frameworks, with wrappers to access and prepare the datasets as well as ingest the trained models.
+
+## Cloud resources
+
+We provide cloud computing resources to our users to train their models. You can learn more [here](/docs/getting-started/cloud).
