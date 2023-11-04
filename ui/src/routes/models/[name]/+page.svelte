@@ -6,18 +6,30 @@
 	import { models } from "$stores/models";
 	import Info from "$components/Info.svelte";
 	import Metadata from "$components/Metadata.svelte";
-	// import FileExplorer from "./FileExplorer.svelte";
+	import FileExplorer from "$components/FileExplorer.svelte";
+	import { fade } from "svelte/transition";
+	import retrieveModelFiles from "$lib/models/retrieveModelFiles";
 
 	export let data;
 
 	let model = null;
 	let version = null;
+	let message = null;
 
 	const load = async () => {
 		model = await retrieveModel(data.name);
 	};
 
 	$: if (browser) load();
+
+	const copyToClipboard = (text) => {
+		navigator.clipboard.writeText(text);
+		console.log("copied to clipboard");
+		message = "Copied!";
+		setTimeout(() => {
+			message = null;
+		}, 1000);
+	};
 </script>
 
 <svelte:head>
@@ -59,18 +71,43 @@
 							<p class="italic">No description.</p>
 						{/if}
 					</div>
+					<!-- {#if dataset.quality > 0}
+						<pre
+							class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
+								dataset.catalog,
+								null,
+								4
+							)}</pre>
+					{/if} -->
 				</div>
-				{#if model.quality == 0}
-					<div class="flex flex-col gap-3">
-						<Metadata data={model} />
-						<!-- <FileExplorer {model} {version} /> -->
+				<div class="flex flex-col gap-3">
+					<p>Download the model with the CLI:</p>
+					<div class="relative">
+						<pre class="bg-gray-200 p-3"><button
+								on:click={() =>
+									copyToClipboard(
+										`eotdl datasets get ${model.name}`
+									)}>eotdl models get {model.name}</button
+							></pre>
+						{#if message}
+							<span
+								class="text-sm text-gray-400 absolute bottom-[-20px] right-0"
+								in:fade
+								out:fade>{message}</span
+							>
+						{/if}
 					</div>
-				{:else}
-					<div>
-						<p>Download the model with the CLI</p>
-						<p>eotdl models get {name}</p>
-					</div>
-				{/if}
+					{#if model.quality == 0}
+						<div class="flex flex-col gap-3">
+							<Metadata data={model} />
+							<FileExplorer
+								data={model}
+								{version}
+								retrieveFiles={retrieveModelFiles}
+							/>
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>

@@ -4,6 +4,7 @@
 	$: ({ authors, license, source } = data);
 </script>
 
+<p>Metadata:</p>
 <div class="overflow-auto w-full">
 	<table class="table border-2 rounded-lg table-compact h-[100px] w-full">
 		<tbody>
