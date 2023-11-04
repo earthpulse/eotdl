@@ -5,7 +5,7 @@
 
 <div>
     {#if numPages > 1}
-        <div class="grid grid-cols-3 w-[250px] btn-xs mt-3 items-center">
+        <div class="grid grid-cols-3 w-[250px] btn-xs items-center">
             <button
                 class="btn btn-ghost btn-xs disabled:bg-white"
                 disabled={currentPage === 0}
