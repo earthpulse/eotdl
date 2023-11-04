@@ -1,8 +1,9 @@
 ---
-title: Q1 Training Datasets
-date: '2023-09-15T00:00:00.000Z'
-description: In this post you will learn about Q1 datssets and how to create and ingest them in EOTDL.
-tags: Q1, datasets
+title: Working with Q1 datasets
+date: '2023-11-04T03:00:00.000Z'
+description: In this post you will learn how to work with STAC metadata to create Q1 datasets.
+tags: STAC, Q1, datasets
+link: https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/03_q1_datasets.ipynb
 ---
 
 # Q1 Training Datasets
@@ -11,32 +12,48 @@ Training Datasets (TDS) in EOTDL are categorized into different [quality levels]
 
 In this tutorial you will learn about Q1 datsets, datasets with STAC metadata. 
 
-## Ingesting Q1 datasets
-
 To ingest a Q1 datasets you will need its STAC metadata.
 
-
-Some datasets already have STAC metadata, and can be ingested directly into EOTDL. However, in case that your dataset does not have STAC metadata but you want to ingest it as a Q1 dataset, the EOTDL library also offers functionality to create the metadata. Let's see an example using the EuroSAT dataset. You can download the dataset [here](https://www.eotdl.com/datasets/EuroSAT-RGB). Then, extract it and put it in the `data` folder.
+Some datasets already have STAC metadata, and can be ingested directly into EOTDL. However, in case that your dataset does not have STAC metadata but you want to ingest it as a Q1 dataset, the EOTDL library also offers functionality to create the metadata. Let's see an example using the EuroSAT dataset. 
 
 
 ```python
-import os 
+from eotdl.datasets import download_dataset
 
-os.listdir('data')
+download_dataset("EuroSAT-RGB", version=1, path="data", force=True)
 ```
 
+    100%|██████████| 90.3M/90.3M [00:04<00:00, 22.5MiB/s]
+    100%|██████████| 2/2 [00:04<00:00,  2.30s/file]
 
 
 
-    ['EuroSAT']
 
 
+    'data/EuroSAT-RGB/v1'
+
+
+
+
+```python
+!ls data/EuroSAT-RGB/v1
+```
+
+    EuroSAT-RGB.zip  metadata.yml
+
+
+
+```python
+!unzip -q data/EuroSAT-RGB/v1/EuroSAT-RGB.zip -d data/EuroSAT-RGB
+```
 
 The EuroSAT dataset contains satellite images for classification, i.e. each image has one label associated. In this case, the label can be extracted from the folder structure.
 
 
 ```python
-labels = os.listdir('data/EuroSAT/2750')
+import os 
+
+labels = os.listdir('data/EuroSAT-RGB/2750')
 labels
 ```
 
@@ -62,26 +79,25 @@ For faster processing, we will generate a copy of the dataset with only 10 image
 ```python
 import shutil 
 
-os.makedirs('data/EuroSAT-small/', exist_ok=True)
+os.makedirs('data/EuroSAT-RGB-small/', exist_ok=True)
 for label in labels:
-    os.makedirs('data/EuroSAT-small/' + label, exist_ok=True)
-    images = os.listdir('data/EuroSAT/2750/' + label)[:10]
+    os.makedirs('data/EuroSAT-RGB-small/' + label, exist_ok=True)
+    images = os.listdir('data/EuroSAT-RGB/2750/' + label)[:10]
     for image in images:
-        shutil.copy('data/EuroSAT/2750/' + label + '/' + image, 'data/EuroSAT-small/' + label + '/' + image)
+        shutil.copy('data/EuroSAT-RGB/2750/' + label + '/' + image, 'data/EuroSAT-RGB-small/' + label + '/' + image)
 ```
 
 You can use the `STACGenerator` to create the STAC metadata for your dataset in the form of a dataframe. The item parser will depend on the structure of your dataset. We offer some predefined parsers for common datasets, but you can also create your own parser.
-
-> TODO: How to create a parser.
 
 
 ```python
 from eotdl.curation.stac.parsers import UnestructuredParser
 from eotdl.curation.stac.stac import STACGenerator
+from eotdl.curation.stac.dataframe_labeling import LabeledStrategy
 
-stac_generator = STACGenerator(image_format='jpg', item_parser=UnestructuredParser)
+stac_generator = STACGenerator(image_format='jpg', item_parser=UnestructuredParser, labeling_strategy=LabeledStrategy)
 
-df = stac_generator.get_stac_dataframe('data/EuroSAT-small')
+df = stac_generator.get_stac_dataframe('data/EuroSAT-RGB-small')
 df.head()
 
 ```
@@ -118,46 +134,46 @@ df.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>data/EuroSAT-small/Industrial/Industrial_1743.jpg</td>
+      <td>data/EuroSAT-RGB-small/Industrial/Industrial_1...</td>
       <td>Industrial</td>
       <td>0</td>
-      <td>data/EuroSAT-small/source</td>
+      <td>data/EuroSAT-RGB-small/source</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>data/EuroSAT-small/Industrial/Industrial_1273.jpg</td>
+      <td>data/EuroSAT-RGB-small/Industrial/Industrial_1...</td>
       <td>Industrial</td>
       <td>0</td>
-      <td>data/EuroSAT-small/source</td>
+      <td>data/EuroSAT-RGB-small/source</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>data/EuroSAT-small/Industrial/Industrial_1117.jpg</td>
+      <td>data/EuroSAT-RGB-small/Industrial/Industrial_1...</td>
       <td>Industrial</td>
       <td>0</td>
-      <td>data/EuroSAT-small/source</td>
+      <td>data/EuroSAT-RGB-small/source</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>data/EuroSAT-small/Industrial/Industrial_1121.jpg</td>
+      <td>data/EuroSAT-RGB-small/Industrial/Industrial_1...</td>
       <td>Industrial</td>
       <td>0</td>
-      <td>data/EuroSAT-small/source</td>
+      <td>data/EuroSAT-RGB-small/source</td>
       <td>None</td>
       <td>None</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>data/EuroSAT-small/Industrial/Industrial_1641.jpg</td>
+      <td>data/EuroSAT-RGB-small/Industrial/Industrial_1...</td>
       <td>Industrial</td>
       <td>0</td>
-      <td>data/EuroSAT-small/source</td>
+      <td>data/EuroSAT-RGB-small/source</td>
       <td>None</td>
       <td>None</td>
     </tr>
@@ -171,14 +187,19 @@ Now we save the STAC metadata. The `id` given to the STAC catalog will be used a
 
 
 ```python
-output = 'data/EuroSAT-STAC'
-stac_generator.generate_stac_metadata(id='eurosat-rgb', description='EuroSAT-RGB dataset', stac_dataframe=df, output_folder=output)
+output = 'data/EuroSAT-RGB-small-STAC'
+stac_generator.generate_stac_metadata(stac_id='EuroSAT-RGB-Q1', description='EuroSAT-RGB dataset', stac_dataframe=df, output_folder=output)
 ```
 
-   
+    /home/juan/miniconda3/envs/eotdl/lib/python3.8/site-packages/rasterio/__init__.py:304: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+      dataset = DatasetReader(path, driver=driver, sharing=sharing, **kwargs)
 
 
     Generating source collection...
+
+
+    100%|██████████| 100/100 [00:00<00:00, 972.12it/s]
+
     Validating and saving catalog...
     Success!
 
@@ -190,11 +211,25 @@ And, optionally, the labels using the labels extension.
 
 
 ```python
+from eotdl.curation.stac.extensions.label import ImageNameLabeler
+
 catalog = output + '/catalog.json'
-stac_generator.generate_stac_labels(catalog)
+labels_extra_properties = {'label_properties': ["label"],
+                          'label_methods': ["manual"],
+                          'label_tasks': ["classification"]}
+
+labeler = ImageNameLabeler()
+labeler.generate_stac_labels(catalog, stac_dataframe=df, **labels_extra_properties)
 ```
 
     Generating labels collection...
+
+
+    100it [00:00, 2549.64it/s]
+
+
+    Success on labels generation!
+
 
 Once the STAC metadata is generated, we can ingest the dataset into EOTDL.
 
@@ -202,68 +237,39 @@ Once the STAC metadata is generated, we can ingest the dataset into EOTDL.
 ```python
 from eotdl.datasets import ingest_dataset
 
-ingest_dataset('data/EuroSAT-STAC')
+ingest_dataset('data/EuroSAT-RGB-small-STAC')
 ```
 
     Loading STAC catalog...
-    Uploading assets...
+    New version created, version: 1
 
 
-    100%|██████████| 200/200 [00:39<00:00,  5.12it/s]
+    100%|██████████| 200/200 [00:32<00:00,  6.13it/s]
 
 
     Ingesting STAC catalog...
     Done
 
 
-
 After the ingestion, you can explore and download your dataset like shown in the previous tutorial.
 
 
 ```python
-from eotdl.datasets import list_datasets
+from eotdl.datasets import retrieve_datasets
 
-datasets = list_datasets()
+datasets = retrieve_datasets('EuroSAT')
 datasets
 ```
 
 
 
 
-    ['eurosat-rgb',
-     'eurosat-rgb-q2',
-     'COWC',
-     'Stanford-Drone-dataset',
+    ['EuroSAT-RGB',
+     'EuroSAT',
      'EuroSAT-RGB-STAC',
      'EuroSAT-STAC',
-     'BigEarthNet',
-     'xview2',
-     'LandcoverAI',
-     'open-cities-tt2-source',
-     'open-cities-tt1-source',
-     'open-cities-test',
-     'PASTIS-R',
-     'EuroCrops',
-     'SloveniaLandCover',
-     'ISPRS-Potsdam2D',
-     'SEN12-FLOOD',
-     'Urban3dChallenge',
-     'tropical-cyclone-dataset',
-     'Vessel-detection',
-     'Airplanes-detection',
-     'S2-SHIPS',
-     'SpaceNet-7',
-     'Sentinel-2-Cloud-Mask',
-     'PASTIS',
-     'FlodNet',
-     'SeCo100k',
-     'SeCo',
-     'AirbusAircraftDetection',
-     'AirbusWindTurbinesPatches',
-     'RoadNet',
-     'EuroSAT',
-     'UCMerced',
-     'EuroSAT-RGB']
+     'EuroSAT-small',
+     'EuroSAT-RGB-Q1']
 
 
 
@@ -271,12 +277,14 @@ datasets
 ```python
 from eotdl.datasets import download_dataset
 
-dst_path = download_dataset('eurosat-rgb')
+dst_path = download_dataset('EuroSAT-RGB-Q1')
 dst_path
 ```
 
-    Downloading STAC metadata...
-    To download assets, set assets=True or -a in the CLI.
+
+
+
+    '/home/juan/.cache/eotdl/datasets/EuroSAT-RGB-Q1/v1'
 
 
 
@@ -288,16 +296,17 @@ By default it will only download the STAC metadata. In case you also want to dow
 ```python
 from eotdl.datasets import download_dataset
 
-dst_path = download_dataset('eurosat-rgb', force=True, assets=True)
+dst_path = download_dataset('EuroSAT-RGB-Q1', force=True, assets=True)
 dst_path
 ```
 
-    Downloading STAC metadata...
-    Downloading assets...
+    100%|██████████| 200/200 [00:31<00:00,  6.39it/s]
 
 
-    100%|██████████| 200/200 [00:34<00:00,  5.85it/s]
 
+
+
+    '/home/juan/.cache/eotdl/datasets/EuroSAT-RGB-Q1/v1'
 
 
 
@@ -307,15 +316,15 @@ You will find the data in  the `assets` subfolder, where a subfolder for each it
 ```python
 from glob import glob
 
-glob(dst_path + '/assets/**/*.jpg')[:3]
+glob(dst_path + '/assets/*.jpg')[:3]
 ```
 
 
 
 
-    ['/home/juan/.cache/eotdl/datasets/eurosat-rgb/assets/River_1655/River_1655.jpg',
-     '/home/juan/.cache/eotdl/datasets/eurosat-rgb/assets/AnnualCrop_1142/AnnualCrop_1142.jpg',
-     '/home/juan/.cache/eotdl/datasets/eurosat-rgb/assets/Industrial_435/Industrial_435.jpg']
+    ['/home/juan/.cache/eotdl/datasets/EuroSAT-RGB-Q1/v1/assets/AnnualCrop_1033.jpg',
+     '/home/juan/.cache/eotdl/datasets/EuroSAT-RGB-Q1/v1/assets/HerbaceousVegetation_1743.jpg',
+     '/home/juan/.cache/eotdl/datasets/EuroSAT-RGB-Q1/v1/assets/HerbaceousVegetation_1977.jpg']
 
 
 
@@ -325,7 +334,7 @@ Alternatively, you can download an asset using its url.
 ```python
 import json
 
-with open(dst_path + '/eurosat-rgb/source/Highway_594/Highway_594.json', 'r') as f:
+with open(dst_path + '/EuroSAT-RGB-Q1/source/Highway_594/Highway_594.json', 'r') as f:
 	data = json.load(f)
 
 data['assets']
@@ -334,7 +343,7 @@ data['assets']
 
 
 
-    {'Highway_594': {'href': 'https://api.eotdl.com/datasets/6503f8a3d05a1b62cc273ea4/download/Highway_594.jpg',
+    {'Highway_594': {'href': 'https://api.eotdl.com/datasets/654502991c54ab3a79d81007/download/Highway_594.jpg',
       'type': 'image/jpeg',
       'title': 'Highway_594',
       'roles': ['data']}}
@@ -349,12 +358,9 @@ url = data['assets']['Highway_594']['href']
 download_file_url(url, 'data')
 ```
 
-    100%|██████████| 4.07k/4.07k [00:00<00:00, 743kiB/s]
 
 
 
-
-
-    'data/Highway_594.jpg'
+    'data/assets/Highway_594.jpg'
 
 

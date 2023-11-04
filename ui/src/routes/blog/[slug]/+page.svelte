@@ -35,7 +35,14 @@
             <a href="/blog" class="text-green-200 hover:underline">
                 {"<"} Blog</a
             >
-        </span>
+            <a
+                href={post.meta.link}
+                target="_blank"
+                class="text-green-200 hover:underline"
+            >
+                Open on GitHub
+            </a></span
+        >
         <div
             class="post text-left flex flex-col items-center gap-2 pt-3 text-justify"
         >
