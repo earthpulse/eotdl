@@ -1,11 +1,10 @@
 <script>
 	import { user, id_token } from "$stores/auth";
-	import { datasets } from "../../../stores/datasets";
-	import IngestForm from "../IngestForm.svelte";
+	import IngestForm from "../routes/datasets/IngestForm.svelte";
 	import { goto } from "$app/navigation";
 
 	export let tags;
-	export let dataset_id;
+	export let id;
 	export let current_tags;
 	export let name;
 	export let authors;
@@ -13,28 +12,23 @@
 	export let description;
 	export let source;
 	export let selected_tags;
-	export let size;
-	export let files;
 	export let quality;
+	export let store;
+	export let route;
 
 	const submit = async (
-		_files,
-		name,
+		_name,
 		content,
 		_authors,
 		_source,
 		_license,
 		_selected_tags
 	) => {
-		const current = $datasets.data.find((d) => d.id == dataset_id);
-		if (_files?.length > 0)
-			for (var i = 0; i < _files.length; i++) {
-				await datasets.ingest(_files[i], current.name, $id_token);
-			}
-		if (current.name == name) name = null;
-		const data = await datasets.update(
-			dataset_id,
-			name,
+		// const current = $datasets.data.find((d) => d.id == id);
+		// if (current.name == name) name = null;
+		const data = await store.update(
+			id,
+			_name,
 			content,
 			_authors,
 			_source,
@@ -42,14 +36,13 @@
 			_selected_tags,
 			$id_token
 		);
+		if (_name) name = _name;
 		if (_authors) authors = _authors;
 		if (_source) source = _source;
 		if (_license) license = _license;
 		if (content) description = content;
-		size = data.size;
-		files = data.files;
 		selected_tags = _selected_tags;
-		if (name) goto(`/datasets/${name}`, { replaceState: true });
+		if (name) goto(`/${route}/${name}`, { replaceState: true });
 	};
 </script>
 
@@ -66,10 +59,10 @@
 		{name}
 		{quality}
 	>
-		<h3 class="text-lg font-bold">Edit dataset</h3>
-		<p>
+		<h3 class="text-lg font-bold">Edit</h3>
+		<!-- <p>
 			⚠ You can overwrite existing files by uploading a new file with the
 			same name.
-		</p>
+		</p> -->
 	</IngestForm>
 {/if}

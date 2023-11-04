@@ -9,6 +9,7 @@
 	import FileExplorer from "$components/FileExplorer.svelte";
 	import { fade } from "svelte/transition";
 	import retrieveModelFiles from "$lib/models/retrieveModelFiles";
+	import Update from "$components/Update.svelte";
 
 	export let data;
 
@@ -53,6 +54,32 @@
 						{/each}
 					</div>
 				</span>
+
+				{#if $user}
+					<span class="flex flex-row gap-2">
+						<!-- <a
+					class="btn btn-outline"
+					href={`https://notebooks.api.eotdl.com/?search=${dataset.name}`}
+					target="_blank">Open</a
+				> -->
+						{#if $user.uid == model.uid}
+							<Update
+								store={models}
+								route="models"
+								id={model.id}
+								tags={data.tags}
+								current_tags={model.tags}
+								bind:name={model.name}
+								quality={model.quality}
+								bind:authors={model.authors}
+								bind:source={model.source}
+								bind:license={model.license}
+								bind:description={model.description}
+								bind:selected_tags={model.tags}
+							/>
+						{/if}
+					</span>
+				{/if}
 			</div>
 
 			<Info

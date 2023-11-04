@@ -63,3 +63,6 @@ class MongoModelsRepo(MongoRepo):
 
     def delete_files(self, files_id):
         return self.delete("files", files_id)
+
+    def retrieve_tags(self):
+        return self.retrieve("tags")

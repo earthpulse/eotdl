@@ -12,7 +12,7 @@ from .upload_large_file import (
     ingest_model_chunk,
     complete_multipart_upload,
 )
-from .update_model import toggle_like_model
+from .update_model import toggle_like_model, update_model
 from .ingest_file import (
     ingest_model_files_batch,
     add_files_batch_to_model_version,

@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import retrieveModels from "$lib/models/retrieveModels";
 import likeModel from "$lib/models/likeModel";
+import updateModel from "$lib/models/updateModel";
 
 
 const createModels = () => {
@@ -19,6 +20,15 @@ const createModels = () => {
       } catch (e) {
         set({ loading: false, error: e.message });
       }
+    },
+    update: async (model_id, name, content, authors, source, license, tags, token) => {
+      const data = await updateModel(model_id, name, content, authors, source, license, tags, token);
+      update((current) => ({
+        data: current.data.map((model) => 
+           model.id === model_id ? data : model          
+        ),
+      }));
+      return data;
     },
     like: async (id, token) => {
       likeModel(id, token);

@@ -1,12 +1,12 @@
 import { writable } from "svelte/store";
-import createDataset from "../lib/datasets/createDataset";
-import ingestFile from "../lib/datasets/ingestFile";
-import updateDataset from "../lib/datasets/updateDataset";
-import retrieveDataset from "../lib/datasets/retrieveDataset";
-import retrieveDatasets from "../lib/datasets/retrieveDatasets";
-import downloadDataset from "../lib/datasets/downloadDataset";
-import likeDataset from "../lib/datasets/likeDataset";
-import retrieveDatasetFiles from "../lib/datasets/retrieveDatasetFiles";
+import createDataset from ".$lib/datasets/createDataset";
+import ingestFile from ".$lib/datasets/ingestFile";
+import updateDataset from ".$lib/datasets/updateDataset";
+import retrieveDataset from ".$lib/datasets/retrieveDataset";
+import retrieveDatasets from ".$lib/datasets/retrieveDatasets";
+import downloadDataset from ".$lib/datasets/downloadDataset";
+import likeDataset from ".$lib/datasets/likeDataset";
+import retrieveDatasetFiles from ".$lib/datasets/retrieveDatasetFiles";
 
 
 const createDatasets = () => {
