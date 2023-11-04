@@ -46,6 +46,11 @@
     },
     {
       "rel": "item",
+      "href": "./Boadella_2020-01-18/Boadella_2020-01-18.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
       "href": "./Boadella_2020-09-14/Boadella_2020-09-14.json",
       "type": "application/json"
     },
@@ -57,6 +62,11 @@
     {
       "rel": "item",
       "href": "./Boadella_2021-07-21/Boadella_2021-07-21.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Boadella_2020-01-23/Boadella_2020-01-23.json",
       "type": "application/json"
     },
     {
