@@ -9,6 +9,7 @@
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
+	import QualitySelector from "$components/QualitySelector.svelte";
 
 	export let data;
 
@@ -30,6 +31,7 @@
 
 	let filterName = "";
 	let filtered_datasets;
+	let selected_qualities = [];
 	$: {
 		filtered_datasets = $datasets.data
 			?.filter((dataset) => {
@@ -45,6 +47,11 @@
 		if (show_liked) {
 			filtered_datasets = filtered_datasets.filter((dataset) =>
 				$user?.liked_datasets.includes(dataset.id)
+			);
+		}
+		if (selected_qualities.length > 0) {
+			filtered_datasets = filtered_datasets?.filter((dataset) =>
+				selected_qualities?.includes(dataset.quality)
 			);
 		}
 	}
@@ -71,7 +78,7 @@
 	<title>EOTDL | Datasets</title>
 	<meta
 		name="description"
-		content="EOTDL is a platform for sharing and discovering training datasets."
+		content="EOTDL is a platform for sharing and discovering training datasets and models."
 	/>
 </svelte:head>
 
@@ -104,6 +111,7 @@
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
+					<QualitySelector bind:selected_qualities />
 				</span>
 				<!-- <Ingest tags={data?.tags} /> -->
 				<a
