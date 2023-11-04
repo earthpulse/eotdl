@@ -2,11 +2,10 @@
 	import Api from "../../components/Api.svelte";
 	import CLI from "../../components/CLI.svelte";
 	import UI from "../../components/UI.svelte";
+	import Library from "../../components/Library.svelte";
 	import Code from "../../components/Code.svelte";
 	import BadgeWarning from "../../BadgeWarning.svelte";
 </script>
-
-Learn more about the datasets [quality levels](/docs/datasets/quality).
 
 # Ingest datasets
 
@@ -33,7 +32,7 @@ You can use the `EDIT` button in the dataset page to update the information or d
 
 The CLI is the most convenient way to ingest datasets. You can ingest a dataset using the following CLI command:
 
-<CLI><Code>eotdl datasets ingest "dataset path"</Code></CLI>
+<CLI><Code>eotdl datasets ingest -p "dataset path"</Code></CLI>
 
 Where `dataset-path` is the path to a folder containing your dataset. 
 
@@ -56,6 +55,15 @@ If this file is not present, the ingestion process will fail.
 You can update your dataset in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
 
 For Q1+ datasets, a file called `catalog.json` is expected in the root of the folder containing the STAC metadata for your dataset, that will be used as an entrypoint to ingest all the assets.
+
+## Library
+
+You can ingest datasets using the following Python code:
+
+<Library><Code>
+	from eotdl import ingest_dataset<br/><br/>ingest_dataset("dataset-path")</Code></Library>
+
+
 
 <!-- ## API 
 

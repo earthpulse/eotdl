@@ -1,0 +1,12 @@
+# Creating new datasets
+
+EOTDL offers the following functionality for creating datasets:
+
+- Explore and download available satellite imagery
+- Generate STAC metadata for your dataset
+
+You can combine the tools offered on EOTDL with your own to create a dataset. 
+
+We also encourage you to contribute to the EOTDL project by adding your own tools to the platform so that others can use them to create datasets.
+
+You can learn more [here](https://github.com/earthpulse/eotdl/tree/main/tutorials).

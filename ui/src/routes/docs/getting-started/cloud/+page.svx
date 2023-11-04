@@ -1,0 +1,7 @@
+# Cloud resources
+
+We offer the possibilty to access cloud resources for exploring and creating datasets as well as training ML models.
+
+You can access you cloud workspace at [https://hub.api.eotdl.com/](https://hub.api.eotdl.com/).
+
+In case you need GPU resources, please contact us through [Discord](https://discord.gg/hYxc5AJB92).

@@ -10,30 +10,39 @@
 			links: [
 				{ name: "Install", link: "install" },
 				{ name: "Authenticate", link: "authenticate" },
+				{ name: "Cloud resources", link: "cloud" },
+				{ name: "Quality Levels", link: "quality" },
 			],
 		},
 		{
 			group: "Datasets",
 			link: "datasets",
 			links: [
-				{ name: "Quality Levels", link: "quality" },
 				{ name: "Explore", link: "explore" },
 				{ name: "Download", link: "download" },
 				{ name: "Ingest", link: "ingest" },
+				{ name: "Create", link: "create" },
+				{ name: "Labelling", link: "labelling" },
 			],
 		},
-		// {
-		// 	group: "Models",
-		// 	link: "models",
-		// 	links: [
-		// 		{ name: "Explore", link: "explore" },
-		// 		{ name: "Download", link: "download" },
-		// 	],
-		// },
-		// {
-		// 	group: "Training",
-		// 	link: "training",
-		// },
+		{
+			group: "Models",
+			link: "models",
+			links: [
+				{ name: "Explore", link: "explore" },
+				{ name: "Download", link: "download" },
+				{ name: "Train", link: "train" },
+				{ name: "Ingest", link: "ingest" },
+			],
+		},
+		{
+			group: "Features",
+			link: "features",
+			links: [
+				{ name: "Versioning", link: "versioning" },
+				{ name: "STAC", link: "stac" },
+			],
+		},
 		{
 			group: "Contributing",
 			link: "contributing",
@@ -79,7 +88,7 @@
 		<a class="text-3xl font-bold hover:underline" href="/docs"
 			>Documentation</a
 		>
-		<div class="grid grid-cols-1 sm:grid-cols-[200px,auto] h-full grow">
+		<div class="grid grid-cols-1 sm:grid-cols-[150px,auto] h-full grow">
 			<div class="list pr-3">
 				{#each links as link}
 					<span class="pb-3 flex flex-col gap-2">
@@ -98,7 +107,7 @@
 											.route.id ===
 										`/docs/${link.link}/${_link.link}`
 											? 'text-green-200  border-green-200'
-											: 'text-slate-300 border-white'}"
+											: 'text-slate-400 border-white'}"
 									>
 										<a
 											href={`/docs/${link.link}/${_link.link}`}

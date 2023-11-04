@@ -32,11 +32,13 @@ You can logout by either deleting the credentials file or by executing the `logo
 
 You will receive a logout url that you can visit in case you want to authenticate with a different account.
 
-<!-- ## Library
+In any case, you will be prompted to authenticate if you execute command that requires authentication and you are not logged in.
 
-<BadgeWarning>🚧 Not implemented yet</BadgeWarning> -->
+## Library
 
-<!-- ## API
+The CLI is built on top of the library, so again you will be prompted to authenticate if you execute a function that requires authentication and you are not logged in.
+
+## API
 
 The interactive documentation is available at [https://api.eotdl.com/docs](https://api.eotdl.com/docs).
 
@@ -58,8 +60,7 @@ If you want to use a different account in the future, you will have to visit the
 
 <Api><Code>curl -X 'GET' \
   '{api_url}/auth/logout' \
-  -H 'accept: application/json'</Code></Api> -->
-
+  -H 'accept: application/json'</Code></Api> 
 
 
 ## User Interface

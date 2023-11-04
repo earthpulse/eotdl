@@ -3,12 +3,13 @@
 	import CLI from "../../components/CLI.svelte";
 	import UI from "../../components/UI.svelte";
 	import Code from "../../components/Code.svelte";
+	import Library from "../../components/Library.svelte";
 </script>
 
 
 # Explore datasets
 
-On of the first things that you may want to do within EOTDL is to explore the available datasets. You can do this at all accesibilit layers.
+One of the first things that you may want to do within EOTDL is to explore the available datasets. You can do this at all accesibilit layers.
 
 ## User interface
 
@@ -16,7 +17,7 @@ The easier and more intuitive way to explore the available datasets is through t
 
 <UI>Visit the <a href="/datasets" class="text-green-200 hover:underline">datasets</a> section to explore all the available datasets.</UI>
 
-You can click on a dataset card to see more information about it, explore it in a notebook or evan label the data.
+You can filter by different criteria and click on a dataset card to see more information about it, explore it in a notebook or evan label the data.
 
 
 ## CLI 
@@ -31,7 +32,19 @@ You can filter the datasets by name using the following CLI command:
 
 This command will return all datasets that match the given name.
 
-<!-- ## API 
+## Library
+
+You can retrieve the list of all the datasets using the following Python code:
+
+<Library><Code>
+	from eotdl import retrieve_datasets<br/><br/>retrieve_datasets()</Code></Library>
+
+And similarly, retrieve all the datasets that match a particular name 
+
+<Library><Code>retrieve_datasets("dataset-name")</Code></Library>
+
+
+## API 
 
 You can retrieve the list of all datasets using the following API call:
 
@@ -43,5 +56,5 @@ You can also retrieve the information of one particular dataset using the follow
 
 
 <Api><Code>curl -X 'GET' \
-  'https://api.eotdl.com/datasets?name=dataset name' \
-  -H 'accept: application/json'</Code></Api> -->
+  'https://api.eotdl.com/datasets?name=dataset-name' \
+  -H 'accept: application/json'</Code></Api> 
