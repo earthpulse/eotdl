@@ -50,7 +50,7 @@ If you know the specific version of the dataset to download, use the `--version`
 You can download datasets using the following Python code:
 
 <Library><Code>
-	from eotdl import download_dataset<br/><br/>download_dataset("dataset-name")</Code></Library>
+	from eotdl.datasets import download_dataset<br/><br/>download_dataset("dataset-name")</Code></Library>
 
 And use the same options seen before.
 

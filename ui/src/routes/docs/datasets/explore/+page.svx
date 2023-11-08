@@ -37,7 +37,7 @@ This command will return all datasets that match the given name.
 You can retrieve the list of all the datasets using the following Python code:
 
 <Library><Code>
-	from eotdl import retrieve_datasets<br/><br/>retrieve_datasets()</Code></Library>
+	from eotdl.datasets import retrieve_datasets<br/><br/>retrieve_datasets()</Code></Library>
 
 And similarly, retrieve all the datasets that match a particular name 
 
