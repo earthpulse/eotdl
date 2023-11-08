@@ -35,7 +35,7 @@ This command will return all models that match the given name.
 You can retrieve the list of all the models using the following Python code:
 
 <Library><Code>
-	from eotdl import retrieve_models<br/><br/>retrieve_models()</Code></Library>
+	from eotdl.models import retrieve_models<br/><br/>retrieve_models()</Code></Library>
 
 And similarly, retrieve all the models that match a particular name 
 

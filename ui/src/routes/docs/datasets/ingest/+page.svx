@@ -61,7 +61,7 @@ For Q1+ datasets, a file called `catalog.json` is expected in the root of the fo
 You can ingest datasets using the following Python code:
 
 <Library><Code>
-	from eotdl import ingest_dataset<br/><br/>ingest_dataset("dataset-path")</Code></Library>
+	from eotdl.datasets import ingest_dataset<br/><br/>ingest_dataset("dataset-path")</Code></Library>
 
 
 
