@@ -56,7 +56,7 @@ You can update your model in multiple ways. If you modify your local folder and 
 You can ingest models using the following Python code:
 
 <Library><Code>
-	from eotdl import ingest_model<br/><br/>ingest_model("model-path")</Code></Library>
+	from eotdl.models import ingest_model<br/><br/>ingest_model("model-path")</Code></Library>
 
 
 
