@@ -50,7 +50,7 @@ If you know the specific version of the model to download, use the `--version` o
 You can download models using the following Python code:
 
 <Library><Code>
-	from eotdl.datasets import download_model<br/><br/>download_model("model-name")</Code></Library>
+	from eotdl.models import download_model<br/><br/>download_model("model-name")</Code></Library>
 
 And use the same options seen before.
 
