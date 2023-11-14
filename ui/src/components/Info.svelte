@@ -49,32 +49,34 @@
 	</span>
 	<span class="flex flex-row items-center gap-1">
 		<Sd color="gray" size={20} />
-		<p>{formatFileSize(version.size)}</p>
+		<p>{formatFileSize(version?.size || 0)}</p>
 	</span>
 	<span class="flex flex-row items-center gap-1">
 		<CheckDecagramOutline color="gray" size={20} />
 		<p>Q{quality}</p>
 	</span>
 </span>
-<span class="flex flex-row gap-3">
-	<p>Version:</p>
-	<select
-		class="border w-10 select-accent"
-		on:change={(e) => {
-			const version_id = e.target.value;
-			version = versions.find((v) => v.version_id == version_id);
-		}}
-	>
-		{#each versions as version}
-			<option
-				value={version.version_id}
-				selected={version.version_id == version.version_id}
-			>
-				{version.version_id}
-			</option>
-		{/each}
-	</select>
-	<p class="text-gray-400">
-		Created {formatDistanceToNow(parseISO(version.createdAt))} ago
-	</p>
-</span>
+{#if version}
+	<span class="flex flex-row gap-3">
+		<p>Version:</p>
+		<select
+			class="border w-10 select-accent"
+			on:change={(e) => {
+				const version_id = e.target.value;
+				version = versions.find((v) => v.version_id == version_id);
+			}}
+		>
+			{#each versions as version}
+				<option
+					value={version.version_id}
+					selected={version.version_id == version.version_id}
+				>
+					{version.version_id}
+				</option>
+			{/each}
+		</select>
+		<p class="text-gray-400">
+			Created {formatDistanceToNow(parseISO(version.createdAt))} ago
+		</p>
+	</span>
+{/if}

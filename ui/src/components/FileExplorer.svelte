@@ -12,8 +12,10 @@
 	let tree = null;
 	let currentLevel = {};
 	let navigationStack = [];
+	let loading = false;
 
 	const load = async () => {
+		loading = true;
 		tree = null;
 		files = null;
 		currentLevel = {};
@@ -25,6 +27,7 @@
 		// console.log(files);
 		tree = buildFileTree(files);
 		currentLevel = tree;
+		loading = false;
 	};
 
 	$: if (browser && version) load();
@@ -89,32 +92,38 @@
 	// };
 </script>
 
-{#if files}
-	<p>Files ({files.length}) :</p>
-	<div class="overflow-auto w-full max-h-[200px] border-2">
-		{#if navigationStack.length > 0}
-			<button class="px-3 hover:underline" on:click={goBack}>...</button>
-		{/if}
-		{#each Object.keys(currentLevel) as item}
-			<p class="flex flex-row gap-1 px-3">
-				<!-- {#if $user}
+{#if !loading}
+	{#if files}
+		<p>Files ({files.length}) :</p>
+		<div class="overflow-auto w-full max-h-[200px] border-2">
+			{#if navigationStack.length > 0}
+				<button class="px-3 hover:underline" on:click={goBack}
+					>...</button
+				>
+			{/if}
+			{#each Object.keys(currentLevel) as item}
+				<p class="flex flex-row gap-1 px-3">
+					<!-- {#if $user}
 					<button on:click={() => download(file.name)}
 						><Download color="gray" size={20} /></button
 					>
 				{/if} -->
-				{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
-					<button
-						class="hover:underline"
-						on:click={() => openFolder(item)}>{item}</button
-					>
-				{:else}
-					{item}
-				{/if}
-			</p>
-			<!-- <td>{formatFileSize(file.size)}</td> -->
-			<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
-		{/each}
-	</div>
+					{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
+						<button
+							class="hover:underline"
+							on:click={() => openFolder(item)}>{item}</button
+						>
+					{:else}
+						{item}
+					{/if}
+				</p>
+				<!-- <td>{formatFileSize(file.size)}</td> -->
+				<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
+			{/each}
+		</div>
+	{:else}
+		<p>No files found.</p>
+	{/if}
 {:else}
 	<p>Loading files ...</p>
 {/if}
