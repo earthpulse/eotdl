@@ -47,7 +47,7 @@
                     <Sd color="gray" size={14} />
                     <p>
                         {formatFileSize(
-                            data.versions[data.versions.length - 1].size
+                            data.versions[data.versions.length - 1]?.size || 0
                         )}
                     </p>
                 </span>
