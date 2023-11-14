@@ -110,7 +110,8 @@
 				<div class="flex flex-col gap-3">
 					<p>Download the model with the CLI:</p>
 					<div class="relative">
-						<pre class="bg-gray-200 p-3"><button
+						<pre
+							class="bg-gray-200 p-3 overflow-x-auto text-sm"><button
 								on:click={() =>
 									copyToClipboard(
 										`eotdl datasets get ${model.name} -v ${version?.version_id}`
