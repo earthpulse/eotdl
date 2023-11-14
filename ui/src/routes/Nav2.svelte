@@ -24,7 +24,7 @@
 </script>
 
 <div class="grid place-items-center w-full">
-    {#if $page.url.pathname == "/"}
+    <!-- {#if $page.url.pathname == "/"}
         <div class="w-full p-3 bg-red-400 grid items-center">
             <p class="m-auto max-w-6xl">
                 Meet us at the upcoming
@@ -46,7 +46,7 @@
                 >.
             </p>
         </div>
-    {/if}
+    {/if} -->
     <ul
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
