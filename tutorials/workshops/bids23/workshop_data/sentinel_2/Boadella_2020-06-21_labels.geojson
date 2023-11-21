@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[2.792028, 42.330579], [2.838022, 42.330579], [2.838022, 42.364571], [2.792028, 42.364571], [2.792028, 42.330579]]]}, "properties": {"labels": ["forest", "water"], "tasks": ["classification"]}}]}
