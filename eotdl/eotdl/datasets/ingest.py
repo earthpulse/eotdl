@@ -82,7 +82,6 @@ def ingest_stac(stac_catalog, logger=None, user=None):
     logger("New version created, version: " + str(version))
     df2 = df.dropna(subset=["assets"])
     for row in tqdm(df2.iterrows(), total=len(df2)):
-        # for asset in df.assets.dropna().values[:10]:
         try:
             for k, v in row[1]["assets"].items():
                 data, error = files_repo.ingest_file(
