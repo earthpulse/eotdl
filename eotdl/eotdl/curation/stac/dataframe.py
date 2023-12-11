@@ -22,6 +22,7 @@ class STACDataFrame(gpd.GeoDataFrame):
     """
     STACDataFrame class
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -61,7 +62,9 @@ class STACDataFrame(gpd.GeoDataFrame):
                 # Curate the json row
                 row_json = self.curate_json_row(row_json, stac_id_exists)
 
-                with open(join(root_output_folder, "catalog.json"), "w", encoding="utf-8") as f:
+                with open(
+                    join(root_output_folder, "catalog.json"), "w", encoding="utf-8"
+                ) as f:
                     json.dump(row_json, f)
 
         # Second, create the collections and their folders, if exist
@@ -76,7 +79,9 @@ class STACDataFrame(gpd.GeoDataFrame):
             # Curate the json row
             row_json = self.curate_json_row(row_json, stac_id_exists)
 
-            with open(join(stac_output_folder, "collection.json"), "w", encoding="utf-8") as f:
+            with open(
+                join(stac_output_folder, "collection.json"), "w", encoding="utf-8"
+            ) as f:
                 json.dump(row_json, f)
 
         # Then, create the items and their folders, if exist
@@ -94,7 +99,11 @@ class STACDataFrame(gpd.GeoDataFrame):
             # Curate the json row
             row_json = self.curate_json_row(row_json, stac_id_exists)
 
-            with open(join(stac_output_folder, f'{row_json["id"]}.json'), "w", encoding="utf-8") as f:
+            with open(
+                join(stac_output_folder, f'{row_json["id"]}.json'),
+                "w",
+                encoding="utf-8",
+            ) as f:
                 json.dump(row_json, f)
 
     def curate_json_row(self, row: dict, stac_id_exists: bool) -> dict:
@@ -148,7 +157,9 @@ def read_stac(
     """
     if isinstance(stac_file, (str, Path)):
         stac_file = pystac.read_file(stac_file)  # we assume this is always a catalog
+    print(stac_file)
     stac_file.make_all_asset_hrefs_absolute()
+    print("ie")
     children = get_all_children(stac_file)
 
     # Convert Dataframe to STACDataFrame
