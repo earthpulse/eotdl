@@ -1,0 +1,19 @@
+,Name,Final Values
+0,No information,0
+10,Cropland,10
+11,Annual cropland,11
+12,Perennial cropland,12
+13,Grassland *,13
+20,Herbaceous vegetation,20
+30,Shrubland,30
+40,Deciduous forest,40
+41,Evergreen forest,41
+42,Mixed/unknown forest,42
+50,Bare / sparse vegetation,50
+60,Built up / urban,60
+70,Water,70
+80,Snow / ice,80
+98,No cropland (including perennials),98
+99,No cropland,99
+*,"including both meadows and pastures,",
+,so with and without grazing,

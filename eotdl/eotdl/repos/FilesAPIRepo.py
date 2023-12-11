@@ -51,6 +51,7 @@ class FilesAPIRepo(APIRepo):
     def ingest_file(
         self, file, dataset_or_model_id, id_token, checksum, endpoint, version=None
     ):
+        # TODO: ingest file URL
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
             url += "?version=" + str(version)

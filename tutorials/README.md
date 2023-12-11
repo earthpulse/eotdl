@@ -28,8 +28,12 @@
 3. Introducing the STACDataFrame labeling strategy ([notebook](notebooks/22_stac_df_labeling.ipynb))
 4. Introducing the STACDataFrame items parser ([notebook](notebooks/23_stac_item_parsers.ipynb))
 5. Introducing the STACDataFrame assets generator ([notebook](notebooks/24_stac_assets_generator.ipynb))
-3. Generate STAC labels generated from SCANEO ([notebook](notebooks/25_stac_labels_scaneo.ipynb))
-4. Generate STAC labels from the filename ([notebook](notebooks/26_stac_labels_name.ipynb))
-5. Add the ML-Dataset STAC extension to a Catalog ([notebook](notebooks/27_stac_ml_dataset.ipynb))
-6. Calculate Quality metrics from your Catalog with the ML-Dataset extension ([notebook](notebooks/28_ml_dataset_quality_metrics.ipynb))
-6. Get a GeoDataFrame from STAC items ([notebook](notebooks/29_stac_to_geodataframe.ipynb))
+6. Generate STAC labels generated from SCANEO ([notebook](notebooks/25_stac_labels_scaneo.ipynb))
+7. Generate STAC labels from the filename ([notebook](notebooks/26_stac_labels_name.ipynb))
+8. Add the ML-Dataset STAC extension to a Catalog ([notebook](notebooks/27_stac_ml_dataset.ipynb))
+9. Calculate Quality metrics from your Catalog with the ML-Dataset extension ([notebook](notebooks/28_ml_dataset_quality_metrics.ipynb))
+10. Get a GeoDataFrame from STAC items ([notebook](notebooks/29_stac_to_geodataframe.ipynb))
+
+### Datasets
+
+1. Generate Q1 dataset from the [World Cereal](https://zenodo.org/records/7593734) dataset ([readme](notebooks/world_cereal/README.md) | [notebook](notebooks/world_cereal/world_cereal.ipynb))
