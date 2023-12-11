@@ -13,7 +13,7 @@ services:
     command: server /data --console-address ":9001"
 
   eotdl-api-test:
-    build: ./apis/eotdl
+    build: ./api
     container_name: eotdl-api-test
     environment:
       - MONGO_URL=mongodb://eotdl-mongo-test:27017
@@ -25,18 +25,19 @@ services:
       - ADMIN_API_KEY=12345678
       - S3_SSL=False
       - TZ=Europe/Madrid
-    env_file: # auth0 credentials
+      - API_BASE_URL=http://localhost:8010 # used to generate file urls
+    env_file: # auth0 and eox credentials
       - .env
     volumes:
-      - ./apis/eotdl:/api
-      - ./eotdl/eotdl:/api/eotdl
-    command: uvicorn api.main:app --host 0.0.0.0 --reload
+      - ./api:/api
+      - ./eotdl/eotdl:/api/api/eotdl
+    command: uvicorn api.api.main:app --host 0.0.0.0 --reload
 
-  eotdl-test:
-    build: ./eotdl 
-    container_name: eotdl-test
-    environment:
-      - EOTDL_API_URL=http://eotdl-api-test:8000
-    volumes:
-      - ./eotdl:/eotdl
-    tty: true
+  # eotdl-test:
+  #   build: ./eotdl 
+  #   container_name: eotdl-test
+  #   environment:
+  #     - EOTDL_API_URL=http://eotdl-api-test:8000
+  #   volumes:
+  #     - ./eotdl:/eotdl
+  #   tty: true
