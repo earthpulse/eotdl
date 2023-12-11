@@ -1,0 +1,173 @@
+Level 0,Level 1,Level 2,Name,Final Values
+0,,,Unknown,0
+1000,,,Cereals,1000
+,1100,,Wheat,1100
+,,1110,Winter wheat,1110
+,,1120,Spring wheat,1120
+,1200,,Maize,1200
+,1300,,Rice,1300
+,1400,,Sorghum,1400
+,1500,,Barley,1500
+,,1510,Winter barley,1510
+,,1520,Spring barley,1520
+,1600,,Rye,1600
+,,1610,Winter rye,1610
+,,1620,Spring rye,1620
+,1700,,Oats,1700
+,1800,,Millets,1800
+,1900,,Other cereals,1900
+,,1910,Winter cereal,1910
+,,1920,Spring cereal,1920
+2000,,,Vegetables and melons,2000
+,2100,,Leafy or stem vegetables,2100
+,,2110,Artichokes,2110
+,,2120,Asparagus,2120
+,,2130,Cabages,2130
+,,2140,Cauliflowers & brocoli,2140
+,,2150,Lettuce,2150
+,,2160,Spinach,2160
+,,2170,Chicory,2170
+,,2190,Other leafy/stem vegetables,2190
+,2200,,Fruit-bearing vegetables,2200
+,,2210,Cucumbers,2210
+,,2220,Eggplants,2220
+,,2230,Tomatoes,2230
+,,2240,Watermelons,2240
+,,2250,Cantaloupes and other melons,2250
+,,2260,"Pumpkin, squash and gourds",2260
+,,2290,Other fruit-bearing vegetables,2290
+,2300,,"Root, bulb or tuberous vegetables",2300
+,,2310,Carrots,2310
+,,2320,Turnips,2320
+,,2330,Garlic,2330
+,,2340,Onions and shallots,2340
+,,2350,Leeks & other alliaceous vegetables,2350
+,,2390,"Other root, bulb or tuberous vegetables",2390
+,2400,,Mushrooms and truffles,2400
+,2900,,Other vegetables,2900
+3000,,,Fruit and nuts,3000
+,3100,,Tropical and subtropical fruits,3100
+,,3110,Avocados,3110
+,,3120,Bananas & plantains,3120
+,,3130,Dates,3130
+,,3140,Figs,3140
+,,3150,Mangoes,3150
+,,3160,Papayas,3160
+,,3170,Pineapples,3170
+,,3190,Other tropical and subtropical fruits,3190
+,3200,,Citrus fruits,3200
+,,3210,Grapefruit & pomelo,3210
+,,3220,Lemons & Limes,3220
+,,3230,Oranges,3230
+,,3240,"Tangerines, mandarins, clementines",3240
+,,3290,Other citrus fruit,3290
+,3300,,Grapes,3300
+,3400,,Berries,3400
+,,3410,Currants,3410
+,,3420,Gooseberries,3420
+,,3430,Kiwi fruit,3430
+,,3440,Raspberries,3440
+,,3450,Strawberries,3450
+,,3460,Blueberries,3460
+,,3490,Other berries,3490
+,3500,,Pome fruits and stone fruits,3500
+,,3510,Apples,3510
+,,3520,Apricots,3520
+,,3530,Cherries & sour cherries,3530
+,,3540,Peaches & nectarines,3540
+,,3550,Pears & quinces,3550
+,,3560,Plums and sloes,3560
+,,3590,Other pome fruits and stone fruits,3590
+,3600,,Nuts,3600
+,,3610,Almonds,3610
+,,3620,Cashew nuts,3620
+,,3630,Chestnuts,3630
+,,3640,Hazelnuts,3640
+,,3650,Pistachios,3650
+,,3660,Walnuts,3660
+,,3690,Other nuts,3690
+,3900,,Other fruit,3900
+4000,,,Oilseed crops,4000
+,4100,,Soya beans,4100
+,4200,,Groundnuts,4200
+,4300,,Temporary oilseed crops,4300
+,,4310,Castor bean,4310
+,,4320,Linseed,4320
+,,4330,Mustard,4330
+,,4340,Niger seed,4340
+,,4350,Rapeseed,4350
+,,,Winter rapeseed,4351
+,,,Spring rapeseed,4352
+,,4360,Safflower,4360
+,,4370,Sesame,4370
+,,4380,Sunflower,4380
+,,4390,Other temporary oilseed crops,4390
+,4400,,Permanent oilseed crops,4400
+,,4410,Coconuts,4410
+,,4420,Olives,4420
+,,4430,Oil palms,4430
+,,4490,Other oleaginous fruits,4490
+5000,,,Root/tuber crops,5000
+,5100,,Potatoes,5100
+,5200,,Sweet potatoes,5200
+,5300,,Cassava,5300
+,5400,,Yams,5400
+,5900,,Other roots and tubers,5900
+6000,,,Beverage and spice crops,6000
+,6100,,Beverage crops,6100
+,,6110,Coffee,6110
+,,6120,Tea,6120
+,,6130,Maté,6130
+,,6140,Cocoa,6140
+,,6190,Other beverage crops,6190
+,6200,,Spice crops,6200
+,,6211,Chilies & peppers,6211
+,,6212,"Anise, badian, fennel",6212
+,,6219,Other temporary spice crops,6219
+,,6221,Pepper,6221
+,,6222,"Nutmeg, mace, cardamoms",6222
+,,6223,Cinnamon,6223
+,,6224,Cloves,6224
+,,6225,Ginger,6225
+,,6226,Vanilla,6226
+,,6229,Other permanent spice crops,6229
+7000,,,Leguminous crops,7000
+,7100,,Beans,7100
+,7200,,Broad beans,7200
+,7300,,Chick peas,7300
+,7400,,Cow peas,7400
+,7500,,Lentils,7500
+,7600,,Lupins,7600
+,7700,,Peas,7700
+,7800,,Pigeon peas,7800
+,7900,,Other Leguminous crops,7900
+,7910,,Other Leguminous crops - Temporary,7910
+,7920,,Other Leguminous crops - Permanent,7920
+8000,,,Sugar crops,8000
+,8100,,Sugar beet,8100
+,8200,,Sugar cane,8200
+,8300,,Sweet sorghum,8300
+,8900,,Other sugar crops,8900
+9000,,,Other crops,9000
+,9100,,Grasses and other fodder crops,9100
+,,9110,Temporary grass crops,9110
+,,9120,Permanent grass crops,9120
+,9200,,Fibre crops,9200
+,,9210,Temporary fibre crops,9210
+,,,Cotton,9211
+,,,"Jute, kenaf and similar",9212
+,,,"Flax, hemp and similar",9213
+,,,Other temporary fibre crops,9219
+,,9220,Permanent fibre crops,9220
+,9300,,"Medicinal, aromatic, pesticidal crops",9300
+,,9310,Temporary medicinal etc crops,9310
+,,9320,Permanent medicinal etc crops,9320
+,9400,,Rubber,9400
+,9500,,Flower crops,9500
+,,9510,Temporary flower crops,9510
+,,9520,Permanent flower crops,9520
+,9600,,Tobacco,9600
+,9900,,Other other crops,9900
+,,9910,Other crops - temporary,9910
+,,9920,Other crops - permanent,9920
+9998,,,mixed cropping,9998

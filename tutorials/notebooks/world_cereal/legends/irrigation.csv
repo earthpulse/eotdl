@@ -1,0 +1,12 @@
+Level 0,Level 1,Level 2,Name,Final Values
+0,,,no information,0
+100,,,rainfed,100
+200,,,irrigated,200
+,210,,fully irrigated,210
+,,213,fully irrigated - surface,213
+,,214,fully irrigated - sprinkler,214
+,,215,fully irrigated - drip,215
+,220,,supplementary irrigation,220
+,,223,supplementary irrigation - surface,223
+,,224,supplementary irrigation - sprinkler,224
+,,225,supplementary irrigation - drip,225
