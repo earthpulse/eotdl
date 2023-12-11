@@ -1,6 +1,14 @@
 FROM python:3.8
 # FROM continuumio/miniconda3
 
+ENV PROMETHEUS_MULTIPROC_DIR /var/tmp/prometheus_multiproc_dir
+RUN mkdir $PROMETHEUS_MULTIPROC_DIR \
+    && chown www-data $PROMETHEUS_MULTIPROC_DIR \
+    && chmod g+w $PROMETHEUS_MULTIPROC_DIR
+    # NOTE: changing the permissions allows to run the api
+    #       with the non-root user www-data
+
+
 # Set the environment variables for Conda
 ENV PATH /opt/conda/bin:$PATH
 
@@ -39,5 +47,6 @@ RUN pip install pystac
 RUN pip install stac_validator
 RUN pip install geopandas
 RUN pip install pyarrow
+RUN pip install starlette_exporter
 
 COPY ./api /api
