@@ -1,27 +1,35 @@
-import pytest 
-from unittest import mock
+import pytest
+from unittest.mock import patch
 
-from api.src.usecases.datasets.RetrieveDatasetsLeaderboard import RetrieveDatasetsLeaderboard
+from api.src.usecases.datasets import retrieve_datasets_leaderboard
+
 
 @pytest.fixture
 def users():
     return [
-        {'uid': '123', 'email': 'test1', 'name': 'test1', 'picture': 'test1', 'dataset_count': 1},
-        {'uid': '456', 'email': 'test2', 'name': 'test2', 'picture': 'test2', 'dataset_count': 2},
-        {'uid': '789', 'email': 'test3', 'name': 'test3', 'picture': 'test3', 'dataset_count': 3},
-    ]        
-
-
-def test_retrieve_leaderboard(users):
-    db_repo = mock.Mock()
-    db_repo.find_top.return_value = sorted(users, key=lambda x: x['dataset_count'], reverse=True)
-    leaderboard = RetrieveDatasetsLeaderboard(db_repo)
-    inputs = RetrieveDatasetsLeaderboard.Inputs()
-    outputs = leaderboard(inputs)
-    assert outputs.leaderboard == [
-        {'name': 'test3', 'datasets': 3},
-        {'name': 'test2', 'datasets': 2},
-        {'name': 'test1', 'datasets': 1}
+        {
+            "name": "test3",
+            "dataset_count": 1,
+        },
+        {
+            "name": "test2",
+            "dataset_count": 2,
+        },
+        {
+            "name": "test1",
+            "dataset_count": 3,
+        },
     ]
-    db_repo.find_top.assert_called_once_with('users', 'dataset_count', 5)
-    
+
+
+@patch("api.src.usecases.datasets.retrieve_datasets.DatasetsDBRepo")
+def test_retrieve_leaderboard(mocked_repo, users):
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.retrieve_datasets_leaderboard.return_value = users
+    leaderboard = retrieve_datasets_leaderboard()
+    assert leaderboard == [
+        {"name": "test3", "datasets": 1},
+        {"name": "test2", "datasets": 2},
+        {"name": "test1", "datasets": 3},
+    ]
+    mocked_repo_instance.retrieve_datasets_leaderboard.assert_called_once()

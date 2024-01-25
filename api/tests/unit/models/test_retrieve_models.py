@@ -2,18 +2,17 @@ import pytest
 from unittest.mock import patch
 
 
-from api.src.usecases.datasets import retrieve_datasets
-from api.src.models import Dataset, STACDataset
+from api.src.usecases.models import retrieve_models
+from api.src.models import Model
 
 
 @pytest.fixture
-def datasets():
+def models():
     return [
         {
             "uid": "123",
             "id": "123",
             "name": "test3",
-            "description": "test 3",
             "likes": 1,
             "quality": 0,
             "authors": ["test"],
@@ -25,7 +24,6 @@ def datasets():
             "uid": "123",
             "id": "456",
             "name": "test4",
-            "description": "test 4",
             "likes": 2,
             "quality": 0,
             "authors": ["test"],
@@ -37,7 +35,6 @@ def datasets():
             "uid": "123",
             "id": "789",
             "name": "test5",
-            "description": "test 5",
             "likes": 3,
             "quality": 1,
             "authors": ["test"],
@@ -48,16 +45,13 @@ def datasets():
     ]
 
 
-@patch("api.src.usecases.datasets.retrieve_datasets.DatasetsDBRepo")
-def test_retrieve_all_datasets(mocked_repo, datasets):
+@patch("api.src.usecases.models.retrieve_models.ModelsDBRepo")
+def test_retrieve_all_models(mocked_repo, models):
     mocked_repo_instance = mocked_repo.return_value
-    mocked_repo_instance.retrieve_datasets.return_value = datasets
-    datasets = retrieve_datasets()
-    assert len(datasets) == 3
-    assert datasets[0].name == "test3"
-    assert datasets[1].name == "test4"
-    assert datasets[2].name == "test5"
-    assert isinstance(datasets[0], Dataset)
-    assert isinstance(datasets[1], Dataset)
-    assert isinstance(datasets[2], STACDataset)
-    mocked_repo_instance.retrieve_datasets.assert_called_once()
+    mocked_repo_instance.retrieve_models.return_value = models
+    models = retrieve_models()
+    assert len(models) == 3
+    assert models[0].name == "test3"
+    assert models[1].name == "test4"
+    assert models[2].name == "test5"
+    mocked_repo_instance.retrieve_models.assert_called_once()

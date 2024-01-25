@@ -11,7 +11,6 @@ from ...src.usecases.datasets import (
     retrieve_dataset_files,
     retrieve_datasets_leaderboard,
     retrieve_popular_datasets,
-    # retrieve_liked_datasets,
 )
 from .responses import retrieve_datasets_responses, retrieve_files_responses
 
@@ -77,14 +76,3 @@ def retrieve_popular(limit: Union[int, None] = None):
     except Exception as e:
         logger.exception("datasets:retrieve_popular")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# @router.get("/liked", include_in_schema=False)
-# def retrieve_liked(
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         return retrieve_liked_datasets(user)
-#     except Exception as e:
-#         logger.exception("datasets:retrieve_liked")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

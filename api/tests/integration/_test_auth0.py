@@ -2,6 +2,8 @@ import pytest
 
 from api.src.repos.auth import Auth0Repo
 
+# this test can overload the auth0 api...
+
 
 def test_generate_login_url():
     repo = Auth0Repo()

@@ -33,20 +33,3 @@ def retrieve_popular_datasets(limit):
         else:
             datasets.append(STACDataset(**d))
     return datasets
-
-
-def retrieve_liked_datasets():
-    # TODO
-    return
-    # data = self.db_repo.retrieve("users", inputs.uid, "uid")
-    # if data is None:
-    #     raise UserDoesNotExistError()
-    # user = User(**data)
-    # data = self.db_repo.retrieve_many("datasets", user.liked_datasets)
-    # datasets = []
-    # for d in data:
-    #     if d["quality"] == 0:
-    #         datasets.append(Dataset(**d))
-    #     else:
-    #         datasets.append(STACDataset(**d))
-    # return self.Outputs(datasets=datasets)
