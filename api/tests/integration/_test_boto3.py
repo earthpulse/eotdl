@@ -6,6 +6,8 @@ from api.src.repos.boto3 import Boto3Repo
 
 bucket = os.environ.get("S3_BUCKET")
 
+# TODO: generate and cleanup test files
+
 
 @pytest.fixture
 def s3():
