@@ -6,6 +6,8 @@ from api.src.repos.minio import MinioRepo
 
 bucket = os.environ.get("S3_BUCKET")
 
+# TODO: generate and cleanup test files
+
 
 @pytest.fixture
 def s3():

@@ -1,26 +1,40 @@
-import pytest 
-from unittest import mock
+import pytest
+from unittest.mock import patch
 
-from api.src.usecases.datasets.RetrieveOneDatasetByName import RetrieveOneDatasetByName
+from api.src.usecases.datasets import retrieve_dataset_by_name
 from api.src.errors import DatasetDoesNotExistError
+
 
 @pytest.fixture
 def dataset():
-    return {'uid': '123', 'id': '123', 'name': 'test1', 'description': 'test 1'}
+    return {
+        "uid": "123",
+        "id": "123",
+        "name": "test3",
+        "description": "test 3",
+        "likes": 1,
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
+        "files": "123",
+    }
 
-def test_retrieve_dataset_by_name(dataset):
-    db_repo = mock.Mock()
-    db_repo.find_one_by_name.return_value = dataset
-    retrieve = RetrieveOneDatasetByName(db_repo)
-    inputs = RetrieveOneDatasetByName.Inputs(name='test1')
-    outputs = retrieve(inputs)
-    assert outputs.dataset.name == 'test1'
-    db_repo.find_one_by_name.assert_called_once_with('datasets', 'test1')
-    
-def test_retrieve_dataset_by_name_fail_if_datasets_does_not_exist(dataset):
-    db_repo = mock.Mock()
-    db_repo.find_one_by_name.return_value = None
-    retrieve = RetrieveOneDatasetByName(db_repo)
-    inputs = RetrieveOneDatasetByName.Inputs(name='test')
+
+@patch("api.src.usecases.datasets.retrieve_dataset.DatasetsDBRepo")
+def test_retrieve_dataset_by_name(mocked_repo, dataset):
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.find_one_dataset_by_name.return_value = dataset
+    _dataset = retrieve_dataset_by_name(dataset["name"])
+    assert _dataset.name == dataset["name"]
+    mocked_repo_instance.find_one_dataset_by_name.assert_called_once_with(
+        dataset["name"]
+    )
+
+
+@patch("api.src.usecases.datasets.retrieve_dataset.DatasetsDBRepo")
+def test_retrieve_dataset_by_name_fail_if_datasets_does_not_exist(mocked_repo):
+    mocked_repo_instance = mocked_repo.return_value
+    mocked_repo_instance.find_one_dataset_by_name.return_value = None
     with pytest.raises(DatasetDoesNotExistError):
-        retrieve(inputs)
+        retrieve_dataset_by_name("abc")
