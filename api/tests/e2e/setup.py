@@ -10,36 +10,60 @@ datasets = [
     {
         "uid": "123",
         "name": "test1",
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
+        "files": "123",
     },
     {
         "uid": "123",
         "name": "test2",
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
+        "files": "123",
     },
     {
         "uid": "123",
         "name": "test3",
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
         "likes": 1,
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "files": "123",
     },
     {
         "uid": "123",
         "name": "test4",
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
         "likes": 2,
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "files": "123",
     },
     {
         "uid": "123",
         "name": "test5",
+        "quality": 0,
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
         "likes": 3,
         "tags": ["tag1", "tag2"],
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "files": "123",
     },
     {
         "uid": "456",
         "name": "test6",
-        "files": [{"name": "test.zip", "size": 123, "checksum": "123"}],
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
+        "quality": 0,
+        "files": "123",
     },
 ]
 
@@ -82,6 +106,8 @@ tags = [
     {"name": "tag2"},
     {"name": "tag3"},
 ]
+
+# with pytest-watch db is note deleted, use pytest
 
 
 @pytest.fixture
