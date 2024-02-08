@@ -24,7 +24,7 @@ def retrieve_dataset(metadata, user):
     repo = DatasetsAPIRepo()
     data, error = repo.retrieve_dataset(metadata.name)
     # print(data, error)
-    if data and data["uid"] != user["sub"]:
+    if data and data["uid"] != user["uid"]:
         raise Exception("Dataset already exists.")
     if error and error == "Dataset doesn't exist":
         # create dataset
@@ -54,7 +54,7 @@ def retrieve_stac_dataset(dataset_name, user):
     repo = DatasetsAPIRepo()
     data, error = repo.retrieve_dataset(dataset_name)
     # print(data, error)
-    if data and data["uid"] != user["sub"]:
+    if data and data["uid"] != user["uid"]:
         raise Exception("Dataset already exists.")
     if error and error == "Dataset doesn't exist":
         # create dataset

@@ -18,7 +18,7 @@ def auth(max_t=30, interval=2):
         user_data, error = api_repo.retrieve_user_data(user)
         if error:
             raise LoginError()
-        user.update({"email": user_data["email"]})
+        user.update({"email": user_data["email"], "uid": user_data["uid"]})
     else:
         response = api_repo.login()
         if response.status_code != 200:
@@ -35,7 +35,11 @@ def auth(max_t=30, interval=2):
                 print("- Id Token: {}...".format(token_data["id_token"][:10]))
                 user = repo.decode_token(token_data)
                 authenticated = True
-                user = {"id_token": token_data["id_token"], "email": user["email"]}
+                user = {
+                    "id_token": token_data["id_token"],
+                    "email": user["email"],
+                    "uid": user["sub"],
+                }
             else:
                 time.sleep(interval)
         if not authenticated:
