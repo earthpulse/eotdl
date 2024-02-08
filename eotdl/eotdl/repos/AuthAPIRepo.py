@@ -16,11 +16,18 @@ class AuthAPIRepo(APIRepo):
         response = requests.get(self.url + "auth/logout")
         return response.json()["logout_url"]
 
-    def retrieve_credentials(self, id_token):
+    def retrieve_credentials(self, auth):
         response = requests.get(
             self.url + "auth/credentials",
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(auth),
         )
         if response.status_code == 200:
             return response.json(), None
         return None, response.json()["detail"]
+
+    def retrieve_user_data(self, auth):
+        response = requests.get(
+            self.url + "auth/me",
+            headers=self.generate_headers(auth),
+        )
+        return self.format_response(response)

@@ -19,11 +19,11 @@ class ModelsAPIRepo(APIRepo):
         response = requests.get(url)
         return self.format_response(response)
 
-    def create_model(self, metadata, id_token):
+    def create_model(self, metadata, user):
         response = requests.post(
             self.url + "models",
             json=metadata,
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(response)
 
@@ -31,9 +31,9 @@ class ModelsAPIRepo(APIRepo):
         response = requests.get(self.url + "models?name=" + name)
         return self.format_response(response)
 
-    def create_version(self, model_id, id_token):
+    def create_version(self, model_id, user):
         response = requests.post(
             self.url + "models/version/" + model_id,
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(response)

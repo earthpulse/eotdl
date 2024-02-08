@@ -25,7 +25,7 @@ def retrieve_model(metadata, user):
         raise Exception("Model already exists.")
     if error and error == "Model doesn't exist":
         # create dataset
-        data, error = repo.create_model(metadata.dict(), user["id_token"])
+        data, error = repo.create_model(metadata.dict(), user)
         # print(data, error)
         if error:
             raise Exception(error)
