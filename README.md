@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://www.eotdl.com/">
-    <img src="eotdl/eotdl.png" alt="EOTDL" style="width: 40%;" />
+    <img src="eotdl/eotdl.png" alt="EOTDL" style="width: 75%;" />
   </a>
 </p>
 
