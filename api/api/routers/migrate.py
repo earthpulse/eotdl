@@ -4,7 +4,7 @@ import os
 from minio.commonconfig import CopySource
 from boto3.s3.transfer import TransferConfig
 
-from .auth import key_auth
+from .auth import admin_key_auth
 from ..src.repos.mongo.client import get_db
 from ..src.repos.minio.client import get_client
 from ..src.repos.boto3.client import get_client as get_boto3_client
@@ -19,7 +19,7 @@ bucket = os.environ.get("S3_BUCKET")
 
 
 @router.get("", include_in_schema=False)
-def migrate_db(isAdmin: bool = Depends(key_auth)):
+def migrate_db(isAdmin: bool = Depends(admin_key_auth)):
     # return "Done"
     db = get_db()
     collections = db.list_collection_names()
