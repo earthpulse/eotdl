@@ -20,9 +20,9 @@ class AuthRepo:
         if os.path.exists(self.creds_path):
             with open(self.creds_path, "r") as f:
                 creds = json.load(f)
-            user = self.decode_token(creds)
-            user["id_token"] = creds["id_token"]
-            return user
+            if not "id_token" in creds and not "api_key" in creds:
+                return None
+            return creds
         return None
 
     def decode_token(self, token_data):

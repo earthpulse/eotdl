@@ -88,7 +88,7 @@ def generate_files_lists(
 
 
 def create_new_version(repo, dataset_or_model_id, user):
-    data, error = repo.create_version(dataset_or_model_id, user["id_token"])
+    data, error = repo.create_version(dataset_or_model_id, user)
     if error:
         raise Exception(error)
     return data["version"]
@@ -117,7 +117,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 file["path"],
                 dataset_or_model_id,
                 file["checksum"],
-                user["id_token"],
+                user,
                 endpoint,
             )
             # print(upload_id, parts)
@@ -125,11 +125,11 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 file["absolute_path"],
                 file["size"],
                 upload_id,
-                user["id_token"],
+                user,
                 parts,
                 endpoint,
             )
-            files_repo.complete_upload(user["id_token"], upload_id, version, endpoint)
+            files_repo.complete_upload(user, upload_id, version, endpoint)
     # ingest new small files in batches
     if len(upload_files) > 0:
         logger("generating batches...")
@@ -148,7 +148,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 memory_file,
                 [f["checksum"] for f in batch],
                 dataset_or_model_id,
-                user["id_token"],
+                user,
                 endpoint,
                 version,
             )
@@ -165,7 +165,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 batch,
                 dataset_or_model_id,
                 version,
-                user["id_token"],
+                user,
                 endpoint,
             )
             if error:

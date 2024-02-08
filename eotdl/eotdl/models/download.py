@@ -68,7 +68,7 @@ def download_model(
             dst_path = repo.download_file(
                 model["id"],
                 filename,
-                user["id_token"],
+                user,
                 download_path,
                 file_version,
                 endpoint="models",
@@ -108,12 +108,3 @@ def download_model(
     #     else:
     #         logger("To download assets, set assets=True or -a in the CLI.")
     #     return Outputs(dst_path=path)
-
-
-# @with_auth
-# def download_file_url(url, path, progress=True, logger=None, user=None):
-#     api_repo = APIRepo()
-#     download = DownloadFileURL(api_repo, logger, progress)
-#     inputs = DownloadFileURL.Inputs(url=url, path=path, user=user)
-#     outputs = download(inputs)
-#     return outputs.dst_path
