@@ -8,6 +8,9 @@ class MongoUserRepo(MongoRepo):
     def retrieve_user_by_uid(self, uid):
         return self.retrieve("users", uid, "uid")
 
+    def retrieve_user_by_key(self, key):
+        return self.retrieve("keys", key)
+
     def update_user(self, id, data):
         return self.update("users", id, data)
 
