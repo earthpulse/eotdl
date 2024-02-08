@@ -22,6 +22,10 @@ class AuthRepo:
                 creds = json.load(f)
             if not "id_token" in creds and not "api_key" in creds:
                 return None
+            if "api_key" in creds and creds["api_key"] != os.getenv(
+                "EOTDL_API_KEY", None
+            ):
+                return None
             return creds
         return None
 
