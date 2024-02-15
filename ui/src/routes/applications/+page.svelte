@@ -4,7 +4,7 @@
 			name: "EOx Cloud Workspace",
 			thumbnail: "/applications/workspace.png",
 			description:
-				"Create training datasets and train ML-models in the cloud with the EOx Cloud Workspace, included for free to all EOTDL users.",
+				"Create training datasets and train ML-models in the cloud with the EOx Cloud Workspace, included for free to all EOTDL users. Get in touch with us if you require GPUs for your workloads.",
 			link: "https://hub.api.eotdl.com/",
 		},
 		{
@@ -13,6 +13,13 @@
 			description:
 				"SCANEO is a web-based application that allows users to visualize and labell satellite data, with tight integration with the EOTDL API and AI assited capabilities for Active Learning.",
 			link: "https://pypi.org/project/scaneo/",
+		},
+		{
+			name: "AI4EO Challenges",
+			thumbnail: "/applications/ai4eo.png",
+			description:
+				"AI4EO is dedicated to organising cutting-edge artificial intelligence-based challenges in partnership with esteemed partners and sponsors. Compete, learn and win amazing prizes!",
+			link: "https://platform.ai4eo.eu/",
 		},
 		{
 			name: "PytorchEO",
@@ -28,12 +35,13 @@
 	<div
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
 	>
-		<div class="grid grid-cols-1 sm:grid-cols-[250px,auto] gap-8 w-full">
-			<div class="flex flex-col w-full">
-				<div class="flex flew-row justify-between text-3xl mb-6">
-					<h1 class="font-bold">Applications</h1>
-				</div>
-			</div>
+		<div class="flex flex-col justify-between mb-6 w-full gap-2">
+			<h1 class="font-bold text-3xl">Applications</h1>
+			<p>
+				Third party applications leverage EOTDL to offer additional
+				features such as cloud computing resources, data labelling, and
+				more.
+			</p>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 			{#each applications as application}
