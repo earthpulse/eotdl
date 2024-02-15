@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "eotdl"
-version = "2023.11.03-4"
+version = "2024.02.08"
 description = "Earth Observation Training Data Lab"
 authors = ["EarthPulse <it@earthpulse.es>"]
 license = "MIT"

@@ -15,7 +15,7 @@ class FilesAPIRepo(APIRepo):
         batch,  # ziped batch of files
         checksums,
         dataset_or_model_id,
-        id_token,
+        user,
         endpoint,
         version=None,
     ):
@@ -26,7 +26,7 @@ class FilesAPIRepo(APIRepo):
             url,
             files={"batch": ("batch.zip", batch)},
             data={"checksums": checksums},
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(reponse)
 
@@ -35,7 +35,7 @@ class FilesAPIRepo(APIRepo):
         batch,
         dataset_or_model_id,
         version,
-        id_token,
+        user,
         endpoint,
     ):
         reponse = requests.post(
@@ -44,12 +44,12 @@ class FilesAPIRepo(APIRepo):
                 "filenames": [f["path"] for f in batch],
                 "checksums": [f["checksum"] for f in batch],
             },
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(reponse)
 
     def ingest_file(
-        self, file, dataset_or_model_id, id_token, checksum, endpoint, version=None
+        self, file, dataset_or_model_id, user, checksum, endpoint, version=None
     ):
         # TODO: ingest file URL
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
@@ -59,7 +59,7 @@ class FilesAPIRepo(APIRepo):
             url,
             files={"file": open(file, "rb")},
             data={"checksum": checksum},
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(reponse)
 
@@ -74,7 +74,7 @@ class FilesAPIRepo(APIRepo):
         self,
         dataset_or_model_id,
         file_name,
-        id_token,
+        user,
         path,
         file_version,
         endpoint="datasets",
@@ -83,10 +83,10 @@ class FilesAPIRepo(APIRepo):
         url = self.url + f"{endpoint}/{dataset_or_model_id}/download/{file_name}"
         if file_version is not None:
             url += "?version=" + str(file_version)
-        return self.download_file_url(url, file_name, path, id_token, progress=progress)
+        return self.download_file_url(url, file_name, path, user, progress=progress)
 
-    def download_file_url(self, url, filename, path, id_token, progress=False):
-        headers = {"Authorization": "Bearer " + id_token}
+    def download_file_url(self, url, filename, path, user, progress=False):
+        headers = self.generate_headers(user)
         path = f"{path}/{filename}"
         for i in range(1, len(path.split("/")) - 1):
             # print("/".join(path.split("/")[: i + 1]))
@@ -114,23 +114,13 @@ class FilesAPIRepo(APIRepo):
                 progress_bar.close()
             return path
 
-    # def ingest_file_url(self, file, dataset, id_token):
-    #     reponse = requests.post(
-    #         self.url + f"datasets/{dataset}/url",
-    #         json={"url": file},
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if reponse.status_code != 200:
-    #         return None, reponse.json()["detail"]
-    #     return reponse.json(), None
-
     def prepare_large_upload(
-        self, filename, dataset_or_model_id, checksum, id_token, endpoint
+        self, filename, dataset_or_model_id, checksum, user, endpoint
     ):
         response = requests.post(
             self.url + f"{endpoint}/{dataset_or_model_id}/uploadId",
             json={"filname": filename, "checksum": checksum},
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         if response.status_code != 200:
             raise Exception(response.json()["detail"])
@@ -158,7 +148,7 @@ class FilesAPIRepo(APIRepo):
             yield data
 
     def ingest_large_file(
-        self, file_path, files_size, upload_id, id_token, parts, endpoint
+        self, file_path, files_size, upload_id, user, parts, endpoint
     ):
         print(endpoint)
         # content_path = os.path.abspath(file)
@@ -181,7 +171,7 @@ class FilesAPIRepo(APIRepo):
                     f"{self.url}{endpoint}/chunk/{upload_id}",
                     files={"file": chunk},
                     data={"part_number": part, "checksum": checksum},
-                    headers={"Authorization": "Bearer " + id_token},
+                    headers=self.generate_headers(user),
                 )
                 if response.status_code != 200:
                     raise Exception(response.json()["detail"])
@@ -193,18 +183,9 @@ class FilesAPIRepo(APIRepo):
         pbar.close()
         return
 
-    def complete_upload(self, id_token, upload_id, version, endpoint):
+    def complete_upload(self, user, upload_id, version, endpoint):
         r = requests.post(
             f"{self.url}{endpoint}/complete/{upload_id}?version={version}",
-            headers={"Authorization": "Bearer " + id_token},
+            headers=self.generate_headers(user),
         )
         return self.format_response(r)
-
-    # def delete_file(self, dataset_id, file_name, id_token):
-    #     response = requests.delete(
-    #         self.url + "datasets/" + dataset_id + "/file/" + file_name,
-    #         headers={"Authorization": "Bearer " + id_token},
-    #     )
-    #     if response.status_code != 200:
-    #         return None, response.json()["detail"]
-    #     return response.json(), None

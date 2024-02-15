@@ -21,5 +21,6 @@ from .user import (
     TierLimitError,
     UserDoesNotExistError,
     UserAlreadyExistsError,
+    InvalidApiKey,
 )
 from .tags import InvalidTagError
