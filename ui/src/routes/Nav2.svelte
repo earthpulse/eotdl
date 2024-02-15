@@ -14,7 +14,7 @@
         { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
         { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
         {
-            href: "/https://hub.api.eotdl.com/",
+            href: "https://hub.api.eotdl.com/",
             label: "Cloud Workspace",
             icon: CloudCogOutline,
         },
