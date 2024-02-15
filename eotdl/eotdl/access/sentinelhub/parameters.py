@@ -42,7 +42,7 @@ class SHS2L1CParameters(SHParameters):
         "include": ["id", "properties.datetime", "properties.eo:cloud_cover"],
         "exclude": [],
     }
-
+    FILTER = None
 
 class SHS1Parameters(SHParameters):
     """
