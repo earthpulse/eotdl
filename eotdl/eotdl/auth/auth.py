@@ -6,7 +6,7 @@ from .errors import LoginError, AuthTimeOut
 from .is_logged import is_logged
 
 
-def auth(max_t=30, interval=2):
+def auth(max_t=60, interval=2):
     user = is_logged()
     if user:
         return user
