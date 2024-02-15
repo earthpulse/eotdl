@@ -2,6 +2,8 @@ from pathlib import Path
 import yaml
 from tqdm import tqdm
 import json
+import frontmatter
+import markdown
 
 from ..auth import with_auth
 from .metadata import Metadata
@@ -9,6 +11,7 @@ from ..repos import DatasetsAPIRepo, FilesAPIRepo
 from ..files import ingest_files, create_new_version
 from ..curation.stac import STACDataFrame
 from ..shared import calculate_checksum
+from .update import update_dataset
 
 
 def ingest_dataset(path, verbose=False, logger=print):
@@ -39,11 +42,24 @@ def retrieve_dataset(metadata, user):
 @with_auth
 def ingest_folder(folder, verbose=False, logger=print, user=None):
     repo = DatasetsAPIRepo()
-    # load metadata
-    metadata = yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
-    metadata = Metadata(**metadata)
+    try:
+        # load metadata (legacy)
+        metadata = (
+            yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
+        )
+        metadata = Metadata(**metadata)
+        content = None
+    except FileNotFoundError:
+        readme = frontmatter.load(folder.joinpath("README.md"))
+        metadata, content = readme.metadata, readme.content
+        metadata = Metadata(**metadata)
+    except Exception as e:
+        raise Exception("Error loading metadata: " + str(e))
     # retrieve dataset (create if doesn't exist)
     dataset_id = retrieve_dataset(metadata, user)
+    if content:
+        content = markdown.markdown(content)
+        update_dataset(dataset_id, content, user)
     # ingest files
     return ingest_files(
         repo, dataset_id, folder, verbose, logger, user, endpoint="datasets"

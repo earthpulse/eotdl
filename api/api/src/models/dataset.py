@@ -13,6 +13,7 @@ class Dataset(BaseModel):
     authors: List[str]
     source: str
     license: str
+    thumbnail: str = ""
     files: str
     versions: List[Version] = []
     description: str = ""

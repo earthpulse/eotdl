@@ -62,3 +62,11 @@ class DatasetsAPIRepo(APIRepo):
         if response.status_code != 200:
             return None, response.json()["detail"]
         return gpd.GeoDataFrame.from_features(response.json()["features"]), None
+
+    def update_dataset(self, dataset_id, content, user):
+        response = requests.put(
+            self.url + f"datasets/{dataset_id}",
+            json={"description": content},
+            headers=self.generate_headers(user),
+        )
+        return self.format_response(response)
