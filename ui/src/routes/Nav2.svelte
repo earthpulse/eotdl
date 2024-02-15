@@ -1,13 +1,25 @@
 <script>
     import { user } from "$stores/auth";
     import { page } from "$app/stores";
+    import HomeOutline from "svelte-material-icons/HomeOutline.svelte";
+    import DatabaseOutline from "svelte-material-icons/DatabaseOutline.svelte";
+    import TextBoxMultipleOutline from "svelte-material-icons/TextBoxMultipleOutline.svelte";
+    import CogOutline from "svelte-material-icons/CogOutline.svelte";
+    import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
+    import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
     export let loading;
 
     const links = [
-        { href: "/", label: "Home" },
-        { href: "/datasets", label: "Datasets" },
-        { href: "/models", label: "Models" },
-        { href: "/docs", label: "Docs" },
+        { href: "/", label: "Home", icon: HomeOutline },
+        { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
+        { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
+        {
+            href: "/https://hub.api.eotdl.com/",
+            label: "Cloud Workspace",
+            icon: CloudCogOutline,
+        },
+        { href: "/applications", label: "Applications", icon: CogOutline },
+        { href: "/docs", label: "Docs", icon: TextBoxMultipleOutline },
     ];
     const secondary_links = [
         // { href: "/", label: "Labelling" },
@@ -51,8 +63,16 @@
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
-            <li class="hidden sm:block">
-                <a href={link.href} class="hover:underline">{link.label}</a>
+            <li
+                class="hidden sm:block text-slate-500 gap-2 text-sm hover:text-slate-700"
+            >
+                <a
+                    href={link.href}
+                    class="hover:underline flex floex-row gap-1 items-center"
+                >
+                    <svelte:component this={link.icon} class="h-4 w-4" />
+                    {link.label}
+                </a>
             </li>
         {/each}
         <li>

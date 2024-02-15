@@ -54,7 +54,7 @@ def download_dataset(
             dst_path = repo.download_file(
                 dataset["id"],
                 filename,
-                user["id_token"],
+                user,
                 download_path,
                 file_version,
                 progress=True,
@@ -70,7 +70,7 @@ def download_dataset(
         repo = DatasetsAPIRepo()
         gdf, error = repo.download_stac(
             dataset["id"],
-            user["id_token"],
+            user,
         )
         if error:
             raise Exception(error)
@@ -89,7 +89,7 @@ def download_dataset(
                     _, filename = href.split("/download/")
                     # will overwrite assets with same name :(
                     repo.download_file_url(
-                        href, filename, f"{download_path}/assets", user["id_token"]
+                        href, filename, f"{download_path}/assets", user
                     )
         else:
             if verbose:
@@ -101,6 +101,4 @@ def download_dataset(
 def download_file_url(url, path, progress=True, logger=print, user=None):
     repo = FilesAPIRepo()
     _, filename = url.split("/download/")
-    return repo.download_file_url(
-        url, filename, f"{path}/assets", user["id_token"], progress
-    )
+    return repo.download_file_url(url, filename, f"{path}/assets", user, progress)

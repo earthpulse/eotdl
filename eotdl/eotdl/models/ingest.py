@@ -21,11 +21,11 @@ def retrieve_model(metadata, user):
     repo = ModelsAPIRepo()
     data, error = repo.retrieve_model(metadata.name)
     # print(data, error)
-    if data and data["uid"] != user["sub"]:
+    if data and data["uid"] != user["uid"]:
         raise Exception("Model already exists.")
     if error and error == "Model doesn't exist":
         # create dataset
-        data, error = repo.create_model(metadata.dict(), user["id_token"])
+        data, error = repo.create_model(metadata.dict(), user)
         # print(data, error)
         if error:
             raise Exception(error)

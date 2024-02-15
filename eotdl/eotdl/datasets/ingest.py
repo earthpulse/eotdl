@@ -24,11 +24,11 @@ def retrieve_dataset(metadata, user):
     repo = DatasetsAPIRepo()
     data, error = repo.retrieve_dataset(metadata.name)
     # print(data, error)
-    if data and data["uid"] != user["sub"]:
+    if data and data["uid"] != user["uid"]:
         raise Exception("Dataset already exists.")
     if error and error == "Dataset doesn't exist":
         # create dataset
-        data, error = repo.create_dataset(metadata.dict(), user["id_token"])
+        data, error = repo.create_dataset(metadata.dict(), user)
         # print(data, error)
         if error:
             raise Exception(error)
@@ -54,11 +54,11 @@ def retrieve_stac_dataset(dataset_name, user):
     repo = DatasetsAPIRepo()
     data, error = repo.retrieve_dataset(dataset_name)
     # print(data, error)
-    if data and data["uid"] != user["sub"]:
+    if data and data["uid"] != user["uid"]:
         raise Exception("Dataset already exists.")
     if error and error == "Dataset doesn't exist":
         # create dataset
-        data, error = repo.create_stac_dataset(dataset_name, user["id_token"])
+        data, error = repo.create_stac_dataset(dataset_name, user)
         # print(data, error)
         if error:
             raise Exception(error)
@@ -87,7 +87,7 @@ def ingest_stac(stac_catalog, logger=None, user=None):
                 data, error = files_repo.ingest_file(
                     v["href"],
                     dataset_id,
-                    user["id_token"],
+                    user,
                     calculate_checksum(v["href"]),  # is always absolute?
                     "datasets",
                     version,
@@ -101,9 +101,7 @@ def ingest_stac(stac_catalog, logger=None, user=None):
             break
     # ingest the STAC catalog into geodb
     logger("Ingesting STAC catalog...")
-    data, error = repo.ingest_stac(
-        json.loads(df.to_json()), dataset_id, user["id_token"]
-    )
+    data, error = repo.ingest_stac(json.loads(df.to_json()), dataset_id, user)
     if error:
         # TODO: delete all assets that were uploaded
         raise Exception(error)

@@ -11,3 +11,10 @@ class APIRepo:
         if response.status_code == 200:
             return response.json(), None
         return None, response.json()["detail"]
+
+    def generate_headers(self, data):
+        if "api_key" in data:
+            return {"X-API-Key": data["api_key"]}
+        if "id_token" in data:
+            return {"Authorization": "Bearer " + data["id_token"]}
+        raise Exception("Invalid headers")
