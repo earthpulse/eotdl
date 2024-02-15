@@ -45,7 +45,20 @@ def ingest(
     verbose: bool = typer.Option(
         False,
         "--verbose",
+        "-v",
         help="Verbose output. This will print the progress of the ingestion",
+    ),
+    foce_metadata_update: bool = typer.Option(
+        False,
+        "--force-metadata-update",
+        "-f",
+        help="Force metadata update even if it already exists. Will overwrite the current metadata in EOTDL",
+    ),
+    sync_metadata: bool = typer.Option(
+        False,
+        "--sync-metadata",
+        "-s",
+        help="Sync local metadata with the EOTDL. Will overwrite the local metadata",
     ),
 ):
     """
@@ -74,7 +87,7 @@ def ingest(
     $ eotdl dataset ingest --path /path/to/folder-with-dataset --verbose True
     """
     try:
-        ingest_dataset(path, verbose, typer.echo)
+        ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata)
     except Exception as e:
         typer.echo(e)
 
@@ -109,7 +122,7 @@ def get(
     If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
     If using --assets when the dataset is STAC, it will also download the STAC assets of the dataset. If not provided, it will only download the STAC metadata.\n
     If using --force, it will download the dataset even if the file already exists.\n
-    If using --verbose, it will print the progress of the download.
+    If using --verbose, it will print the progress of the download.\n
     \n\n
     Examples\n
     --------\n
@@ -118,7 +131,13 @@ def get(
     """
     try:
         dst_path = download_dataset(
-            dataset, version, path, typer.echo, assets, force, verbose
+            dataset,
+            version,
+            path,
+            typer.echo,
+            assets,
+            force,
+            verbose,
         )
         typer.echo(f"Data available at {dst_path}")
     except Exception as e:
