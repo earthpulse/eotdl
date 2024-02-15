@@ -39,5 +39,4 @@ RUN pip install pystac
 RUN pip install stac_validator
 RUN pip install geopandas
 RUN pip install pyarrow
-
 COPY ./api /api

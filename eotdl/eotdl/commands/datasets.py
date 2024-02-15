@@ -52,7 +52,7 @@ def ingest(
     Ingest a dataset to the EOTDL.
 
     This command ingests the dataset to the EOTDL. The dataset must be a folder with the dataset files,
-    and at least a metadata.yml file or a catalog.json file. If there are not these files, the ingestion
+    and at least a README.md file (and a catalog.json file for Q1+). If these files are missing, the ingestion
     will not work. All the files in the folder will be uploaded to the EOTDL.
     \n\n
     The following constraints apply to the dataset name:\n
@@ -60,12 +60,13 @@ def ingest(
     - It must be between 3 and 45 characters long\n
     - It can only contain alphanumeric characters and dashes.\n
     \n
-    The metadata.yml file must contain the following fields:\n
+    The README.md file must contain the following fields in the metadata header:\n
     - name: the name of the dataset\n
     - authors: the author or authors of the dataset\n
     - license: the license of the dataset\n
     - source: the source of the dataset\n
-    \n
+    - thumbnail: an image to use as the thumbnail of the dataset in the website\n
+    The rest of the content in the README.md file will be used as the description of the dataset in the website.
     If using --verbose, it will print the progress of the ingestion.
     \n\n
     Examples\n

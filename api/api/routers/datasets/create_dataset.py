@@ -22,6 +22,7 @@ class CreateDatasetBody(BaseModel):
     authors: List[str]
     source: str
     license: str
+    thumbnail: str
 
 
 @router.post("", summary="Create a new dataset", responses=create_dataset_responses)
@@ -35,10 +36,16 @@ def create(
     - authors: the author or authors of the dataset.
     - license: the license of the dataset.
     - source: the source of the dataset.
+    - thumbnail: an image to use as the thumbnail of the dataset in the website.
     """
     try:
         dataset_id = create_dataset(
-            user, metadata.name, metadata.authors, metadata.source, metadata.license
+            user,
+            metadata.name,
+            metadata.authors,
+            metadata.source,
+            metadata.license,
+            metadata.thumbnail,
         )
         return {"dataset_id": dataset_id}
     except Exception as e:

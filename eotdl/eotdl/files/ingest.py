@@ -13,8 +13,13 @@ from ..shared import calculate_checksum
 def retrieve_files(folder):
     # get all files in directory recursively
     items = [Path(item) for item in glob(str(folder) + "/**/*", recursive=True)]
-    if not any(item.name == "metadata.yml" for item in items):
-        raise Exception("metadata.yml not found in directory")
+    if not any(item.name == "metadata.yml" for item in items) and not any(
+        item.name == "README.md" for item in items
+    ):
+        raise Exception("README.md not found in directory")
+    # remove metadata files
+    items = [item for item in items if item.name != "metadata.yml"]
+    items = [item for item in items if item.name != "README.md"]
     # remove directories
     items = [item for item in items if not item.is_dir()]
     if len(items) == 0:
