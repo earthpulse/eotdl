@@ -31,6 +31,13 @@
 			message = null;
 		}, 1000);
 	};
+
+	let upgradeNotebook = "";
+	$: {
+		if (dataset?.quality == 0) upgradeNotebook = "03_q1_datasets";
+		else if (dataset?.quality == 1) upgradeNotebook = "04_q2_datasets";
+		else upgradeNotebook = "";
+	}
 </script>
 
 <svelte:head>
@@ -55,13 +62,15 @@
 					</div>
 				</span>
 
-				{#if $user}
-					<span class="flex flex-row gap-2">
-						<!-- <a
+				<span class="flex flex-row gap-2">
+					{#if dataset.quality < 2}
+						<a
 							class="btn btn-outline"
-							href={`https://notebooks.api.eotdl.com/?search=${dataset.name}`}
-							target="_blank">Open</a
-						> -->
+							href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
+							target="_blank">Upgrade</a
+						>
+					{/if}
+					{#if $user}
 						{#if $user.uid == dataset.uid}
 							<Update
 								store={datasets}
@@ -78,8 +87,8 @@
 								bind:selected_tags={dataset.tags}
 							/>
 						{/if}
-					</span>
-				{/if}
+					{/if}
+				</span>
 			</div>
 
 			<Info
@@ -114,7 +123,7 @@
 							class="bg-gray-200 p-3 overflow-x-auto text-sm"><button
 								on:click={() =>
 									copyToClipboard(
-										`eotdl datasets get ${dataset.name} -v ${version?.version_id}`
+										`eotdl datasets get ${dataset.name} -v ${version?.version_id}`,
 									)}
 								>eotdl datasets get {dataset.name} -v {version?.version_id}</button
 							></pre>
