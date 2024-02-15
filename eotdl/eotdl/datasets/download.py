@@ -6,7 +6,7 @@ from ..auth import with_auth
 from .retrieve import retrieve_dataset, retrieve_dataset_files
 from ..repos import FilesAPIRepo, DatasetsAPIRepo
 from ..curation.stac import STACDataFrame
-import markdownify
+from .metadata import generate_metadata
 
 
 @with_auth
@@ -96,17 +96,7 @@ def download_dataset(
                 logger("To download assets, set assets=True or -a in the CLI.")
     if verbose:
         logger("Generating README.md ...")
-        with open(download_path + "/README.md", "w") as f:
-            f.write("---\n")
-            f.write(f"name: {dataset['name']}\n")
-            f.write(f"license: {dataset['license']}\n")
-            f.write(f"source: {dataset['source']}\n")
-            f.write(f"thumbnail: {dataset['thumbnail']}\n")
-            f.write(f"authors:\n")
-            for author in dataset["authors"]:
-                f.write(f"  - {author}\n")
-            f.write("---\n")
-            f.write(markdownify.markdownify(dataset["description"]))
+        generate_metadata(download_path, dataset)
     if verbose:
         logger("Done")
     return download_path

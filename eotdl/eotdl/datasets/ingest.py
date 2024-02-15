@@ -12,15 +12,22 @@ from ..files import ingest_files, create_new_version
 from ..curation.stac import STACDataFrame
 from ..shared import calculate_checksum
 from .update import update_dataset
+from .metadata import generate_metadata
 
 
-def ingest_dataset(path, verbose=False, logger=print):
+def ingest_dataset(
+    path,
+    verbose=False,
+    logger=print,
+    force_metadata_update=False,
+    sync_metadata=False,
+):
     path = Path(path)
     if not path.is_dir():
         raise Exception("Path must be a folder")
     if "catalog.json" in [f.name for f in path.iterdir()]:
         return ingest_stac(path / "catalog.json", logger)
-    return ingest_folder(path, verbose, logger)
+    return ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
 
 
 def retrieve_dataset(metadata, user):
@@ -36,11 +43,18 @@ def retrieve_dataset(metadata, user):
         if error:
             raise Exception(error)
         data["id"] = data["dataset_id"]
-    return data["id"]
+    return data
 
 
 @with_auth
-def ingest_folder(folder, verbose=False, logger=print, user=None):
+def ingest_folder(
+    folder,
+    verbose=False,
+    logger=print,
+    force_metadata_update=False,
+    sync_metadata=False,
+    user=None,
+):
     repo = DatasetsAPIRepo()
     try:
         # load metadata (legacy)
@@ -56,14 +70,43 @@ def ingest_folder(folder, verbose=False, logger=print, user=None):
     except Exception as e:
         raise Exception("Error loading metadata: " + str(e))
     # retrieve dataset (create if doesn't exist)
-    dataset_id = retrieve_dataset(metadata, user)
+    dataset = retrieve_dataset(metadata, user)
     if content:
         content = markdown.markdown(content)
-        update_dataset(dataset_id, content, user)
+        print(content)
+        return
+    update_metadata = check_metadata(
+        dataset, metadata, content, force_metadata_update, sync_metadata, folder
+    )
+    if content and update_metadata:
+        update_dataset(dataset["id"], content, user)
     # ingest files
     return ingest_files(
-        repo, dataset_id, folder, verbose, logger, user, endpoint="datasets"
+        repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
     )
+
+
+def check_metadata(
+    dataset, metadata, content, force_metadata_update, sync_metadata, folder
+):
+    if (
+        dataset["name"] != metadata.name
+        or dataset["description"] != content
+        or dataset["authors"] != metadata.authors
+        or dataset["source"] != metadata.source
+        or dataset["license"] != metadata.license
+        or dataset["thumbnail"] != metadata.thumbnail
+    ):
+        if not force_metadata_update and not sync_metadata:
+            raise Exception(
+                "The provided metadata is not consistent with the current metadata. Use -m to force metadata update or -s to sync your local metadata."
+            )
+        if force_metadata_update:
+            return True
+        if sync_metadata:
+            generate_metadata(str(folder), dataset)
+            return False
+    return False
 
 
 def retrieve_stac_dataset(dataset_name, user):
