@@ -25,6 +25,21 @@ Then, create a new branch and implement your work, which should include testing 
 
 Finally, create a Pull Request to the `develop` branch so we can review it and merge it.
 
+To run the api:
+
+```
+docker-compose up
+```
+
+The first time you run it you have to initialize the database calling the `/admin/init-db` endpoint using the admin api key provided in the docker-compose file. This will create the `tiers` and `tags` collections required for the API to work.
+
+To run the cli:
+
+```
+export EOTDL_API_URL=http://localhost:8000 # or the url of the api
+python eotdl/main.py --help # or any other command
+```
+
 To run the tests:
 
 ```
