@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
+import prometheus_client.multiprocess
+from prometheus_client import CollectorRegistry, make_asgi_app
+
 from .routers.auth import (
     login,
     logout,
@@ -115,6 +118,19 @@ app.include_router(delete_model.router, prefix="/models", tags=["models"])
 # other
 app.include_router(admin.router)
 app.include_router(migrate.router)
+
+
+def make_metrics_app():
+    # Use multiprocess collector
+    # https://github.com/prometheus/client_python#multiprocess-mode-eg-gunicorn
+    registry = CollectorRegistry()
+    prometheus_client.multiprocess.MultiProcessCollector(registry)
+    return make_asgi_app(registry=registry)
+
+
+metrics_app = make_metrics_app()
+app.mount("/metrics", metrics_app)
+
 
 logging.basicConfig(
     filename="/tmp/eotdl-api.log",
