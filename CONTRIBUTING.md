@@ -33,10 +33,14 @@ docker-compose up
 
 The first time you run it you have to initialize the database calling the `/admin/init-db` endpoint using the admin api key provided in the docker-compose file. This will create the `tiers` and `tags` collections required for the API to work.
 
+```
+curl localhost:8010/admin/init-db -H 'X-API-Key: 12345678' # or the url/api key of the api
+```
+
 To run the cli:
 
 ```
-export EOTDL_API_URL=http://localhost:8000 # or the url of the api
+export EOTDL_API_URL=http://localhost:8010 # or the url of the api
 python eotdl/main.py --help # or any other command
 ```
 
