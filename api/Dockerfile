@@ -47,10 +47,6 @@ RUN pip install pystac
 RUN pip install stac_validator
 RUN pip install geopandas
 RUN pip install pyarrow
-<<<<<<< HEAD
-COPY ./api /api
-=======
 RUN pip install starlette_exporter
 
 COPY ./api /api
->>>>>>> main
