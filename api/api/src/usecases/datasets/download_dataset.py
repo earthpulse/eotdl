@@ -1,8 +1,18 @@
 import json
+import functools
+
+import prometheus_client
 
 from ...repos import OSRepo, GeoDBRepo, FilesDBRepo
 from .retrieve_dataset import retrieve_dataset, retrieve_owned_dataset
 from ..user import retrieve_user_credentials
+
+
+eotdl_api_downloaded_bytes = prometheus_client.Counter(
+    "eotdl_api_downloaded_bytes",
+    documentation="Bytes downloaded from this api",
+    labelnames=["user_email"],
+)
 
 
 def download_dataset_file(dataset_id, filename, user, version=None):
@@ -16,10 +26,15 @@ def download_dataset_file(dataset_id, filename, user, version=None):
             raise Exception("File does not exist")
         file = sorted(files["files"], key=lambda x: x["version"])[-1]
         version = file["version"]
-    data_stream = os_repo.data_stream
+
+    async def track_download_volume(*args, **kwargs):
+        async for data in os_repo.data_stream(*args, **kwargs):
+            eotdl_api_downloaded_bytes.labels(user.email).inc(len(data))
+            yield data
+
     filename = f"{filename}_{version}"
     object_info = os_repo.object_info(dataset_id, filename)
-    return data_stream, object_info, filename
+    return track_download_volume, object_info, filename
 
 
 def download_stac_catalog(dataset_id, user):
