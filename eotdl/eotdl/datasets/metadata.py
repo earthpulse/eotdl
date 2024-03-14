@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator
-from typing import List
+from typing import List, Optional
 import markdownify
 from pathlib import Path
 
@@ -9,7 +9,7 @@ class Metadata(BaseModel):
     license: str
     source: str
     name: str
-    thumbnail: str
+    thumbnail: Optional[str] = ""
 
     # validate source is a URL
     @validator("source")
