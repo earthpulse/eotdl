@@ -57,30 +57,30 @@ def ingest_folder(
 ):
     repo = DatasetsAPIRepo()
     try:
+        readme = frontmatter.load(folder.joinpath("README.md"))
+        metadata, content = readme.metadata, readme.content
+        metadata = Metadata(**metadata)
+    except FileNotFoundError:
         # load metadata (legacy)
         metadata = (
             yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
         )
         metadata = Metadata(**metadata)
         content = None
-    except FileNotFoundError:
-        readme = frontmatter.load(folder.joinpath("README.md"))
-        metadata, content = readme.metadata, readme.content
-        metadata = Metadata(**metadata)
     except Exception as e:
         raise Exception("Error loading metadata: " + str(e))
     # retrieve dataset (create if doesn't exist)
     dataset = retrieve_dataset(metadata, user)
     if content:
         content = markdown.markdown(content)
-        print(content)
-        return
-    update_metadata = check_metadata(
-        dataset, metadata, content, force_metadata_update, sync_metadata, folder
-    )
-    if content and update_metadata:
-        update_dataset(dataset["id"], content, user)
-    # ingest files
+    update_metadata = True
+    if "description" in dataset:
+        # do not do this if the dataset is new, only if it already exists
+        update_metadata = check_metadata(
+            dataset, metadata, content, force_metadata_update, sync_metadata, folder
+        )
+    if update_metadata:
+        update_dataset(dataset["id"], metadata, content, user)
     return ingest_files(
         repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
     )
@@ -99,7 +99,7 @@ def check_metadata(
     ):
         if not force_metadata_update and not sync_metadata:
             raise Exception(
-                "The provided metadata is not consistent with the current metadata. Use -m to force metadata update or -s to sync your local metadata."
+                "The provided metadata is not consistent with the current metadata. Use -f to force metadata update or -s to sync your local metadata."
             )
         if force_metadata_update:
             return True

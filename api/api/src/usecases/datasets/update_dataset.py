@@ -26,7 +26,9 @@ def toggle_like_dataset(dataset_id, user):
     return "done"
 
 
-def update_dataset(dataset_id, user, name, authors, source, license, tags, description):
+def update_dataset(
+    dataset_id, user, name, authors, source, license, tags, description, thumbnail
+):
     dataset = retrieve_owned_dataset(dataset_id, user.uid)
     # validate name
     if name:
@@ -57,6 +59,7 @@ def update_dataset(dataset_id, user, name, authors, source, license, tags, descr
             authors=authors if authors is not None else dataset.authors,
             source=source if source is not None else dataset.source,
             license=license if license is not None else dataset.license,
+            thumbnail=thumbnail if thumbnail is not None else dataset.thumbnail,
         )
     updated_dataset = Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
     # update dataset in db

@@ -1,5 +1,8 @@
 import typer
+import os
+
 from .commands import auth, datasets, models
+from .repos import APIRepo
 from . import __version__
 
 app = typer.Typer(help="Welcome to EOTDL. Learn more at https://www.eotdl.com/")
@@ -15,6 +18,16 @@ def version():
     Get EOTDL version.
     """
     typer.echo(f"EOTDL Version: {__version__}")
+
+
+@app.command()
+def api():
+    """
+    Get EOTDL API URL and info.
+    """
+    repo = APIRepo()
+    typer.echo(f"EOTDL API URL: {repo.url}")
+    typer.echo(repo.get_info())
 
 
 if __name__ == "__main__":

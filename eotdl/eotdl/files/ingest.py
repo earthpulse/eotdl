@@ -134,7 +134,7 @@ def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpo
                 parts,
                 endpoint,
             )
-            files_repo.complete_upload(user, upload_id, version, endpoint)
+            data, error = files_repo.complete_upload(user, upload_id, version, endpoint)
     # ingest new small files in batches
     if len(upload_files) > 0:
         logger("generating batches...")

@@ -63,10 +63,18 @@ class DatasetsAPIRepo(APIRepo):
             return None, response.json()["detail"]
         return gpd.GeoDataFrame.from_features(response.json()["features"]), None
 
-    def update_dataset(self, dataset_id, content, user):
+    def update_dataset(
+        self, dataset_id, authors, source, license, thumbnail, content, user
+    ):
         response = requests.put(
             self.url + f"datasets/{dataset_id}",
-            json={"description": content},
+            json={
+                "authors": authors,
+                "source": source,
+                "license": license,
+                "thumbnail": thumbnail,
+                "description": content,
+            },
             headers=self.generate_headers(user),
         )
         return self.format_response(response)

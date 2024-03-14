@@ -19,7 +19,9 @@ def toggle_like_model(model_id, user):
     return "done"
 
 
-def update_model(model_id, user, name, authors, source, license, tags, description):
+def update_model(
+    model_id, user, name, authors, source, license, tags, description, thumbnail
+):
     model = retrieve_owned_model(model_id, user.uid)
     # validate name
     if name:
@@ -50,6 +52,7 @@ def update_model(model_id, user, name, authors, source, license, tags, descripti
             authors=authors if authors is not None else model.authors,
             source=source if source is not None else model.source,
             license=license if license is not None else model.license,
+            thumbnail=thumbnail if thumbnail is not None else model.thumbnail,
         )
     updated_model = Model(**data)
     # update model in db

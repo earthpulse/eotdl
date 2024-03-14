@@ -96,7 +96,7 @@ def download_dataset(
                 logger("To download assets, set assets=True or -a in the CLI.")
     if verbose:
         logger("Generating README.md ...")
-        generate_metadata(download_path, dataset)
+    generate_metadata(download_path, dataset)
     if verbose:
         logger("Done")
     return download_path

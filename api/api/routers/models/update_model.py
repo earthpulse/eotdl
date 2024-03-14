@@ -32,6 +32,7 @@ class UpdateBody(BaseModel):
     authors: Optional[List[str]] = None
     source: Optional[str] = None
     license: Optional[str] = None
+    thumbnail: Optional[str] = None
 
 
 @router.put("/{model_id}", summary="Update a model", responses=update_model_responses)
@@ -48,6 +49,7 @@ def update(
     - authors: the author or authors of the model.
     - license: the license of the model.
     - source: the source of the model.
+    - thumbnail: the thumbnail of the model.
     """
     try:
         return update_model(
@@ -59,6 +61,7 @@ def update(
             body.license,
             body.tags,
             body.description,
+            body.thumbnail,
         )
     except Exception as e:
         logger.exception("models:ingest")

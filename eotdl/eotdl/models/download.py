@@ -6,6 +6,7 @@ from ..auth import with_auth
 from .retrieve import retrieve_model, retrieve_model_files
 from ..shared import calculate_checksum
 from ..repos import FilesAPIRepo
+from .metadata import generate_metadata
 
 
 @with_auth
@@ -75,9 +76,6 @@ def download_model(
             )
             # if calculate_checksum(dst_path) != checksum:
             #     logger(f"Checksum for {file} does not match")
-            if verbose:
-                logger("Done")
-        return "/".join(dst_path.split("/")[:-1])
     else:
         raise NotImplementedError("Downloading a STAC model is not implemented")
     #     logger("Downloading STAC metadata...")
@@ -108,3 +106,9 @@ def download_model(
     #     else:
     #         logger("To download assets, set assets=True or -a in the CLI.")
     #     return Outputs(dst_path=path)
+    if verbose:
+        logger("Generating README.md ...")
+    generate_metadata(download_path, model)
+    if verbose:
+        logger("Done")
+    return download_path
