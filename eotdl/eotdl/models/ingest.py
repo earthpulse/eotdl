@@ -61,7 +61,7 @@ def ingest_folder(
         metadata = Metadata(**metadata)
         content = None
     except Exception as e:
-        raise Exception("Error loading metadata: " + str(e))
+        raise Exception("Error loading metadata")
     # retrieve model (create if doesn't exist)
     model = retrieve_model(metadata, user)
     if content:
