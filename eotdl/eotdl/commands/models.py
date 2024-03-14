@@ -45,6 +45,18 @@ def ingest(
         "--verbose",
         help="Verbose output. This will print the progress of the ingestion",
     ),
+    foce_metadata_update: bool = typer.Option(
+        False,
+        "--force-metadata-update",
+        "-f",
+        help="Force metadata update even if it already exists. Will overwrite the current metadata in EOTDL",
+    ),
+    sync_metadata: bool = typer.Option(
+        False,
+        "--sync-metadata",
+        "-s",
+        help="Sync local metadata with the EOTDL. Will overwrite the local metadata",
+    ),
 ):
     """
     Ingest a model to the EOTDL.
@@ -63,6 +75,7 @@ def ingest(
     - authors: the author or authors of the model\n
     - license: the license of the model\n
     - source: the source of the model\n
+    - thumbnail: an image to use as the thumbnail of the dataset in the website\n
     \n
     If using --verbose, it will print the progress of the ingestion.
     \n\n
@@ -71,7 +84,7 @@ def ingest(
     $ eotdl models ingest --path /path/to/folder-with-model --verbose True
     """
     try:
-        ingest_model(path, verbose, typer.echo)
+        ingest_model(path, verbose, typer.echo, foce_metadata_update, sync_metadata)
     except Exception as e:
         typer.echo(e)
 

@@ -1,4 +1,5 @@
 import os
+import requests
 
 
 class APIRepo:
@@ -18,3 +19,7 @@ class APIRepo:
         if "id_token" in data:
             return {"Authorization": "Bearer " + data["id_token"]}
         raise Exception("Invalid headers")
+
+    def get_info(self):
+        response = requests.get(self.url)
+        return self.format_response(response)

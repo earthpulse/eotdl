@@ -16,6 +16,7 @@ class Model(BaseModel):
     files: str
     versions: List[Version] = []
     description: str = ""
+    thumbnail: str = ""
     tags: List[str] = []
     createdAt: datetime = datetime.now()
     updatedAt: datetime = datetime.now()

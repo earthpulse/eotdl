@@ -37,3 +37,19 @@ class ModelsAPIRepo(APIRepo):
             headers=self.generate_headers(user),
         )
         return self.format_response(response)
+
+    def update_model(
+        self, model_id, authors, source, license, thumbnail, content, user
+    ):
+        response = requests.put(
+            self.url + f"models/{model_id}",
+            json={
+                "authors": authors,
+                "source": source,
+                "license": license,
+                "thumbnail": thumbnail,
+                "description": content,
+            },
+            headers=self.generate_headers(user),
+        )
+        return self.format_response(response)

@@ -33,6 +33,7 @@ class UpdateBody(BaseModel):
     authors: Optional[List[str]] = None
     source: Optional[str] = None
     license: Optional[str] = None
+    thumbnail: Optional[str] = None
 
 
 @router.put(
@@ -51,6 +52,7 @@ def update(
     - authors: the author or authors of the dataset.
     - license: the license of the dataset.
     - source: the source of the dataset.
+    - thumbnail: the thumbnail of the dataset.
     """
     try:
         return update_dataset(
@@ -62,6 +64,7 @@ def update(
             body.license,
             body.tags,
             body.description,
+            body.thumbnail,
         )
     except Exception as e:
         logger.exception("datasets:ingest")
