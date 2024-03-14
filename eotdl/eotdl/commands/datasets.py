@@ -50,13 +50,13 @@ def ingest(
     ),
     foce_metadata_update: bool = typer.Option(
         False,
-        "--force-metadata-update",
+        "--force",
         "-f",
         help="Force metadata update even if it already exists. Will overwrite the current metadata in EOTDL",
     ),
     sync_metadata: bool = typer.Option(
         False,
-        "--sync-metadata",
+        "--sync",
         "-s",
         help="Sync local metadata with the EOTDL. Will overwrite the local metadata",
     ),
