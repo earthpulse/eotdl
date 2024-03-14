@@ -55,9 +55,13 @@ some markdown content (titles, text, links, code, images, ...)
 
 If this file is not present, the ingestion process will fail.
 
-> After uploading a dataset with the CLI we recommend visiting the dataset page to fill in the rest of the information.
+> After uploading a dataset with the CLI you can visiting the dataset page to edit this information.
 
 You can update your dataset in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
+
+If the metadata in the `README.md` file is not consistent with the one in the platform (either because you edited the file or because you edited the dataset in the platform), you should use:
+- the `--force` flag to overwrite the metadata in the platform with the one in the `README.md` file.
+- the `--sync` flag to update your file with the metadata in the platform.
 
 For Q1+ datasets, a file called `catalog.json` is expected in the root of the folder containing the STAC metadata for your dataset, that will be used as an entrypoint to ingest all the assets.
 
