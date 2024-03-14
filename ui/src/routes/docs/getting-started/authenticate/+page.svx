@@ -34,9 +34,13 @@ You will receive a logout url that you can visit in case you want to authenticat
 
 In any case, you will be prompted to authenticate if you execute command that requires authentication and you are not logged in.
 
+Alternatively, you can authenticate with an API key. To do so, set an environment variable with the key `EOTDL_API_KEY` and the value of your API key.
+
+> At this moment we are not enabling all users to generate API keys. If you need one, please contact us.
+
 ## Library
 
-The CLI is built on top of the library, so again you will be prompted to authenticate if you execute a function that requires authentication and you are not logged in.
+The CLI is built on top of the library, so again you will be prompted to authenticate if you execute a function that requires authentication and you are not logged in (or use an environment variable with your API Key).
 
 ## API
 
@@ -54,7 +58,7 @@ You'll reveice a URL that you can visit to authenticate and a code to retrieve y
   '{api_url}/auth/token?code=your code here' \
   -H 'accept: application/json'</Code></Api>
 
-You can now use the token to authenticate in any future request (at least while it is valid).
+You can now use the token to authenticate in any future request (at least while it is valid) adding a `Bearer Token` header to your requests..
 
 If you want to use a different account in the future, you will have to visit the logout url provided at the `logout` endpoint.
 
@@ -62,6 +66,7 @@ If you want to use a different account in the future, you will have to visit the
   '{api_url}/auth/logout' \
   -H 'accept: application/json'</Code></Api> 
 
+Alternatively, you can authenticate with an API key. To do so, use the header `X-API-KEY` with the value of your API key.
 
 ## User Interface
 

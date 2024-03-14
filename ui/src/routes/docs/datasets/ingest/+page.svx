@@ -36,9 +36,10 @@ The CLI is the most convenient way to ingest datasets. You can ingest a dataset 
 
 Where `dataset-path` is the path to a folder containing your dataset. 
 
-For Q0 datasets, a file named `metadata.yml` is expected in the root of the folder. This file should contain the following information:
+For Q0 datasets, a file named `README.md` is expected in the root of the folder. This file should contain the following information:
 
 ```yaml
+---
 name: dataset-name
 authors: 
   - author 1 name
@@ -46,6 +47,10 @@ authors:
   - ...
 license: dataset license
 source: link to source
+thumbnail: link to thumbnail (optional)
+---
+
+some markdown content (titles, text, links, code, images, ...)
 ```
 
 If this file is not present, the ingestion process will fail.
