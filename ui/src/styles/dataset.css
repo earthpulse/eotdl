@@ -1,3 +1,8 @@
+.content {
+    @apply flex flex-col max-w-full;
+
+}
+
 .content a {
     @apply text-green-200 underline;
 }
@@ -15,5 +20,5 @@
 }
 
 .content pre {
-    @apply bg-gray-800 text-white p-4 rounded-lg;
+    @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto;
 }
