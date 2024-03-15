@@ -17,3 +17,7 @@ h2 {
 blockquote {
     @apply border-l-4 border-green-200 pl-4 bg-slate-100;
 }
+
+pre {
+    @apply overflow-x-auto;
+}

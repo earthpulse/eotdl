@@ -89,8 +89,8 @@
 				bind:version
 			/>
 
-			<div class="grid grid-cols-[auto,425px] gap-3 mt-5">
-				<div>
+			<div class="grid grid-cols-[auto,350px] gap-3 mt-5">
+				<div class="w-full overflow-auto">
 					<div class="content">
 						{#if model.description}
 							{@html model.description}
@@ -107,20 +107,19 @@
 							)}</pre>
 					{/if} -->
 				</div>
-				<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-3 text-xs">
 					<p>Download the model with the CLI:</p>
 					<div class="relative">
-						<pre
-							class="bg-gray-200 p-3 overflow-x-auto text-sm"><button
+						<pre class="bg-gray-200 p-3 overflow-x-auto"><button
 								on:click={() =>
 									copyToClipboard(
-										`eotdl datasets get ${model.name} -v ${version?.version_id}`
+										`eotdl models get ${model.name} -v ${version?.version_id}`,
 									)}
 								>eotdl models get {model.name} -v {version?.version_id}</button
 							></pre>
 						{#if message}
 							<span
-								class="text-sm text-gray-400 absolute bottom-[-20px] right-0"
+								class=" text-gray-400 absolute bottom-[-20px] right-0"
 								in:fade
 								out:fade>{message}</span
 							>

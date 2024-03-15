@@ -98,8 +98,8 @@
 				bind:version
 			/>
 
-			<div class="grid grid-cols-[auto,425px] gap-3 mt-5">
-				<div>
+			<div class="grid grid-cols-[auto,350px] gap-3 mt-5">
+				<div class="w-full overflow-auto">
 					<div class="content">
 						{#if dataset.description}
 							{@html dataset.description}
@@ -116,11 +116,10 @@
 							)}</pre>
 					{/if} -->
 				</div>
-				<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-3 text-xs">
 					<p>Download the dataset with the CLI:</p>
 					<div class="relative">
-						<pre
-							class="bg-gray-200 p-3 overflow-x-auto text-sm"><button
+						<pre class="bg-gray-200 p-3 overflow-x-auto"><button
 								on:click={() =>
 									copyToClipboard(
 										`eotdl datasets get ${dataset.name} -v ${version?.version_id}`,
@@ -129,7 +128,7 @@
 							></pre>
 						{#if message}
 							<span
-								class="text-sm text-gray-400 absolute bottom-[-20px] right-0"
+								class="text-gray-400 absolute bottom-[-20px] right-0"
 								in:fade
 								out:fade>{message}</span
 							>
