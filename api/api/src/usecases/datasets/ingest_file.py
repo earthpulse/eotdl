@@ -2,12 +2,17 @@ from datetime import datetime
 import zipfile
 import io
 import os
+import geopandas as gpd
+import json
+import shutil
 
 from .retrieve_dataset import retrieve_owned_dataset
 from ...errors import DatasetVersionDoesNotExistError
 from ...repos import DatasetsDBRepo, GeoDBRepo
 from ..files import ingest_file, ingest_existing_file
 from ..user import retrieve_user_credentials
+from .stac import MLDatasetQualityMetrics
+from ..utils.stac import STACDataFrame
 
 
 async def ingest_dataset_file(file, dataset_id, checksum, user, version):
@@ -90,18 +95,41 @@ def ingest_stac(stac, dataset_id, user):
     # check if dataset exists
     dataset = retrieve_owned_dataset(dataset_id, user.uid)
     # TODO: check all assets exist in os
+    # generate catalog
+    values = gpd.GeoDataFrame.from_features(stac["features"], crs="4326")  # ???
+    catalog = values[values["type"] == "Catalog"]
+    assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
+    catalog = json.loads(catalog.to_json())["features"][0]["properties"]
+    keys = list(catalog.keys())
+    dataset_quality = 1
+    # TODO: validate Q1 dataset with required fields/extensions (author, license)
+    # TODO: validate Q2 dataset, not only check name
+    if "ml-dataset:name" in keys:
+        dataset_quality = 2
+        # compute and report automatic qa metrics
+        # save stac locally
+        tmp_path = f"/tmp/{dataset_id}"
+        df = STACDataFrame(values)
+        df.to_stac(tmp_path)
+        # compute metrics
+        catalog_path = f"{tmp_path}/{dataset.name}/catalog.json"
+        MLDatasetQualityMetrics.calculate(catalog_path)
+        # overwrite catalog with computed metrics
+        df = STACDataFrame.from_stac_file(catalog_path)
+        catalog = df[df["type"] == "Catalog"]
+        # print("1", catalog)
+        catalog = json.loads(catalog.to_json())["features"][0]["properties"]
+        # print("2", catalog)
+        # delete tmp files
+        shutil.rmtree(tmp_path)
+    print("quality", dataset_quality)
     # ingest to geodb
     credentials = retrieve_user_credentials(user)
     geodb_repo = GeoDBRepo(credentials)
-    catalog = geodb_repo.insert(dataset.id, stac)
+    geodb_repo.insert(dataset.id, values)
     # the catalog should contain all the info we want to show in the UI
     dataset.catalog = catalog
-    keys = list(catalog.keys())
-    if "ml-dataset:name" in keys:
-        dataset.quality = 2
-        # TODO: compute and report automatic qa metrics
-    # TODO: validate Q2 dataset, not only check name
-    # TODO: validate Q1 dataset with required fields/extensions (author, license)
+    dataset.quality = dataset_quality
     repo = DatasetsDBRepo()
     dataset.updatedAt = datetime.now()
     repo.update_dataset(dataset.id, dataset.model_dump())

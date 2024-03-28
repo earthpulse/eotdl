@@ -60,11 +60,10 @@ def download_dataset(
                 file_version,
                 progress=True,
             )
-            # if calculate_checksum(dst_path) != checksum:
-            #     logger(f"Checksum for {file} does not match")
-
+            if verbose:
+                logger("Generating README.md ...")
+            generate_metadata(download_path, dataset)
     else:
-        # raise NotImplementedError("Downloading a STAC dataset is not implemented")
         if verbose:
             logger("Downloading STAC metadata...")
         repo = DatasetsAPIRepo()
@@ -92,11 +91,7 @@ def download_dataset(
                         href, filename, f"{download_path}/assets", user
                     )
         else:
-            if verbose:
-                logger("To download assets, set assets=True or -a in the CLI.")
-    if verbose:
-        logger("Generating README.md ...")
-    generate_metadata(download_path, dataset)
+            logger("To download assets, set assets=True or -a in the CLI.")
     if verbose:
         logger("Done")
     return download_path

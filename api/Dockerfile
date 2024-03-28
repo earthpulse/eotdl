@@ -48,5 +48,7 @@ RUN pip install stac_validator
 RUN pip install geopandas
 RUN pip install pyarrow
 RUN pip install starlette_exporter
+RUN pip install geomet
+RUN pip install rasterio
 
 COPY ./api /api
