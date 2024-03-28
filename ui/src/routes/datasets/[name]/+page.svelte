@@ -107,14 +107,14 @@
 							<p class="italic">No description.</p>
 						{/if}
 					</div>
-					<!-- {#if dataset.quality > 0}
+					{#if dataset.quality > 0}
 						<pre
 							class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
 								dataset.catalog,
 								null,
-								4
+								4,
 							)}</pre>
-					{/if} -->
+					{/if}
 				</div>
 				<div class="flex flex-col gap-3 text-xs">
 					<p>Download the dataset with the CLI:</p>

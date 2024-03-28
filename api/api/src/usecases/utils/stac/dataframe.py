@@ -15,7 +15,7 @@ import geopandas as gpd
 import pystac
 from geomet import wkt
 
-from ...tools import convert_df_geom_to_shape, get_all_children
+from ..tools import convert_df_geom_to_shape, get_all_children
 
 
 class STACDataFrame(gpd.GeoDataFrame):
