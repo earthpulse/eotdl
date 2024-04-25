@@ -68,6 +68,7 @@ def ingest_folder(
         metadata = Metadata(**metadata)
         content = None
     except Exception as e:
+        # print(str(e))
         raise Exception("Error loading metadata")
     # retrieve dataset (create if doesn't exist)
     dataset = retrieve_dataset(metadata, user)
