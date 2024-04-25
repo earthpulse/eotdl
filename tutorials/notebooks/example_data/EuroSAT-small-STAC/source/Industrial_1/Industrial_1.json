@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Industrial_1",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          6.552172186446627,
+          49.684546561787435
+        ],
+        [
+          6.552172186446627,
+          49.690471592601234
+        ],
+        [
+          6.561327353873774,
+          49.690471592601234
+        ],
+        [
+          6.561327353873774,
+          49.684546561787435
+        ],
+        [
+          6.552172186446627,
+          49.684546561787435
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Industrial_1": {
+      "href": "../../../EuroSAT-small/Industrial/Industrial_1.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Industrial_1",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    6.552172186446627,
+    49.684546561787435,
+    6.561327353873774,
+    49.690471592601234
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

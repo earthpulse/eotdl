@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "River_1002",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          6.1810100934779975,
+          52.160358345384125
+        ],
+        [
+          6.1810100934779975,
+          52.16635452615222
+        ],
+        [
+          6.190776106312848,
+          52.16635452615222
+        ],
+        [
+          6.190776106312848,
+          52.160358345384125
+        ],
+        [
+          6.1810100934779975,
+          52.160358345384125
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "River_1002": {
+      "href": "../../../EuroSAT-small/River/River_1002.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "River_1002",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    6.1810100934779975,
+    52.160358345384125,
+    6.190776106312848,
+    52.16635452615222
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

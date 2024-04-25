@@ -1,0 +1,108 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "PermanentCrop_1000",
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "River",
+          "Residential",
+          "HerbaceousVegetation",
+          "PermanentCrop",
+          "Forest",
+          "SeaLake",
+          "Industrial",
+          "Highway",
+          "Pasture",
+          "AnnualCrop"
+        ],
+        "name": [
+          "label"
+        ]
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "vector",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "manual"
+    ],
+    "label:tasks": [
+      "classification"
+    ],
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          8.236893272459568,
+          49.8870385360373
+        ],
+        [
+          8.236893272459568,
+          49.89285363824675
+        ],
+        [
+          8.2458872886539,
+          49.89285363824675
+        ],
+        [
+          8.2458872886539,
+          49.8870385360373
+        ],
+        [
+          8.236893272459568,
+          49.8870385360373
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../source/PermanentCrop_1000/PermanentCrop_1000.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "./PermanentCrop_1000.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-vector"
+      ]
+    }
+  },
+  "bbox": [
+    8.236893272459568,
+    49.8870385360373,
+    8.2458872886539,
+    49.89285363824675
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+  ],
+  "collection": "labels"
+}

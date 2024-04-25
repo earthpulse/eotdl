@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "PermanentCrop_1",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          4.727521729681705,
+          46.76329600930407
+        ],
+        [
+          4.727521729681705,
+          46.76919557391016
+        ],
+        [
+          4.736073382232117,
+          46.76919557391016
+        ],
+        [
+          4.736073382232117,
+          46.76329600930407
+        ],
+        [
+          4.727521729681705,
+          46.76329600930407
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "PermanentCrop_1": {
+      "href": "../../../EuroSAT-small/PermanentCrop/PermanentCrop_1.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "PermanentCrop_1",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    4.727521729681705,
+    46.76329600930407,
+    4.736073382232117,
+    46.76919557391016
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Residential_1000",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          7.515627158754545,
+          45.02897066269921
+        ],
+        [
+          7.515627158754545,
+          45.03482630594265
+        ],
+        [
+          7.523897567114354,
+          45.03482630594265
+        ],
+        [
+          7.523897567114354,
+          45.02897066269921
+        ],
+        [
+          7.515627158754545,
+          45.02897066269921
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Residential_1000": {
+      "href": "../../../EuroSAT-small/Residential/Residential_1000.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Residential_1000",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    7.515627158754545,
+    45.02897066269921,
+    7.523897567114354,
+    45.03482630594265
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Forest_1001",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          7.39722157011432,
+          45.01120880405996
+        ],
+        [
+          7.39722157011432,
+          45.017079920020784
+        ],
+        [
+          7.405498874118838,
+          45.017079920020784
+        ],
+        [
+          7.405498874118838,
+          45.01120880405996
+        ],
+        [
+          7.39722157011432,
+          45.01120880405996
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Forest_1001": {
+      "href": "../../../EuroSAT-small/Forest/Forest_1001.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Forest_1001",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    7.39722157011432,
+    45.01120880405996,
+    7.405498874118838,
+    45.017079920020784
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

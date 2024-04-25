@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Highway_1002",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -1.7001008966546742,
+          48.13812991004077
+        ],
+        [
+          -1.7001008966546742,
+          48.14400498696902
+        ],
+        [
+          -1.6913895875953857,
+          48.14400498696902
+        ],
+        [
+          -1.6913895875953857,
+          48.13812991004077
+        ],
+        [
+          -1.7001008966546742,
+          48.13812991004077
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Highway_1002": {
+      "href": "../../../EuroSAT-small/Highway/Highway_1002.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Highway_1002",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -1.7001008966546742,
+    48.13812991004077,
+    -1.6913895875953857,
+    48.14400498696902
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

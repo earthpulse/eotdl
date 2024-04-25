@@ -1,0 +1,23 @@
+{
+  "type": "Catalog",
+  "id": "EuroSAT-Q1-small",
+  "stac_version": "1.0.0",
+  "description": "EuroSAT dataset (only 10 samples per class)",
+  "links": [
+    {
+      "rel": "root",
+      "href": "./catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./source/collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./labels/collection.json",
+      "type": "application/json"
+    }
+  ]
+}
