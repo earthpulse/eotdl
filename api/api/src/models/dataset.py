@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 from datetime import datetime
 from typing import List
 
@@ -18,8 +18,8 @@ class Dataset(BaseModel):
     versions: List[Version] = []
     description: str = ""
     tags: List[str] = []
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
     likes: int = 0
     downloads: int = 0
     quality: int = 0
@@ -44,8 +44,8 @@ class STACDataset(BaseModel):
     name: str
     description: str = ""
     tags: List[str] = []
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
     likes: int = 0
     downloads: int = 0
     quality: int = 1

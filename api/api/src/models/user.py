@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from enum import Enum
 
@@ -21,8 +21,8 @@ class User(BaseModel):
     name: str
     email: str
     picture: str
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
     dataset_count: int = 0
     models_count: int = 0
     tier: Tier = Tier.FREE

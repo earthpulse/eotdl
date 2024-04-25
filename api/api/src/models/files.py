@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
 
@@ -9,7 +9,7 @@ class File(BaseModel):
     checksum: str
     version: int
     versions: List[int] = []
-    createdAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
 
 
 class Folder(BaseModel):
@@ -22,8 +22,8 @@ class Files(BaseModel):
     dataset: str
     files: List[File] = []
     folders: List[Folder] = []
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
 
 
 class UploadingFile(BaseModel):
@@ -35,6 +35,6 @@ class UploadingFile(BaseModel):
     dataset: Optional[str] = None
     model: Optional[str] = None
     checksum: str
-    createdAt: datetime = datetime.now()
-    updatedAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
     parts: List[int] = []
