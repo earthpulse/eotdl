@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "Pasture_100",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -3.8054406019086264,
+          55.73021234300808
+        ],
+        [
+          -3.8054406019086264,
+          55.736028540621824
+        ],
+        [
+          -3.795152985841864,
+          55.736028540621824
+        ],
+        [
+          -3.795152985841864,
+          55.73021234300808
+        ],
+        [
+          -3.8054406019086264,
+          55.73021234300808
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "Pasture_100": {
+      "href": "../../../EuroSAT-small/Pasture/Pasture_100.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "Pasture_100",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -3.8054406019086264,
+    55.73021234300808,
+    -3.795152985841864,
+    55.736028540621824
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

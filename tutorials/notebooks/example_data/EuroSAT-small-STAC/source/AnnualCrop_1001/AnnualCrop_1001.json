@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "AnnualCrop_1001",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          18.08012218006093,
+          51.82985015858609
+        ],
+        [
+          18.08012218006093,
+          51.8358523355937
+        ],
+        [
+          18.089798501486392,
+          51.8358523355937
+        ],
+        [
+          18.089798501486392,
+          51.82985015858609
+        ],
+        [
+          18.08012218006093,
+          51.82985015858609
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "AnnualCrop_1001": {
+      "href": "../../../EuroSAT-small/AnnualCrop/AnnualCrop_1001.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "AnnualCrop_1001",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    18.08012218006093,
+    51.82985015858609,
+    18.089798501486392,
+    51.8358523355937
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "HerbaceousVegetation_1001",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -5.731476499067452,
+          37.690142911009026
+        ],
+        [
+          -5.731476499067452,
+          37.69610598157631
+        ],
+        [
+          -5.723975269292267,
+          37.69610598157631
+        ],
+        [
+          -5.723975269292267,
+          37.690142911009026
+        ],
+        [
+          -5.731476499067452,
+          37.690142911009026
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "HerbaceousVegetation_1001": {
+      "href": "../../../EuroSAT-small/HerbaceousVegetation/HerbaceousVegetation_1001.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "HerbaceousVegetation_1001",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -5.731476499067452,
+    37.690142911009026,
+    -5.723975269292267,
+    37.69610598157631
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}

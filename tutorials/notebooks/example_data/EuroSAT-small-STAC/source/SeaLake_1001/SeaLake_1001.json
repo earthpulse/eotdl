@@ -1,0 +1,70 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "SeaLake_1001",
+  "properties": {
+    "datetime": "2000-01-01T00:00:00Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          26.957829637595477,
+          62.704398666523
+        ],
+        [
+          26.957829637595477,
+          62.710146041616
+        ],
+        [
+          26.97035260321117,
+          62.710146041616
+        ],
+        [
+          26.97035260321117,
+          62.704398666523
+        ],
+        [
+          26.957829637595477,
+          62.704398666523
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "SeaLake_1001": {
+      "href": "../../../EuroSAT-small/SeaLake/SeaLake_1001.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "SeaLake_1001",
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    26.957829637595477,
+    62.704398666523,
+    26.97035260321117,
+    62.710146041616
+  ],
+  "stac_extensions": [],
+  "collection": "source"
+}
