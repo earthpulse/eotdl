@@ -10,6 +10,7 @@ from .datasets import (
     UploadIdDoesNotExist,
     ChecksumMismatch,
     DatasetVersionDoesNotExistError,
+	DatasetShouldBeSTAC
 )
 from .models import (
     ModelDoesNotExistError,
