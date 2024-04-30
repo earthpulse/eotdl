@@ -4,8 +4,8 @@
 
 ## Workshops
 
-- PhiLab 2024 ([notebook](workshops/philab24/README.md))
-- BiDS 2023 ([notebook](workshops/bids23/README.md))
+- PhiLab 2024 ([notebooks](workshops/philab24/README.md))
+- BiDS 2023 ([notebooks](workshops/bids23/README.md))
 
 ## Tutorials
 
