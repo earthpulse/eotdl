@@ -11,4 +11,5 @@ def delete_dataset(name):
     db_repo.delete_files(dataset.files)
     db_repo.delete_dataset(dataset.id)
     db_repo.decrease_user_dataset_count(dataset.uid)
+    # TODO: delete from GeoDB (get user creds from db)
     return "Dataset deleted successfully"
