@@ -6,17 +6,27 @@ class MongoFilesRepo(MongoRepo):
         super().__init__()
 
     def retrieve_file(self, files_id, filename, version=None):
-        query = {"name": filename}
+        # query = {"name": filename}
+        # if version:
+        #     query["version"] = version
+        # return self._retrieve(
+        #     "files",
+        #     {
+        #         "id": files_id,
+        #         "files": {"$elemMatch": query},
+        #     },
+        #     {"files.$": 1},
+        # )
+        query = [
+            {"$match": {"id": files_id}},
+            {"$unwind": "$files"},
+            {"$match": {"files.name": filename}}
+        ]
         if version:
-            query["version"] = version
-        return self._retrieve(
-            "files",
-            {
-                "id": files_id,
-                "files": {"$elemMatch": query},
-            },
-            {"files.$": 1},
-        )
+            query.append({"$match": {"files.versions": version}})
+        query.append({"$group": {"_id": "$_id", "files": {"$push": "$files"}}})
+        results = list(self.db["files"].aggregate(query))
+        return results[0] if results else None
 
     def add_file(self, files_id, file):
         return self.push("files", files_id, {"files": file})

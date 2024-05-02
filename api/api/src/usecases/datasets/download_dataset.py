@@ -1,10 +1,8 @@
 import json
-import functools
-
 import prometheus_client
 
 from ...repos import OSRepo, GeoDBRepo, FilesDBRepo
-from .retrieve_dataset import retrieve_dataset, retrieve_owned_dataset
+from .retrieve_dataset import retrieve_dataset
 from ..user import retrieve_user_credentials
 
 
@@ -17,16 +15,10 @@ eotdl_api_downloaded_bytes = prometheus_client.Counter(
 
 def download_dataset_file(dataset_id, filename, user, version=None):
     os_repo = OSRepo()
-    dataset = retrieve_dataset(dataset_id)
     # check_user_can_download_dataset(user)
     if version is None:  # retrieve latest version
-        files_repo = FilesDBRepo()
-        files = files_repo.retrieve_file(dataset.files, filename)
-        if not files or "files" not in files:
-            raise Exception("File does not exist")
-        file = sorted(files["files"], key=lambda x: x["version"])[-1]
-        version = file["version"]
-
+       version = retrieve_latest_file_version(dataset_id, filename)
+       
     async def track_download_volume(*args, **kwargs):
         async for data in os_repo.data_stream(*args, **kwargs):
             eotdl_api_downloaded_bytes.labels(user.email).inc(len(data))
@@ -46,3 +38,20 @@ def download_stac_catalog(dataset_id, user):
     gdf = geodb_repo.retrieve(dataset_id)
     # TODO: report usage
     return json.loads(gdf.to_json())
+
+def generate_presigned_url(dataset_id, filename, version=None):
+    repo = OSRepo()
+    if version is None:  # retrieve latest version
+       version = retrieve_latest_file_version(dataset_id, filename)
+    filename = f"{filename}_{version}"
+    return repo.get_file_url(dataset_id, filename)
+
+def retrieve_latest_file_version(dataset_id, filename):
+    files_repo = FilesDBRepo()
+    dataset = retrieve_dataset(dataset_id)
+    files = files_repo.retrieve_file(dataset.files, filename)
+    if not files or "files" not in files:
+        raise Exception("File does not exist")
+    file = sorted(files["files"], key=lambda x: x["version"])[-1]
+    version = file["version"]
+    return version
