@@ -38,8 +38,8 @@ def download_dataset_file(dataset_id, filename, user, version=None):
 
 
 def download_stac_catalog(dataset_id, user):
-    # check if dataset exists and user is owner
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
+    # check if dataset exists 
+    dataset = retrieve_dataset(dataset_id)
     # retrieve from geodb
     credentials = retrieve_user_credentials(user)
     geodb_repo = GeoDBRepo(credentials)

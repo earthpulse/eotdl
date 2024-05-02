@@ -27,6 +27,7 @@ class GeoDBRepo:
         self.client.insert_into_collection(
             collection, database=self.database, values=values
         )
+        self.client.publish_collection(collection, self.database)
 
     def retrieve(self, collection):
         return self.client.get_collection(collection, database=self.database)
