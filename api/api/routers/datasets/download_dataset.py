@@ -52,8 +52,8 @@ async def download_stac_Catalog(
     dataset_id: str,
     user: User = Depends(get_current_user),
 ):
-    try:
-        return download_stac_catalog(dataset_id, user)
-    except Exception as e:
-        logger.exception("datasets:download")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    # try:
+    return download_stac_catalog(dataset_id, user)
+    # except Exception as e:
+    #     logger.exception("datasets:download")
+    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
