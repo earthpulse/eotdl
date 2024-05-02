@@ -5,7 +5,9 @@ from .client import get_client
 class GeoDBRepo:
     def __init__(self, credentials):
         self.client = get_client(credentials)
-        self.database = None
+        self.database = 'eotdl' # should be the same for all users to allow for public datasets (put to None for private datasets, will use the userId by default)
+        if not self.client.database_exists(self.database):
+            self.client.create_database(self.database)
 
     def exists(self, collection):
         return self.client.collection_exists(collection, database=self.database)
@@ -27,6 +29,7 @@ class GeoDBRepo:
         self.client.insert_into_collection(
             collection, database=self.database, values=values
         )
+        # https://xcube-geodb.readthedocs.io/en/latest/core.html?highlight=publish_collection#xcube_geodb.core.geodb.GeoDBClient.publish_collection
         self.client.publish_collection(collection, self.database)
 
     def retrieve(self, collection):
