@@ -73,3 +73,9 @@ class DatasetVersionDoesNotExistError(Exception):
 
     def __init__(self):
         super().__init__(self.message)
+
+class DatasetShouldBeSTAC(Exception):
+    message = "Dataset is not a STAC dataset."
+
+    def __init__(self):
+        super().__init__(self.message)
