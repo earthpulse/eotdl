@@ -2,6 +2,7 @@ import requests
 import os
 from tqdm import tqdm
 import hashlib
+from io import BytesIO
 
 from ..repos import APIRepo
 
@@ -189,3 +190,11 @@ class FilesAPIRepo(APIRepo):
             headers=self.generate_headers(user),
         )
         return self.format_response(r)
+    
+    def get_file_stream(self, dataset_id, filename, user, version=None):
+        url = self.url + f"datasets/{dataset_id}/download/{filename}"
+        if version is not None:
+            url += "?version=" + str(version)
+        headers = self.generate_headers(user)
+        response = requests.get(url, headers=headers, stream=True)
+        return BytesIO(response.content)

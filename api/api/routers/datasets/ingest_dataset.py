@@ -27,11 +27,11 @@ async def ingest_files(
     dataset_id: str = Path(..., description="ID of the dataset"),
     version: int = Query(None, description="Version of the dataset"),
     file: UploadFile = File(
-        ..., description="Batch file (.zip) containing the files to ingest"
+        ..., description="file to ingest"
     ),
     checksum: str = Form(
         ...,
-        description="checksums of the files to ingest, calculated with SHA-1",
+        description="checksum of the file to ingest, calculated with SHA-1",
     ),
     user: User = Depends(get_current_user),
 ):
