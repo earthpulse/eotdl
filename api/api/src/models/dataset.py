@@ -51,6 +51,7 @@ class STACDataset(BaseModel):
     quality: int = 1
     size: int = 0
     catalog: dict = {}
+    items: dict = {}
     versions: List[Version] = []
     files: str
 

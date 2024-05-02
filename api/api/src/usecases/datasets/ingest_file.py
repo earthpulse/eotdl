@@ -97,7 +97,12 @@ def ingest_stac(stac, dataset_id, user):
     # TODO: check all assets exist in os
     # generate catalog
     values = gpd.GeoDataFrame.from_features(stac["features"], crs="4326")  # ???
+    # values.to_csv("/tmp/iepa.csv")
     catalog = values[values["type"] == "Catalog"]
+    items = values.drop_duplicates(subset='geometry')
+    items = items[items["type"] == "Feature"]
+    # convert to geojson
+    items = json.loads(items.to_json())
     assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
     catalog = json.loads(catalog.to_json())["features"][0]["properties"]
     keys = list(catalog.keys())
@@ -129,6 +134,7 @@ def ingest_stac(stac, dataset_id, user):
     geodb_repo.insert(dataset.id, values)
     # the catalog should contain all the info we want to show in the UI
     dataset.catalog = catalog
+    dataset.items = items
     dataset.quality = dataset_quality
     repo = DatasetsDBRepo()
     dataset.updatedAt = datetime.now()
