@@ -144,7 +144,7 @@
 								retrieveFiles={retrieveDatasetFiles}
 							/>
 						</div>
-					{:else if dataset.items?.features.length > 0}
+					{:else if dataset.items?.features?.length > 0}
 						<div class="flex flex-col gap-3 w-full h-[200px]">
 							<p>Total items: {dataset.items?.features.length}</p>
 							<Map geojson={dataset.items} />
