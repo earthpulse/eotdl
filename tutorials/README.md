@@ -16,6 +16,7 @@
 3. Ingesting in the EOTDL ([notebook](notebooks/02_ingesting.ipynb))
 4. Creating and ingesting Q1 datasets ([notebook](notebooks/03_q1_datasets.ipynb))
 5. Creating and ingesting Q2 datasets ([notebook](notebooks/04_q2_datasets.ipynb))
+6. Training and Inference with Sentinel Hub ([notebook](notebooks/forest-map.ipynb))
 
 ### Data access
 
