@@ -1,5 +1,5 @@
 from ...repos import ModelsDBRepo
-from ...models import Model
+from ...models import Model, STACModel
 
 
 def retrieve_models(match=None, limit=None):
@@ -7,7 +7,10 @@ def retrieve_models(match=None, limit=None):
     data = repo.retrieve_models(match, limit)
     models = []
     for d in data:
-        models.append(Model(**d))
+        if d["quality"] == 0:
+            models.append(Model(**d))
+        else:
+            models.append(STACModel(**d))
     return models
 
 
@@ -25,5 +28,8 @@ def retrieve_popular_models(limit):
     data = repo.retrieve_popular_models(limit)
     models = []
     for d in data:
-        models.append(Model(**d))
+        if d["quality"] == 0:
+            models.append(Model(**d))
+        else:
+            models.append(STACModel(**d))
     return models
