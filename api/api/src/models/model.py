@@ -36,3 +36,21 @@ class Model(BaseModel):
             if not source.startswith("http") and not source.startswith("https"):
                 raise ValueError("source must be a valid url")
         return source
+
+
+class STACModel(BaseModel):
+    uid: str
+    id: str
+    name: str
+    description: str = ""
+    tags: List[str] = []
+    createdAt: datetime = Field(default_factory=datetime.now)
+    updatedAt: datetime = Field(default_factory=datetime.now)
+    likes: int = 0
+    downloads: int = 0
+    quality: int = 1
+    size: int = 0
+    catalog: dict = {}
+    items: dict = {}
+    versions: List[Version] = []
+    files: str
