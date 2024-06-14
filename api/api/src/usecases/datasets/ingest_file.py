@@ -99,7 +99,7 @@ def ingest_stac(stac, dataset_id, user):
     values = gpd.GeoDataFrame.from_features(stac["features"], crs="4326")  # ???
     # values.to_csv("/tmp/iepa.csv")
     catalog = values[values["type"] == "Catalog"]
-    items = values.drop_duplicates(subset='geometry')
+    items = values.drop_duplicates(subset="geometry")
     items = items[items["type"] == "Feature"]
     # convert to geojson
     items = json.loads(items.to_json())
@@ -140,29 +140,3 @@ def ingest_stac(stac, dataset_id, user):
     dataset.updatedAt = datetime.now()
     repo.update_dataset(dataset.id, dataset.model_dump())
     return dataset
-
-
-# async def ingest_dataset_file(file, dataset_id, version, parent, checksum, user):
-#     dataset = retrieve_owned_dataset(dataset_id, user.uid)
-#     versions = [v.version_id for v in dataset.versions]
-#     if not version in versions:
-#         raise DatasetVersionDoesNotExistError()
-#     filename, file_size = await ingest_file(
-#         file, version, parent, dataset_id, checksum, dataset.quality, dataset.files
-#     )
-#     version = [v for v in dataset.versions if v.version_id == version][0]
-#     version.size += file_size  # for Q0+ will add, so put to 0 before if necessary
-#     dataset.updatedAt = datetime.now()
-#     dataset_db_repo = DatasetsDBRepo()
-#     dataset_db_repo.update_dataset(dataset.id, dataset.dict())
-#     return dataset.id, dataset.name, filename
-
-
-def ingest_file_url():
-    # TODO
-    return
-    # def get_file_name(self, file):
-    #     return file.split("/")[-1]
-
-    # def persist_file(self, file, dataset_id, filename):
-    #     return os_repo.persist_file_url(file, dataset_id, filename)

@@ -5,8 +5,9 @@ from tqdm import tqdm
 from ..auth import with_auth
 from .retrieve import retrieve_model, retrieve_model_files
 from ..shared import calculate_checksum
-from ..repos import FilesAPIRepo
+from ..repos import FilesAPIRepo, ModelsAPIRepo
 from .metadata import generate_metadata
+from ..curation.stac import STACDataFrame
 
 
 @with_auth
@@ -46,20 +47,6 @@ def download_model(
     if model["quality"] == 0:
         if file:
             raise NotImplementedError("Downloading a specific file is not implemented")
-            # files = [f for f in model["files"] if f["name"] == file]
-            # if not files:
-            #     raise Exception(f"File {file} not found")
-            # if len(files) > 1:
-            #     raise Exception(f"Multiple files with name {file} found")
-            # dst_path = download(
-            #     model,
-            #     model["id"],
-            #     file,
-            #     files[0]["checksum"],
-            #     download_path,
-            #     user,
-            # )
-            # return Outputs(dst_path=dst_path)
         model_files = retrieve_model_files(model["id"], version)
         repo = FilesAPIRepo()
         for file in tqdm(model_files, disable=verbose, unit="file"):
@@ -74,41 +61,38 @@ def download_model(
                 file_version,
                 endpoint="models",
             )
-            # if calculate_checksum(dst_path) != checksum:
-            #     logger(f"Checksum for {file} does not match")
+            if verbose:
+                logger("Generating README.md ...")
+            generate_metadata(download_path, model)
     else:
-        raise NotImplementedError("Downloading a STAC model is not implemented")
-    #     logger("Downloading STAC metadata...")
-    #     gdf, error = repo.download_stac(
-    #         model["id"],
-    #         user["id_token"],
-    #     )
-    #     if error:
-    #         raise Exception(error)
-    #     df = STACDataFrame(gdf)
-    #     # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
-    #     path = path
-    #     if path is None:
-    #         path = download_base_path + "/" + model["name"]
-    #     df.to_stac(path)
-    #     # download assets
-    #     if assets:
-    #         logger("Downloading assets...")
-    #         df = df.dropna(subset=["assets"])
-    #         for row in tqdm(df.iterrows(), total=len(df)):
-    #             id = row[1]["stac_id"]
-    #             # print(row[1]["links"])
-    #             for k, v in row[1]["assets"].items():
-    #                 href = v["href"]
-    #                 repo.download_file_url(
-    #                     href, f"{path}/assets/{id}", user["id_token"]
-    #                 )
-    #     else:
-    #         logger("To download assets, set assets=True or -a in the CLI.")
-    #     return Outputs(dst_path=path)
-    if verbose:
-        logger("Generating README.md ...")
-    generate_metadata(download_path, model)
+        if verbose:
+            logger("Downloading STAC metadata...")
+        repo = ModelsAPIRepo()
+        gdf, error = repo.download_stac(
+            model["id"],
+            user,
+        )
+        if error:
+            raise Exception(error)
+        df = STACDataFrame(gdf)
+        # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
+        df.to_stac(download_path)
+        # download assets
+        if assets:
+            if verbose:
+                logger("Downloading assets...")
+            repo = FilesAPIRepo()
+            df = df.dropna(subset=["assets"])
+            for row in tqdm(df.iterrows(), total=len(df)):
+                for k, v in row[1]["assets"].items():
+                    href = v["href"]
+                    _, filename = href.split("/download/")
+                    # will overwrite assets with same name :(
+                    repo.download_file_url(
+                        href, filename, f"{download_path}/assets", user
+                    )
+        else:
+            logger("To download assets, set assets=True or -a in the CLI.")
     if verbose:
         logger("Done")
     return download_path
