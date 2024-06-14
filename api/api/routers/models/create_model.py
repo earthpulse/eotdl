@@ -6,7 +6,7 @@ from typing import List
 
 from ..auth import get_current_user
 from ...src.models import User
-from ...src.usecases.models import create_model, create_model_version
+from ...src.usecases.models import create_model, create_model_version, create_stac_model
 from .responses import create_model_responses, version_model_responses
 
 router = APIRouter()
@@ -42,9 +42,15 @@ def create(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.post("/version/{model_id}", summary="Get the version of a model", responses=version_model_responses)
-def version_model(model_id: str = Path(..., description="The ID of the model"), 
-                  user: User = Depends(get_current_user)):
+@router.post(
+    "/version/{model_id}",
+    summary="Get the version of a model",
+    responses=version_model_responses,
+)
+def version_model(
+    model_id: str = Path(..., description="The ID of the model"),
+    user: User = Depends(get_current_user),
+):
     """
     Get the version of a model.
     """
@@ -53,4 +59,21 @@ def version_model(model_id: str = Path(..., description="The ID of the model"),
         return {"model_id": model_id, "version": version}
     except Exception as e:
         logger.exception("models:version")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+class CreateSTACModelBody(BaseModel):
+    name: str
+
+
+@router.post("/stac", summary="Create a new stac model")
+def create_stac(
+    body: CreateSTACModelBody,
+    user: User = Depends(get_current_user),
+):
+    try:
+        model_id = create_stac_model(user, body.name)
+        return {"model_id": model_id}
+    except Exception as e:
+        logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -3,5 +3,5 @@ from .dataset import Dataset, STACDataset
 from .files import File, Files, UploadingFile, Folder, UploadingFile
 from .tag import Tag
 from .usage import Usage, Limits
-from .model import Model
+from .model import Model, STACModel
 from .verison import Version

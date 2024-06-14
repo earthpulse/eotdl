@@ -1,4 +1,5 @@
 import requests
+import geopandas as gpd
 
 from ..repos import APIRepo
 
@@ -53,3 +54,27 @@ class ModelsAPIRepo(APIRepo):
             headers=self.generate_headers(user),
         )
         return self.format_response(response)
+
+    def create_stac_model(self, name, user):
+        response = requests.post(
+            self.url + "models/stac",
+            json={"name": name},
+            headers=self.generate_headers(user),
+        )
+        return self.format_response(response)
+
+    def ingest_stac(self, stac_json, model_id, user):
+        response = requests.put(
+            self.url + f"models/stac/{model_id}",
+            json={"stac": stac_json},
+            headers=self.generate_headers(user),
+        )
+        return self.format_response(response)
+
+    def download_stac(self, model_id, user):
+        url = self.url + "models/" + model_id + "/download"
+        headers = self.generate_headers(user)
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return None, response.json()["detail"]
+        return gpd.GeoDataFrame.from_features(response.json()["features"]), None
