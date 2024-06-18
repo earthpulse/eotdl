@@ -74,9 +74,12 @@ def download_model(
         )
         if error:
             raise Exception(error)
+        print(gdf)
         df = STACDataFrame(gdf)
         # df.geometry = df.geometry.apply(lambda x: Polygon() if x is None else x)
         df.to_stac(download_path)
+        print("----")
+        print(df)
         # download assets
         if assets:
             if verbose:
