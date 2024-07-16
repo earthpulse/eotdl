@@ -53,15 +53,6 @@
 		}
 	}
 
-	const maxVisibleModels = 9;
-	let currentPage = 0;
-	$: numPages = Math.ceil(filtered_models?.length / maxVisibleModels);
-	$: if (numPages > 0) currentPage = 0;
-	$: visble_models = filtered_models?.slice(
-		currentPage * maxVisibleModels,
-		(currentPage + 1) * maxVisibleModels
-	);
-
 	const toggleLike = () => {
 		show_liked = $user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
@@ -118,17 +109,16 @@
 			<a href="/docs/models/ingest" class="text-green-200 hover:underline"
 				>Ingest model</a
 			>
-			<Pagination {numPages} bind:currentPage />
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
-					<Skeleton />
+				<Skeleton />
 				{/each}
 			</div>
-		{:else if visble_models?.length > 0}
+			{:else if filtered_models?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each visble_models as model}
+				{#each filtered_models as model}
 					<Card
 						data={model}
 						link="models"
