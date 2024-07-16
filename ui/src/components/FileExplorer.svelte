@@ -18,6 +18,8 @@
 	let navigationStack = [];
 	let loading = false;
 	let currentPath = [];
+	let onDetails = false;
+	let details = {};
 
 	const load = async () => {
 		loading = true;
@@ -59,15 +61,35 @@
 		navigationStack = [...navigationStack, currentLevel];
 		currentLevel = currentLevel[folderName];
 		getCurrentPath(folderName);
-		console.log(currentPath);
 	};
 	
 	const goBack = () => {
-		currentLevel = navigationStack.pop();
-
-		currentPath = currentPath.slice(0,currentPath.length-1);
+		if (onDetails){
+			currentPath = currentPath.slice(0,currentPath.length-1);
+			onDetails = false;
+		}
+		else{
+			currentLevel = navigationStack.pop();
+			currentPath = currentPath.slice(0,currentPath.length-1);
+		}
 	};
 
+	const goToLevel = (folder) => {		
+		const folderIndex = currentPath.indexOf(folder)+1;
+
+		for (let i = 0 ; navigationStack.length - folderIndex > 0; i++) {
+			goBack();
+		};
+	};
+
+	const goToDetails = (file, filename) => {
+		onDetails = true;
+
+		details = {"checksum":file.checksum,
+					"version":file.version,
+				  };
+		currentPath = [...currentPath, filename];
+	};
 
 	const getCurrentPath = (intoFolder) => {
 		if (navigationStack.length > 0){
@@ -117,7 +139,7 @@
 		<div class="overflow-auto w-full max-h-[200px] border-2">			
 				<div class="pl-2 pb-2 text-[13px] font-semibold flex">Path:	/			
 						{#each currentPath as folder}
-							<button class="hover:underline"> {folder}/</button>
+							<button on:click={goToLevel(folder)} class="hover:underline"> {folder}/</button>
 						{/each}
 				</div>
 			<table class="ml-2">			
@@ -126,6 +148,7 @@
 				><ArrowLeft class="self-center mr-1"/> Return </button
 				>
 			{/if}
+			{#if onDetails == false}
 				{#each Object.keys(currentLevel) as item}
 					<!-- {#if $user}
 					<button on:click={() => download(file.name)}
@@ -146,9 +169,9 @@
 					{:else}
 						<tr>					
 							<td class="pr-1">
-								<p class="flex"><File class=" self-center"/> {item}</p>
+								<button on:click={goToDetails(currentLevel[item], item)}><p class="flex"><File class=" self-center"/> {item}</p></button>
 							</td>
-					   <!-- <td class="px-1">
+					<!-- <td class="px-1">
 								<p>
 										{currentLevel[item].checksum.substr(0, 8)}...
 								</p>
@@ -163,7 +186,14 @@
 						<!-- <td>{formatFileSize(file.size)}</td> -->
 						<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
 				{/each}
-				
+			{:else}
+				{#each Object.keys(details) as detail}
+				<tr>
+					<th class="text-left">{detail}:</th>
+					<td class="pl-1">{details[detail]}</td>
+				</tr>
+				{/each}
+			{/if}
 			</table>		
 		</div>
 	{:else}
