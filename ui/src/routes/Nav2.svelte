@@ -7,6 +7,7 @@
     import CogOutline from "svelte-material-icons/CogOutline.svelte";
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
+    import SchoolOutline from "svelte-material-icons/SchoolOutline.svelte";
     export let loading;
 
     const links = [
@@ -19,6 +20,7 @@
             icon: CloudCogOutline,
         },
         { href: "/applications", label: "Applications", icon: CogOutline },
+        { href: "/tutorials", label: "Tutorials", icon: SchoolOutline },
         { href: "/docs", label: "Docs", icon: TextBoxMultipleOutline },
     ];
     const secondary_links = [
