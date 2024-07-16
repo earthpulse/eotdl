@@ -1,6 +1,10 @@
 <script>
 	import { browser } from "$app/environment";
 
+	import Folder from "svelte-material-icons/Folder.svelte"
+	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte"
+	import File from "svelte-material-icons/File.svelte"
+
 	export let data;
 	export let retrieveFiles;
 	export let version;
@@ -13,6 +17,7 @@
 	let currentLevel = {};
 	let navigationStack = [];
 	let loading = false;
+	let currentPath = [];
 
 	const load = async () => {
 		loading = true;
@@ -24,7 +29,7 @@
 		// const streamsaver = await import("streamsaver");
 		// createWriteStream = streamsaver.createWriteStream;
 		files = await retrieveFiles(data.id, version.version_id);
-		// console.log(files);
+		//console.log(files);
 		tree = buildFileTree(files);
 		currentLevel = tree;
 		loading = false;
@@ -46,18 +51,32 @@
 				}
 			});
 		});
+
 		return tree;
 	};
 
 	const openFolder = (folderName) => {
 		navigationStack = [...navigationStack, currentLevel];
 		currentLevel = currentLevel[folderName];
+		getCurrentPath(folderName);
+		console.log(currentPath);
 	};
-
+	
 	const goBack = () => {
 		currentLevel = navigationStack.pop();
+
+		currentPath = currentPath.slice(0,currentPath.length-1);
 	};
 
+
+	const getCurrentPath = (intoFolder) => {
+		if (navigationStack.length > 0){
+			currentPath = [...currentPath, intoFolder];
+		}
+		else {
+            currentPath = [];
+        }
+	} 
 	// const download = async (fileName) => {
 	// 	// seems to work, but not sure if it will with large datasets (need to test)
 	// 	fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
@@ -95,31 +114,57 @@
 {#if !loading}
 	{#if files}
 		<p>Files ({files.length}) :</p>
-		<div class="overflow-auto w-full max-h-[200px] border-2">
+		<div class="overflow-auto w-full max-h-[200px] border-2">			
+				<div class="pl-2 pb-2 text-[13px] font-semibold flex">Path:	/			
+						{#each currentPath as folder}
+							<button class="hover:underline"> {folder}/</button>
+						{/each}
+				</div>
+			<table class="ml-2">			
 			{#if navigationStack.length > 0}
-				<button class="px-3 hover:underline" on:click={goBack}
-					>...</button
+				<button class="hover:underline flex" on:click={goBack}
+				><ArrowLeft class="self-center mr-1"/> Return </button
 				>
 			{/if}
-			{#each Object.keys(currentLevel) as item}
-				<p class="flex flex-row gap-1 px-3">
+				{#each Object.keys(currentLevel) as item}
 					<!-- {#if $user}
 					<button on:click={() => download(file.name)}
 						><Download color="gray" size={20} /></button
-					>
-				{/if} -->
-					{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
-						<button
-							class="hover:underline"
-							on:click={() => openFolder(item)}>{item}</button
 						>
+						{/if} -->
+						{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
+						<tr>
+							<td>
+								<button
+								class="hover:underline flex"
+								on:click={() => openFolder(item)}>
+								<Folder class=" self-center mr-[2px]" />{item}</button
+								>
+							</td>
+						</tr>
+						
 					{:else}
-						{item}
+						<tr>					
+							<td class="pr-1">
+								<p class="flex"><File class=" self-center"/> {item}</p>
+							</td>
+					   <!-- <td class="px-1">
+								<p>
+										{currentLevel[item].checksum.substr(0, 8)}...
+								</p>
+							</td>
+							<td class="px-1">
+								<p>
+										{currentLevel[item].version}
+								</p>
+							</td> -->
+						</tr>
 					{/if}
-				</p>
-				<!-- <td>{formatFileSize(file.size)}</td> -->
-				<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
-			{/each}
+						<!-- <td>{formatFileSize(file.size)}</td> -->
+						<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
+				{/each}
+				
+			</table>		
 		</div>
 	{:else}
 		<p>No files found.</p>
