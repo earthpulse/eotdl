@@ -56,14 +56,6 @@
 		}
 	}
 
-	const maxVisibleDatasets = 9;
-	let currentPage = 0;
-	$: numPages = Math.ceil(filtered_datasets?.length / maxVisibleDatasets);
-	$: if (numPages > 0) currentPage = 0;
-	$: visible_datasets = filtered_datasets?.slice(
-		currentPage * maxVisibleDatasets,
-		(currentPage + 1) * maxVisibleDatasets
-	);
 
 	const toggleLike = () => {
 		show_liked = $user && !show_liked;
@@ -122,7 +114,6 @@
 				href="/docs/datasets/ingest"
 				class="text-green-200 hover:underline">Ingest dataset</a
 			>
-			<Pagination {numPages} bind:currentPage />
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
@@ -130,9 +121,9 @@
 					<Skeleton />
 				{/each}
 			</div>
-		{:else if visible_datasets?.length > 0}
+		{:else if filtered_datasets?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each visible_datasets as dataset}
+				{#each filtered_datasets as dataset}
 					<Card
 						data={dataset}
 						liked={$user?.liked_datasets.includes(dataset.id)}
