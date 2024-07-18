@@ -76,7 +76,12 @@
 
 	const goToLevel = (folder) => {		
 		const folderIndex = currentPath.indexOf(folder)+1;
-
+		
+		if (currentPath.length > navigationStack.length && folder.split(".").length < 2){
+			onDetails = false;
+			currentPath = currentPath.slice(0,currentPath.length-1);
+		}
+		console.log(folderIndex,navigationStack.length);
 		for (let i = 0 ; navigationStack.length - folderIndex > 0; i++) {
 			goBack();
 		};
@@ -143,7 +148,7 @@
 						{/each}
 				</div>
 			<table class="ml-2">			
-			{#if navigationStack.length > 0}
+			{#if navigationStack.length > 0 || onDetails}
 				<button class="hover:underline flex" on:click={goBack}
 				><ArrowLeft class="self-center mr-1"/> Return </button
 				>
