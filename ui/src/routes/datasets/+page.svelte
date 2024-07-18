@@ -22,7 +22,7 @@
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
 		filtered_datasets = JSON.parse(
-			localStorage.getItem("filtered_datasets")
+			localStorage.getItem("filtered_datasets"),
 		);
 		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
 	};
@@ -46,16 +46,15 @@
 			});
 		if (show_liked) {
 			filtered_datasets = filtered_datasets.filter((dataset) =>
-				$user?.liked_datasets.includes(dataset.id)
+				$user?.liked_datasets.includes(dataset.id),
 			);
 		}
 		if (selected_qualities.length > 0) {
 			filtered_datasets = filtered_datasets?.filter((dataset) =>
-				selected_qualities?.includes(dataset.quality)
+				selected_qualities?.includes(dataset.quality),
 			);
 		}
 	}
-
 
 	const toggleLike = () => {
 		show_liked = $user && !show_liked;
@@ -117,7 +116,7 @@
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
+				{#each new Array(30) as _}
 					<Skeleton />
 				{/each}
 			</div>
