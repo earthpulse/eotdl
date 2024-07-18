@@ -43,12 +43,12 @@
 			});
 		if (show_liked) {
 			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_models.includes(models.id)
+				$user?.liked_models.includes(models.id),
 			);
 		}
 		if (selected_qualities.length > 0) {
 			filtered_models = filtered_models?.filter((model) =>
-				selected_qualities?.includes(model.quality)
+				selected_qualities?.includes(model.quality),
 			);
 		}
 	}
@@ -112,11 +112,11 @@
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
-				<Skeleton />
+				{#each new Array(30) as _}
+					<Skeleton />
 				{/each}
 			</div>
-			{:else if filtered_models?.length > 0}
+		{:else if filtered_models?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_models as model}
 					<Card
