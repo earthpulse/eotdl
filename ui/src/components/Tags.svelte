@@ -16,9 +16,9 @@
 <div class="flex flex-wrap gap-1 content-start">
     {#each tags as tag}
         <button
-            class="badge badge-outline bg-white text-slate-400 text-xs {selected_tags.includes(
+            class="badge text-slate-400 text-xs {selected_tags.includes(
                 tag
-            ) && 'badge-accent'}"
+            ) ? 'badge badge-accent bg-green-100 text-slate-600 ' : 'badge-outline'}"
             on:click={() => toggleTag(tag)}
         >
             {tag}

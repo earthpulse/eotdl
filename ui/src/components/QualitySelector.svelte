@@ -26,7 +26,7 @@
 	{#each qualities as quality}
 		<button
 			class="border b rounded px-1 {selected_qualities.includes(quality)
-				? 'text-green-200 border-green-200'
+				? 'text-slate-500 border-green-200 bg-green-100'
 				: 'border-gray-400 text-gray-400'}"
 			on:click={() => toggleQuality(quality)}>Q{quality}</button
 		>
