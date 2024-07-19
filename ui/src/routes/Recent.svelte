@@ -8,6 +8,11 @@
 
 <div class="flex flex-col items-center w-full">
     <div class="gap-3 w-full max-w-6xl text-center flex flex-col px-4">
+        {#if title.includes("datasets")}
+            <h1 class="font-bold text-3xl w-full text-left">DATASETS</h1>
+        {:else if title.includes("models")}
+            <h1 class="font-bold text-3xl w-full text-left">MODELS</h1>
+        {/if}
         <h1 class="text-xl text-left">{title}</h1>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
             {#if data}

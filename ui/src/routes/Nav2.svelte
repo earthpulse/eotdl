@@ -35,7 +35,7 @@
     ];
 </script>
 
-<div class="grid place-items-center w-full">
+<div class="flex flex-row sm:justify-between w-full justify-center">
     <!-- {#if $page.url.pathname == "/"}
         <div class="w-full p-3 bg-red-400 grid items-center">
             <p class="m-auto max-w-6xl">
@@ -60,7 +60,7 @@
         </div>
     {/if} -->
     <ul
-        class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
+        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase pl-[18vh]"
     >
         {#each links as link}
             <li
@@ -70,11 +70,12 @@
                     href={link.href}
                     class="hover:underline flex floex-row gap-1 items-center"
                 >
-                    <svelte:component this={link.icon} class="h-4 w-4" />
-                    {link.label}
+                {link.label}
                 </a>
             </li>
         {/each}
+    </ul>
+    <ul class="flex flex-row gap-6 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase pr-[18vh]">
         <li>
             {#if $user}
                 <a
@@ -91,21 +92,23 @@
             {/if}
         </li>
         <li>
-            <a href={$user ? "/profile" : ""}>
-                <div
-                    class={$user ? "tooltip tooltip-bottom" : ""}
-                    data-tip={$user ? "Profile" : "Profile"}
-                >
-                    <div class="avatar">
-                        <div class="w-10 rounded-full">
-                            <img
-                                src={$user?.picture || "/avatar.webp"}
-                                alt="avatar"
-                            />
+            {#if $user}
+                <a href={$user ? "/profile" : ""}>
+                    <div
+                       class={$user ? "tooltip tooltip-bottom" : ""}
+                        data-tip={$user ? "Profile" : "Profile"}
+                    >
+                        <div class="avatar">
+                            <div class="w-10 rounded-full">
+                                <img
+                                    src={$user?.picture || "/avatar.webp"}
+                                    alt="avatar"
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            {/if}
         </li>
         <button tabindex="0" class="dropdown dropdown-end cursor-pointer">
             <div>
@@ -118,8 +121,8 @@
                     ><path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 6h16M4 12h16M4 18h7"
+                        stroke-width="1"
+                        d="M 4 6 h 16 M 4 12 h 16 M 4 18 h 16"
                     /></svg
                 >
             </div>
