@@ -54,6 +54,8 @@
 				selected_qualities?.includes(dataset.quality),
 			);
 		}
+		console.log(filtered_datasets);
+
 	}
 
 	const toggleLike = () => {
