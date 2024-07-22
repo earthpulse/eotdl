@@ -11,7 +11,7 @@
       <a
         href="/brochure.pdf"
         target="_blank"
-        class="btn btn-sm bg-blue-500 text-white border-base-300 capitalize"
+        class="btn btn-sm bg-blue-500 text-white border-base-300 capitalize px-6"
       >
         Read the brochure</a
       ></span

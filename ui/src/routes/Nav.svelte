@@ -8,6 +8,6 @@
 
 <style>
   nav {
-    border-bottom: 5px solid #4abfa7;
+    border-bottom: 7px solid #4abfa7;
   }
 </style>
