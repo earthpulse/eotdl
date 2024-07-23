@@ -1,24 +1,24 @@
 <script>
-    import { stringify } from "postcss";
-
     export let leaderboard;
     export let field = "datasets";
+    export let msgText = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est dolor asperiores repellendus quod id cupiditate consequatur tenetur corporis nesciunt. Commodi dignissimos repellendus laudantium quasi nesciunt porro corporis quidem rerum assumenda.";
     export let textOnLeft = false;
     export let textOnRight = false;
     $: leaderboard = leaderboard?.filter((l) => l[field] > 0);
 </script>
 
-<div class="w-full bg-gray-200 grid place-items-center">
+<div class="w-full grid place-items-center">
     <div class="w-full overflow-x-auto py-10 px-5 sm:flex justify-center">
+        <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6 sm:hidden">Top contributors</h2>
         {#if textOnLeft}        
-            <div class="p-10 flex flex-col sm:w-96 w-500px]">
+            <div class="sm:p-8 sm:flex-col sm:w-96 w-500px] hidden sm:flex">
                 <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6">Top contributors</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Est dolor, asperiores repellendus quod id cupiditate consequatur tenetur corporis nesciunt. Commodi dignissimos repellendus laudantium quasi nesciunt porro corporis quidem rerum assumenda.</p>
+                <p>{msgText}</p>
             </div>
         {/if}
-        <table class="w-full max-w-2xl max-h-64">
+        <table class="w-full sm:max-w-2xl max-w-40 max-h-64 max-w">
             <thead>
-                <tr class="bg-[rgb(77,198,169)] text-green-100 h-14">
+                <tr class="bg-[rgb(0,50,71)] text-white h-12">
                     <th class="px-4"/>
                     <th class="text-left px-4">Name</th>
                     <th class="px-4">{field}</th>
@@ -27,9 +27,9 @@
             <tbody>
                 {#if leaderboard?.length > 0}
                     {#each leaderboard as user, i}
-                        <tr class={i % 2 ? "active bg-slate-200 h-12 bg-opacity-85" : "bg-slate-300 h-12 bg-opacity-70"}>
+                        <tr class={i % 2 ? "active bg-[rgb(74,191,167)] h-12 text-white" : "bg-white h-12"}>
                             <th class="px-4">{i + 1}</th>
-                            <td><p class="w-[400px] px-4">{user.name}</p></td>
+                            <td><p class="sm:w-[400px] w-[225px] px-4">{user.name}</p></td>
                             <td class="text-center">{user[field]}</td>
                         </tr>
                     {/each}
@@ -52,11 +52,11 @@
                 {/if}
             </tbody>
         </table>
-        {#if textOnRight}        
-            <div class="p-10 flex flex-col sm:w-96 w-500px]">
-                <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6">Top contributors</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Est dolor, asperiores repellendus quod id cupiditate consequatur tenetur corporis nesciunt. Commodi dignissimos repellendus laudantium quasi nesciunt porro corporis quidem rerum assumenda.</p>
-            </div>
+        {#if textOnRight}    
+            <div class="sm:p-8 sm:flex-col sm:w-96 w-500px] hidden sm:flex">
+                <h2 class="text-2xl font-bold text-[rgb(0,50,71)] pb-6">Top contributors</h2>
+                <p>{msgText}</p>
+            </div>  
         {/if}
     </div>
 </div>

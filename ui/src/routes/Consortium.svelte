@@ -1,15 +1,16 @@
 <div
-  class="grid sm:grid-cols-1 grid-rows-[100px,100px] grid-cols-1 max-w-5xl px-5 py-10 w-full mt-10"
+  class="grid sm:grid-rows-[100px,100px] grid-cols-1 max-w-5xl px-5 py-28 w-full"
 >
-  <div class="sm:flex h-10">
+
+  <div class="flex sm:flex-row flex-col h-full">
     <h2 class="mb-10 text-2xl font-bold pt-10">Initiated By</h2>
     <img
       src="/logos/philab-esa_logo.jpg"
       alt="ESA logo"
-      class="h-[120px] m-auto sm:m-0 "
+      class="h-[120px] m-auto sm:m-0 sm:pl-12"
     />
   </div>
-  <div class="sm:flex">
+  <div class="sm:flex sm:mb-0 mb-12">
     <h2 class="text-2xl font-bold pt-8">Implemented By</h2>
     <div
       class="flex flex-wrap gap-5 items-center justify-center md:justify-start"
