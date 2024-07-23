@@ -60,11 +60,11 @@
         </div>
     {/if} -->
     <ul
-        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase pl-[18vh]"
+        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-blue-500 items-center pl-[18vh]"
     >
         {#each links as link}
             <li
-                class="hidden sm:block text-slate-500 gap-2 text-sm hover:text-slate-700"
+                class="hidden font-bold sm:block text-slate-500 gap-2 hover:text-slate-700 text-[16px]"
             >
                 <a
                     href={link.href}
@@ -75,7 +75,7 @@
             </li>
         {/each}
     </ul>
-    <ul class="flex flex-row gap-6 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase pr-[18vh]">
+    <ul class="flex flex-row gap-6 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase sm:pr-[25vh]">
         <li>
             {#if $user}
                 <a
