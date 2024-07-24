@@ -60,12 +60,13 @@
         </div>
     {/if} -->
     <ul
-        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-blue-500 items-center pl-[18vh]"
+        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-white items-center pl-[18vh]"
     >
         {#each links as link}
             <li
-                class="hidden font-bold sm:block text-slate-500 gap-2 hover:text-slate-700 text-[16px]"
+                class="hidden font-bold sm:flex text-white gap-2 hover:text-gray-300 text-[16px] items-center"
             >
+                <svelte:component this={link.icon} />
                 <a
                     href={link.href}
                     class="hover:underline flex floex-row gap-1 items-center"
@@ -75,18 +76,18 @@
             </li>
         {/each}
     </ul>
-    <ul class="flex flex-row gap-6 w-fit max-w-6xl p-3 text-blue-500 items-center uppercase sm:pr-[25vh]">
+    <ul class="flex flex-row gap-6 w-fit max-w-6xl p-3 text-blue-500 items-center sm:pr-[25vh]">
         <li>
             {#if $user}
                 <a
                     href={loading ? "" : "/api/auth/logout"}
-                    class="border-2 rounded-md px-2 hover:border-gray-300"
+                    class="border-2 text-white rounded-md px-2 hover:border-gray-300"
                     >Sign Out</a
                 >
             {:else}
                 <a
                     href={loading ? "" : "/api/auth/login"}
-                    class="border-2 rounded-md px-2 hover:border-gray-300"
+                    class="border-2 text-white rounded-md px-2 hover:border-gray-300"
                     >Sign In</a
                 >
             {/if}
@@ -114,10 +115,10 @@
             <div>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
+                    class="h-7 w-7"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    stroke="white"
                     ><path
                         stroke-linecap="round"
                         stroke-linejoin="round"

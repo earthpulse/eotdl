@@ -8,7 +8,7 @@
 </script>
 
 <div class="w-full grid place-items-center">
-    <div class="w-full overflow-x-auto py-10 px-5 sm:flex justify-center">
+    <div class="w-full overflow-x-auto py-10 px-5 flex sm:flex-row flex-col justify-center items-center">
         <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6 sm:hidden">Top contributors</h2>
         {#if textOnLeft}        
             <div class="sm:p-8 sm:flex-col sm:w-96 w-500px] hidden sm:flex">

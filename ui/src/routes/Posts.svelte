@@ -3,7 +3,7 @@
     export let posts;
 </script>
 
-<div class="flex flex-col items-center w-full py-[100px] bg-slate-50">
+<div class="flex flex-col items-center w-full py-[100px] bg-gradient-to-tl from-gray-100 to-white">
     <div class="gap-3 w-full max-w-4xl text-center flex flex-col px-4">
         <h1 class="text-xl text-left font-bold">Recent posts</h1>
         <div class="flex flex-col sm:flex-row gap-3 w-full mt-3 p-4">
