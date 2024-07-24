@@ -8,7 +8,6 @@
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
     export let loading;
-
     const links = [
         { href: "/", label: "Home", icon: HomeOutline },
         { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
@@ -33,6 +32,7 @@
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
+    
 </script>
 
 <div class="flex flex-row sm:justify-between w-full justify-center">
@@ -60,16 +60,18 @@
         </div>
     {/if} -->
     <ul
-        class="flex flex-row gap-14 w-fit max-w-6xl p-3 text-white items-center pl-[18vh]"
+        class="flex flex-row gap-14 w-fit max-w-6xl p-3 items-center pl-[18vh]"
     >
         {#each links as link}
             <li
-                class="hidden font-bold sm:flex text-white gap-2 hover:text-gray-300 text-[16px] items-center"
+                class="hidden font-bold sm:flex 
+                {$page.url.pathname == "/" ? "text-gray-300 hover:text-white" : "text-slate-600 hover:text-slate-800"} 
+                gap-1 text-[15px] items-center"
             >
                 <svelte:component this={link.icon} />
                 <a
                     href={link.href}
-                    class="hover:underline flex floex-row gap-1 items-center"
+                    class="hover:underline flex flex-row gap-1 items-center"
                 >
                 {link.label}
                 </a>
@@ -81,13 +83,13 @@
             {#if $user}
                 <a
                     href={loading ? "" : "/api/auth/logout"}
-                    class="border-2 text-white rounded-md px-2 hover:border-gray-300"
+                    class="border-2 {$page.url.pathname == "/" ? "text-gray-300 hover:border-white border-slate-400" : "text-slate-600 border-slate-400 hover:border-slate-800"} rounded-md px-2"
                     >Sign Out</a
                 >
             {:else}
                 <a
                     href={loading ? "" : "/api/auth/login"}
-                    class="border-2 text-white rounded-md px-2 hover:border-gray-300"
+                    class="border-2 {$page.url.pathname == "/" ? "text-gray-300 hover:border-white border-slate-400" : "text-slate-600 border-slate-400 hover:border-slate-800"} rounded-md px-2 "
                     >Sign In</a
                 >
             {/if}
@@ -118,7 +120,7 @@
                     class="h-7 w-7"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke="white"
+                    stroke="{$page.url.pathname == "/" ? "white" : "black"}"
                     ><path
                         stroke-linecap="round"
                         stroke-linejoin="round"
