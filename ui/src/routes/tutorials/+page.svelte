@@ -35,7 +35,7 @@
 			{/each}
 		</div>
 		
-		<div class="flex flex-col justify-between mb-6 w-full gap-2">
+		<div class="flex flex-col justify-between mb-6 mt-12 w-full gap-2">
 			<h1 class="font-bold text-3xl">Tutorials</h1>
 			<p>
 				Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis.
@@ -44,7 +44,7 @@
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 			{#each tutorials as tutorial}
 				<div
-					class="border border-gray-200 shadow-lg p-4 rounded-lg flex flex-col"
+					class="border border-gray-200 shadow-lg p-4 rounded-lg flex flex-col h-fit"
 				>
 					<div class="text-left">
 						<h2 class="font-bold mb-2 mt-0 text-lg">
