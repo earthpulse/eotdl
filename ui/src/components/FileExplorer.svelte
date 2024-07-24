@@ -24,7 +24,7 @@
 		// const streamsaver = await import("streamsaver");
 		// createWriteStream = streamsaver.createWriteStream;
 		files = await retrieveFiles(data.id, version.version_id);
-		// console.log(files);
+		console.log(files);
 		tree = buildFileTree(files);
 		currentLevel = tree;
 		loading = false;
