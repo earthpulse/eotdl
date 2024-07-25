@@ -21,6 +21,14 @@
 	let onDetails = false;
 	let details = {};
 
+	const sizeFormat = (bytes) => {
+		const size = bytes;
+        if (size < 1024) return `${size} bytes`;
+        else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+        else if (size < 1024 *1024*1024) `${(size / (1024 * 1024)).toFixed(2)} MB`;
+		else return `${(size / (1024 *1024*1024)).toFixed(2)} GB`;
+	}
+
 	const load = async () => {
 		loading = true;
 		tree = null;
@@ -31,7 +39,7 @@
 		// const streamsaver = await import("streamsaver");
 		// createWriteStream = streamsaver.createWriteStream;
 		files = await retrieveFiles(data.id, version.version_id);
-		//console.log(files);
+		console.log(files);
 		tree = buildFileTree(files);
 		currentLevel = tree;
 		loading = false;
@@ -92,6 +100,7 @@
 
 		details = {"checksum":file.checksum,
 					"version":file.version,
+					"size":sizeFormat(file.size),
 				  };
 		currentPath = [...currentPath, filename];
 	};
