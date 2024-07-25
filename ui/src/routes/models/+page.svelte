@@ -33,7 +33,7 @@
 		filtered_models = $models.data
 			?.filter((models) => {
 				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) => models.tags.includes(tag));
+				return selected_tags.every((tag) => models.tags.includes(tag.name));
 			})
 			.filter((models) => {
 				if (filterName.length === 0) return true;
