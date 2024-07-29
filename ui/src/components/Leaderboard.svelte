@@ -1,28 +1,36 @@
 <script>
     export let leaderboard;
     export let field = "datasets";
-
+    export let msgText = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Est dolor asperiores repellendus quod id cupiditate consequatur tenetur corporis nesciunt. Commodi dignissimos repellendus laudantium quasi nesciunt porro corporis quidem rerum assumenda.";
+    export let textOnLeft = false;
+    export let textOnRight = false;
     $: leaderboard = leaderboard?.filter((l) => l[field] > 0);
 </script>
 
-<div class="w-full bg-gray-200 grid place-items-center">
-    <div class="w-full max-w-2xl overflow-x-auto py-10 px-5">
-        <h2 class="text-2xl mb-8">Top contributors</h2>
-        <table class="table w-full mt-3">
+<div class="w-full grid place-items-center">
+    <div class="w-full overflow-x-auto py-10 px-5 flex sm:flex-row flex-col justify-center items-center">
+        <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6 sm:hidden">Top contributors</h2>
+        {#if textOnLeft}        
+            <div class="sm:p-8 sm:flex-col sm:w-96 w-500px] hidden sm:flex">
+                <h2 class="text-2xl font-bold text-[rgb(74,191,167)] pb-6">Top contributors</h2>
+                <p>{msgText}</p>
+            </div>
+        {/if}
+        <table class="w-full sm:max-w-2xl max-w-40 max-h-64 max-w">
             <thead>
-                <tr>
-                    <th />
-                    <th>Name</th>
-                    <th>{field}</th>
+                <tr class="bg-[rgb(0,50,71)] text-white h-12">
+                    <th class="px-4"/>
+                    <th class="text-left px-4">Name</th>
+                    <th class="px-4">{field}</th>
                 </tr>
             </thead>
             <tbody>
                 {#if leaderboard?.length > 0}
                     {#each leaderboard as user, i}
-                        <tr class={i % 2 && "active"}>
-                            <th>{i + 1}</th>
-                            <td><p class="w-[200px]">{user.name}</p></td>
-                            <td>{user[field]}</td>
+                        <tr class={i % 2 ? "active bg-[rgb(74,191,167)] h-12 text-white" : "bg-white h-12"}>
+                            <th class="px-4">{i + 1}</th>
+                            <td><p class="sm:w-[400px] w-[225px] px-4">{user.name}</p></td>
+                            <td class="text-center">{user[field]}</td>
                         </tr>
                     {/each}
                 {:else}
@@ -44,5 +52,11 @@
                 {/if}
             </tbody>
         </table>
+        {#if textOnRight}    
+            <div class="sm:p-8 sm:flex-col sm:w-96 w-500px] hidden sm:flex">
+                <h2 class="text-2xl font-bold text-[rgb(0,50,71)] pb-6">Top contributors</h2>
+                <p>{msgText}</p>
+            </div>  
+        {/if}
     </div>
 </div>
