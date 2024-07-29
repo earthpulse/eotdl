@@ -1,5 +1,4 @@
 <script>
-  import HeroBackgorund from "./HeroBackgorund.svelte";
   import Hero from "./Hero.svelte";
   import Consortium from "./Consortium.svelte";
   import RecentDatasets from "./RecentDatasets.svelte";
@@ -22,7 +21,6 @@
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
-  <HeroBackgorund/>
   <Hero />
   <RecentDatasets />
   <PopularDatasets />

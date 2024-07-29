@@ -9,6 +9,11 @@
 	});
 </script>
 
-<div class="mt-[100px] w-full">
-	<Leaderboard leaderboard={data} field="models" textOnRight={true}/>
+<div class="sm:my-[100px] w-full">
+	<Leaderboard
+		leaderboard={data}
+		field="models"
+		textOnRight={true}
+		msgText="Ingest models into EOTDL and climb up the leaderboard!"
+	/>
 </div>
