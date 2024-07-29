@@ -18,7 +18,6 @@
 	let selected_tags = [];
 
 	const load = async () => {
-
 		await datasets.retrieve(fetch);
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
@@ -37,7 +36,7 @@
 		filtered_datasets = $datasets.data
 			?.filter((dataset) => {
 				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) => dataset.tags.includes(tag.name));
+				return selected_tags.every((tag) => dataset.tags.includes(tag));
 			})
 			.filter((dataset) => {
 				if (filterName.length === 0) return true;
