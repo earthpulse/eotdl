@@ -1,9 +1,9 @@
 <script>
 	import { browser } from "$app/environment";
 
-	import Folder from "svelte-material-icons/Folder.svelte"
-	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte"
-	import File from "svelte-material-icons/File.svelte"
+	import Folder from "svelte-material-icons/Folder.svelte";
+	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
+	import File from "svelte-material-icons/File.svelte";
 
 	export let data;
 	export let retrieveFiles;
@@ -23,11 +23,12 @@
 
 	const sizeFormat = (bytes) => {
 		const size = bytes;
-        if (size < 1024) return `${size} bytes`;
-        else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
-        else if (size < 1024 *1024*1024) `${(size / (1024 * 1024)).toFixed(2)} MB`;
-		else return `${(size / (1024 *1024*1024)).toFixed(2)} GB`;
-	}
+		if (size < 1024) return `${size} bytes`;
+		else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+		else if (size < 1024 * 1024 * 1024)
+			`${(size / (1024 * 1024)).toFixed(2)} MB`;
+		else return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+	};
 
 	const load = async () => {
 		loading = true;
@@ -70,49 +71,51 @@
 		currentLevel = currentLevel[folderName];
 		getCurrentPath(folderName);
 	};
-	
+
 	const goBack = () => {
-		if (onDetails){
-			currentPath = currentPath.slice(0,currentPath.length-1);
+		if (onDetails) {
+			currentPath = currentPath.slice(0, currentPath.length - 1);
 			onDetails = false;
-		}
-		else{
+		} else {
 			currentLevel = navigationStack.pop();
-			currentPath = currentPath.slice(0,currentPath.length-1);
+			currentPath = currentPath.slice(0, currentPath.length - 1);
 		}
 	};
 
-	const goToLevel = (folder) => {		
-		const folderIndex = currentPath.indexOf(folder)+1;
-		
-		if (currentPath.length > navigationStack.length && folder.split(".").length < 2){
+	const goToLevel = (folder) => {
+		const folderIndex = currentPath.indexOf(folder) + 1;
+
+		if (
+			currentPath.length > navigationStack.length &&
+			folder.split(".").length < 2
+		) {
 			onDetails = false;
-			currentPath = currentPath.slice(0,currentPath.length-1);
+			currentPath = currentPath.slice(0, currentPath.length - 1);
 		}
-		console.log(folderIndex,navigationStack.length);
-		for (let i = 0 ; navigationStack.length - folderIndex > 0; i++) {
+		console.log(folderIndex, navigationStack.length);
+		for (let i = 0; navigationStack.length - folderIndex > 0; i++) {
 			goBack();
-		};
+		}
 	};
 
 	const goToDetails = (file, filename) => {
 		onDetails = true;
 
-		details = {"checksum":file.checksum,
-					"version":file.version,
-					"size":sizeFormat(file.size),
-				  };
+		details = {
+			checksum: file.checksum,
+			version: file.version,
+			size: sizeFormat(file.size),
+		};
 		currentPath = [...currentPath, filename];
 	};
 
 	const getCurrentPath = (intoFolder) => {
-		if (navigationStack.length > 0){
+		if (navigationStack.length > 0) {
 			currentPath = [...currentPath, intoFolder];
+		} else {
+			currentPath = [];
 		}
-		else {
-            currentPath = [];
-        }
-	} 
+	};
 	// const download = async (fileName) => {
 	// 	// seems to work, but not sure if it will with large datasets (need to test)
 	// 	fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
@@ -150,42 +153,58 @@
 {#if !loading}
 	{#if files}
 		<p>Files ({files.length}) :</p>
-		<div class="overflow-auto w-full max-h-[200px] border-2">			
-				<div class="pl-2 pb-2 text-[13px] font-semibold flex">Path:	/			
-						{#each currentPath as folder}
-							<button on:click={goToLevel(folder)} class="hover:underline"> {folder}/</button>
-						{/each}
-				</div>
-			<table class="ml-2">			
-			{#if navigationStack.length > 0 || onDetails}
-				<button class="hover:underline flex" on:click={goBack}
-				><ArrowLeft class="self-center mr-1"/> Return </button
-				>
-			{/if}
-			{#if onDetails == false}
-				{#each Object.keys(currentLevel) as item}
-					<!-- {#if $user}
+		<div class="overflow-auto w-full max-h-[200px] border-2">
+			<div class="text-[13px] flex">
+				{#if navigationStack.length > 0 || onDetails}
+					<button class="hover:underline flex p-2" on:click={goBack}
+						><ArrowLeft class="self-center mr-1" />
+					</button>
+				{/if}
+				{#each currentPath as folder}
+					<button
+						on:click={goToLevel(folder)}
+						class="hover:underline"
+					>
+						/{folder}</button
+					>
+				{/each}
+			</div>
+			<table class="ml-2">
+				{#if onDetails == false}
+					{#each Object.keys(currentLevel) as item}
+						<!-- {#if $user}
 					<button on:click={() => download(file.name)}
 						><Download color="gray" size={20} /></button
 						>
 						{/if} -->
 						{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
-						<tr>
-							<td>
-								<button
-								class="hover:underline flex"
-								on:click={() => openFolder(item)}>
-								<Folder class=" self-center mr-[2px]" />{item}</button
-								>
-							</td>
-						</tr>
-						
-					{:else}
-						<tr>					
-							<td class="pr-1">
-								<button on:click={goToDetails(currentLevel[item], item)}><p class="flex"><File class=" self-center"/> {item}</p></button>
-							</td>
-					<!-- <td class="px-1">
+							<tr>
+								<td>
+									<button
+										class="hover:underline flex"
+										on:click={() => openFolder(item)}
+									>
+										<Folder
+											class=" self-center mr-[2px]"
+										/>{item}</button
+									>
+								</td>
+							</tr>
+						{:else}
+							<tr>
+								<td class="pr-1">
+									<button
+										on:click={goToDetails(
+											currentLevel[item],
+											item,
+										)}
+										><p class="hover:underline flex">
+											<File class=" self-center" />
+											{item}
+										</p></button
+									>
+								</td>
+								<!-- <td class="px-1">
 								<p>
 										{currentLevel[item].checksum.substr(0, 8)}...
 								</p>
@@ -195,20 +214,20 @@
 										{currentLevel[item].version}
 								</p>
 							</td> -->
-						</tr>
-					{/if}
+							</tr>
+						{/if}
 						<!-- <td>{formatFileSize(file.size)}</td> -->
 						<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
-				{/each}
-			{:else}
-				{#each Object.keys(details) as detail}
-				<tr>
-					<th class="text-left">{detail}:</th>
-					<td class="pl-1">{details[detail]}</td>
-				</tr>
-				{/each}
-			{/if}
-			</table>		
+					{/each}
+				{:else}
+					{#each Object.keys(details) as detail}
+						<tr>
+							<th class="text-left">{detail}:</th>
+							<td class="pl-1">{details[detail]}</td>
+						</tr>
+					{/each}
+				{/if}
+			</table>
 		</div>
 	{:else}
 		<p>No files found.</p>
