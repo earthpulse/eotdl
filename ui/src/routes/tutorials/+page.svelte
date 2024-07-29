@@ -1,5 +1,5 @@
 <script>
-	import { tutorials, workshops } from "./tutorials"
+	import { tutorials, workshops } from "./tutorials";
 </script>
 
 <div class="w-full flex flex-col items-center justify-between h-full grow">
@@ -9,7 +9,8 @@
 		<div class="flex flex-col justify-between mb-6 w-full gap-2">
 			<h1 class="font-bold text-3xl">Workshops</h1>
 			<p>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis.
+				End to end tutorials performed as part of workshops at
+				international events and conferences.
 			</p>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
@@ -29,16 +30,20 @@
 						<p class="mb-2 text-sm">{workshop.description}</p>
 					</div>
 					<div class="text-left">
-						<a class="hover:underline text-blue-800" href="{workshop.link}">{workshop.name}</a>
+						<a
+							class="hover:underline text-blue-800"
+							href={workshop.link}
+							target="_blank">{workshop.name}</a
+						>
 					</div>
 				</div>
 			{/each}
 		</div>
-		
+
 		<div class="flex flex-col justify-between mb-6 mt-12 w-full gap-2">
 			<h1 class="font-bold text-3xl">Tutorials</h1>
 			<p>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis.
+				Examples showing how to perform particular actions with EOTDL.
 			</p>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
@@ -59,9 +64,11 @@
 					</div>
 					<div class="grid grid-cols-1">
 						{#each Object.keys(tutorial.links) as key}
-						
-							<a class="hover:underline text-blue-800" href="{tutorial.links[key]}">{key}</a>
-							
+							<a
+								class="hover:underline text-blue-800"
+								href={tutorial.links[key]}
+								target="_blank">{key}</a
+							>
 						{/each}
 					</div>
 				</div>

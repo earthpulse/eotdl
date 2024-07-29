@@ -1,23 +1,23 @@
 const workshops = [
     {
         name: "PhiLab 2024",
-        thumbnail: "",
-        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis voluptates corporis enim mollitia voluptatum officia impedit minus sit, modi, nesciunt perspiciatis fuga eum molestias eaque similique alias, quos vel.",
+        thumbnail: "/tutorials/philab.png",
+        description:"Workshop conducted at PhiLab premises on May 2024. Lear how to explore and download datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/philab24/README.md",
     },
     {
         name: "BiDS 2023",
-        thumbnail: "",
-        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis voluptates corporis enim mollitia voluptatum officia impedit minus sit, modi, nesciunt perspiciatis fuga eum molestias eaque similique alias, quos vel.",
+        thumbnail: "/tutorials/bids23.png",
+        description:"Workshop conducted during the Big Data from Space (BiDS) 2023 conference. Lear how to explore and download datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project. A Youtube video of the workshop is available at the following link.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/bids23/README.md",
     },
 ];
 
 const tutorials = [
         {
-        name: "Datasets",
-        thumbnail: "",
-        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis voluptates corporis enim mollitia voluptatum officia impedit minus sit, modi, nesciunt perspiciatis fuga eum molestias eaque similique alias, quos vel.",
+        name: "Datasets & Models",
+        thumbnail: "https://github.com/earthpulse/eotdl/raw/main/eotdl/eotdl.png",
+        description:"Learn what EOTDL offers for training datasets and ML models for Earth Observation.",
         links: {"Introducing the EOTDL":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/00_eotdl.ipynb",
             "Exploring the EOTDL":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/01_exploring.ipynb",
             "Ingesting in the EOTDL":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/02_ingesting.ipynb",
@@ -28,16 +28,16 @@ const tutorials = [
 		},
         {
         name: "Data access",
-        thumbnail: "",
-        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis voluptates corporis enim mollitia voluptatum officia impedit minus sit, modi, nesciunt perspiciatis fuga eum molestias eaque similique alias, quos vel.",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/commons/7/77/A-Train_w-Time2013_Web.jpg",
+        description:"Learn how to create yout own datasets from scratch.",
         links: {"Search Sentinel imagery":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/10_search_sentinel_imagery.ipynb",
             "Download Sentinel imagery":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/11_download_sentinel_imagery.ipynb",
         	}
 		},
         {
         name: "STAC",
-        thumbnail: "",
-        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium debitis voluptates corporis enim mollitia voluptatum officia impedit minus sit, modi, nesciunt perspiciatis fuga eum molestias eaque similique alias, quos vel.",
+        thumbnail: "https://stacspec.org/public/images-original/STAC-01.png",
+        description:"We rely on STAC for data curation. Learn how to create STAC metadata for your datasets and models.",
         links: {"Generate STAC metadata ":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/20_stac.ipynb",
             "Generate STAC metadata with extensions":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/21_stac_extensions.ipynb",
             "Introducing the STACDataFrame labeling strategy":"https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/22_stac_df_labeling.ipynb",
