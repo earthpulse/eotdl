@@ -38,10 +38,7 @@
         >
         Github</a
       >
-      <a
-        href="/tutorials"
-        class="btn btn-sm bg-blue-500 text-white border-base-300 capitalize"
-      >
+      <a href="/tutorials" class="btn btn-sm bg-blue-500 text-white capitalize">
         Tutorials</a
       ></span
     >
