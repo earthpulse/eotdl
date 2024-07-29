@@ -1,7 +1,7 @@
 import { PUBLIC_EOTDL_API } from '$env/static/public';
 
 export default async (fetch) => {
-	let url = `${PUBLIC_EOTDL_API}/tags`;
+	let url = `${PUBLIC_EOTDL_API}/tags/categories`;
   try {
     const res = await fetch(url);
     const data = await res.json();

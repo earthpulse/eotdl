@@ -7,6 +7,7 @@
     import CogOutline from "svelte-material-icons/CogOutline.svelte";
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
+    import SchoolOutline from "svelte-material-icons/SchoolOutline.svelte";
     export let loading;
     const links = [
         { href: "/", label: "Home", icon: HomeOutline },
@@ -14,9 +15,10 @@
         { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
         {
             href: "https://hub.api.eotdl.com/",
-            label: "Cloud Workspace",
+            label: "Workspace",
             icon: CloudCogOutline,
         },
+        { href: "/tutorials", label: "Tutorials", icon: SchoolOutline },
         { href: "/applications", label: "Applications", icon: CogOutline },
         { href: "/docs", label: "Docs", icon: TextBoxMultipleOutline },
     ];
@@ -64,7 +66,7 @@
     >
         {#each links as link}
             <li
-                class="hidden font-bold sm:flex 
+                class="hidden font-bold lg:flex 
                 {$page.url.pathname == "/" ? "text-gray-300 hover:text-white" : "text-slate-600 hover:text-slate-800"} 
                 gap-1 text-[15px] items-center"
             >
@@ -133,7 +135,7 @@
                 class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
                 {#each links as link}
-                    <li class="sm:hidden block">
+                    <li class="lg:hidden block">
                         <a href={link.href} class="hover:underline"
                             >{link.label}</a
                         >
