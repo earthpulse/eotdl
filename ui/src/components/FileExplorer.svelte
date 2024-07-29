@@ -9,8 +9,6 @@
 	export let retrieveFiles;
 	export let version;
 
-	// $: console.log(dataset, version);
-
 	let createWriteStream;
 	let files = null;
 	let tree = null;
@@ -40,7 +38,6 @@
 		// const streamsaver = await import("streamsaver");
 		// createWriteStream = streamsaver.createWriteStream;
 		files = await retrieveFiles(data.id, version.version_id);
-		console.log(files);
 		tree = buildFileTree(files);
 		currentLevel = tree;
 		loading = false;
@@ -92,7 +89,6 @@
 			onDetails = false;
 			currentPath = currentPath.slice(0, currentPath.length - 1);
 		}
-		console.log(folderIndex, navigationStack.length);
 		for (let i = 0; navigationStack.length - folderIndex > 0; i++) {
 			goBack();
 		}
