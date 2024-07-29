@@ -10,5 +10,5 @@
 </script>
 
 <div class="mt-[100px] w-full">
-	<Leaderboard leaderboard={data} />
+	<Leaderboard leaderboard={data} textOnLeft={true}/>
 </div>
