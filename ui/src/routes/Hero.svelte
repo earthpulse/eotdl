@@ -33,11 +33,10 @@
         Github</a
       >
       <a
-        href="/brochure.pdf"
-        target="_blank"
+        href="/tutorials"
         class="btn btn-sm bg-blue-500 text-white border-base-300 capitalize"
       >
-        Read the brochure</a
+        Tutorials</a
       ></span
     >
     <!-- <p class="p-4 badge badge-warning mt-5 uppercase text-xs font-bold">

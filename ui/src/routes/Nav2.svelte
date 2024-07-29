@@ -16,11 +16,11 @@
         { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
         {
             href: "https://hub.api.eotdl.com/",
-            label: "Cloud Workspace",
+            label: "Workspace",
             icon: CloudCogOutline,
         },
-        { href: "/applications", label: "Applications", icon: CogOutline },
         { href: "/tutorials", label: "Tutorials", icon: SchoolOutline },
+        { href: "/applications", label: "Applications", icon: CogOutline },
         { href: "/docs", label: "Docs", icon: TextBoxMultipleOutline },
     ];
     const secondary_links = [
@@ -38,35 +38,12 @@
 </script>
 
 <div class="grid place-items-center w-full">
-    <!-- {#if $page.url.pathname == "/"}
-        <div class="w-full p-3 bg-red-400 grid items-center">
-            <p class="m-auto max-w-6xl">
-                Meet us at the upcoming
-                <a
-                    class="text-white hover:underline"
-                    href="https://www.bigdatafromspace2023.org"
-                    target="_blank"
-                    rel="noopener noreferrer">BiDS'23</a
-                >
-                event, that will take place on 6-9 November 2023 in Vienna, Austria.
-                A <span class="underline">hands-on tutorial session </span>on
-                EOTDL will take place on November 6th from 9:00 to 12:30, and
-                everyone is welcome to join! More information
-                <a
-                    class="text-white hover:underline"
-                    href="https://www.bigdatafromspace2023.org/satellite-events"
-                    target="_blank"
-                    rel="noopener noreferrer">here</a
-                >.
-            </p>
-        </div>
-    {/if} -->
     <ul
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
             <li
-                class="hidden sm:block text-slate-500 gap-2 text-sm hover:text-slate-700"
+                class="hidden lg:block text-slate-500 gap-2 text-sm hover:text-slate-700"
             >
                 <a
                     href={link.href}
@@ -129,7 +106,7 @@
                 class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
                 {#each links as link}
-                    <li class="sm:hidden block">
+                    <li class="lg:hidden block">
                         <a href={link.href} class="hover:underline"
                             >{link.label}</a
                         >
