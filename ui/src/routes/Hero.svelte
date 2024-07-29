@@ -6,7 +6,7 @@
     class="gap-3 max-w-[450px] text-center text-white flex flex-col items-center px-4 mt-[80px] md:mt-24"
   >
     <h1 class="text-5xl font-bold leading-[50px]">
-      Earth Observation Training Data Lab
+      Earth Observation Training Data Labs
     </h1>
     <!-- <img src="https://github.com/earthpulse/eotdl/raw/main/eotdl/eotdl.png" /> -->
     <p class="py-6 leading-5">
