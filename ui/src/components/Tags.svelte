@@ -14,29 +14,31 @@
         onToggleTag(selected_tags);
     };
 
-    tags.forEach(tag => {
-        console.log(tag.category);
-        if(!categories.includes(tag.category)){
+    tags.forEach((tag) => {
+        if (!categories.includes(tag.category)) {
             categories.push(tag.category);
         }
-    })
-    console.log(categories);
+    });
 </script>
 
 <div class="flex flex-row flex-wrap gap-2 content-start justify-center">
-    {#each categories as category}    
-        <div class="w-full gap-2">
-            <h1 class="font-bold">{category.charAt(0).toUpperCase() + category.slice(1)}</h1>
+    {#each categories as category}
+        <div class="w-full gap-2 flex flex-row items-center flex-wrap">
+            <h1 class="text-slate-500 text-xs">
+                {category.charAt(0).toUpperCase() + category.slice(1)}:
+            </h1>
             {#each tags as tag}
-                {#if tag.category == category}                
-                <button
-                    class="badge text-slate-400 text-xs mx-[2px] {selected_tags.includes(
-                        tag
-                    ) ? 'badge badge-accent bg-green-100 text-slate-600 ' : 'badge-outline'}"
-                    on:click={() => toggleTag(tag)}
-                >
-                    {tag.name}
-                </button>
+                {#if tag.category == category}
+                    <button
+                        class="badge text-slate-400 text-xs mx-[1px] {selected_tags.includes(
+                            tag.name,
+                        )
+                            ? 'badge badge-accent bg-green-100 text-slate-600 '
+                            : 'badge-outline'}"
+                        on:click={() => toggleTag(tag.name)}
+                    >
+                        {tag.name}
+                    </button>
                 {/if}
             {/each}
         </div>
