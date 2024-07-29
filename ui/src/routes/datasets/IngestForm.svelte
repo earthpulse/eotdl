@@ -33,7 +33,7 @@
         authors?.split(","),
         source,
         license,
-        selected_tags
+        selected_tags,
       );
       document.getElementById("ingest-dataset").checked = false;
       // name = "";
@@ -134,12 +134,12 @@
       {#each tags as tag}
         <p
           class="badge badge-outline cursor-pointer text-slate-400 text-xs {selected_tags.includes(
-            tag
+            tag.name,
           ) && 'badge-accent'}"
-          on:click={() => toggleTag(tag)}
+          on:click={() => toggleTag(tag.name)}
           on:keyup={() => {}}
         >
-          {tag}
+          {tag.name}
         </p>
       {/each}
     </div>

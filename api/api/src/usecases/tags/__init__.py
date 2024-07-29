@@ -1,1 +1,1 @@
-from .retrieve_tags import retrieve_tags
+from .retrieve_tags import retrieve_tags, retrieve_tags_with_categories
