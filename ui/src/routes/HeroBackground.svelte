@@ -1,3 +1,3 @@
-<img src="backgrounds/Group-1190.png" class=" absolute w-[100%] h-[13%] md:h-[18%] object-cover -z-10" alt="">
-<img src="backgrounds/Group-1170.png" class=" md:top-[18%] top-[13%] absolute w-[100%] md:h-[29%] h-[28%] object-cover -z-10 opacity-30 bg-gradient-to-tl from-[rgb(134,204,190)] to-white" alt="">
-<img src="backgrounds/Group-1170.png" class=" md:top-[47%] top-[40%] absolute w-[100%] h-[30%] object-cover -z-10 opacity-30 bg-gradient-to-tl from-[rgb(134,204,190)] to-white" alt="">
+<img src="backgrounds/Group-1190.png" class=" absolute w-[100%] h-[10%] md:h-[14%] object-cover -z-10" alt="">
+<img src="backgrounds/Group-1170.png" class=" md:top-[14%] top-[10%] absolute w-[100%] md:h-[29%] h-[30%] object-cover -z-10 opacity-30 bg-gradient-to-tl from-[rgb(134,204,190)] to-white" alt="">
+<img src="backgrounds/Group-1170.png" class=" md:top-[43%] top-[40%] absolute w-[100%] h-[32%] object-cover -z-10 opacity-30 bg-gradient-to-tl from-[rgb(134,204,190)] to-white" alt="">
