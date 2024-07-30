@@ -4,6 +4,7 @@
 	import Folder from "svelte-material-icons/Folder.svelte";
 	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
 	import File from "svelte-material-icons/File.svelte";
+	import Eye from "svelte-material-icons/Eye.svelte";
 
 	export let data;
 	export let retrieveFiles;
@@ -18,6 +19,22 @@
 	let currentPath = [];
 	let onDetails = false;
 	let details = {};
+
+	let allowedExtensions = ["jpg",
+	 	"png",
+	 	"jpeg",
+	   	"tif",
+	    "tiff",
+		"geojson",
+		"txt",
+		"pdf",
+		"md",]
+
+	const getExtension = (filename) => {
+		const ext = filename.split(".").pop();
+		console.log(ext);
+        return ext.toLowerCase();
+	}
 
 	const sizeFormat = (bytes) => {
 		const size = bytes;
@@ -165,7 +182,7 @@
 					>
 				{/each}
 			</div>
-			<table class="ml-2">
+			<table class="ml-2 w-[50%]">
 				{#if onDetails == false}
 					{#each Object.keys(currentLevel) as item}
 						<!-- {#if $user}
@@ -188,7 +205,7 @@
 							</tr>
 						{:else}
 							<tr>
-								<td class="pr-1">
+								<td class="pr-1 flex justify-between w-full">
 									<button
 										on:click={goToDetails(
 											currentLevel[item],
@@ -199,6 +216,13 @@
 											{item}
 										</p></button
 									>
+									{#if allowedExtensions.includes(getExtension(item))}										
+										<div class="flex w-full justify-end">
+											<button>
+												<Eye  />
+											</button>
+										</div>
+									{/if}
 								</td>
 								<!-- <td class="px-1">
 								<p>
