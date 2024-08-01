@@ -1,5 +1,5 @@
 <div
-  class="grid sm:grid-rows-[100px,100px] grid-cols-1 max-w-5xl px-5 py-28 w-full"
+  class="grid grid-rows-[200px,300px] sm:grid-rows-[200px,100px] grid-cols-1 max-w-5xl px-5 py-18 sm:py-28 w-full"
 >
   <div class="flex sm:flex-row flex-col h-full sm:gap-12">
     <h2 class="mb-10 text-md font-bold pt-10">Initiated By</h2>
