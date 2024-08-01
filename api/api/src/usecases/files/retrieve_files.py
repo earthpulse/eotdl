@@ -16,7 +16,12 @@ def retrieve_files(versions, files_id, version=None):
         raise Exception("No files found")
     files = (
         [
-            {"filename": f["name"], "version": f["version"], "checksum": f["checksum"]}
+            {
+                "filename": f["name"],
+                "version": f["version"],
+                "checksum": f["checksum"],
+                "size": f["size"],
+            }
             for f in data[0]["files"]
         ]
         if len(data[0]["files"]) > 0
