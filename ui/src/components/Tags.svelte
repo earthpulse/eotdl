@@ -3,6 +3,8 @@
     export let selected_tags = [];
     export let onToggleTag = () => {};
 
+    let categories = [];
+
     const toggleTag = (tag) => {
         if (selected_tags.includes(tag)) {
             selected_tags = selected_tags.filter((t) => t !== tag);
@@ -11,17 +13,34 @@
         }
         onToggleTag(selected_tags);
     };
+
+    tags.forEach((tag) => {
+        if (!categories.includes(tag.category)) {
+            categories.push(tag.category);
+        }
+    });
 </script>
 
-<div class="flex flex-wrap gap-1 content-start">
-    {#each tags as tag}
-        <button
-            class="badge badge-outline bg-white text-slate-400 text-xs {selected_tags.includes(
-                tag
-            ) && 'badge-accent'}"
-            on:click={() => toggleTag(tag)}
-        >
-            {tag}
-        </button>
+<div class="flex flex-row flex-wrap gap-2 content-start justify-center">
+    {#each categories as category}
+        <div class="w-full gap-2 flex flex-row items-center flex-wrap">
+            <h1 class="text-slate-500 text-xs">
+                {category.charAt(0).toUpperCase() + category.slice(1)}:
+            </h1>
+            {#each tags as tag}
+                {#if tag.category == category}
+                    <button
+                        class="badge text-slate-400 text-xs mx-[1px] {selected_tags.includes(
+                            tag.name,
+                        )
+                            ? 'badge badge-accent bg-green-100 text-slate-600 '
+                            : 'badge-outline'}"
+                        on:click={() => toggleTag(tag.name)}
+                    >
+                        {tag.name}
+                    </button>
+                {/if}
+            {/each}
+        </div>
     {/each}
 </div>
