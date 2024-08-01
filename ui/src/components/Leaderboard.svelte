@@ -23,7 +23,7 @@
                 <p>{msgText}</p>
             </div>
         {/if}
-        <table class="w-full sm:max-w-2xl max-w-40 max-h-64 max-w">
+        <table class="w-full sm:max-w-2xl max-h-64 max-w">
             <thead>
                 <tr class="bg-[rgb(0,50,71)] text-white h-12">
                     <th class="px-4" />
