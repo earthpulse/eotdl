@@ -34,3 +34,15 @@ class MongoUserRepo(MongoRepo):
 
     def retrieve_model_ingestion_usage(self, uid):
         return self.find_in_time_range("usage", uid, "model_ingested", "type")
+
+    def retrieve_keys(self, uid):
+        return self.retrieve("keys", match={"uid": uid})
+
+    def persist_key(self, data):
+        return self.persist("keys", data, id=data["id"])
+
+    def delete_key(self, key):
+        return self.delete("keys", key)
+
+
+# eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImUtdHB2cDI4NEZlX1pfVzVZRUpfaiJ9.eyJuaWNrbmFtZSI6Iml0IiwibmFtZSI6Iml0QGVhcnRocHVsc2UuZXMiLCJwaWN0dXJlIjoiaHR0cHM6Ly9zLmdyYXZhdGFyLmNvbS9hdmF0YXIvNjU1NzQxYmI2ZDkzMDNmNjljMGY2YTUzYmU2MjMwZDQ_cz00ODAmcj1wZyZkPWh0dHBzJTNBJTJGJTJGY2RuLmF1dGgwLmNvbSUyRmF2YXRhcnMlMkZpdC5wbmciLCJ1cGRhdGVkX2F0IjoiMjAyNC0wOC0wNVQxMDoxNzowMS40NTVaIiwiZW1haWwiOiJpdEBlYXJ0aHB1bHNlLmVzIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vZWFydGhwdWxzZS5ldS5hdXRoMC5jb20vIiwiYXVkIjoic0M1V2Zsem1Qb2owNThGSllMMmNrRU51dHhKTDRQVFciLCJpYXQiOjE3MjI4NjY5NjUsImV4cCI6MTcyMjkwMjk2NSwic3ViIjoiYXV0aDB8NjE2YjAwNTdhZjBjNzUwMDY5MWEwMjZlIn0.cAtB_qmaUC6r5xFlgE7o7MR2LYIPY1jJmajPbCkPzXHpJ-8GUqeU2_1SQTDbI0K3cqw5Gc0t26uXMyO-TaQ4bivdJGvss6GF9PL7pTZRS2EPX2_axTFqnfKWKhYV31GI9ZB2JHczsOtXCnW3XVdj2KW8BNZ1Gma1mFqwRYgaQ86WZ7EPoibrOcXwOqyJoA-3nOCCdz10XmS1t57kAdq5KCE9msDgQvUuyDe_QfjvtgKuS7g0Rp2-Zt2793XIvXFxg1j-YJu6oaSNWclzskztQux7LtdyLMOlBFo9v8PCOWZFdjzNO_oQLCsw7OfhhmBbpai3MIWBjN65KpNj9juZxg
