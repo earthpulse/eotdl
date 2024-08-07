@@ -142,6 +142,7 @@
 								data={dataset}
 								{version}
 								retrieveFiles={retrieveDatasetFiles}
+								datasetId={dataset.id}
 							/>
 						</div>
 					{:else if dataset.items?.features?.length > 0}
