@@ -1,13 +1,16 @@
 <script>
 	import { browser } from "$app/environment";
-
 	import Folder from "svelte-material-icons/Folder.svelte";
 	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
 	import File from "svelte-material-icons/File.svelte";
+	import { id_token } from "$stores/auth";
+	import { PUBLIC_EOTDL_API } from "$env/static/public";
+	import { onMount } from "svelte";
 
 	export let data;
 	export let retrieveFiles;
 	export let version;
+	export let datasetId;
 
 	let createWriteStream;
 	let files = null;
@@ -18,6 +21,14 @@
 	let currentPath = [];
 	let onDetails = false;
 	let details = {};
+	let currentFileName = null;
+	onMount(async () => {
+		if (browser) {
+			// only works in browser
+			const streamsaver = await import("streamsaver");
+			createWriteStream = streamsaver.createWriteStream;
+		}
+	});
 
 	const sizeFormat = (bytes) => {
 		const size = bytes;
@@ -96,13 +107,13 @@
 
 	const goToDetails = (file, filename) => {
 		onDetails = true;
-
 		details = {
 			checksum: file.checksum,
 			version: file.version,
 			size: sizeFormat(file.size),
 		};
 		currentPath = [...currentPath, filename];
+		currentFileName = file.filename;
 	};
 
 	const getCurrentPath = (intoFolder) => {
@@ -112,38 +123,41 @@
 			currentPath = [];
 		}
 	};
-	// const download = async (fileName) => {
-	// 	// seems to work, but not sure if it will with large datasets (need to test)
-	// 	fetch(`${PUBLIC_EOTDL_API}/datasets/${id}/download/${fileName}`, {
-	// 		method: "GET",
-	// 		headers: {
-	// 			Authorization: `Bearer ${$id_token}`,
-	// 		},
-	// 	})
-	// 		.then((res) => {
-	// 			if (!res.ok) return res.json();
-	// 			const fileStream = createWriteStream(fileName);
-	// 			const writer = fileStream.getWriter();
-	// 			if (res.body.pipeTo) {
-	// 				writer.releaseLock();
-	// 				return res.body.pipeTo(fileStream);
-	// 			}
-	// 			const reader = res.body.getReader();
-	// 			const pump = () =>
-	// 				reader
-	// 					.read()
-	// 					.then(({ value, done }) =>
-	// 						done
-	// 							? writer.close()
-	// 							: writer.write(value).then(pump)
-	// 					);
-	// 			data.dataset.downloads = data.dataset.downloads + 1;
-	// 			return pump();
-	// 		})
-	// 		.then((res) => {
-	// 			alert(res.detail);
-	// 		});
-	// };
+
+	const download = async () => {
+		// seems to work, but not sure if it will with large datasets (need to test)
+		fetch(
+			`${PUBLIC_EOTDL_API}/datasets/${datasetId}/download/${currentFileName}`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${$id_token}`,
+				},
+			},
+		)
+			.then((res) => {
+				if (!res.ok) return res.json();
+				const fileStream = createWriteStream(currentFileName);
+				const writer = fileStream.getWriter();
+				if (res.body.pipeTo) {
+					writer.releaseLock();
+					return res.body.pipeTo(fileStream);
+				}
+				const reader = res.body.getReader();
+				const pump = () =>
+					reader
+						.read()
+						.then(({ value, done }) =>
+							done
+								? writer.close()
+								: writer.write(value).then(pump),
+						);
+				return pump();
+			})
+			.then((res) => {
+				alert(res.detail);
+			});
+	};
 </script>
 
 {#if !loading}
@@ -222,6 +236,9 @@
 							<td class="pl-1">{details[detail]}</td>
 						</tr>
 					{/each}
+					<button class="btn" on:click={() => download(details)}
+						>download</button
+					>
 				{/if}
 			</table>
 		</div>
