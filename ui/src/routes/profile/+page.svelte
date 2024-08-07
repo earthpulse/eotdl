@@ -1,7 +1,6 @@
 <script>
 	import updateProfile from "$lib/auth/updateProfile";
 	import TermsAndConditions from "./TermsAndConditions.svelte";
-	import Credentials from "./Credentials.svelte";
 	import ProfileNavBar from "./ProfileNavBar.svelte";
 	export let data;
 
@@ -25,12 +24,12 @@
 	<meta name="description" content="user profile" />
 </svelte:head>
 
-<div class="w-full flex flex-col items-left pl-14 h-screen">
-	<div class="py-10 mt-10 flex">
+<div class="w-full flex flex-col items-left sm:px-14 px-3 h-screen">
+	<div class="py-10 mt-10 flex sm:flex-row flex-col">
 		<ProfileNavBar />
 		<div class="px-3 w-full max-w-6xl flex flex-col gap-3">
-			<h1 class="text-left w-full text-2xl">Profile</h1>
-			<div class="flex flex-row w-full gap-3">
+			<h1 class="sm:text-left text-center w-full text-2xl">Profile</h1>
+			<div class="flex sm:flex-row flex-col w-full gap-3">
 				<div class="avatar">
 					<div class="w-32 rounded-full">
 						<img
