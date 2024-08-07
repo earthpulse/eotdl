@@ -12,6 +12,9 @@
 	let apikeys = [];
 	let limitReached = false;
 
+	let onAlert = false;
+	let deletingKey;
+
 	const formatTime = (dataTime) => {
 		let data = dataTime.split("T")[0];
 		let time = dataTime.split("T")[1].split(":").slice(0,2).join(":");
@@ -25,6 +28,8 @@
 		});
     });
 
+
+
 	const deleteKey = async (keyId) => {
 		deleteApiKey($id_token, keyId).then((val) =>{
 			retrieveApiKey($id_token).then((val) =>{
@@ -32,7 +37,7 @@
 			limitReached = false;
 		});
 		})
-	} 
+	}
 
 	const newKey = async () => {
 		try {
@@ -48,6 +53,16 @@
 	} 
 
 </script>
+
+<div class="fixed flex top-0 h-screen w-screen items-center justify-center bg-slate-500 bg-opacity-50 {onAlert ? "" : "hidden"}">
+    <div class="bg-slate-50 flex flex-col p-12 rounded-xl fixed">
+        <p class="font-bold text-center">Confirm delete?</p>
+        <div class="flex gap-4 mt-6">
+            <button on:click={() => {deleteKey(deletingKey); onAlert = !onAlert}} class="btn btn-outline btn-error">Yes</button>
+            <button on:click={() => { onAlert = !onAlert}} class="btn btn-outline">No</button>
+        </div>
+    </div>
+</div>
 
 <div class="w-full flex flex-row items-left sm:px-14 px-3 h-screen">
 	<div class="py-10 mt-10 flex sm:flex-row flex-col">
@@ -65,7 +80,7 @@
 						<p class="text-sm text-gray-400 pt-4">Created on {formatTime(key.createdAt)}</p>
 					</div>
 					<div class="flex items-baseline justify-between flex-col ml-4">
-						<button class="active:bg-gray-300 p-1 rounded-md transition-all" on:click={deleteKey(key.id)}>
+						<button on:click={() => {deletingKey = key.id; onAlert = !onAlert;}} class="active:bg-gray-300 p-1 rounded-md transition-all">
 							<TrashCanOutline size="18" title="Delete" />
 						</button>
 						<button class = "active:bg-gray-300 p-1 rounded-md transition-all" on:click={navigator.clipboard.writeText(key.id)}>
