@@ -4,6 +4,7 @@
 
     export let data;
     export let title;
+    export let tags;
 </script>
 
 <div class="flex flex-col items-center w-full">
@@ -27,7 +28,7 @@
         >
             {#if data}
                 {#each data as item}
-                    <Card data={item} />
+                    <Card data={item} {tags} />
                 {/each}
             {:else}
                 {#each [1, 2, 3] as _}

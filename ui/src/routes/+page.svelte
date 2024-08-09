@@ -28,16 +28,16 @@
     class="w-full"
     style="background: url('backgrounds/Group-1170.png') center center/cover"
   >
-    <RecentDatasets />
-    <PopularDatasets />
+    <RecentDatasets tags={data.tags} />
+    <PopularDatasets tags={data.tags} />
     <DatasetsLeaderboard />
   </div>
   <div
     class="w-full"
     style="background: url('backgrounds/Group-1170.png') center center/cover"
   >
-    <RecentModels />
-    <PopularModels />
+    <RecentModels tags={data.tags} />
+    <PopularModels tags={data.tags} />
     <ModelsLeaderboard />
   </div>
   <Posts posts={data.posts} />

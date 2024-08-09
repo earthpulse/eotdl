@@ -133,11 +133,14 @@
     <div class="flex flex-wrap gap-1">
       {#each tags as tag}
         <p
-          class="badge badge-outline cursor-pointer text-slate-400 text-xs {selected_tags.includes(
+          class="badge cursor-pointer text-slate-400 text-xs {selected_tags.includes(
             tag.name,
-          ) && 'badge-accent'}"
+          )
+            ? 'text-slate-800 border-0'
+            : 'badge-outline'}"
           on:click={() => toggleTag(tag.name)}
           on:keyup={() => {}}
+          style={`${selected_tags.includes(tag.name) && `background-color: ${tag.color};`}`}
         >
           {tag.name}
         </p>
