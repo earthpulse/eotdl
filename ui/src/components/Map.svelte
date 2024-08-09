@@ -6,8 +6,6 @@
 
 	export let geojson;
 
-	$: console.log(geojson);
-
 	let map = null;
 	let zoomPosition = "bottomright";
 	let options = {
