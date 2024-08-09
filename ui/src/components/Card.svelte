@@ -23,7 +23,7 @@
         <div class="flex flex-wrap gap-1 content-start mt-1">
             {#each data.tags as tag}
                 <p
-                    class="badge border-0 text-slate-800 text-xs"
+                    class="badge border-0 text-slate-100 text-xs"
                     style="background-color: {tags?.find((t) => t.name == tag)
                         .color || 'none'};"
                 >

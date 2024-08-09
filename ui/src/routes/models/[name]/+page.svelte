@@ -47,7 +47,7 @@
 					<div class="flex flex-wrap gap-1">
 						{#each model.tags as tag}
 							<p
-								class="badge border-0 text-slate-800 text-xs"
+								class="badge border-0 text-slate-200 text-xs"
 								style="background-color: {data.tags?.find(
 									(t) => t.name == tag,
 								).color || 'none'};"

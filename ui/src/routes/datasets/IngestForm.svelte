@@ -136,7 +136,7 @@
           class="badge cursor-pointer text-slate-400 text-xs {selected_tags.includes(
             tag.name,
           )
-            ? 'text-slate-800 border-0'
+            ? 'text-slate-200 border-0'
             : 'badge-outline'}"
           on:click={() => toggleTag(tag.name)}
           on:keyup={() => {}}
