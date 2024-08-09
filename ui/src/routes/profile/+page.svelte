@@ -1,7 +1,6 @@
 <script>
 	import updateProfile from "$lib/auth/updateProfile";
 	import TermsAndConditions from "./TermsAndConditions.svelte";
-	import ProfileNavBar from "./ProfileNavBar.svelte";
 	export let data;
 
 	let newName;
@@ -24,33 +23,24 @@
 	<meta name="description" content="user profile" />
 </svelte:head>
 
-<div class="w-full flex flex-col items-left sm:px-14 px-3 h-screen">
-	<div class="py-10 mt-10 flex sm:flex-row flex-col">
-		<ProfileNavBar />
-		<div class="px-3 w-full max-w-6xl flex flex-col gap-3">
-			<h1 class="sm:text-left text-center w-full text-2xl">Profile</h1>
-			<div class="flex sm:flex-row flex-col w-full gap-3">
-				<div class="avatar">
-					<div class="w-32 rounded-full">
-						<img
-						src={data?.user?.picture || "/avatar.webp"}
-						alt="avatar"
-						/>
-					</div>
-				</div>
-				<div>
-					<h2 class="text-2xl">{data?.user?.name}</h2>
-					<h3 class="text-xl">Email: {data?.user?.email}</h3>
-					<label
-					for="edit-profile"
-						class="text-gray-400 cursor-pointer hover:underline"
-						>Edit</label
-					>
-				</div>
+<div class="w-full flex flex-col gap-3">
+	<h1 class="sm:text-left w-full text-2xl">Profile</h1>
+	<div class="flex sm:flex-row flex-col w-full gap-3">
+		<div class="avatar">
+			<div class="w-32 rounded-full">
+				<img src={data?.user?.picture || "/avatar.webp"} alt="avatar" />
 			</div>
-			<TermsAndConditions />
+		</div>
+		<div>
+			<h2 class="text-2xl">{data?.user?.name}</h2>
+			<h3 class="text-xl">Email: {data?.user?.email}</h3>
+			<label
+				for="edit-profile"
+				class="text-gray-400 cursor-pointer hover:underline">Edit</label
+			>
 		</div>
 	</div>
+	<TermsAndConditions />
 </div>
 
 <input type="checkbox" id="edit-profile" class="modal-toggle" />
