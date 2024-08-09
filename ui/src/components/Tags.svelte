@@ -32,7 +32,7 @@
                     <button
                         class={`badge text-slate-400 text-xs mx-[1px] ${
                             selected_tags.includes(tag.name)
-                                ? `badge badge-outline text-slate-600 border-0`
+                                ? `badge badge-outline text-slate-200 border-0`
                                 : "badge-outline"
                         }`}
                         style={`${selected_tags.includes(tag.name) && `background-color: ${tag.color};`}`}
