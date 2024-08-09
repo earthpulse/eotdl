@@ -5,7 +5,7 @@ from .retrieve_api_keys import retrieve_api_keys
 
 def create_api_key(user: User) -> ApiKey:
     repo = UserDBRepo()
-    if len(retrieve_api_keys(user)) >= 2:
+    if len(retrieve_api_keys(user)) >= 5:
         raise Exception(
             "API key limit reached. Delete an existing key to create a new one."
         )

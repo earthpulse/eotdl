@@ -30,11 +30,12 @@
             {#each tags as tag}
                 {#if tag.category == category}
                     <button
-                        class="badge text-slate-400 text-xs mx-[1px] {selected_tags.includes(
-                            tag.name,
-                        )
-                            ? 'badge badge-accent bg-green-100 text-slate-600 '
-                            : 'badge-outline'}"
+                        class={`badge text-slate-400 text-xs mx-[1px] ${
+                            selected_tags.includes(tag.name)
+                                ? `badge badge-outline text-slate-600 border-0`
+                                : "badge-outline"
+                        }`}
+                        style={`${selected_tags.includes(tag.name) && `background-color: ${tag.color};`}`}
                         on:click={() => toggleTag(tag.name)}
                     >
                         {tag.name}
