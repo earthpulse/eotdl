@@ -2,19 +2,20 @@
 		import { browser } from "$app/environment";
 		import Folder from "svelte-material-icons/Folder.svelte";
 		import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
+		import Download from "svelte-material-icons/download.svelte";
 		import Eye from "svelte-material-icons/Eye.svelte";
 		import File from "svelte-material-icons/File.svelte";
 		import { id_token } from "$stores/auth";
 		import { PUBLIC_EOTDL_API } from "$env/static/public";
 		import { onMount } from "svelte";
-    	import { object_without_properties } from "svelte/internal";
+		import Map from "$components/Map.svelte";
 
 		let allowedExtensions = { 
 			image:["jpg","png","jpeg","tif","tiff",],
-			map:"geojson",
-			text:"txt",
-			pdf:"pdf",
-			md:"md"}
+			map:["geojson"],
+			text:["txt"],
+			pdf:["pdf"],
+			md:["md"]}
 		export let data;
 		export let retrieveFiles;
 		export let version;
@@ -28,18 +29,13 @@
 	let loading = false;
 	let currentPath = [];
 	
-	let onDetails = false;
-	let onPreview = false;
-	
+	let onDetails = false;	
 	let blob;
 	let details = {};
 	let currentFileName = null;
 
-	let currentImg;
-	let currentPdf;
-	let currentMd;
-	let currentMap;
-	let currentText;
+	let currentBlob;
+	let currentFormat;
 	onMount(async () => {
 		if (browser) {
 			// only works in browser
@@ -155,7 +151,6 @@
 			},
 		)
 			.then((res) => {
-				console.log(res);
 				if (!res.ok) return res.json();
 				const fileStream = createWriteStream(currentFileName);
 				const writer = fileStream.getWriter();
@@ -182,8 +177,13 @@
 	const getFileFormat = (fileName) => {
 		const ext = fileName.split(".").pop();
 		for (const type of Object.keys(allowedExtensions)) {
-			if (allowedExtensions[type].includes(ext)){
-				return type;
+			if (allowedExtensions[type].length > 1){
+				for	(const format of allowedExtensions[type]){
+					if (format == ext) return type;
+				}
+			}
+			if (allowedExtensions[type] == ext) {
+				return type;	
 			} 
 		};
 		return false;
@@ -201,57 +201,55 @@
 		)
 		.then(async (res) => {
 					blob = await res.blob();
-					switch(getFileFormat(currentFileName).toString()){
+					currentBlob = null;
+					currentFormat = getFileFormat(currentFileName).toString();
+					switch(currentFormat){
 						case "image":
-							currentImg = await URL.createObjectURL(blob);
-							currentMap = null;
-							currentMd = null;
-							currentPdf = null;
-							currentText = null;
-							onPreview = true;
+							currentBlob = await URL.createObjectURL(blob);
 							break;
-
 						case "text":
-							currentImg = null;
-							currentMap = null;
-							currentMd = null;
-							currentPdf = null;
-							currentText = await blob.text();
-							onPreview = true;
+							currentBlob = await blob.text();
 							break;
-
 						case "pdf":
 							blob = blob.slice(0, blob.size, "application/pdf")
-							currentImg = null;
-							currentMap = null;
-							currentMd = null;
-							currentPdf = await URL.createObjectURL(blob);
-							currentText = null;
-							onPreview = true;
+							currentBlob = await URL.createObjectURL(blob);
+                        	break;
+						case "map":
+							currentBlob = JSON.parse(await blob.text());
                         	break;
 					}
 				});
 		}
 </script>
 
-{#if onPreview}		
-	<div class="fixed items-center justify-center flex z-40 h-screen w-screen top-0 left-0">
-		<div class="z-40 rounded-xl shadow-lg items-center justify-between flex flex-col bg-slate-100 h-[34rem] w-[30rem] border-slate-200 border-[1px]">
-			<button class="fixed self-end mx-4 my-4 z-[41]" on:click={() => onPreview = false}>X</button>			
-			{#if currentPdf}
+	<input type="checkbox" id="preview_modal" class="modal-toggle" />
+	<div role="dialog" class="modal">
+		<div class="modal-box flex justify-center">
+			<form method="dialog">
+				<label for="preview_modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
+			</form>
+			{#if $id_token}
+				{#if currentBlob && currentFormat == "pdf"}
 				<div class="h-full w-full">
-					<iframe src="{currentPdf}" class="h-full p-8 w-full" title="PDFViewer" alt="PDFViewer"></iframe>
+					<iframe src="{currentBlob}" class="h-[450px] ml-2 my-4 w-[450px]" title="PDFViewer" alt="PDFViewer"></iframe>
 				</div>		
-			{:else if currentImg}				
-				<img class="z-40 mt-16 w-96 h-96 shadow-sm" src="{currentImg}" alt="ImgPReview">
-			{:else if currentText}				
-				<div class="p-1 m-8 w-[90%] h-[95%] rounded-md bg-slate-50">
-					<p class="text-left">{currentText}</p>
-				</div>	
+				{:else if currentBlob && currentFormat == "image"}				
+					<img class="z-40 my-10 w-96 h-96 shadow-sm" src="{currentBlob}" alt="ImgPReview">
+				{:else if currentBlob && currentFormat == "text"}				
+					<div class="w-[full] m-3 overflow-auto h-[300px] rounded-md bg-slate-50">
+						<p class="text-left m-1">{currentBlob}</p>
+					</div>	
+				{:else if currentBlob && currentFormat == "map"}				
+					<div class="flex flex-col my-4 gap-3 w-full h-[300px]">
+						<Map geojson={currentBlob} />
+					</div>
+				{/if}
+			{:else}
+				<p>Please log in to download or preview files.</p>
 			{/if}
 		</div>
 	</div>
-{/if}
+
 {#if !loading}
 	{#if files}
 		<p>Files ({files.length}) :</p>
@@ -328,12 +326,16 @@
 							<td class="pl-1">{details[detail]}</td>
 						</tr>
 					{/each}
-					<button class="btn" on:click={() => download(details)}
-						>download</button
-					>
-					<button class="btn" on:click={() =>preview()}
-						>Preview</button
-					>
+					<div class="flex py-2 gap-2">
+						<label for={$id_token ? "":"preview_modal"} title="Download" on:click={() => download(details)}
+							><Download size="20"/></label
+						>
+						{#if getFileFormat(currentFileName)}
+							<label class="hover:cursor-pointer" title="Preview" for="preview_modal" on:click= {() =>{preview()}}>
+								<Eye size="20"/>
+							</label>
+						{/if}
+					</div>
 				{/if}
 			</table>
 		</div>
