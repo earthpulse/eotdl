@@ -11,8 +11,9 @@
 		import Map from "$components/Map.svelte";
 
 		let allowedExtensions = { 
-			image:["jpg","png","jpeg","tif","tiff",],
+			image:["jpg","png","jpeg"],
 			map:["geojson"],
+			tif:["tiff","tif"],
 			text:["txt"],
 			pdf:["pdf"],
 			md:["md"]}
@@ -217,6 +218,9 @@
 						case "map":
 							currentBlob = JSON.parse(await blob.text());
                         	break;
+						case "tif":
+							currentBlob = await blob.arrayBuffer();
+							break;
 					}
 				});
 		}
@@ -239,9 +243,12 @@
 					<div class="w-[full] m-3 overflow-auto h-[300px] rounded-md bg-slate-50">
 						<p class="text-left m-1">{currentBlob}</p>
 					</div>	
-				{:else if currentBlob && currentFormat == "map"}				
+				{:else if currentBlob && currentFormat == "map" ||
+						currentBlob && currentFormat == "tif"}				
 					<div class="flex flex-col my-4 gap-3 w-full h-[300px]">
-						<Map geojson={currentBlob} />
+						<Map 
+						geojson={currentFormat == "map" ? currentBlob : null}
+						geotif={currentFormat == "tif" ? currentBlob : null} />
 					</div>
 				{/if}
 			{:else}
@@ -327,7 +334,7 @@
 						</tr>
 					{/each}
 					<div class="flex py-2 gap-2">
-						<label for={$id_token ? "":"preview_modal"} title="Download" on:click={() => download(details)}
+						<label class="hover:cursor-pointer" for={$id_token ? "":"preview_modal"} title="Download" on:click={() => download(details)}
 							><Download size="20"/></label
 						>
 						{#if getFileFormat(currentFileName)}
