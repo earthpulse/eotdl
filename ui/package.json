@@ -39,6 +39,8 @@
   "dependencies": {
     "cookie": "^0.5.0",
     "date-fns": "^2.29.3",
+    "georaster": "^1.6.0",
+    "georaster-layer-for-leaflet": "^3.10.0",
     "isomorphic-unfetch": "^4.0.2",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.1",
