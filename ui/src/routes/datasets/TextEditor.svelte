@@ -1,35 +1,24 @@
 <script>
-  import "../../styles/quill.snow.css";
-  import { onMount } from "svelte";
-  // import Quill from "quill";
+	import { Carta, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import "$styles/carta-md.css"
+  import DOMPurify from 'isomorphic-dompurify';
 
-  export let options = {
-    placeholder: "Description...",
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        ["link", "code-block"],
-      ],
-    },
-    theme: "snow",
-  };
-  export let content = "";
+  import TurndownService from 'turndown';
+  const carta = new Carta({
+		extensions: [],
+    sanitizer: DOMPurify.sanitize
+	});
 
-  let a = "";
-
-  let quillInstance;
-  onMount(async () => {
-    const Quill = (await import("quill")).default;
-    if (quillInstance) return;
-    const node = document.getElementById("editor");
-    quillInstance = new Quill(node, options);
-    const container = node.getElementsByClassName("ql-editor")[0];
-    if (content) container.innerHTML = content;
-    quillInstance.on("text-change", (delta, oldDelta, source) => {
-      content = container.innerHTML;
-    });
-  });
+  export let content;
+  var turndownService = new TurndownService()
+	let value = turndownService.turndown(content);
+  content = carta.render(value);
 </script>
 
-<div id="editor" />
+<div class="flex justify-center">
+    <div onke class="w-[62rem] flex flex-col items-center justify-center p-2 shadow-md bg-slate-100 rounded-xl">
+        <MarkdownEditor mode="split" {carta} bind:value />
+    </div>
+</div>
+<slot />
