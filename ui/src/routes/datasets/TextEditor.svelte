@@ -11,13 +11,15 @@
 	});
 
   export let content;
-  var turndownService = new TurndownService()
+  var turndownService = new TurndownService({codeBlockStyle:"fenced", preformattedCode:true})
 	let value = turndownService.turndown(content);
-  content = carta.render(value);
+  const rebuildHtml = async () => {
+    content = await carta.render(value);
+  }
 </script>
 
 <div class="flex justify-center">
-    <div onke class="w-[62rem] flex flex-col items-center justify-center p-2 shadow-md bg-slate-100 rounded-xl">
+    <div on:change={rebuildHtml} class="w-[62rem] flex flex-col items-center justify-center p-2 rounded-xl">
         <MarkdownEditor mode="split" {carta} bind:value />
     </div>
 </div>
