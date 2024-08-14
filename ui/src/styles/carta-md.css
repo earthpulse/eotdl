@@ -1,22 +1,19 @@
-.carta-renderer code {
+.carta-renderer p code {
     @apply bg-slate-200 rounded-md py-[2px] px-1
 }
-
 .carta-renderer pre {
-    @apply bg-slate-200 w-fit rounded-md py-[2px] px-1
+    @apply bg-[rgb(31,41,55)] w-fit rounded-md my-2 py-[2px] px-1 text-white
 }
 
 .carta-editor{
     @apply w-[100%]
 }
-
-.carta-wrapper,  .carta-container {
-    @apply max-h-80 
+.carta-container{
+    @apply flex h-96 justify-between
 }
 .carta-renderer, .carta-input {
-    @apply max-h-[18rem] max-w-[22rem] overflow-x-scroll
+    @apply max-w-[50%] max-h-[95%]
 }
-
 .carta-renderer ol {
     @apply list-decimal pl-6
 }
