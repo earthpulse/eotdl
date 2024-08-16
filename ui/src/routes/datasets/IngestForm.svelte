@@ -73,7 +73,7 @@
 <div class="modal">
   <form
     on:submit|preventDefault={ingest}
-    class="flex flex-col gap-2 text-sm modal-box max-w-none"
+    class="flex flex-col gap-2 text-sm modal-box w-[95%] sm:w-[75%] max-w-none"
   >
     <slot />
     <span>
