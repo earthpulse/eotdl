@@ -13,13 +13,13 @@
   export let content;
   var turndownService = new TurndownService({codeBlockStyle:"fenced", preformattedCode:true})
 	let value = turndownService.turndown(content);
-  const rebuildHtml = async () => {
+  const renderHtml = async () => {
     content = await carta.render(value);
   }
 </script>
 
 <div class="flex justify-center">
-    <div on:change={rebuildHtml} class="w-[62rem] flex flex-col items-center justify-center p-2 rounded-xl">
+    <div on:change={renderHtml} class="w-[62rem] flex flex-col items-center justify-center p-2 rounded-xl">
         <MarkdownEditor mode="split" {carta} bind:value />
     </div>
 </div>
