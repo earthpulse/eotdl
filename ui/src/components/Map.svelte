@@ -26,7 +26,6 @@
 			map.zoomControl.setPosition(zoomPosition);
 			if (geotif){
 				parseGeoraster(geotif).then( georaster => {
-					console.log(georaster);
 					const layer = new GeoRasterLayer({ 
 						georaster:georaster,
 						opacity:0.5,

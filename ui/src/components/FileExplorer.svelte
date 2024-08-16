@@ -1,26 +1,48 @@
 <script>
-		import { browser } from "$app/environment";
-		import Folder from "svelte-material-icons/Folder.svelte";
-		import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
-		import Download from "svelte-material-icons/download.svelte";
-		import Eye from "svelte-material-icons/Eye.svelte";
-		import File from "svelte-material-icons/File.svelte";
-		import { id_token } from "$stores/auth";
-		import { PUBLIC_EOTDL_API } from "$env/static/public";
-		import { onMount } from "svelte";
-		import Map from "$components/Map.svelte";
+	import { browser } from "$app/environment";
+	import Folder from "svelte-material-icons/Folder.svelte";
+	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
+	import Download from "svelte-material-icons/download.svelte";
+	import Eye from "svelte-material-icons/Eye.svelte";
+	import File from "svelte-material-icons/File.svelte";
+	import { id_token } from "$stores/auth";
+	import { PUBLIC_EOTDL_API } from "$env/static/public";
+	import { onMount } from "svelte";
+	import Map from "$components/Map.svelte";
+	import { Carta } from "carta-md"
+	import DOMPurify from 'isomorphic-dompurify';
+	import "$styles/file-explorer-md.css";
+	
+	const carta = new Carta({
+		extensions: [],
+		sanitizer: DOMPurify.sanitize
+	});
 
-		let allowedExtensions = { 
-			image:["jpg","png","jpeg"],
-			map:["geojson"],
-			tif:["tiff","tif"],
-			text:["txt"],
-			pdf:["pdf"],
-			md:["md"]}
-		export let data;
-		export let retrieveFiles;
-		export let version;
-		export let datasetId;
+	let allowedExtensions = { 
+		image:["jpg","png","jpeg"],
+		map:["geojson"],
+		tif:["tiff","tif"],
+		text:["txt"],
+		pdf:["pdf"],
+		md:["md"]
+	}
+
+	let blobFunctions = {
+		"image": async () => {return URL.createObjectURL(blob)},
+		"text": async () => {return blob.text()},
+		"pdf": async () => {
+			blob = blob.slice(0, blob.size, "application/pdf");
+			return await URL.createObjectURL(blob)
+		},
+		"map": async () => {return JSON.parse(await blob.text())},
+		"tif": async () => {return blob.arrayBuffer()},
+		"md": async () => {return carta.render(await blob.text())}
+	}
+	
+	export let data;
+	export let retrieveFiles;
+	export let version;
+	export let datasetId;
 
 	let createWriteStream;
 	let files = null;
@@ -204,24 +226,7 @@
 					blob = await res.blob();
 					currentBlob = null;
 					currentFormat = getFileFormat(currentFileName).toString();
-					switch(currentFormat){
-						case "image":
-							currentBlob = await URL.createObjectURL(blob);
-							break;
-						case "text":
-							currentBlob = await blob.text();
-							break;
-						case "pdf":
-							blob = blob.slice(0, blob.size, "application/pdf")
-							currentBlob = await URL.createObjectURL(blob);
-                        	break;
-						case "map":
-							currentBlob = JSON.parse(await blob.text());
-                        	break;
-						case "tif":
-							currentBlob = await blob.arrayBuffer();
-							break;
-					}
+					currentBlob = await blobFunctions[currentFormat]()
 				});
 		}
 </script>
@@ -250,6 +255,10 @@
 						geojson={currentFormat == "map" ? currentBlob : null}
 						geotif={currentFormat == "tif" ? currentBlob : null} />
 					</div>
+				{:else if currentBlob && currentFormat == "md"}
+				<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
+					{@html currentBlob}
+				</div>
 				{/if}
 			{:else}
 				<p>Please log in to download or preview files.</p>
