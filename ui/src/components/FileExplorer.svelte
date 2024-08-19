@@ -200,14 +200,7 @@
 	const getFileFormat = (fileName) => {
 		const ext = fileName.split(".").pop();
 		for (const type of Object.keys(allowedExtensions)) {
-			if (allowedExtensions[type].length > 1){
-				for	(const format of allowedExtensions[type]){
-					if (format == ext) return type;
-				}
-			}
-			if (allowedExtensions[type] == ext) {
-				return type;	
-			} 
+			if (allowedExtensions[type].includes(ext)) return type;
 		};
 		return false;
 	}
