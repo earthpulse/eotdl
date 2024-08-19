@@ -6,13 +6,13 @@
 }
 
 .carta-editor{
-    @apply w-[100%]
+    @apply w-[100%] max-w-[99%]
 }
 .carta-container{
-    @apply flex h-96 justify-between
+    @apply flex h-96 justify-between max-w-[100%]
 }
 .carta-renderer, .carta-input {
-    @apply max-w-[50%] max-h-[95%]
+    @apply w-max max-h-[95%]
 }
 .carta-renderer ol {
     @apply list-decimal pl-6
