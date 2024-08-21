@@ -1,35 +1,41 @@
 <script>
-  import "../../styles/quill.snow.css";
-  import { onMount } from "svelte";
-  // import Quill from "quill";
-
-  export let options = {
-    placeholder: "Description...",
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        ["link", "code-block"],
-      ],
-    },
-    theme: "snow",
-  };
-  export let content = "";
-
-  let a = "";
-
-  let quillInstance;
-  onMount(async () => {
-    const Quill = (await import("quill")).default;
-    if (quillInstance) return;
-    const node = document.getElementById("editor");
-    quillInstance = new Quill(node, options);
-    const container = node.getElementsByClassName("ql-editor")[0];
-    if (content) container.innerHTML = content;
-    quillInstance.on("text-change", (delta, oldDelta, source) => {
-      content = container.innerHTML;
-    });
+	import { Carta, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import "$styles/carta-md.css"
+  import DOMPurify from 'isomorphic-dompurify';
+  
+  var x = window.matchMedia("(max-width: 640px)")
+  let sm = x.matches ? true : false;
+  let normal = x.matches ? false : true;;
+  // Attach listener function on state changes
+  x.addEventListener("change", function() {
+    if(x.matches){
+      sm = true;
+      normal = false;
+    }
+    else{
+      sm = false;
+      normal = true;
+    }
   });
+
+  import TurndownService from 'turndown';
+  const carta = new Carta({
+		extensions: [],
+    sanitizer: DOMPurify.sanitize
+	});
+
+  export let content;
+  var turndownService = new TurndownService({codeBlockStyle:"fenced", preformattedCode:true})
+	let value = turndownService.turndown(content);
+  const renderHtml = async () => {
+    content = await carta.render(value);
+  }
 </script>
 
-<div id="editor" />
+<div class="flex justify-center">
+    <div on:change={renderHtml} class="w-[62rem] flex flex-col items-center justify-center p-2 rounded-xl">
+        <MarkdownEditor mode={sm ? "tabs" : "split"} {carta} bind:value />
+    </div>
+</div>
+<slot />

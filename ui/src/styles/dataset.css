@@ -16,9 +16,11 @@
 }
 
 .content ul {
-    @apply list-disc list-inside p-5;
+    @apply list-disc list-inside px-5;
 }
-
+.content ol {
+    @apply list-decimal list-inside px-5;
+}
 .content pre {
     @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto;
 }
