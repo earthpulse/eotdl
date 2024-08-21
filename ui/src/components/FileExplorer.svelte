@@ -2,7 +2,7 @@
 	import { browser } from "$app/environment";
 	import Folder from "svelte-material-icons/Folder.svelte";
 	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
-	import Download from "svelte-material-icons/download.svelte";
+	import Download from "svelte-material-icons/Download.svelte";
 	import Eye from "svelte-material-icons/Eye.svelte";
 	import File from "svelte-material-icons/File.svelte";
 	import { id_token } from "$stores/auth";
