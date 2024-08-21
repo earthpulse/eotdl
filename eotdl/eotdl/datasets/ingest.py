@@ -61,15 +61,15 @@ def ingest_folder(
         readme = frontmatter.load(folder.joinpath("README.md"))
         metadata, content = readme.metadata, readme.content
         metadata = Metadata(**metadata)
-    except FileNotFoundError:
-        # load metadata (legacy)
-        metadata = (
-            yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
-        )
-        metadata = Metadata(**metadata)
-        content = None
+    # except FileNotFoundError:
+    #     # load metadata (legacy)
+    #     metadata = (
+    #         yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
+    #     )
+    #     metadata = Metadata(**metadata)
+    #     content = None
     except Exception as e:
-        # print(str(e))
+        print(str(e))
         raise Exception("Error loading metadata")
     # retrieve dataset (create if doesn't exist)
     dataset = retrieve_dataset(metadata, user)
