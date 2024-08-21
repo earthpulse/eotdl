@@ -10,7 +10,7 @@
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
 	import QualitySelector from "$components/QualitySelector.svelte";
-
+	import Ingest from "./Ingest.svelte"
 	export let data;
 
 	let loading = true;
@@ -109,10 +109,9 @@
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
 		<span class="flex flex-row w-full justify-between items-center">
-			<a
-				href="/docs/datasets/ingest"
-				class="text-green-200 hover:underline">Ingest dataset</a
-			>
+			<Ingest
+			tags={data.tags}
+			/>
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">

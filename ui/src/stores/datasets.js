@@ -7,7 +7,7 @@ import retrieveDatasets from "$lib/datasets/retrieveDatasets";
 import downloadDataset from "$lib/datasets/downloadDataset";
 import likeDataset from "$lib/datasets/likeDataset";
 import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
-
+import setDatasetVersion from "$lib/datasets/setDatasetVersion";
 
 const createDatasets = () => {
   const { subscribe, set, update } = writable({
@@ -22,8 +22,8 @@ const createDatasets = () => {
       const { dataset_id } = await createDataset(name, authors, source, license, token);
       return dataset_id
     },
-    ingest: async (dataset_id, file, token, name) => {
-      await ingestFile(dataset_id, file, token);
+    ingest: async (dataset_id, file, token, version, name) => {
+      await ingestFile(dataset_id, file, token, version);
       const data = await retrieveDataset(name);
       update((current) => {
         const datasetExists = current.data.find((dataset) => dataset.id === data.id)
@@ -64,7 +64,10 @@ const createDatasets = () => {
     },
     retrieveFiles: async (id, version, token) => {
       return await retrieveDatasetFiles(id, version, token);
-    }
+    },
+    setVersion: async (id, token) => {
+      return await setDatasetVersion(id, token);
+    },
   };
 };
 
