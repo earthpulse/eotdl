@@ -26,7 +26,6 @@
 		pdf: ["pdf"],
 		md: ["md"],
 	};
-
 	let blobFunctions = {
 		image: async () => {
 			return URL.createObjectURL(blob);
