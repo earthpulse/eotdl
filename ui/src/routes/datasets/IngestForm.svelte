@@ -7,6 +7,7 @@
   export let tags;
   export let submit;
   export let text;
+  export let forCreate = false;
   export let required = false;
   export let current_tags = [];
   export let name;
@@ -15,9 +16,8 @@
   export let license;
   export let content;
   export let quality = 0;
-
+  let files;
   let loading = false;
-  let input;
   let error = null;
   $: selected_tags = current_tags;
 
@@ -27,14 +27,29 @@
     loading = true;
     try {
       if (authors instanceof Array) authors = authors.join(",");
-      await submit(
-        name,
-        content,
-        authors?.split(","),
-        source,
-        license,
-        selected_tags,
-      );
+      if (forCreate){
+        if (!validateDatasetSize(files)) return;
+        await submit(
+          files,
+          name,
+          content,
+          authors?.split(","),
+          source,
+          license,
+          selected_tags,
+        );
+      }
+      else {
+        await submit(
+          //files,
+          name,
+          content,
+          authors?.split(","),
+          source,
+          license,
+          selected_tags,
+        );
+      }
       document.getElementById("ingest-dataset").checked = false;
       // name = "";
       // authors = "";
@@ -51,6 +66,20 @@
     loading = false;
   };
 
+  const validateDatasetSize = (files) => {
+    let totalSize = 0;
+    for (let i = 0; i < files.length; i++) {
+      console.log(files[i].size)
+      totalSize += files[i].size;
+      console.log(totalSize);
+    }
+    console.log(totalSize);
+    if (totalSize < 500 * 1024 * 1024) return true; //max 500MB
+    else {
+      alert("Size must be les than 500MB, current size: " +Math.round(totalSize/1024/1024*100)/100 + "MB");
+      return false;
+    } 
+  }
   const validate_source = (link) => {
     if (!link.startsWith("http://") && !link.startsWith("https://")) {
       alert("Link should start with http:// or https://");
@@ -129,6 +158,14 @@
     {/if}
     <p>Description</p>
     <TextEditor bind:content />
+    {#if forCreate}
+      <p>Files</p>
+      <input id="uploadfiles" class="hidden" bind:files={files} type="file" multiple directory webkitdirectory/>
+      <label for="uploadfiles" class="btn btn-outline btn-ghost">Select the dataset directory</label>
+      {#if files}        
+        <p class="text-sm text-gray-400">Total files: {files.length}</p>
+      {/if}
+    {/if}
     <p>Select the appropriate tags:</p>
     <div class="flex flex-wrap gap-1">
       {#each tags as tag}
