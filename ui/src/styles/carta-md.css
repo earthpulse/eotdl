@@ -4,6 +4,12 @@
 .carta-renderer pre {
     @apply bg-[rgb(31,41,55)] w-fit rounded-md my-2 py-[2px] px-1 text-white
 }
+.carta-renderer table {
+    @apply my-2 py-[2px] px-1 border-2
+}
+.carta-renderer td,.carta-renderer th{
+    @apply border-[1px] border-slate-300 p-1
+}
 
 .carta-editor{
     @apply w-[100%] max-w-[99%]
