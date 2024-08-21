@@ -1,6 +1,5 @@
 .content {
-    @apply flex flex-col max-w-full;
-
+    @apply flex flex-col max-w-full gap-4;
 }
 
 .content a {
