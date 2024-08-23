@@ -12,7 +12,9 @@
 	import { Carta } from "carta-md"
 	import DOMPurify from 'isomorphic-dompurify';
 	import "$styles/file-explorer-md.css";
-	
+	import {BasicTable} from 'csv2table'
+	import JSONTree from 'svelte-json-tree';
+	import "$styles/preview-tables.css"
 	const carta = new Carta({
 		extensions: [],
 		sanitizer: DOMPurify.sanitize
@@ -24,7 +26,9 @@
 		tif:["tiff","tif"],
 		text:["txt"],
 		pdf:["pdf"],
-		md:["md"]
+		md:["md"],
+		json:["json"],
+		csv:["csv"]
 	}
 
 	let blobFunctions = {
@@ -36,7 +40,9 @@
 		},
 		"map": async () => {return JSON.parse(await blob.text())},
 		"tif": async () => {return blob.arrayBuffer()},
-		"md": async () => {return carta.render(await blob.text())}
+		"md": async () => {return carta.render(await blob.text())},
+		"json": async () => {return JSON.parse(await blob.text())},
+        "csv": async () => {return blob.text()}
 	}
 	
 	export let data;
@@ -219,7 +225,7 @@
 					blob = await res.blob();
 					currentBlob = null;
 					currentFormat = getFileFormat(currentFileName).toString();
-					currentBlob = await blobFunctions[currentFormat]()
+					currentBlob = await blobFunctions[currentFormat]();
 				});
 		}
 </script>
@@ -238,7 +244,7 @@
 				{:else if currentBlob && currentFormat == "image"}				
 					<img class="z-40 my-10 w-96 h-96 shadow-sm" src="{currentBlob}" alt="ImgPReview">
 				{:else if currentBlob && currentFormat == "text"}				
-					<div class="w-[full] m-3 overflow-auto h-[300px] rounded-md bg-slate-50">
+					<div class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50">
 						<p class="text-left m-1">{currentBlob}</p>
 					</div>	
 				{:else if currentBlob && currentFormat == "map" ||
@@ -249,9 +255,16 @@
 						geotif={currentFormat == "tif" ? currentBlob : null} />
 					</div>
 				{:else if currentBlob && currentFormat == "md"}
-				<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
-					{@html currentBlob}
-				</div>
+					<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
+						{@html currentBlob}
+					</div>
+				{:else if currentBlob && currentFormat == "json"}
+					<div id="tree" class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50">
+						<JSONTree value={currentBlob}/>
+					</div>	
+					
+				{:else if currentBlob && currentFormat == "csv"}
+					<BasicTable csv={currentBlob} csvColumnDelimiter="," />
 				{/if}
 			{:else}
 				<p>Please log in to download or preview files.</p>
