@@ -126,6 +126,7 @@
 					<Card
 						data={dataset}
 						liked={$user?.liked_datasets.includes(dataset.id)}
+						tags={data.tags}
 					/>
 				{/each}
 			</div>

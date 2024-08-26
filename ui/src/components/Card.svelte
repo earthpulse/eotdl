@@ -9,6 +9,7 @@
     export let data;
     export let liked = null;
     export let link = "datasets";
+    export let tags;
 </script>
 
 <a
@@ -22,7 +23,9 @@
         <div class="flex flex-wrap gap-1 content-start mt-1">
             {#each data.tags as tag}
                 <p
-                    class="badge badge-outline bg-white border-slate-300 text-slate-400 text-xs h-full"
+                    class="badge border-0 text-slate-100 text-xs"
+                    style="background-color: {tags?.find((t) => t.name == tag)
+                        .color || 'none'};"
                 >
                     {tag}
                 </p>
@@ -47,7 +50,7 @@
                     <Sd color="gray" size={14} />
                     <p>
                         {formatFileSize(
-                            data.versions[data.versions.length - 1]?.size || 0
+                            data.versions[data.versions.length - 1]?.size || 0,
                         )}
                     </p>
                 </span>

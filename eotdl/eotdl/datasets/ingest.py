@@ -4,6 +4,7 @@ from tqdm import tqdm
 import json
 import frontmatter
 import markdown
+from markdown.extensions.fenced_code import FencedCodeExtension
 
 from ..auth import with_auth
 from .metadata import Metadata
@@ -60,20 +61,20 @@ def ingest_folder(
         readme = frontmatter.load(folder.joinpath("README.md"))
         metadata, content = readme.metadata, readme.content
         metadata = Metadata(**metadata)
-    except FileNotFoundError:
-        # load metadata (legacy)
-        metadata = (
-            yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
-        )
-        metadata = Metadata(**metadata)
-        content = None
+    # except FileNotFoundError:
+    #     # load metadata (legacy)
+    #     metadata = (
+    #         yaml.safe_load(open(folder.joinpath("metadata.yml"), "r").read()) or {}
+    #     )
+    #     metadata = Metadata(**metadata)
+    #     content = None
     except Exception as e:
-        # print(str(e))
+        print(str(e))
         raise Exception("Error loading metadata")
     # retrieve dataset (create if doesn't exist)
     dataset = retrieve_dataset(metadata, user)
     if content:
-        content = markdown.markdown(content)
+        content = markdown.markdown(content, extensions=[FencedCodeExtension()])
     update_metadata = True
     if "description" in dataset:
         # do not do this if the dataset is new, only if it already exists
