@@ -1,6 +1,5 @@
 .content {
-    @apply flex flex-col max-w-full;
-
+    @apply flex flex-col max-w-full gap-4;
 }
 .content table {
     @apply my-2 py-[2px] px-1 border-2

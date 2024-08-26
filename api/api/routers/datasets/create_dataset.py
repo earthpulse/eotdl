@@ -55,7 +55,7 @@ def create(
 
 @router.post(
     "/version/{dataset_id}",
-    summary="Get the version of a dataset",
+    summary="Create a new version for a dataset",
     responses=get_dataset_version_responses,
 )
 def version_dataset(
@@ -63,7 +63,7 @@ def version_dataset(
     user: User = Depends(get_current_user),
 ):
     """
-    Get the version of a dataset.
+    Create a new version for a dataset.
     """
     try:
         version = create_dataset_version(user, dataset_id)

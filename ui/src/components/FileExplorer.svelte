@@ -2,10 +2,52 @@
 	import { browser } from "$app/environment";
 	import Folder from "svelte-material-icons/Folder.svelte";
 	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
+	import Download from "svelte-material-icons/Download.svelte";
+	import Eye from "svelte-material-icons/Eye.svelte";
 	import File from "svelte-material-icons/File.svelte";
 	import { id_token } from "$stores/auth";
 	import { PUBLIC_EOTDL_API } from "$env/static/public";
 	import { onMount } from "svelte";
+	import Map from "$components/Map.svelte";
+	import { Carta } from "carta-md";
+	import DOMPurify from "isomorphic-dompurify";
+	import "$styles/file-explorer-md.css";
+
+	const carta = new Carta({
+		extensions: [],
+		sanitizer: DOMPurify.sanitize,
+	});
+
+	let allowedExtensions = {
+		image: ["jpg", "png", "jpeg"],
+		map: ["geojson"],
+		tif: ["tiff", "tif"],
+		text: ["txt"],
+		pdf: ["pdf"],
+		md: ["md"],
+	};
+
+	let blobFunctions = {
+		image: async () => {
+			return URL.createObjectURL(blob);
+		},
+		text: async () => {
+			return blob.text();
+		},
+		pdf: async () => {
+			blob = blob.slice(0, blob.size, "application/pdf");
+			return await URL.createObjectURL(blob);
+		},
+		map: async () => {
+			return JSON.parse(await blob.text());
+		},
+		tif: async () => {
+			return blob.arrayBuffer();
+		},
+		md: async () => {
+			return carta.render(await blob.text());
+		},
+	};
 
 	export let data;
 	export let retrieveFiles;
@@ -19,9 +61,14 @@
 	let navigationStack = [];
 	let loading = false;
 	let currentPath = [];
+
 	let onDetails = false;
+	let blob;
 	let details = {};
 	let currentFileName = null;
+
+	let currentBlob;
+	let currentFormat;
 	onMount(async () => {
 		if (browser) {
 			// only works in browser
@@ -158,7 +205,82 @@
 				alert(res.detail);
 			});
 	};
+
+	const getFileFormat = (fileName) => {
+		const ext = fileName.split(".").pop();
+		for (const type of Object.keys(allowedExtensions)) {
+			if (allowedExtensions[type].includes(ext)) return type;
+		}
+		return false;
+	};
+
+	const preview = async () => {
+		await fetch(
+			`${PUBLIC_EOTDL_API}/datasets/${datasetId}/download/${currentFileName}`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${$id_token}`,
+				},
+			},
+		).then(async (res) => {
+			blob = await res.blob();
+			currentBlob = null;
+			currentFormat = getFileFormat(currentFileName).toString();
+			currentBlob = await blobFunctions[currentFormat]();
+		});
+	};
 </script>
+
+<input type="checkbox" id="preview_modal" class="modal-toggle" />
+<div role="dialog" class="modal">
+	<div class="modal-box flex justify-center">
+		<form method="dialog">
+			<label
+				for="preview_modal"
+				class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+				>✕</label
+			>
+		</form>
+		{#if $id_token}
+			{#if currentBlob && currentFormat == "pdf"}
+				<div class="h-full w-full">
+					<iframe
+						src={currentBlob}
+						class="h-[450px] ml-2 my-4 w-[450px]"
+						title="PDFViewer"
+						alt="PDFViewer"
+					></iframe>
+				</div>
+			{:else if currentBlob && currentFormat == "image"}
+				<img
+					class="z-40 my-10 w-96 h-96 shadow-sm"
+					src={currentBlob}
+					alt="ImgPReview"
+				/>
+			{:else if currentBlob && currentFormat == "text"}
+				<div
+					class="w-[full] m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
+				>
+					<p class="text-left m-1">{currentBlob}</p>
+				</div>
+			{:else if (currentBlob && currentFormat == "map") || (currentBlob && currentFormat == "tif")}
+				<div class="flex flex-col my-4 gap-3 w-full h-[300px]">
+					<Map
+						geojson={currentFormat == "map" ? currentBlob : null}
+						geotif={currentFormat == "tif" ? currentBlob : null}
+					/>
+				</div>
+			{:else if currentBlob && currentFormat == "md"}
+				<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
+					{@html currentBlob}
+				</div>
+			{/if}
+		{:else}
+			<p>Please log in to download or preview files.</p>
+		{/if}
+	</div>
+</div>
 
 {#if !loading}
 	{#if files}
@@ -236,9 +358,27 @@
 							<td class="pl-1">{details[detail]}</td>
 						</tr>
 					{/each}
-					<button class="btn" on:click={() => download(details)}
-						>download</button
-					>
+					<div class="flex py-2 gap-2">
+						<label
+							class="hover:cursor-pointer"
+							for={$id_token ? "" : "preview_modal"}
+							title="Download"
+							on:click={() => download(details)}
+							><Download size="20" /></label
+						>
+						{#if getFileFormat(currentFileName)}
+							<label
+								class="hover:cursor-pointer"
+								title="Preview"
+								for="preview_modal"
+								on:click={() => {
+									preview();
+								}}
+							>
+								<Eye size="20" />
+							</label>
+						{/if}
+					</div>
 				{/if}
 			</table>
 		</div>
