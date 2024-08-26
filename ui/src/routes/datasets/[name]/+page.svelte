@@ -101,8 +101,10 @@
 				field="liked_datasets"
 				bind:version
 			/>
-			<hr class="sm:hidden">
-			<div class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5">
+			<hr class="sm:hidden" />
+			<div
+				class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5"
+			>
 				<div class="w-full overflow-auto">
 					<div class="content">
 						{#if dataset.description}
@@ -121,7 +123,7 @@
 					{/if}
 				</div>
 				<div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
-					<hr class="sm:hidden">
+					<hr class="sm:hidden" />
 					<p>Download the dataset with the CLI:</p>
 					<div class="relative">
 						<pre class="bg-gray-200 p-3 overflow-x-auto"><button
