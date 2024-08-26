@@ -42,7 +42,7 @@
 		"tif": async () => {return blob.arrayBuffer()},
 		"md": async () => {return carta.render(await blob.text())},
 		"json": async () => {return JSON.parse(await blob.text())},
-        "csv": async () => {return blob.text()}
+        "csv": async () => {return (blob.size < 4_000_000 ? blob.text() : "The csv file should be less than 4MB")}
 	}
 	
 	export let data;
@@ -264,7 +264,9 @@
 					</div>	
 					
 				{:else if currentBlob && currentFormat == "csv"}
-					<BasicTable csv={currentBlob} csvColumnDelimiter="," />
+					<div class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50">						
+						<BasicTable csv={currentBlob} />
+					</div>	
 				{/if}
 			{:else}
 				<p>Please log in to download or preview files.</p>
