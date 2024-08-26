@@ -33,7 +33,9 @@
 		filtered_models = $models.data
 			?.filter((models) => {
 				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) => models.tags.includes(tag.name));
+				return selected_tags.every((tag) =>
+					models.tags.includes(tag.name),
+				);
 			})
 			.filter((models) => {
 				if (filterName.length === 0) return true;
@@ -123,6 +125,7 @@
 						data={model}
 						link="models"
 						liked={$user?.liked_models?.includes(model.id)}
+						tags={data.tags}
 					/>
 				{/each}
 			</div>

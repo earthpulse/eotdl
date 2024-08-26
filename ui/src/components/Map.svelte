@@ -7,9 +7,8 @@
 	export let geojson;
 	export let geotif;
 
-	$: console.log(geojson);
+	// $: console.log(geojson);
 
-	
 	let map = null;
 	let zoomPosition = "bottomright";
 	let options = {
@@ -24,17 +23,16 @@
 			await import("georaster");
 			map = L.map("map", options);
 			map.zoomControl.setPosition(zoomPosition);
-			if (geotif){
-				parseGeoraster(geotif).then( georaster => {
-					const layer = new GeoRasterLayer({ 
-						georaster:georaster,
-						opacity:0.5,
-						resolution: 32
+			if (geotif) {
+				parseGeoraster(geotif).then((georaster) => {
+					const layer = new GeoRasterLayer({
+						georaster: georaster,
+						opacity: 0.5,
+						resolution: 32,
 					}).addTo(map);
 					const bounds = layer.getBounds();
 					map.fitBounds(bounds);
 				});
-
 			}
 			if (geojson) {
 				const layer = L.geoJSON(geojson, {

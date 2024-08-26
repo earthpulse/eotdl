@@ -69,18 +69,17 @@
 </script>
 
 <label for="ingest-dataset" class="btn btn-ghost btn-outline">{text}</label>
-
 <input type="checkbox" id="ingest-dataset" class="modal-toggle" />
 <div class="modal">
   <form
     on:submit|preventDefault={ingest}
-    class="flex flex-col gap-2 text-sm modal-box"
+    class="flex flex-col gap-2 text-sm modal-box w-[95%] sm:w-[75%] max-w-none"
   >
     <slot />
     <span>
       <p>Name</p>
       <input
-        class="input input-bordered w-full"
+        class="w-full input input-bordered"
         type="text"
         placeholder="Dataset name"
         {required}
@@ -92,7 +91,7 @@
       <span>
         <p>Authors (use comma for multiple authors)</p>
         <input
-          class="input input-bordered w-full"
+          class="w-full input input-bordered"
           type="text"
           placeholder="Dataset authors"
           {required}
@@ -105,7 +104,7 @@
       <span>
         <p>Link to source data</p>
         <input
-          class="input input-bordered w-full"
+          class="w-full input input-bordered"
           type="text"
           placeholder="Link to source data"
           {required}
@@ -118,7 +117,7 @@
       <span>
         <p>License</p>
         <input
-          class="input input-bordered w-full"
+          class="w-full input input-bordered"
           type="text"
           placeholder="License"
           {required}
@@ -133,11 +132,14 @@
     <div class="flex flex-wrap gap-1">
       {#each tags as tag}
         <p
-          class="badge badge-outline cursor-pointer text-slate-400 text-xs {selected_tags.includes(
+          class="badge cursor-pointer text-slate-400 text-xs {selected_tags.includes(
             tag.name,
-          ) && 'badge-accent'}"
+          )
+            ? 'text-slate-200 border-0'
+            : 'badge-outline'}"
           on:click={() => toggleTag(tag.name)}
           on:keyup={() => {}}
+          style={`${selected_tags.includes(tag.name) && `background-color: ${tag.color};`}`}
         >
           {tag.name}
         </p>

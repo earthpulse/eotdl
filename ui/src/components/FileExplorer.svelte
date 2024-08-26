@@ -2,22 +2,23 @@
 	import { browser } from "$app/environment";
 	import Folder from "svelte-material-icons/Folder.svelte";
 	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
-	import Download from "svelte-material-icons/download.svelte";
+	import Download from "svelte-material-icons/Download.svelte";
 	import Eye from "svelte-material-icons/Eye.svelte";
 	import File from "svelte-material-icons/File.svelte";
 	import { id_token } from "$stores/auth";
 	import { PUBLIC_EOTDL_API } from "$env/static/public";
 	import { onMount } from "svelte";
 	import Map from "$components/Map.svelte";
-	import { Carta } from "carta-md"
-	import DOMPurify from 'isomorphic-dompurify';
+	import { Carta } from "carta-md";
+	import DOMPurify from "isomorphic-dompurify";
 	import "$styles/file-explorer-md.css";
 	import {BasicTable} from 'csv2table'
 	import JSONTree from 'svelte-json-tree';
 	import "$styles/preview-tables.css"
+
 	const carta = new Carta({
 		extensions: [],
-		sanitizer: DOMPurify.sanitize
+		sanitizer: DOMPurify.sanitize,
 	});
 
 	let allowedExtensions = { 
@@ -32,17 +33,37 @@
 	}
 
 	let blobFunctions = {
-		"image": async () => {return URL.createObjectURL(blob)},
-		"text": async () => {return blob.text()},
-		"pdf": async () => {
-			blob = blob.slice(0, blob.size, "application/pdf");
-			return await URL.createObjectURL(blob)
+		image: async () => {
+			return URL.createObjectURL(blob);
 		},
-		"map": async () => {return JSON.parse(await blob.text())},
-		"tif": async () => {return blob.arrayBuffer()},
-		"md": async () => {return carta.render(await blob.text())},
-		"json": async () => {return JSON.parse(await blob.text())},
-        "csv": async () => {return (blob.size < 4_000_000 ? blob.text() : "The csv file should be less than 4MB")}
+		text: async () => {
+			return blob.text();
+		},
+		pdf: async () => {
+			blob = blob.slice(0, blob.size, "application/pdf");
+			return await URL.createObjectURL(blob);
+		},
+		map: async () => {
+			return JSON.parse(await blob.text());
+		},
+		tif: async () => {
+			return blob.arrayBuffer();
+		},
+		map: async () => {
+      return JSON.parse(await blob.text())
+    },
+		tif: async () => {
+      return blob.arrayBuffer()
+    },
+		md: async () => {
+      return carta.render(await blob.text())
+    },
+		json: async () => {
+      return JSON.parse(await blob.text())
+    },
+    csv: async () => {
+      return (blob.size < 4_000_000 ? blob.text() : "The csv file should be less than 4MB")
+    }
 	}
 	
 	export let data;
@@ -57,8 +78,8 @@
 	let navigationStack = [];
 	let loading = false;
 	let currentPath = [];
-	
-	let onDetails = false;	
+
+	let onDetails = false;
 	let blob;
 	let details = {};
 	let currentFileName = null;
@@ -149,7 +170,6 @@
 	};
 
 	const goToDetails = (file, filename) => {
-		
 		onDetails = true;
 		details = {
 			checksum: file.checksum,
@@ -159,7 +179,7 @@
 		currentPath = [...currentPath, filename];
 		currentFileName = file.filename;
 	};
-	
+
 	const getCurrentPath = (intoFolder) => {
 		if (navigationStack.length > 0) {
 			currentPath = [...currentPath, intoFolder];
@@ -189,15 +209,15 @@
 				}
 				const reader = res.body.getReader();
 				const pump = () =>
-				reader
-				.read()
-				.then(({ value, done }) =>
-				done
-				? writer.close()
-				: writer.write(value).then(pump),
-			);
-			return pump();
-		})
+					reader
+						.read()
+						.then(({ value, done }) =>
+							done
+								? writer.close()
+								: writer.write(value).then(pump),
+						);
+				return pump();
+			})
 			.then((res) => {
 				alert(res.detail);
 			});
@@ -207,9 +227,9 @@
 		const ext = fileName.split(".").pop();
 		for (const type of Object.keys(allowedExtensions)) {
 			if (allowedExtensions[type].includes(ext)) return type;
-		};
+		}
 		return false;
-	}
+	};
 
 	const preview = async () => {
 		await fetch(
@@ -230,14 +250,18 @@
 		}
 </script>
 
-	<input type="checkbox" id="preview_modal" class="modal-toggle" />
-	<div role="dialog" class="modal">
-		<div class="modal-box flex justify-center">
-			<form method="dialog">
-				<label for="preview_modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
-			</form>
-			{#if $id_token}
-				{#if currentBlob && currentFormat == "pdf"}
+<input type="checkbox" id="preview_modal" class="modal-toggle" />
+<div role="dialog" class="modal">
+	<div class="modal-box flex justify-center">
+		<form method="dialog">
+			<label
+				for="preview_modal"
+				class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+				>✕</label
+			>
+		</form>
+		{#if $id_token}
+			{#if currentBlob && currentFormat == "pdf"}
 				<div class="h-full w-full">
 					<iframe src="{currentBlob}" class="h-[450px] ml-2 my-4 w-[450px]" title="PDFViewer" alt="PDFViewer"></iframe>
 				</div>		
@@ -271,8 +295,11 @@
 			{:else}
 				<p>Please log in to download or preview files.</p>
 			{/if}
-		</div>
+		{:else}
+			<p>Please log in to download or preview files.</p>
+		{/if}
 	</div>
+</div>
 
 {#if !loading}
 	{#if files}
@@ -351,12 +378,23 @@
 						</tr>
 					{/each}
 					<div class="flex py-2 gap-2">
-						<label class="hover:cursor-pointer" for={$id_token ? "":"preview_modal"} title="Download" on:click={() => download(details)}
-							><Download size="20"/></label
+						<label
+							class="hover:cursor-pointer"
+							for={$id_token ? "" : "preview_modal"}
+							title="Download"
+							on:click={() => download(details)}
+							><Download size="20" /></label
 						>
 						{#if getFileFormat(currentFileName)}
-							<label class="hover:cursor-pointer" title="Preview" for="preview_modal" on:click= {() =>{preview()}}>
-								<Eye size="20"/>
+							<label
+								class="hover:cursor-pointer"
+								title="Preview"
+								for="preview_modal"
+								on:click={() => {
+									preview();
+								}}
+							>
+								<Eye size="20" />
 							</label>
 						{/if}
 					</div>
