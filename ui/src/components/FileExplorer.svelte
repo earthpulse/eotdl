@@ -264,8 +264,8 @@
 					</div>	
 					
 				{:else if currentBlob && currentFormat == "csv"}
-					<div class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50">						
-						<BasicTable csv={currentBlob} />
+					<div class=" flex w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50 justify-center">						
+						<BasicTable csv={currentBlob} csvColumnDelimiter="," />
 					</div>	
 				{/if}
 			{:else}
