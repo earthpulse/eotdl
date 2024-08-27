@@ -6,22 +6,25 @@
   import TurndownService from "turndown";
   import { tables } from "turndown-plugin-gfm";
   import { browser } from "$app/environment";
+
   let x;
+  let sm;
 
-  $: if (browser) window?.matchMedia("(max-width: 640px)");
-
-  let sm = x.matches ? true : false;
-  let normal = x.matches ? false : true;
-  // Attach listener function on state changes
-  x.addEventListener("change", function () {
-    if (x.matches) {
-      sm = true;
-      normal = false;
-    } else {
-      sm = false;
-      normal = true;
-    }
-  });
+  $: if (browser) {
+    x = window?.matchMedia("(max-width: 640px)");
+    let sm = x.matches ? true : false;
+    let normal = x.matches ? false : true;
+    // Attach listener function on state changes
+    x.addEventListener("change", function () {
+      if (x.matches) {
+        sm = true;
+        normal = false;
+      } else {
+        sm = false;
+        normal = true;
+      }
+    });
+  }
 
   const carta = new Carta({
     extensions: [],
