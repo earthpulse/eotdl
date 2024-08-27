@@ -1,7 +1,12 @@
 .content {
     @apply flex flex-col max-w-full gap-4;
 }
-
+.content table {
+    @apply my-2 py-[2px] px-1 border-2
+}
+.content td,.content th{
+    @apply border-[1px] border-slate-300 p-1
+}
 .content a {
     @apply text-green-200 underline;
 }

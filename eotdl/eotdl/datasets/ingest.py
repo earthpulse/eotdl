@@ -4,7 +4,9 @@ from tqdm import tqdm
 import json
 import frontmatter
 import markdown
+from markdown.extensions.tables import TableExtension 
 from markdown.extensions.fenced_code import FencedCodeExtension
+
 
 from ..auth import with_auth
 from .metadata import Metadata
@@ -74,7 +76,8 @@ def ingest_folder(
     # retrieve dataset (create if doesn't exist)
     dataset = retrieve_dataset(metadata, user)
     if content:
-        content = markdown.markdown(content, extensions=[FencedCodeExtension()])
+        content = markdown.markdown(content, extensions=[TableExtension(),FencedCodeExtension()])
+
     update_metadata = True
     if "description" in dataset:
         # do not do this if the dataset is new, only if it already exists
