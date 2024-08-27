@@ -45,6 +45,7 @@
     "georaster-layer-for-leaflet": "^3.10.0",
     "isomorphic-dompurify": "^2.14.0",
     "isomorphic-unfetch": "^4.0.2",
+    "js-sha1": "^0.7.0",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.1",
     "leaflet": "1.7.1",

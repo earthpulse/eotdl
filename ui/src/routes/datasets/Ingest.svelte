@@ -38,12 +38,13 @@
             license,
             $id_token
         );
+        const version = await datasets.setVersion(dataset_id, $id_token);
         for (var i = 0; i < files.length; i++) {
-            data = await datasets.ingest(dataset_id, files[i], $id_token, name);
+            data = await datasets.ingest(dataset_id, files[i], $id_token, version, name);
         }
         await datasets.update(
             dataset_id,
-            null,
+            name,
             content,
             authors,
             source,
@@ -55,7 +56,17 @@
 </script>
 
 {#if $user}
-    <IngestForm {tags} {submit} text="+ Ingest dataset" required={true}>
+    <IngestForm 
+    {tags} 
+    {submit} 
+    text="Ingest dataset" 
+    forCreate={true} 
+    required={true}
+    name={""}
+    authors={""}
+    source={""}
+    license={""}
+    content={""}>
         <h3 class="text-lg font-bold">Ingest dataset</h3>
     </IngestForm>
 {/if}
