@@ -28,7 +28,7 @@
     "rehype-slug": "^5.1.0",
     "rehype-urls": "^1.1.1",
     "remark-abbr": "^1.4.1",
-    "svelte": "^3.44.0",
+    "svelte": "^4.0.0",
     "svelte-material-icons": "^3.0.4",
     "svelte-preprocess": "^4.10.7",
     "tailwindcss": "^3.2.1",
