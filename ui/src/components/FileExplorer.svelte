@@ -12,6 +12,9 @@
 	import { Carta } from "carta-md";
 	import DOMPurify from "isomorphic-dompurify";
 	import "$styles/file-explorer-md.css";
+	import { BasicTable } from "csv2table";
+	import JSONTree from "svelte-json-tree";
+	import "$styles/preview-tables.css";
 
 	const carta = new Carta({
 		extensions: [],
@@ -25,6 +28,8 @@
 		text: ["txt"],
 		pdf: ["pdf"],
 		md: ["md"],
+		json: ["json"],
+		csv: ["csv"],
 	};
 
 	let blobFunctions = {
@@ -44,8 +49,22 @@
 		tif: async () => {
 			return blob.arrayBuffer();
 		},
+		map: async () => {
+			return JSON.parse(await blob.text());
+		},
+		tif: async () => {
+			return blob.arrayBuffer();
+		},
 		md: async () => {
 			return carta.render(await blob.text());
+		},
+		json: async () => {
+			return JSON.parse(await blob.text());
+		},
+		csv: async () => {
+			return blob.size < 4_000_000
+				? blob.text()
+				: "The csv file should be less than 4MB";
 		},
 	};
 
@@ -260,7 +279,7 @@
 				/>
 			{:else if currentBlob && currentFormat == "text"}
 				<div
-					class="w-[full] m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
+					class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
 				>
 					<p class="text-left m-1">{currentBlob}</p>
 				</div>
@@ -274,6 +293,19 @@
 			{:else if currentBlob && currentFormat == "md"}
 				<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
 					{@html currentBlob}
+				</div>
+			{:else if currentBlob && currentFormat == "json"}
+				<div
+					id="tree"
+					class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
+				>
+					<JSONTree value={currentBlob} />
+				</div>
+			{:else if currentBlob && currentFormat == "csv"}
+				<div
+					class=" flex w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50 justify-center"
+				>
+					<BasicTable csv={currentBlob} csvColumnDelimiter="," />
 				</div>
 			{/if}
 		{:else}
