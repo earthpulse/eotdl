@@ -5,4 +5,5 @@ export const load = async ({params, fetch}) => {
 	return { tags, name: params.name };
 }
 
+export const ssr = false
 export const prerender = false;
