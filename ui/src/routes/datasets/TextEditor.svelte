@@ -1,14 +1,12 @@
 <script>
-  // import { onMount } from "svelte";
-  import { Carta, MarkdownEditor } from "carta-md";
-  import "carta-md/default.css"; /* Default theme */
-  import "$styles/carta-md.css";
-  import DOMPurify from "isomorphic-dompurify";
-  import TurndownService from "turndown";
+	import { Carta, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import "$styles/carta-md.css"
+  import DOMPurify from 'isomorphic-dompurify';
+  import TurndownService from 'turndown';
+  import {tables} from "turndown-plugin-gfm";
+  var x = window.matchMedia("(max-width: 640px)")
 
-  export let content;
-
-  var x = window.matchMedia("(max-width: 640px)");
   let sm = x.matches ? true : false;
   let normal = x.matches ? false : true;
   // Attach listener function on state changes
@@ -27,10 +25,9 @@
     sanitizer: DOMPurify.sanitize,
   });
 
-  var turndownService = new TurndownService({
-    codeBlockStyle: "fenced",
-    preformattedCode: true,
-  });
+  export let content;
+  var turndownService = new TurndownService({codeBlockStyle:"fenced", preformattedCode:true})
+  turndownService.use(tables);
 
   let value = turndownService.turndown(content);
   const renderHtml = async () => {
