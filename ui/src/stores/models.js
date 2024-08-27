@@ -1,8 +1,11 @@
 import { writable } from "svelte/store";
 import retrieveModels from "$lib/models/retrieveModels";
+import retrieveModel from "$lib/models/retrieveModel";
 import likeModel from "$lib/models/likeModel";
 import updateModel from "$lib/models/updateModel";
-
+import createModel from "$lib/models/createModel";
+import setModelVersion from "$lib/models/setModelVersion";
+import ingestFile from "$lib/models/ingestFile";
 
 const createModels = () => {
   const { subscribe, set, update } = writable({
@@ -21,6 +24,26 @@ const createModels = () => {
         set({ loading: false, error: e.message });
       }
     },
+    create: async (name, authors, source, license, token) => {
+      const { model_id } = await createModel(name, authors, source, license, token);
+      return model_id
+    },
+    ingest: async (model_id, file, token, version, name) => {
+      await ingestFile(model_id, file, token, version);
+      const data = await retrieveModel(name);
+      update((current) => {
+        const modelExists = current.data.find((model) => model.id === data.id)
+        if (modelExists) {
+          return {
+            data: current.data.map((model) => model.id === data.id ? data : model)
+          }
+        }
+        return {
+          data: [data, ...current.data],
+        }
+      });
+      return data
+    },
     update: async (model_id, name, content, authors, source, license, tags, token) => {
       const data = await updateModel(model_id, name, content, authors, source, license, tags, token);
       update((current) => ({
@@ -32,6 +55,9 @@ const createModels = () => {
     },
     like: async (id, token) => {
       likeModel(id, token);
+    },
+    setVersion: async (id, token) => {
+      return await setModelVersion(id, token);
     },
   };
 };
