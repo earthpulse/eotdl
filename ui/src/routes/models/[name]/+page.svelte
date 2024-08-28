@@ -35,7 +35,6 @@
 
 <svelte:head>
 	<title>EOTDL | {data.name}</title>
-	<meta name="description" content={model?.description} />
 </svelte:head>
 
 {#if model}

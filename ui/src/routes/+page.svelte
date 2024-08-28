@@ -17,7 +17,7 @@
   <title>EOTDL | Home</title>
   <meta
     name="description"
-    content="EOTDL is a platform for sharing and discovering training Models."
+    content="EOTDL is a platform for sharing and discovering training Datasets and Models for Earth Observation applications."
   />
 </svelte:head>
 

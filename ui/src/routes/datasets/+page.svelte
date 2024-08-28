@@ -10,7 +10,7 @@
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
 	import QualitySelector from "$components/QualitySelector.svelte";
-	import Ingest from "./Ingest.svelte"
+	import Ingest from "./Ingest.svelte";
 	export let data;
 
 	let loading = true;
@@ -67,10 +67,6 @@
 
 <svelte:head>
 	<title>EOTDL | Datasets</title>
-	<meta
-		name="description"
-		content="EOTDL is a platform for sharing and discovering training datasets and models."
-	/>
 </svelte:head>
 
 <div class="w-full flex flex-col items-center justify-between h-full grow">
@@ -109,9 +105,7 @@
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
 		<span class="flex flex-row w-full justify-between items-center">
-			<Ingest
-			tags={data.tags}
-			/>
+			<Ingest tags={data.tags} />
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
