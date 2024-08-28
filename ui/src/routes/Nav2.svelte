@@ -43,7 +43,7 @@
         {#each links as link}
             <li
                 class="{$page.url.pathname == '/'
-                    ? 'text-slate-300 hover:text-white'
+                    ? 'text-red-400 hover:text-white'
                     : 'text-slate-600 hover:text-slate-800'}  
                 hidden lg:block text-slate-500 gap-2 text-sm"
             >
@@ -62,7 +62,7 @@
                     href={loading ? "" : "/api/auth/logout"}
                     class="border-2 rounded-md px-2 hover:border-gray-300 {$page
                         .url.pathname == '/'
-                        ? 'text-slate-300 hover:border-white border-slate-400'
+                        ? 'text-red-400 hover:border-white border-slate-400'
                         : 'text-slate-600 border-slate-400 hover:border-slate-800'}"
                     >Sign Out</a
                 >
