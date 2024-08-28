@@ -66,10 +66,6 @@
 
 <svelte:head>
 	<title>EOTDL | Models</title>
-	<meta
-		name="description"
-		content="EOTDL is a platform for sharing and discovering training datasets and models."
-	/>
 </svelte:head>
 
 <div class="w-full flex flex-col items-center justify-between h-full grow">

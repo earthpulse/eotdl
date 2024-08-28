@@ -43,7 +43,6 @@
 
 <svelte:head>
 	<title>EOTDL | {data.name}</title>
-	<meta name="description" content={dataset?.description} />
 </svelte:head>
 
 {#if dataset}
