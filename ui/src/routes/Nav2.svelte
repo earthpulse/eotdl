@@ -41,15 +41,12 @@
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
-            <li
-                class="{$page.url.pathname == '/'
-                    ? 'text-red-400 hover:text-white'
-                    : 'text-slate-600 hover:text-slate-800'}  
-                hidden lg:block text-slate-500 gap-2 text-sm"
-            >
+            <li class="hidden lg:block text-slate-500 gap-2 text-sm">
                 <a
                     href={link.href}
-                    class="hover:underline flex floex-row gap-1 items-center"
+                    class="{$page.url.pathname == '/'
+                        ? 'text-slate-300 hover:text-white'
+                        : 'text-slate-600 hover:text-slate-800'} hover:underline flex floex-row gap-1 items-center"
                 >
                     <svelte:component this={link.icon} class="h-4 w-4" />
                     {link.label}
@@ -62,8 +59,8 @@
                     href={loading ? "" : "/api/auth/logout"}
                     class="border-2 rounded-md px-2 hover:border-gray-300 {$page
                         .url.pathname == '/'
-                        ? 'text-red-400 hover:border-white border-slate-400'
-                        : 'text-slate-600 border-slate-400 hover:border-slate-800'}"
+                        ? 'text-slate-300 hover:text-white hover:border-white border-slate-400'
+                        : 'text-slate-600 hover:text-slate-800 border-slate-400 hover:border-slate-600'}"
                     >Sign Out</a
                 >
             {:else}
@@ -71,8 +68,8 @@
                     href={loading ? "" : "/api/auth/login"}
                     class="border-2 rounded-md px-2 hover:border-gray-300 {$page
                         .url.pathname == '/'
-                        ? 'text-gray-300 hover:border-white border-slate-400'
-                        : 'text-slate-600 border-slate-400 hover:border-slate-800'}"
+                        ? 'text-gray-300 hover:text-white hover:border-white border-slate-400'
+                        : 'text-slate-600 hover:text-slate-800 border-slate-400 hover:border-slate-600'}"
                     >Sign In</a
                 >
             {/if}
