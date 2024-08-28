@@ -35,7 +35,6 @@
 
 <svelte:head>
 	<title>EOTDL | {data.name}</title>
-	<meta name="description" content={model?.description} />
 </svelte:head>
 
 {#if model}
@@ -47,7 +46,10 @@
 					<div class="flex flex-wrap gap-1">
 						{#each model.tags as tag}
 							<p
-								class="badge badge-outline border-slate-300 text-slate-400 text-xs"
+								class="badge border-0 text-slate-200 text-xs"
+								style="background-color: {data.tags?.find(
+									(t) => t.name == tag,
+								).color || 'none'};"
 							>
 								{tag}
 							</p>

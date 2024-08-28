@@ -4,15 +4,18 @@
 
     export let data;
     export let title;
+    export let tags;
 </script>
 
 <div class="flex flex-col items-center w-full pt-10">
     <div class="gap-3 w-full max-w-6xl text-center flex flex-col px-4">
-        <h1 class="text-xl text-left">{title}</h1>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
+        <h1 class="text-xl text-left font-bold">{title}</h1>
+        <div
+            class="grid grid-cols-1 sm:grid-cols-3 grid-rows-3 sm:grid-rows-1 gap-3 w-full mt-3"
+        >
             {#if data}
                 {#each data as item}
-                    <Card data={item} />
+                    <Card data={item} {tags} />
                 {/each}
             {:else}
                 {#each [1, 2, 3] as _}

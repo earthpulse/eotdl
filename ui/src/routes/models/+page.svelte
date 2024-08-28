@@ -33,7 +33,9 @@
 		filtered_models = $models.data
 			?.filter((models) => {
 				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) => models.tags.includes(tag));
+				return selected_tags.every((tag) =>
+					models.tags.includes(tag.name),
+				);
 			})
 			.filter((models) => {
 				if (filterName.length === 0) return true;
@@ -43,24 +45,15 @@
 			});
 		if (show_liked) {
 			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_models.includes(models.id)
+				$user?.liked_models.includes(models.id),
 			);
 		}
 		if (selected_qualities.length > 0) {
 			filtered_models = filtered_models?.filter((model) =>
-				selected_qualities?.includes(model.quality)
+				selected_qualities?.includes(model.quality),
 			);
 		}
 	}
-
-	const maxVisibleModels = 9;
-	let currentPage = 0;
-	$: numPages = Math.ceil(filtered_models?.length / maxVisibleModels);
-	$: if (numPages > 0) currentPage = 0;
-	$: visble_models = filtered_models?.slice(
-		currentPage * maxVisibleModels,
-		(currentPage + 1) * maxVisibleModels
-	);
 
 	const toggleLike = () => {
 		show_liked = $user && !show_liked;
@@ -73,10 +66,6 @@
 
 <svelte:head>
 	<title>EOTDL | Models</title>
-	<meta
-		name="description"
-		content="EOTDL is a platform for sharing and discovering training datasets and models."
-	/>
 </svelte:head>
 
 <div class="w-full flex flex-col items-center justify-between h-full grow">
@@ -118,21 +107,21 @@
 			<a href="/docs/models/ingest" class="text-green-200 hover:underline"
 				>Ingest model</a
 			>
-			<Pagination {numPages} bind:currentPage />
 		</span>
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as _}
+				{#each new Array(30) as _}
 					<Skeleton />
 				{/each}
 			</div>
-		{:else if visble_models?.length > 0}
+		{:else if filtered_models?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each visble_models as model}
+				{#each filtered_models as model}
 					<Card
 						data={model}
 						link="models"
 						liked={$user?.liked_models?.includes(model.id)}
+						tags={data.tags}
 					/>
 				{/each}
 			</div>

@@ -21,6 +21,8 @@ class Metadata(BaseModel):
     # validate thumbnail is a url
     @validator("thumbnail")
     def thumbnail_is_url(cls, v):
+        if not v:
+            return ""
         if not v.startswith("http") and not v.startswith("https"):
             raise ValueError("thumbnail must be a URL")
         return v

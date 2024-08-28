@@ -1,4 +1,5 @@
 <script>
+  import HeroBackground from "./HeroBackground.svelte";
   import Hero from "./Hero.svelte";
   import Consortium from "./Consortium.svelte";
   import RecentDatasets from "./RecentDatasets.svelte";
@@ -16,19 +17,29 @@
   <title>EOTDL | Home</title>
   <meta
     name="description"
-    content="EOTDL is a platform for sharing and discovering training Models."
+    content="EOTDL is a platform for sharing and discovering training Datasets and Models for Earth Observation applications."
   />
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
+  <!-- <HeroBackground /> -->
   <Hero />
-  <RecentDatasets />
-  <PopularDatasets />
-  <DatasetsLeaderboard />
-  <div class="mt-[100px]" />
-  <RecentModels />
-  <PopularModels />
-  <ModelsLeaderboard />
+  <div
+    class="w-full"
+    style="background: url('backgrounds/Group-1170.png') center center/cover"
+  >
+    <RecentDatasets tags={data.tags} />
+    <PopularDatasets tags={data.tags} />
+    <DatasetsLeaderboard />
+  </div>
+  <div
+    class="w-full"
+    style="background: url('backgrounds/Group-1170.png') center center/cover"
+  >
+    <RecentModels tags={data.tags} />
+    <PopularModels tags={data.tags} />
+    <ModelsLeaderboard />
+  </div>
   <Posts posts={data.posts} />
   <Consortium />
 </div>

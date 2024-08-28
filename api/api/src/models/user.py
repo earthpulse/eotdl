@@ -33,3 +33,9 @@ class User(BaseModel):
 
     # class Config:
     #     use_enum_values = True
+
+
+class ApiKey(BaseModel):
+    id: str
+    uid: str
+    createdAt: datetime = Field(default_factory=datetime.now)

@@ -7,17 +7,18 @@
     import CogOutline from "svelte-material-icons/CogOutline.svelte";
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
+    import SchoolOutline from "svelte-material-icons/SchoolOutline.svelte";
     export let loading;
-
     const links = [
         { href: "/", label: "Home", icon: HomeOutline },
         { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
         { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
         {
             href: "https://hub.api.eotdl.com/",
-            label: "Cloud Workspace",
+            label: "Workspace",
             icon: CloudCogOutline,
         },
+        { href: "/tutorials", label: "Tutorials", icon: SchoolOutline },
         { href: "/applications", label: "Applications", icon: CogOutline },
         { href: "/docs", label: "Docs", icon: TextBoxMultipleOutline },
     ];
@@ -36,35 +37,15 @@
 </script>
 
 <div class="grid place-items-center w-full">
-    <!-- {#if $page.url.pathname == "/"}
-        <div class="w-full p-3 bg-red-400 grid items-center">
-            <p class="m-auto max-w-6xl">
-                Meet us at the upcoming
-                <a
-                    class="text-white hover:underline"
-                    href="https://www.bigdatafromspace2023.org"
-                    target="_blank"
-                    rel="noopener noreferrer">BiDS'23</a
-                >
-                event, that will take place on 6-9 November 2023 in Vienna, Austria.
-                A <span class="underline">hands-on tutorial session </span>on
-                EOTDL will take place on November 6th from 9:00 to 12:30, and
-                everyone is welcome to join! More information
-                <a
-                    class="text-white hover:underline"
-                    href="https://www.bigdatafromspace2023.org/satellite-events"
-                    target="_blank"
-                    rel="noopener noreferrer">here</a
-                >.
-            </p>
-        </div>
-    {/if} -->
     <ul
         class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
             <li
-                class="hidden sm:block text-slate-500 gap-2 text-sm hover:text-slate-700"
+                class="{$page.url.pathname == '/'
+                    ? 'text-gray-200 hover:text-white'
+                    : 'text-slate-600 hover:text-slate-800'}  
+                hidden lg:block text-slate-500 gap-2 text-sm"
             >
                 <a
                     href={link.href}
@@ -79,13 +60,19 @@
             {#if $user}
                 <a
                     href={loading ? "" : "/api/auth/logout"}
-                    class="border-2 rounded-md px-2 hover:border-gray-300"
+                    class="border-2 rounded-md px-2 hover:border-gray-300 {$page
+                        .url.pathname == '/'
+                        ? 'text-gray-200 hover:border-white border-slate-400'
+                        : 'text-slate-600 border-slate-400 hover:border-slate-800'}"
                     >Sign Out</a
                 >
             {:else}
                 <a
                     href={loading ? "" : "/api/auth/login"}
-                    class="border-2 rounded-md px-2 hover:border-gray-300"
+                    class="border-2 rounded-md px-2 hover:border-gray-300 {$page
+                        .url.pathname == '/'
+                        ? 'text-gray-300 hover:border-white border-slate-400'
+                        : 'text-slate-600 border-slate-400 hover:border-slate-800'}"
                     >Sign In</a
                 >
             {/if}
@@ -114,7 +101,7 @@
                     class="h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    stroke={$page.url.pathname == "/" ? "white" : "black"}
                     ><path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -127,7 +114,7 @@
                 class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
             >
                 {#each links as link}
-                    <li class="sm:hidden block">
+                    <li class="lg:hidden block">
                         <a href={link.href} class="hover:underline"
                             >{link.label}</a
                         >
@@ -154,3 +141,107 @@
         </button>
     </ul>
 </div>
+
+<!-- <div class="grid place-items-center w-full">
+    <ul
+        class="flex flex-row gap-6 w-full justify-end max-w-6xl p-3 text-blue-500 items-center uppercase"
+    >
+        {#each links as link}
+            <li
+                class="hidden font-bold lg:flex
+                {$page.url.pathname == '/'
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-slate-600 hover:text-slate-800'} 
+                gap-1 text-[15px] items-center"
+            >
+                <svelte:component this={link.icon} />
+                <a
+                    href={link.href}
+                    class="hover:underline flex flex-row gap-1 items-center"
+                >
+                    {link.label}
+                </a>
+            </li>
+        {/each}
+    </ul>
+
+    <li>
+        {#if $user}
+            <a
+                href={loading ? "" : "/api/auth/logout"}
+                class="border-2 {$page.url.pathname == '/'
+                    ? 'text-gray-300 hover:border-white border-slate-400'
+                    : 'text-slate-600 border-slate-400 hover:border-slate-800'} rounded-md px-2"
+                >Sign Out</a
+            >
+        {:else}
+            <a
+                href={loading ? "" : "/api/auth/login"}
+                class="border-2 {$page.url.pathname == '/'
+                    ? 'text-gray-300 hover:border-white border-slate-400'
+                    : 'text-slate-600 border-slate-400 hover:border-slate-800'} rounded-md px-2"
+                >Sign In</a
+            >
+        {/if}
+    </li>
+    <li>
+        {#if $user}
+            <a href={$user ? "/profile" : ""}>
+                <div
+                    class={$user ? "tooltip tooltip-bottom" : ""}
+                    data-tip={$user ? "Profile" : "Profile"}
+                >
+                    <div class="avatar">
+                        <div class="w-10 rounded-full">
+                            <img
+                                src={$user?.picture || "/avatar.webp"}
+                                alt="avatar"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {/if}
+    </li>
+    <button tabindex="0" class="dropdown dropdown-end cursor-pointer">
+        <div>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-7 w-7"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke={$page.url.pathname == "/" ? "white" : "black"}
+                ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1"
+                    d="M 4 6 h 16 M 4 12 h 16 M 4 18 h 16"
+                /></svg
+            >
+        </div>
+        <ul
+            class="px-7 text-black dropdown-content border py-4 flex flex-col gap-2 rounded mt-4 text-sm bg-slate-100"
+        >
+            {#each links as link}
+                <li class="lg:hidden block">
+                    <a href={link.href} class="hover:underline">{link.label}</a>
+                </li>
+            {/each}
+            {#each secondary_links as link}
+                <li>
+                    <a href={link.href} class="hover:underline">{link.label}</a>
+                </li>
+            {/each}
+            {#each external_links as link}
+                <li>
+                    <a
+                        href={link.href}
+                        class="hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer">{link.label}</a
+                    >
+                </li>
+            {/each}
+        </ul>
+    </button>
+</div> -->
