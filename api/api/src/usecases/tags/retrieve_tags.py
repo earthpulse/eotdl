@@ -8,3 +8,10 @@ def retrieve_tags():
     tags = [Tag(**tag) for tag in data]
     names = [tag.name for tag in tags]
     return sorted(names)
+
+
+def retrieve_tags_with_categories():
+    repo = TagsDBRepo()
+    data = repo.retrieve_tags()
+    tags = [Tag(**tag) for tag in data]
+    return tags

@@ -13,6 +13,7 @@ from .routers.auth import (
     update_user_data,
     credentials,
     accept_terms_and_conditions,
+    api_keys,
 )
 from .routers.tags import retrieve_tags
 from .routers.datasets import (
@@ -35,7 +36,7 @@ from .routers.models import (
 )
 from .routers import admin, migrate
 
-VERSION = "2024.06.14"
+VERSION = "2024.08.09"
 
 tags_metadata = [
     {
@@ -93,6 +94,7 @@ app.include_router(token.router, prefix="/auth", tags=["auth"])
 app.include_router(update_user_data.router, prefix="/auth", tags=["auth"])
 app.include_router(credentials.router, prefix="/auth", tags=["auth"])
 app.include_router(accept_terms_and_conditions.router, prefix="/auth", tags=["auth"])
+app.include_router(api_keys.router, prefix="/auth", tags=["auth"])
 # tags
 app.include_router(retrieve_tags.router, prefix="/tags", tags=["tags"])
 # dataset

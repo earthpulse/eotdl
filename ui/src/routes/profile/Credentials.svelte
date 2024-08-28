@@ -30,7 +30,6 @@
 	};
 </script>
 
-<h2 class="font-bold">Your credentials:</h2>
 {#if credentials}
 	<button
 		class="btn btn-outline w-[100px]"
