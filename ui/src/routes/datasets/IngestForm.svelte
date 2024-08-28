@@ -16,12 +16,15 @@
   export let license;
   export let content;
   export let quality = 0;
+  let value = content
+  console.log(value)
   let files;
   let loading = false;
   let error = null;
   $: selected_tags = current_tags;
 
   const ingest = async () => {
+    console.log(value)
     error = null;
     if (source && !validate_source(source)) return;
     loading = true;
@@ -32,7 +35,7 @@
         await submit(
           files,
           name,
-          content,
+          value,
           authors?.split(","),
           source,
           license,
@@ -43,7 +46,7 @@
         await submit(
           //files,
           name,
-          content,
+          value,
           authors?.split(","),
           source,
           license,
@@ -156,7 +159,7 @@
       </span>
     {/if}
     <p>Description</p>
-    <TextEditor bind:content />
+    <TextEditor bind:value />
     {#if forCreate}
       <p>Files</p>
       <input id="uploadfiles" class="hidden" bind:files={files} type="file" multiple directory webkitdirectory/>
