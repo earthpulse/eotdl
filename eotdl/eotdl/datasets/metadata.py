@@ -1,6 +1,5 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional
-import markdownify
 from pathlib import Path
 
 
@@ -39,7 +38,7 @@ def generate_metadata(download_path, dataset):
         for author in dataset["authors"]:
             f.write(f"  - {author}\n")
         f.write("---\n")
-        f.write(markdownify.markdownify(dataset["description"], heading_style="ATX"))
+        f.write(dataset["description"])
     # remove metadata.yml if exists
     if Path(download_path + "/metadata.yml").exists():
         Path(download_path + "/metadata.yml").unlink()
