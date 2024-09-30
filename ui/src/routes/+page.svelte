@@ -9,6 +9,8 @@
   import PopularModels from "./PopularModels.svelte";
   import ModelsLeaderboard from "./ModelsLeaderboard.svelte";
   import Posts from "./Posts.svelte";
+  import { tutorials } from "./tutorials/tutorials";
+  import HomeTutorials from "./HomeTutorials.svelte";
 
   export let data;
 </script>
@@ -25,12 +27,22 @@
   <!-- <HeroBackground /> -->
   <Hero />
   <div
-    class="w-full"
+    class="w-full max-w-6xl"
     style="background: url('backgrounds/Group-1170.png') center center/cover"
   >
-    <RecentDatasets tags={data.tags} />
-    <PopularDatasets tags={data.tags} />
-    <DatasetsLeaderboard />
+    <div class="flex flex-col-reverse md:flex-row">
+      <div class="w-full md:flex-grow">
+        <HomeTutorials {tutorials} />
+        <RecentDatasets tags={data.tags} />
+        <PopularDatasets tags={data.tags} />
+        <DatasetsLeaderboard />
+      </div>
+      <div class="w-full md:w-[300px] p-4">
+        <div class="bg-gray-200 h-full flex items-center justify-center">
+          <p class="text-gray-600">Placeholder for new content</p>
+        </div>
+      </div>
+    </div>
   </div>
   <div
     class="w-full"
