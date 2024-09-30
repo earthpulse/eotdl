@@ -9,6 +9,6 @@
 
 <style>
   nav {
-    border-bottom: 4px solid #335e6f;
+    border-bottom: 4px solid #4abfa7;
   }
 </style>

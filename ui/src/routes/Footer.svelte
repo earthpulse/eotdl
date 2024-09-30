@@ -70,6 +70,6 @@
 
 <style>
     footer {
-        border-top: 4px solid #335e6f;
+        border-top: 4px solid #4abfa7;
     }
 </style>
