@@ -14,13 +14,16 @@
 
 <a
     href="/{link}/{data.name}"
-    class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left"
+    class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left shadow-xl"
 >
     <span>
         <p class="font-bold">{data.name}</p>
+        <p class="text-gray-400 text-xs">
+            Created {formatDistanceToNow(parseISO(data.createdAt))} ago
+        </p>
     </span>
     <span>
-        <div class="flex flex-wrap gap-1 content-start mt-1">
+        <div class="flex flex-wrap gap-1 content-start mt-1 min-h-[20px]">
             {#each data.tags as tag}
                 <p
                     class="badge border-0 text-slate-100 text-xs"
@@ -31,12 +34,7 @@
                 </p>
             {/each}
         </div>
-        <span
-            class="flex flex-row w-full justify-between text-gray-400 text-xs mt-1"
-        >
-            <p>
-                Created {formatDistanceToNow(parseISO(data.createdAt))} ago
-            </p>
+        <span class="flex flex-col w-full text-gray-400 text-xs mt-1">
             <span class="flex flex-row gap-2 items-center">
                 <span class="flex flex-row items-center gap-1">
                     <HeartOutline color={liked ? "red" : "gray"} />

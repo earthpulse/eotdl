@@ -1,24 +1,23 @@
 <div
-  class="py-[80px] w-full md:py-[100px] min-h-[400px] flex flex-col items-center mb-12"
-  style="background: url('backgrounds/Group-1190.png') center center/cover"
+  class="w-full flex flex-col items-center mb-12 relative min-h-[800px] sm:min-h-0"
+  style="background: url('backgrounds/Group-1190.png') center center/cover; height: calc(100vh - 60px);"
 >
   <div
-    class="gap-3 max-w-[450px] text-center text-white flex flex-col items-center px-4 mt-[80px] md:mt-24"
+    class="gap-6 max-w-[600px] text-center text-white flex flex-col items-center px-4 justify-center h-full mt-[-30px] sm:mt-0"
   >
-    <h1 class="text-5xl font-bold leading-[50px]">
+    <h1 class="text-6xl font-bold leading-[70px]">
       Earth Observation Training Data Lab
     </h1>
-    <!-- <img src="https://github.com/earthpulse/eotdl/raw/main/eotdl/eotdl.png" /> -->
-    <p class="py-6 leading-5">
+    <p class="py-8 leading-7 text-xl">
       Create, share and use training datasets for Earth Observation Machine
-      Learning applications <br /> with our open source tools.
+      Learning applications with our open source tools.
     </p>
-    <span class="flex flex-row gap-1">
+    <span class="flex flex-row gap-3">
       <a
         href="https://github.com/earthpulse/eotdl"
         target="_blank"
         rel="noreferrer"
-        class="btn btn-sm bg-base-200 text-black border-base-300 capitalize hover:bg-base-300 hover:border-base-300"
+        class="btn btn-lg bg-base-200 text-black border-base-300 capitalize hover:bg-base-300 hover:border-base-300"
       >
         <svg
           class="mr-2"
@@ -38,12 +37,25 @@
         >
         Github</a
       >
-      <a href="/tutorials" class="btn btn-sm bg-blue-500 text-white capitalize">
+      <a href="/tutorials" class="btn btn-lg bg-blue-500 text-white capitalize">
         Tutorials</a
       ></span
     >
-    <!-- <p class="p-4 badge badge-warning mt-5 uppercase text-xs font-bold">
-      🚧 Under development
-    </p> -->
+  </div>
+  <div class="absolute bottom-12 animate-bounce">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-12 w-12 text-white opacity-70"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+      />
+    </svg>
   </div>
 </div>
