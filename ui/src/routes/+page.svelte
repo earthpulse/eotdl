@@ -11,7 +11,7 @@
   import Posts from "./Posts.svelte";
   import { tutorials } from "./tutorials/tutorials";
   import HomeTutorials from "./HomeTutorials.svelte";
-
+  import Events from "./Events.svelte";
   export let data;
 </script>
 
@@ -38,8 +38,8 @@
         <DatasetsLeaderboard />
       </div>
       <div class="w-full md:w-[300px] p-4">
-        <div class="bg-gray-200 h-full flex items-center justify-center">
-          <p class="text-gray-600">Placeholder for new content</p>
+        <div class="h-full flex justify-center">
+          <Events />
         </div>
       </div>
     </div>
