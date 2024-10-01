@@ -11,15 +11,27 @@
 	import { fade } from "svelte/transition";
 	import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
 	import Map from "$components/Map.svelte";
+	import { Carta } from "carta-md";
+	import DOMPurify from "isomorphic-dompurify";
+
+	const carta = new Carta({
+		extensions: [],
+		sanitizer: DOMPurify.sanitize,
+	});
 
 	export let data;
 
 	let dataset = null;
 	let version = null;
 	let message = null;
+	let description = null;
 
 	const load = async () => {
 		dataset = await retrieveDataset(data.name);
+		description =  await carta.render(dataset.description)
+		if (!description){
+			description = dataset.description;
+		}
 	};
 
 	$: if (browser) load();
@@ -106,8 +118,8 @@
 			>
 				<div class="w-full overflow-auto">
 					<div class="content">
-						{#if dataset.description}
-							{@html dataset.description}
+						{#if description}
+							{@html description}
 						{:else}
 							<p class="italic">No description.</p>
 						{/if}

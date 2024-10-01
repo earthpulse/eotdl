@@ -1,7 +1,6 @@
 from pathlib import Path
 import yaml
 import frontmatter
-import markdown
 from tqdm import tqdm
 import json
 
@@ -67,8 +66,7 @@ def ingest_folder(
         raise Exception(f"Error loading metadata: {e}")
     # retrieve model (create if doesn't exist)
     model = retrieve_model(metadata, user)
-    if content:
-        content = markdown.markdown(content)
+
     update_metadata = True
     if "description" in model:
         # do not do this if the model is new, only if it already exists
