@@ -22,7 +22,29 @@ You can copy and paste the following template to create the event:
 }
 ```
 
-Once the file is edited, you create a PR to the `develop` branch so we can review it and merge it.
+Once the file is edited, you can create a PR to the `develop` branch so we can review it and merge it.
+
+## Posts
+
+To add a post to the website, you can create a new `mardkown` file in [`ui/src/routes/blog`](ui/src/routes/blog). The post should be a markdown file with the following structure:
+
+```
+---
+title: Post title
+date: Post date
+description: Post description
+tags: Post tags
+link: Link to the post on Github (or the notebook if it's a tutorial)
+---
+
+# A title
+
+some content 
+
+...
+```
+Once the file is created, you can create a PR to the `develop` branch so we can review it and merge it.
+
 
 ## Datasets
 
