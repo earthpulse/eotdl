@@ -12,6 +12,8 @@
   import { tutorials } from "./tutorials/tutorials";
   import HomeTutorials from "./HomeTutorials.svelte";
   import Events from "./Events.svelte";
+  import { parseISO, format } from "date-fns";
+
   export let data;
 </script>
 
@@ -37,9 +39,28 @@
         <PopularDatasets tags={data.tags} />
         <DatasetsLeaderboard />
       </div>
-      <div class="w-full md:w-[300px] p-4">
-        <div class="h-full flex justify-center">
+      <div class="w-full md:w-[300px] p-3">
+        <div class="h-full flex flex-col gap-3">
           <Events />
+          <div>
+            <h2
+              class="font-bold text-3xl w-full text-left pb-6 text-[rgb(74,191,167)] uppercase"
+            >
+              Recent posts and news
+            </h2>
+            {#if data.posts.length > 0}
+              {#each data.posts as post}
+                <a class="tex-xs flex flex-col gap-2" href="/blog/{post.slug}">
+                  <p class="text-gray-400">
+                    {format(parseISO(post.date), "MMMM d, yyyy")}
+                  </p>
+                  <p class="font-bold">{post.title}</p>
+                  <p class="text-gray-400">{post.description}</p>
+                  <hr class="my-2 border-t border-[rgb(74,191,167)]" />
+                </a>
+              {/each}
+            {/if}
+          </div>
         </div>
       </div>
     </div>
