@@ -1,5 +1,18 @@
 # CONTRIBUTING
 
+## Events
+
+To add an event to the website, you have to edit the [`ui/src/routes/events.json`](ui/src/routes/events.json) file.
+
+The event have to be a JSON object with the following properties:
+
+- **title**: the title of the event
+- **description**: the description of the event
+- **date**: the date of the event
+- **link**: the link to the event
+
+Once the file is edited, you create a PR to the `develop` branch so we can review it and merge it.
+
 ## Datasets
 
 If you would like us to include a new dataset, create an issue with the following information and we'll add it to the list.
