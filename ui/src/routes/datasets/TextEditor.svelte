@@ -3,8 +3,6 @@
   import "carta-md/default.css"; /* Default theme */
   import "$styles/carta-md.css";
   import DOMPurify from "isomorphic-dompurify";
-  import TurndownService from "turndown";
-  import { tables } from "turndown-plugin-gfm";
   import { browser } from "$app/environment";
 
   let x;
@@ -31,16 +29,12 @@
     sanitizer: DOMPurify.sanitize,
   });
 
-  export let content;
-  var turndownService = new TurndownService({
-    codeBlockStyle: "fenced",
-    preformattedCode: true,
-  });
-  turndownService.use(tables);
+  export let value;
 
-  let value = turndownService.turndown(content);
+  let html = null;
+
   const renderHtml = async () => {
-    content = await carta.render(value);
+    html = await carta.render(value);
   };
 </script>
 

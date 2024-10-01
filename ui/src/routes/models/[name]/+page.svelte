@@ -10,15 +10,27 @@
 	import { fade } from "svelte/transition";
 	import retrieveModelFiles from "$lib/models/retrieveModelFiles";
 	import Update from "$components/Update.svelte";
+	import { Carta } from "carta-md";
+	import DOMPurify from "isomorphic-dompurify";
+
+	const carta = new Carta({
+		extensions: [],
+		sanitizer: DOMPurify.sanitize,
+	});
 
 	export let data;
 
 	let model = null;
 	let version = null;
 	let message = null;
+	let description = null;
 
 	const load = async () => {
 		model = await retrieveModel(data.name);
+		description =  await carta.render(model.description)
+		if (!description){
+			description = model.description;
+		}
 	};
 
 	$: if (browser) load();
@@ -94,8 +106,8 @@
 			<div class="grid grid-cols-[auto,350px] gap-3 mt-5">
 				<div class="w-full overflow-auto">
 					<div class="content">
-						{#if model.description}
-							{@html model.description}
+						{#if description}
+							{@html description}
 						{:else}
 							<p class="italic">No description.</p>
 						{/if}
