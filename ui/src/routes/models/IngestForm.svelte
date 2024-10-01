@@ -28,7 +28,7 @@
     try {
       if (authors instanceof Array) authors = authors.join(",");
       if (forCreate){
-        if (!validateDatasetSize(files)) return;
+        if (!validateModelSize(files)) return;
         await submit(
           files,
           name,
@@ -50,7 +50,7 @@
           selected_tags,
         );
       }
-      document.getElementById("ingest-dataset").checked = false;
+      document.getElementById("ingest-model").checked = false;
       // name = "";
       // authors = "";
       // source = "";
@@ -66,7 +66,7 @@
     loading = false;
   };
 
-  const validateDatasetSize = (files) => {
+  const validateModelSize = (files) => {
     let totalSize = 0;
     for (let i = 0; i < files.length; i++) {
       console.log(files[i].size)
@@ -97,8 +97,8 @@
   };
 </script>
 
-<label for="ingest-dataset" class="btn btn-ghost btn-outline">{text}</label>
-<input type="checkbox" id="ingest-dataset" class="modal-toggle" />
+<label for="ingest-model" class="btn btn-ghost btn-outline">{text}</label>
+<input type="checkbox" id="ingest-model" class="modal-toggle" />
 <div class="modal">
   <form
     on:submit|preventDefault={ingest}
@@ -110,7 +110,7 @@
       <input
         class="w-full input input-bordered"
         type="text"
-        placeholder="Dataset name"
+        placeholder="Model name"
         {required}
         bind:value={name}
       />
@@ -122,7 +122,7 @@
         <input
           class="w-full input input-bordered"
           type="text"
-          placeholder="Dataset authors"
+          placeholder="Model authors"
           {required}
           bind:value={authors}
         />
@@ -152,7 +152,7 @@
           {required}
           bind:value={license}
         />
-        <p class="text-sm text-gray-400">*Provide a license for the dataset.</p>
+        <p class="text-sm text-gray-400">*Provide a license for the model.</p>
       </span>
     {/if}
     <p>Description</p>
@@ -160,7 +160,7 @@
     {#if forCreate}
       <p>Files</p>
       <input id="uploadfiles" class="hidden" bind:files={files} type="file" multiple directory webkitdirectory/>
-      <label for="uploadfiles" class="btn btn-outline btn-ghost">Select the dataset directory</label>
+      <label for="uploadfiles" class="btn btn-outline btn-ghost">Select the model directory</label>
       {#if files}        
         <p class="text-sm text-gray-400">Total files: {files.length}</p>
       {/if}
@@ -183,7 +183,7 @@
       {/each}
     </div>
     <span class="self-end">
-      <label for="ingest-dataset" class="btn btn-ghost btn-outline btn-error"
+      <label for="ingest-model" class="btn btn-ghost btn-outline btn-error"
         >Close</label
       >
       <button
