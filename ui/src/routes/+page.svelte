@@ -32,17 +32,19 @@
     class="w-full max-w-6xl"
     style="background: url('backgrounds/Group-1170.png') center center/cover"
   >
-    <div class="flex flex-col-reverse md:flex-row">
-      <div class="w-full md:flex-grow">
+    <div class="flex flex-col-reverse lg:flex-row">
+      <div class="w-full lg:flex-grow">
         <HomeTutorials {tutorials} />
         <RecentDatasets tags={data.tags} />
         <PopularDatasets tags={data.tags} />
         <DatasetsLeaderboard />
       </div>
-      <div class="w-full md:w-[300px] p-3">
-        <div class="h-full flex flex-col gap-3">
+      <div class="w-full lg:w-[300px] p-3">
+        <div
+          class="h-full flex lg:flex-col md:flex-row sm:flex-row flex-col gap-10"
+        >
           <Events />
-          <div>
+          <div class="mb-10">
             <h2
               class="font-bold text-3xl w-full text-left pb-6 text-[rgb(74,191,167)] uppercase"
             >
