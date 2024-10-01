@@ -11,6 +11,17 @@ The event have to be a JSON object with the following properties:
 - **date**: the date of the event
 - **link**: the link to the event
 
+You can copy and paste the following template to create the event:
+
+```json
+{
+	"title": "Event Title",
+	"description": "Event Description",
+	"date": "Event Date",
+	"link": "Event Link"
+}
+```
+
 Once the file is edited, you create a PR to the `develop` branch so we can review it and merge it.
 
 ## Datasets
