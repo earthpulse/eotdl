@@ -60,8 +60,8 @@
 		return events.some((event) => 
 		event.dateTo >= dateString &&
 		event.date <= dateString &&
-		event.dateTo > event.date);
-	}
+		event.dateTo > event.date );
+		}
 
 	function prevMonth() {
 		currentDate = new Date(currentYear, currentMonth - 1, 1);
@@ -114,8 +114,10 @@
 							{#if day && hasDayEvent(day)}
 								<td
 									class='
-									{hasEvent(day+1) && !hasDayEvent(day+1)  ? "rounded-l-full" : 
-									hasEvent(day) ? "rounded-r-full" : "rounded-full"} 
+									{
+									hasEvent(day-1) && hasEvent(day+1) ? "" :
+									hasEvent(day-1) ? "rounded-r-xl": 
+									hasEvent(day+1) ? "rounded-l-xl" : ""} 
 									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]'
 								>
 									{day}

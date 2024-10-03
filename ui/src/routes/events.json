@@ -1,16 +1,1 @@
-[
-    {
-        "date":"2024-10-13",
-        "dateTo":"2024-10-19",
-        "title":"Test",
-        "link":"/datasets",
-        "description":"Test event"
-    },
-    {
-        "date":"2024-10-24",
-        "dateTo":"2024-10-27",
-        "title":"Test",
-        "link":"/datasets",
-        "description":"Test event"
-    }
-]
+[]
