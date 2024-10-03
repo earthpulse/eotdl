@@ -9,6 +9,6 @@
 	});
 </script>
 
-<div class="sm:my-[100px] w-full">
+<div class="sm:my-[50px] w-full">
 	<Leaderboard leaderboard={data} textOnLeft={true} />
 </div>
