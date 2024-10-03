@@ -1,5 +1,5 @@
 <div
-  class="w-full flex flex-col items-center mb-12 relative min-h-[800px] sm:min-h-0"
+  class="w-full flex flex-col items-center relative min-h-[800px] sm:min-h-0"
   style="background: url('backgrounds/Group-1190.png') center center/cover; height: calc(100vh - 60px);"
 >
   <div

@@ -5,7 +5,7 @@
 </script>
 
 <footer
-    class="footer p-10 bg-blue-500 flex flex-col md:flex-row justify-between"
+    class="footer p-10 bg-blue-500 flex flex-col md:flex-row justify-between mt-16 sm:mt-0"
 >
     <ul class="text-[#335e6f]">
         <li>
