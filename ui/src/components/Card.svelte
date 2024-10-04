@@ -10,6 +10,7 @@
     export let liked = null;
     export let link = "datasets";
     export let tags;
+    export let img;
 </script>
 
 <a
@@ -17,6 +18,8 @@
     class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left shadow-xl"
 >
     <span>
+        <img src="{data.thumbnail ? data.thumbnail :
+         `backgrounds/thumbnails/${img}`}" class="h-[200px] w-[100%]" alt="">
         <p class="font-bold">{data.name}</p>
         <p class="text-gray-400 text-xs">
             Created {formatDistanceToNow(parseISO(data.createdAt))} ago
