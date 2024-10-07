@@ -15,17 +15,19 @@
 
 <a
     href="/{link}/{data.name}"
-    class="w-full bg-gray-100 border-2 rounded-xl p-3 flex flex-col justify-between h-full text-left shadow-xl"
+    class="w-full bg-gray-100 border-2 rounded-xl flex flex-col justify-between h-full text-left shadow-xl"
 >
     <span>
         <img src="{data.thumbnail ? data.thumbnail :
-         `backgrounds/thumbnails/${img}`}" class="h-[200px] w-[100%]" alt="">
-        <p class="font-bold">{data.name}</p>
-        <p class="text-gray-400 text-xs">
-            Created {formatDistanceToNow(parseISO(data.createdAt))} ago
-        </p>
+            `backgrounds/thumbnails/${img}`}" class="h-48 rounded-t-xl w-full object-cover" alt="">
+        <div class="p-3">
+            <p class="font-bold">{data.name}</p>
+            <p class="text-gray-400 text-xs">
+                Created {formatDistanceToNow(parseISO(data.createdAt))} ago
+            </p>
+        </div>
     </span>
-    <span>
+    <span class="p-3">
         <div class="flex flex-wrap gap-1 content-start mt-1 min-h-[20px]">
             {#each data.tags as tag}
                 <p
