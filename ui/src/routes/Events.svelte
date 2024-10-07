@@ -117,7 +117,7 @@
 									{
 									hasEvent(day-1) && hasEvent(day+1) ? "" :
 									hasEvent(day-1) ? "rounded-r-xl": 
-									hasEvent(day+1) ? "rounded-l-xl" : ""} 
+									hasEvent(day+1) ? "rounded-l-xl" : "rounded-full"} 
 									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]'
 								>
 									{day}
