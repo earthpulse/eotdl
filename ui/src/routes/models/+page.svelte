@@ -16,6 +16,7 @@
 	let show_liked = false;
 	let selected_tags = [];
 	let selected_qualities = [];
+	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -113,8 +114,9 @@
 			</div>
 		{:else if filtered_models?.length > 0}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
-				{#each filtered_models as model}
+				{#each filtered_models as model, i}
 					<Card
+						img = {images[i%3]}
 						data={model}
 						link="models"
 						liked={$user?.liked_models?.includes(model.id)}
