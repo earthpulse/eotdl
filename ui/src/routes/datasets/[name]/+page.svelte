@@ -88,7 +88,7 @@
               class="w-36 h-36 bg-white object-cover"
               src={dataset.thumbnail
                 ? dataset.thumbnail
-                : `backgrounds/thumbnails/${curent_image}`}
+                : `/backgrounds/thumbnails/${curent_image}`}
               alt=""
             />
           </span>
