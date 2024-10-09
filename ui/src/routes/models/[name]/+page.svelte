@@ -82,7 +82,7 @@
               class="w-36 h-36 object-cover"
               src={model.thumbnail
                 ? model.thumbnail
-                : `backgrounds/thumbnails/${curent_image}`}
+                : `/backgrounds/thumbnails/${curent_image}`}
               alt=""
             />
           </span>
