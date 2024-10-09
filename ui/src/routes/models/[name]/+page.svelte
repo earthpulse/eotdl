@@ -20,11 +20,13 @@
 
 	export let data;
 
+	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 	let model = null;
 	let version = null;
 	let message = null;
 	let description = null;
-
+	let curent_image;
+	let filtered_models = null;
 	const load = async () => {
 		model = await retrieveModel(data.name);
 		description =  await carta.render(model.description)
@@ -33,7 +35,21 @@
 		}
 	};
 
-	$: if (browser) load();
+	$: {
+		filtered_models = $models.data
+		filtered_models && filtered_models.forEach((element, i) => {
+			if (element.id == model.id) curent_image = images[i%3]
+			console.log(model.id == element.id);
+		})
+	}
+
+	const loadModels = async () => {
+		await models.retrieve(fetch);
+		filtered_models = JSON.parse(localStorage.getItem("filtered_models"));
+	};
+	
+
+	$: if (browser) {load(); loadModels()};
 
 	const copyToClipboard = (text) => {
 		navigator.clipboard.writeText(text);
@@ -53,20 +69,31 @@
 	<div class="w-full flex flex-col items-center">
 		<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-2">
 			<div class="flex flex-col sm:flex-row justify-between w-full gap-3">
-				<span class="flex flex-col gap-2">
-					<h1 class="text-3xl">{model.name}</h1>
-					<div class="flex flex-wrap gap-1">
-						{#each model.tags as tag}
-							<p
-								class="badge border-0 text-slate-200 text-xs"
-								style="background-color: {data.tags?.find(
-									(t) => t.name == tag,
-								).color || 'none'};"
-							>
-								{tag}
-							</p>
-						{/each}
-					</div>
+				<span class="flex flex-col sm:flex-row gap-2">
+					<span class="flex sm:justify-start justify-center">
+						<img class="w-36 h-36 object-cover" src={model.thumbnail ? model.thumbnail : `../backgrounds/thumbnails/${curent_image}`} alt="">
+					</span>
+					<span>
+						<h1 class="text-3xl">{model.name}</h1>
+						<div class="flex flex-wrap gap-1">
+							{#each model.tags as tag}
+								<p
+									class="badge border-0 text-slate-200 text-xs"
+									style="background-color: {data.tags?.find(
+										(t) => t.name == tag,
+									).color || 'none'};"
+								>
+									{tag}
+								</p>
+							{/each}
+						</div>
+						<Info
+							data={model}
+							store={models}
+							field="liked_models"
+							bind:version
+						/>
+					</span>
 				</span>
 
 				{#if $user}
@@ -95,13 +122,6 @@
 					</span>
 				{/if}
 			</div>
-
-			<Info
-				data={model}
-				store={models}
-				field="liked_models"
-				bind:version
-			/>
 
 			<div class="grid grid-cols-[auto,350px] gap-3 mt-5">
 				<div class="w-full overflow-auto">

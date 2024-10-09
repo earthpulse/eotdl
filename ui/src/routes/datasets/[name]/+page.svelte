@@ -21,11 +21,13 @@
 
 	export let data;
 
+	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 	let dataset = null;
 	let version = null;
 	let message = null;
 	let description = null;
-
+	let curent_image;
+	let filtered_datasets;
 	const load = async () => {
 		dataset = await retrieveDataset(data.name);
 		description =  await carta.render(dataset.description)
@@ -34,7 +36,20 @@
 		}
 	};
 
-	$: if (browser) load();
+	$: {
+		filtered_datasets = $datasets.data
+		filtered_datasets && filtered_datasets.forEach((element, i) => {
+			if (element.id == dataset.id) curent_image = images[i%3]
+		})
+	}
+	const loadDatasets = async () => {
+		await datasets.retrieve(fetch);
+		filtered_datasets = JSON.parse(
+			localStorage.getItem("filtered_datasets"),
+		);
+	};
+
+	$: if (browser) {load(); loadDatasets()};
 
 	const copyToClipboard = (text) => {
 		navigator.clipboard.writeText(text);
@@ -61,22 +76,33 @@
 	<div class="w-full flex flex-col items-center">
 		<div class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col gap-2">
 			<div class="flex flex-col sm:flex-row justify-between w-full gap-3">
-				<span class="flex flex-col gap-2">
-					<h1 class="text-3xl">{dataset.name}</h1>
-					<div class="flex flex-wrap gap-1">
-						{#each dataset.tags as tag}
+				<span class="flex flex-col sm:flex-row gap-2">
+					<span class="flex sm:justify-start justify-center">
+						<img class="w-36 h-36 bg-white object-cover" src={dataset.thumbnail ? dataset.thumbnail : `../backgrounds/thumbnails/${curent_image}`} alt="">
+					</span>
+					<span>
+						<h1 class="text-3xl">{dataset.name}</h1>
+						<div class="flex flex-wrap gap-1">
+							{#each dataset.tags as tag}
 							<p
-								class="badge border-0 text-slate-200 text-xs"
-								style="background-color: {data.tags?.find(
-									(t) => t.name == tag,
-								).color || 'none'};"
-							>
+							class="badge border-0 text-slate-200 text-xs"
+							style="background-color: {data.tags?.find(
+								(t) => t.name == tag,
+							).color || 'none'};"
+								>
 								{tag}
 							</p>
-						{/each}
-					</div>
+							{/each}
+						</div>
+						<Info
+							data={dataset}
+							store={datasets}
+							field="liked_datasets"
+							bind:version
+						/>
+					</span>
+					
 				</span>
-
 				<span class="flex flex-row gap-2">
 					{#if dataset.quality < 2}
 						<a
@@ -105,13 +131,6 @@
 					{/if}
 				</span>
 			</div>
-
-			<Info
-				data={dataset}
-				store={datasets}
-				field="liked_datasets"
-				bind:version
-			/>
 			<hr class="sm:hidden" />
 			<div
 				class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5"

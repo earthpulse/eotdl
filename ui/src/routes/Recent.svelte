@@ -5,6 +5,8 @@
     export let data;
     export let title;
     export let tags;
+    let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
+
 </script>
 
 <div class="flex flex-col items-center w-full">
@@ -27,8 +29,8 @@
             class="grid grid-cols-1 sm:grid-cols-3 grid-rows-3 sm:grid-rows-1 gap-3 w-full mt-3"
         >
             {#if data}
-                {#each data as item}
-                    <Card data={item} {tags} />
+                {#each data as item, i}
+                    <Card data={item} {tags} img={images[i]}/>
                 {/each}
             {:else}
                 {#each [1, 2, 3] as _}
