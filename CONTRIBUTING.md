@@ -2,27 +2,31 @@
 
 ## Events
 
-To add an event to the website, you have to edit the [`ui/src/routes/events.json`](ui/src/routes/events.json) file.
+To add an event to the website, you have to edit the [`ui/src/routes/events.json`](ui/src/routes/events.json) file (click on the previous link to open it).
 
-The event have to be a JSON object with the following properties:
+The event has to be a JSON object with the following properties:
 
 - **title**: the title of the event
 - **description**: the description of the event
 - **date**: the date of the event
+- **dateTo** (optional): the end date of the event if it's an event that lasts more than one day
 - **link**: the link to the event
 
 You can copy and paste the following template to create the event:
 
 ```json
 {
-	"title": "Event Title",
-	"description": "Event Description",
-	"date": "Event Date",
-	"link": "Event Link"
+  "title": "Event Title",
+  "description": "Event Description",
+  "date": "Event Date in the format YEAR-MONTH-DAY (for example, 2024-04-02)",
+  "dateTo": "End date (optional) in the format YEAR-MONTH-DAY (for example, 2024-04-04)",
+  "link": "Event Link"
 }
 ```
 
-Once the file is edited, you can create a PR to the `develop` branch so we can review it and merge it.
+Once the file is edited, click on "Commit changes" (green button) and select "Create a new branch for this commit and start a pull request". Then, click on "Propose changes" and then "Create pull request". You can add some description in the process (optional). Preferably, make the pull request against the `develop` branch.
+
+Once we review, we will merge it and the event will be added to the website.
 
 ## Posts
 
@@ -39,12 +43,15 @@ link: Link to the post on Github (or the notebook if it's a tutorial)
 
 # A title
 
-some content 
+some content
 
-...
 ```
-Once the file is created, you can create a PR to the `develop` branch so we can review it and merge it.
 
+The first part (between the `---` lines) is the metadata of the post and the second part is the actual content of the post in [markdown format](https://www.markdownguide.org/basic-syntax/). We recommend you use a markdown editor to write the post and then copy the content into the file.
+
+Once the file is edited, click on "Commit changes" (green button) and select "Create a new branch for this commit and start a pull request". Then, click on "Propose changes" and then "Create pull request". You can add some description in the process (optional). Preferably, make the pull request against the `develop` branch.
+
+Once we review, we will merge it and the event will be added to the website.
 
 ## Datasets
 
