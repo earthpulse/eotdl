@@ -53,15 +53,24 @@
 
 	function hasDayEvent(day) {
 		const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-		return events.some((event) => event.date === dateString || event.dateTo === dateString);
+		const currentDateString = new Date().toISOString().split("T")[0];
+		return events.some(
+			(event) =>
+				(event.date === dateString || event.dateTo === dateString) &&
+				event.date >= currentDateString,
+		);
 	}
 	function hasEvent(day) {
 		const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-		return events.some((event) => 
-		event.dateTo >= dateString &&
-		event.date <= dateString &&
-		event.dateTo > event.date );
-		}
+		const currentDateString = new Date().toISOString().split("T")[0];
+		return events.some(
+			(event) =>
+				event.dateTo >= dateString &&
+				event.date <= dateString &&
+				event.dateTo > event.date &&
+				event.date >= currentDateString,
+		);
+	}
 
 	function prevMonth() {
 		currentDate = new Date(currentYear, currentMonth - 1, 1);
@@ -113,17 +122,22 @@
 						{#each week as day}
 							{#if day && hasDayEvent(day)}
 								<td
-									class='
-									{
-									hasEvent(day-1) && hasEvent(day+1) ? "" :
-									hasEvent(day-1) ? "rounded-r-xl": 
-									hasEvent(day+1) ? "rounded-l-xl" : "rounded-full"} 
-									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]'
+									class="
+									{hasEvent(day - 1) && hasEvent(day + 1)
+										? ''
+										: hasEvent(day - 1)
+											? 'rounded-r-xl'
+											: hasEvent(day + 1)
+												? 'rounded-l-xl'
+												: 'rounded-full'} 
+									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]"
 								>
 									{day}
 								</td>
 							{:else if day && hasEvent(day)}
-								<td class="text-center p-1 font-bold text-black bg-[rgb(74,191,167)]">
+								<td
+									class="text-center p-1 font-bold text-black bg-[rgb(74,191,167)]"
+								>
 									{day}
 								</td>
 							{:else if day === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()}
@@ -149,27 +163,27 @@
 			<li class="mb-4">
 				<h3 class="text-md font-bold">{event.title}</h3>
 				{#if !event.dateTo}
-				<p class="text-xs text-gray-500">
-					{new Date(event.date).toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-					})}
-				</p>
+					<p class="text-xs text-gray-500">
+						{new Date(event.date).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})}
+					</p>
 				{:else}
-				<p class="text-xs text-gray-500">
-					{new Date(event.date).toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-					})}
-					to
-					{new Date(event.dateTo).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                    })}
-				</p>
+					<p class="text-xs text-gray-500">
+						{new Date(event.date).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})}
+						to
+						{new Date(event.dateTo).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})}
+					</p>
 				{/if}
 				<p class="text-gray-600 text-xs">{event.description}</p>
 				<a
