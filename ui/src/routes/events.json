@@ -1,1 +1,16 @@
-[]
+[
+	{
+		"title": "Event Title",
+		"description": "Event Description",
+		"date": "2024-10-04",
+		"dateTo": "2024-10-10",
+		"link": "Event Link"
+	},
+	{
+		"title": "Event Title",
+		"description": "Event Description",
+		"date": "2024-10-20",
+		"dateTo": "2024-10-22",
+		"link": "Event Link"
+	}
+]
