@@ -13,15 +13,14 @@
 	import Map from "$components/Map.svelte";
 	import { Carta } from "carta-md";
 	import DOMPurify from "isomorphic-dompurify";
-
+	import { links } from "$stores/images.js"
+	
 	const carta = new Carta({
 		extensions: [],
 		sanitizer: DOMPurify.sanitize,
 	});
 
 	export let data;
-
-	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 	let dataset = null;
 	let version = null;
 	let message = null;
@@ -39,7 +38,7 @@
 	$: {
 		filtered_datasets = $datasets.data
 		filtered_datasets && filtered_datasets.forEach((element, i) => {
-			if (element.id == dataset.id) curent_image = images[i%3]
+			if (element.id == dataset.id) curent_image = links[i%links.length]
 		})
 	}
 	const loadDatasets = async () => {
@@ -78,7 +77,7 @@
 			<div class="flex flex-col sm:flex-row justify-between w-full gap-3">
 				<span class="flex flex-col sm:flex-row gap-2">
 					<span class="flex sm:justify-start justify-center">
-						<img class="w-36 h-36 bg-white object-cover" src={dataset.thumbnail ? dataset.thumbnail : `../backgrounds/thumbnails/${curent_image}`} alt="">
+						<img class="w-36 h-36 bg-white object-cover" src={dataset.thumbnail ? dataset.thumbnail : `${curent_image}`} alt="">
 					</span>
 					<span>
 						<h1 class="text-3xl">{dataset.name}</h1>
