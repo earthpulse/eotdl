@@ -60,10 +60,10 @@ tags_metadata = [
 description = """
 The EOTDL API allows you, among other things, to:
 
-* Explore and download Training Datasets (TDS) for Earth Observation (EO) applications.
+* Explore and stage Training Datasets (TDS) for Earth Observation (EO) applications.
 * Create and upload your own TDS by combining and annotating EO data from different sources.
 * Train Machine Learning (ML) models using the hosted TDS in the cloud with multi-GPU machines.
-* Explore and download pre-trianed ML models for EO applications.
+* Explore and stage pre-trianed ML models for EO applications.
 """
 
 app = FastAPI(

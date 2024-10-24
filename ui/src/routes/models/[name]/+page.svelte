@@ -149,7 +149,7 @@
 					{/if} -->
         </div>
         <div class="flex flex-col gap-3 text-xs">
-          <p>Download the model with the CLI:</p>
+          <p>Stage the model with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
                 on:click={() =>
