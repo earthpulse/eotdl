@@ -1,7 +1,7 @@
 ---
 title: Exploring and downloading Datasets and Models
 date: '2023-11-04T01:00:00.000Z'
-description: In this post you will learn how to explore and download the datasets and models hosted on EOTDL with the different tools of the environment
+description: In this post you will learn how to explore and stage the datasets and models hosted on EOTDL with the different tools of the environment
 tags: getting started, explore, download, datasets, models
 link: https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/01_exploring.ipynb
 ---

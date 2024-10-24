@@ -23,10 +23,10 @@ You can learn more at the [EOTDL website](https://eotdl.com/) or start with our 
 
 The **Earth Observation Training Data Lab** (EOTDL) is a complete environment that allows you, among other things, to:
 
-- Explore and download Training Datasets (TDS) for Earth Observation (EO) applications.
+- Explore and stage Training Datasets (TDS) for Earth Observation (EO) applications.
 - Create and upload your own TDS by combining and annotating EO data from different sources.
 - Train Machine Learning (ML) models using the hosted TDS in the cloud with multi-GPU machines.
-- Explore and download pre-trianed ML models for EO applications.
+- Explore and stage pre-trianed ML models for EO applications.
 
 ## Why EOTDL?
 
