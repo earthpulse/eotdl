@@ -127,6 +127,11 @@ def bbox_from_centroid(
     width_m = width * pixel_size
     heigth_m = height * pixel_size
 
+    # Initialise the transformers
+    utm_crs = CRS.get_utm_from_wgs84(y, x).ogc_string()
+    from_4326_transformer = Transformer.from_crs("EPSG:4326", utm_crs)
+    to_4326_transformer = Transformer.from_crs(utm_crs, "EPSG:4326")
+
     # Transform the centroid coordinates to meters
     centroid_m = from_4326_transformer.transform(x, y)
 
@@ -137,8 +142,8 @@ def bbox_from_centroid(
     max_y = centroid_m[1] + heigth_m / 2
 
     # Convert the bounding box coordinates back to degrees
-    min_x, min_y = from_3857_transformer.transform(min_x, min_y)
-    max_x, max_y = from_3857_transformer.transform(max_x, max_y)
+    min_x, min_y = to_4326_transformer.transform(min_x, min_y)
+    max_x, max_y = to_4326_transformer.transform(max_x, max_y)
 
     return [min_y, min_x, max_y, max_x]
 

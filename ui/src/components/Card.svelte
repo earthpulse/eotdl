@@ -19,8 +19,8 @@
 >
   <span>
     <img
-      src={data.thumbnail ? data.thumbnail : `/backgrounds/thumbnails/${img}`}
-      class="h-48 rounded-t-xl w-full object-cover"
+      src={data.thumbnail ? data.thumbnail : `${img}`}
+      class="h-48 rounded-t-lg w-full object-cover"
       alt=""
     />
     <div class="p-3">
