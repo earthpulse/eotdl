@@ -11,6 +11,7 @@
   import retrieveModelFiles from "$lib/models/retrieveModelFiles";
   import Update from "$components/Update.svelte";
   import { Carta } from "carta-md";
+  import { links, modelImagesOffset } from "$stores/images.js";
   import DOMPurify from "isomorphic-dompurify";
 
   const carta = new Carta({
@@ -20,11 +21,6 @@
 
   export let data;
 
-  let images = [
-    "satelite_image1.jpg",
-    "satelite_image2.jpg",
-    "satelite_image3.jpg",
-  ];
   let model = null;
   let version = null;
   let message = null;
@@ -43,8 +39,8 @@
     filtered_models = $models.data;
     filtered_models &&
       filtered_models.forEach((element, i) => {
-        if (element.id == model.id) curent_image = images[i % 3];
-        console.log(model.id == element.id);
+        if (element.id == model.id)
+          curent_image = links[(i + modelImagesOffset) % links.length];
       });
   }
 
@@ -80,9 +76,7 @@
           <span class="flex sm:justify-start justify-center">
             <img
               class="w-36 h-36 object-cover"
-              src={model.thumbnail
-                ? model.thumbnail
-                : `/backgrounds/thumbnails/${curent_image}`}
+              src={model.thumbnail ? model.thumbnail : `${curent_image}`}
               alt=""
             />
           </span>
@@ -93,7 +87,7 @@
                 <p
                   class="badge border-0 text-slate-200 text-xs"
                   style="background-color: {data.tags?.find(
-                    (t) => t.name == tag
+                    (t) => t.name == tag,
                   ).color || 'none'};"
                 >
                   {tag}
@@ -160,7 +154,7 @@
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
                 on:click={() =>
                   copyToClipboard(
-                    `eotdl models get ${model.name} -v ${version?.version_id}`
+                    `eotdl models get ${model.name} -v ${version?.version_id}`,
                   )}
                 >eotdl models get {model.name} -v {version?.version_id}</button
               ></pre>

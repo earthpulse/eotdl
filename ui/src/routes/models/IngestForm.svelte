@@ -27,7 +27,7 @@
     loading = true;
     try {
       if (authors instanceof Array) authors = authors.join(",");
-      if (forCreate){
+      if (forCreate) {
         if (!validateModelSize(files)) return;
         await submit(
           files,
@@ -38,8 +38,7 @@
           license,
           selected_tags,
         );
-      }
-      else {
+      } else {
         await submit(
           //files,
           name,
@@ -69,17 +68,19 @@
   const validateModelSize = (files) => {
     let totalSize = 0;
     for (let i = 0; i < files.length; i++) {
-      console.log(files[i].size)
       totalSize += files[i].size;
-      console.log(totalSize);
     }
-    console.log(totalSize);
-    if (totalSize < 500 * 1024 * 1024) return true; //max 500MB
+    if (totalSize < 500 * 1024 * 1024)
+      return true; //max 500MB
     else {
-      alert("Size must be les than 500MB, current size: " +Math.round(totalSize/1024/1024*100)/100 + "MB");
+      alert(
+        "Size must be les than 500MB, current size: " +
+          Math.round((totalSize / 1024 / 1024) * 100) / 100 +
+          "MB",
+      );
       return false;
-    } 
-  }
+    }
+  };
   const validate_source = (link) => {
     if (!link.startsWith("http://") && !link.startsWith("https://")) {
       alert("Link should start with http:// or https://");
@@ -159,9 +160,19 @@
     <TextEditor bind:content />
     {#if forCreate}
       <p>Files</p>
-      <input id="uploadfiles" class="hidden" bind:files={files} type="file" multiple directory webkitdirectory/>
-      <label for="uploadfiles" class="btn btn-outline btn-ghost">Select the model directory</label>
-      {#if files}        
+      <input
+        id="uploadfiles"
+        class="hidden"
+        bind:files
+        type="file"
+        multiple
+        directory
+        webkitdirectory
+      />
+      <label for="uploadfiles" class="btn btn-outline btn-ghost"
+        >Select the model directory</label
+      >
+      {#if files}
         <p class="text-sm text-gray-400">Total files: {files.length}</p>
       {/if}
     {/if}
