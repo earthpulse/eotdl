@@ -157,7 +157,7 @@
         </div>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
           <hr class="sm:hidden" />
-          <p>Download the dataset with the CLI:</p>
+          <p>Stage the dataset with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
                 on:click={() =>

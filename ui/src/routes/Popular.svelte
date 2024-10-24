@@ -1,12 +1,11 @@
 <script>
     import Card from "$components/Card.svelte";
     import Skeleton from "$components/Skeleton.svelte";
-    import {links, modelImagesOffset} from "$stores/images"
+    import { links, modelImagesOffset } from "$stores/images";
 
     export let data;
     export let title;
     export let tags;
-    
 </script>
 
 <div class="flex flex-col items-center w-full pt-10">
@@ -18,9 +17,20 @@
             {#if data}
                 {#each data as item, i}
                     {#if title.includes("models")}
-                    <Card data={item} {tags} img={links[(i+modelImagesOffset*2)%links.length]}/>
+                        <Card
+                            data={item}
+                            {tags}
+                            img={links[
+                                (i + modelImagesOffset * 2) % links.length
+                            ]}
+                            link="models"
+                        />
                     {:else}
-                    <Card data={item} {tags} img={links[i%links.length]}/>
+                        <Card
+                            data={item}
+                            {tags}
+                            img={links[i % links.length]}
+                        />
                     {/if}
                 {/each}
             {:else}

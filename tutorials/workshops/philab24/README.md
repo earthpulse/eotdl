@@ -2,7 +2,7 @@
 
 This is the scheduled agenda for the tutorial session:
 
-- [Explore and download datasets and models](01_exploring.ipynb)
+- [Explore and stage datasets and models](01_exploring.ipynb)
 - [Train models (locally or in the cloud)](02_training.ipynb)
 - [Ingest datasets and models](03_ingesting.ipynb)
 - [Create your own datasets](04_creating.ipynb)

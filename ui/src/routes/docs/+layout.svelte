@@ -19,7 +19,7 @@
 			link: "datasets",
 			links: [
 				{ name: "Explore", link: "explore" },
-				{ name: "Download", link: "download" },
+				{ name: "Stage", link: "stage" },
 				{ name: "Ingest", link: "ingest" },
 				{ name: "Create", link: "create" },
 				{ name: "Labelling", link: "labelling" },
@@ -30,7 +30,7 @@
 			link: "models",
 			links: [
 				{ name: "Explore", link: "explore" },
-				{ name: "Download", link: "download" },
+				{ name: "Stage", link: "stage" },
 				{ name: "Train", link: "train" },
 				{ name: "Ingest", link: "ingest" },
 			],

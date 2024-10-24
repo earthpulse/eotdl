@@ -2,6 +2,6 @@
 
 Besides working with training datasets, EOTDL is also a repositoy of Machine Learning models.
 
-EOTDL offers tools to explore, download and train ML models with the datasets available in the platform. 
+EOTDL offers tools to explore, stage and train ML models with the datasets available in the platform. 
 
 You can also request a GPU-powered machine on the cloud to train your models via our [Discord](https://discord.gg/hYxc5AJB92).
