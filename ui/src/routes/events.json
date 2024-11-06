@@ -1,1 +1,7 @@
-[]
+{
+  "title": "ESA VH-RODA 2024",
+  "description": "The 5th Edition of the VH-RODA Workshop will provide an open forum (for the new space, commercial and institutional space sectors) to present and discuss about the current status and future developments related to Earth Observation (EO) data quality, calibration and validation of space-borne very high-resolution SAR, Optical, and, for the first time, atmospheric constellations, sensors and data products, with a dedicated focus on commercial EO data providers and related Cal/Val activities, synergies between optical, SAR and atmospheric communities, presentation of standards and best practices for data quality.",
+  "date": "2024-12-02",
+  "dateTo": "2024-12-06",
+  "link": "https://earth.esa.int/eogateway/events/vh-roda"
+}
