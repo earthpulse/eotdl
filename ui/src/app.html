@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <title>EOTDL</title>
+    <!-- cookiefirst -->
+    <script src="https://consent.cookiefirst.com/sites/eotdl.com-31846c45-859e-460d-81fe-ea594817ca49/consent.js"></script>
+    <!-- Matomo -->
+    <script>
+      var _paq = (window._paq = window._paq || []);
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(["trackPageView"]);
+      _paq.push(["enableLinkTracking"]);
+      (function () {
+        var u = "https://nix.eox.at/";
+        _paq.push(["setTrackerUrl", u + "matomo.php"]);
+        _paq.push(["setSiteId", "14"]);
+        var d = document,
+          g = d.createElement("script"),
+          s = d.getElementsByTagName("script")[0];
+        g.async = true;
+        g.src = u + "matomo.js";
+        s.parentNode.insertBefore(g, s);
+      })();
+    </script>
+    <!-- End Matomo Code -->
+    %sveltekit.head%
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
-  <meta name="viewport" content="width=device-width" />
-  <title>EOTDL</title>
-  %sveltekit.head%
-  <!-- Matomo -->
-  <script>
-    var _paq = window._paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u="https://nix.eox.at/";
-      _paq.push(['setTrackerUrl', u+'matomo.php']);
-      _paq.push(['setSiteId', '14']);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-      g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-  <!-- End Matomo Code -->
-  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="1c333f40-58bf-4d3b-9a10-d57b72c9176a"
-    data-blockingmode="manual" type="text/javascript"></script>
-</head>
-
-<body>
-  <div>%sveltekit.body%</div>
-</body>
-
+  <body>
+    <div>%sveltekit.body%</div>
+  </body>
 </html>
