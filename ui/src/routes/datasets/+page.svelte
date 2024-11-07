@@ -12,11 +12,10 @@
 	import QualitySelector from "$components/QualitySelector.svelte";
 	import Ingest from "./Ingest.svelte";
 	export let data;
-
+	import { links } from "$stores/images"
 	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
-	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 
 	const load = async () => {
 		await datasets.retrieve(fetch);
@@ -118,7 +117,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_datasets as dataset, i}
 					<Card
-						img={images[i%3]}
+						img={links[i%links.length]}
 						data={dataset}
 						liked={$user?.liked_datasets.includes(dataset.id)}
 						tags={data.tags}

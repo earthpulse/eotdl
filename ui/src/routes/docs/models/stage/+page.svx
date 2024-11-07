@@ -9,9 +9,9 @@
 </script>
 
 
-# Download models
+# Stage models
 
-In the same way, downloading models is similar to downloading datasets. 
+In the same way, staging models is similar to staging datasets. 
 
 <!-- ## User interface
 
@@ -21,11 +21,11 @@ You'll need to be logged in to download models. -->
 
 ## CLI 
 
-You can download a model with following CLI command:
+You can stage a model with following CLI command:
 
 <CLI><Code>eotdl models get "model-name"</Code></CLI>
 
-Your models will be downloaded to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to download the model to the current directory:
+Your models will be staged to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to stage the model to the current directory:
 
 <CLI><Code>eotdl models get "model-name" --path .</Code></CLI>
 
@@ -37,17 +37,17 @@ Your models will be downloaded to a default folder, but you can specify a differ
 
 <CLI><Code>eotdl models get "model name" --assets</Code></CLI> -->
 
-In order to overwrite a model that you already downloaded, you can use the `--force` option.
+In order to overwrite a model that you already staged, you can use the `--force` option.
 
 <CLI><Code>eotdl models get "model-name" --force</Code></CLI>
 
-If you know the specific version of the model to download, use the `--version` option.
+If you know the specific version of the model to stage, use the `--version` option.
 
 <CLI><Code>eotdl models get "model-name" --version 1</Code></CLI>
 
 ## Library
 
-You can download models using the following Python code:
+You can stage models using the following Python code:
 
 <Library><Code>
 	from eotdl.models import download_model<br/><br/>download_model("model-name")</Code></Library>

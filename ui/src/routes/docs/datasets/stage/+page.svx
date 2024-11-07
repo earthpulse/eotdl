@@ -9,45 +9,45 @@
 </script>
 
 
-# Download datasets
+# Stage datasets
 
-Once you find a suitable dataset you can download it for training your models.
+Once you find a suitable dataset you can stage it for training your models.
 
 <!-- ## User interface
 
-<UI><p class="flex flex-row gap-2">Inside the model's page, click on the download icon <Download color="gray" size={20} /> in the file that you want to download.</p></UI>
+<UI><p class="flex flex-row gap-2">Inside the model's page, click on the stage icon <Download color="gray" size={20} /> in the file that you want to stage.</p></UI>
 
-You'll need to be logged in to download datasets. -->
+You'll need to be logged in to stage datasets. -->
 
 ## CLI 
 
-You can download a dataset with following CLI command:
+You can stage a dataset with following CLI command:
 
 <CLI><Code>eotdl datasets get "dataset name"</Code></CLI>
 
-Your datasets will be downloaded to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to download the dataset to the current directory:
+Your datasets will be staged to a default folder, but you can specify a different folder with the `--path` option or the `EOTDL_DOWNLOAD_PATH` environment variable. For example, to stage the dataset to the current directory:
 
 <CLI><Code>eotdl datasets get "dataset name" --path .</Code></CLI>
 
-<!-- For Q0 datasets, you can also specify which file to download.
+<!-- For Q0 datasets, you can also specify which file to stage.
 
 <CLI><Code>eotdl datasets get "dataset name" --file file-name</Code></CLI> -->
 
-<!-- For Q1+ datasets, the previous command will only download the STAC metadata (which contains the links to all the assets). However, if you want to download the assets as well, you cann use the `--assets` option.
+<!-- For Q1+ datasets, the previous command will only stage the STAC metadata (which contains the links to all the assets). However, if you want to stage the assets as well, you cann use the `--assets` option.
 
 <CLI><Code>eotdl datasets get "dataset name" --assets</Code></CLI> -->
 
-In order to overwrite a dataset that you already downloaded, you can use the `--force` option.
+In order to overwrite a dataset that you already staged, you can use the `--force` option.
 
 <CLI><Code>eotdl datasets get "dataset name" --force</Code></CLI>
 
-If you know the specific version of the dataset to download, use the `--version` option.
+If you know the specific version of the dataset to stage, use the `--version` option.
 
 <CLI><Code>eotdl datasets get "dataset name" --version 1</Code></CLI>
 
 ## Library
 
-You can download datasets using the following Python code:
+You can stage datasets using the following Python code:
 
 <Library><Code>
 	from eotdl.datasets import download_dataset<br/><br/>download_dataset("dataset-name")</Code></Library>
@@ -58,10 +58,10 @@ And use the same options seen before.
 
 <!-- ## API 
 
-You can download a dataset file using the following API call:
+You can stage a dataset file using the following API call:
 
 <Api><Code>curl -X 'GET' \
-  'https://api.eotdl.com/datasets/dataset-id/download/file-name' \
+  'https://api.eotdl.com/datasets/dataset-id/stage/file-name' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer your-token'</Code></Api>
 

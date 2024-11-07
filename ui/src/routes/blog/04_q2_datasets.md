@@ -119,7 +119,7 @@ Remember, however, that the metrics will be computed automatically when ingestin
 
 ## Ingesting Q2 datasets
 
-Once the metadata has been generated, you can ingest, explore and download a Q2 dataset as any other dataset.
+Once the metadata has been generated, you can ingest, explore and stage a Q2 dataset as any other dataset.
 
 
 ```python

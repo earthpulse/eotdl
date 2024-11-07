@@ -6,7 +6,7 @@
 
 The datasets and models hosted on the EOTDL are categorized into for quality levels:
 
-- **Q0**: datasets and models in the form of an archive with arbitary files without curation. This level is ideal for easy and fast upload/download of existing datasets and models.
+- **Q0**: datasets and models in the form of an archive with arbitary files without curation. This level is ideal for easy and fast upload/stage of existing datasets and models.
 - **Q1**: datasets and models with STAC metadata without QA. These datasets and models can leverage a limited set of EOTDL features.
 - **Q2**: datasets and mmodels with STAC metadata and the EOTDL custom extensions, including automated QA. These can leverage the full potential of the EOTDL.
 - **Q3**: Q2 datasets and models that are manually curated (or audited) by us. These are the most reliable and can be used for benchmarking.

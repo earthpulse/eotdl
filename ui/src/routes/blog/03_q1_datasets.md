@@ -251,7 +251,7 @@ ingest_dataset('data/EuroSAT-RGB-small-STAC')
     Done
 
 
-After the ingestion, you can explore and download your dataset like shown in the previous tutorial.
+After the ingestion, you can explore and stage your dataset like shown in the previous tutorial.
 
 
 ```python

@@ -10,13 +10,13 @@
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
 	import QualitySelector from "$components/QualitySelector.svelte";
 	import Ingest from "./Ingest.svelte";
+	import { links, modelImagesOffset } from "$stores/images"
 	export let data;
 
 	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
 	let selected_qualities = [];
-	let images = ["satelite_image1.jpg","satelite_image2.jpg","satelite_image3.jpg"]
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -116,7 +116,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_models as model, i}
 					<Card
-						img = {images[i%3]}
+						img={links[(i+modelImagesOffset)%links.length]}
 						data={model}
 						link="models"
 						liked={$user?.liked_models?.includes(model.id)}

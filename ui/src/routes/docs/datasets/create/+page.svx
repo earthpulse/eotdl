@@ -2,7 +2,7 @@
 
 EOTDL offers the following functionality for creating datasets:
 
-- Explore and download available satellite imagery
+- Explore and stage available satellite imagery
 - Generate STAC metadata for your dataset
 
 You can combine the tools offered on EOTDL with your own to create a dataset. 

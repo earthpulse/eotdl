@@ -13,6 +13,7 @@
   import Map from "$components/Map.svelte";
   import { Carta } from "carta-md";
   import DOMPurify from "isomorphic-dompurify";
+  import { links } from "$stores/images.js";
 
   const carta = new Carta({
     extensions: [],
@@ -20,12 +21,6 @@
   });
 
   export let data;
-
-  let images = [
-    "satelite_image1.jpg",
-    "satelite_image2.jpg",
-    "satelite_image3.jpg",
-  ];
   let dataset = null;
   let version = null;
   let message = null;
@@ -44,7 +39,7 @@
     filtered_datasets = $datasets.data;
     filtered_datasets &&
       filtered_datasets.forEach((element, i) => {
-        if (element.id == dataset.id) curent_image = images[i % 3];
+        if (element.id == dataset.id) curent_image = links[i % links.length];
       });
   }
   const loadDatasets = async () => {
@@ -86,9 +81,7 @@
           <span class="flex sm:justify-start justify-center">
             <img
               class="w-36 h-36 bg-white object-cover"
-              src={dataset.thumbnail
-                ? dataset.thumbnail
-                : `/backgrounds/thumbnails/${curent_image}`}
+              src={dataset.thumbnail ? dataset.thumbnail : `${curent_image}`}
               alt=""
             />
           </span>
@@ -99,7 +92,7 @@
                 <p
                   class="badge border-0 text-slate-200 text-xs"
                   style="background-color: {data.tags?.find(
-                    (t) => t.name == tag
+                    (t) => t.name == tag,
                   ).color || 'none'};"
                 >
                   {tag}
@@ -158,18 +151,18 @@
             <pre class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
                 dataset.catalog,
                 null,
-                4
+                4,
               )}</pre>
           {/if}
         </div>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
           <hr class="sm:hidden" />
-          <p>Download the dataset with the CLI:</p>
+          <p>Stage the dataset with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
                 on:click={() =>
                   copyToClipboard(
-                    `eotdl datasets get ${dataset.name} -v ${version?.version_id}`
+                    `eotdl datasets get ${dataset.name} -v ${version?.version_id}`,
                   )}
                 >eotdl datasets get {dataset.name} -v {version?.version_id}</button
               ></pre>
