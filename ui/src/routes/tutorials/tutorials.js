@@ -2,13 +2,13 @@ const workshops = [
     {
         name: "PhiLab 2024",
         thumbnail: "/tutorials/philab.png",
-        description:"Workshop conducted at PhiLab premises on May 2024. Lear how to explore and download datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project.",
+        description:"Workshop conducted at PhiLab premises on May 2024. Lear how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/philab24/README.md",
     },
     {
         name: "BiDS 2023",
         thumbnail: "/tutorials/bids23.png",
-        description:"Workshop conducted during the Big Data from Space (BiDS) 2023 conference. Lear how to explore and download datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project. A Youtube video of the workshop is available at the following link.",
+        description:"Workshop conducted during the Big Data from Space (BiDS) 2023 conference. Lear how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project. A Youtube video of the workshop is available at the following link.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/bids23/README.md",
     },
 ];

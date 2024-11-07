@@ -15,10 +15,10 @@
 
 This is the main library and CLI for the **Earth Observation Training Data Lab** (EOTDL), a complete environment that allows you, among other things, to:
 
-- Explore and download Training Datasets (TDS) for Earth Observation (EO) applications.
+- Explore and stage Training Datasets (TDS) for Earth Observation (EO) applications.
 - Create and upload your own TDS by combining and annotating EO data from different sources.
 - Train Machine Learning (ML) models using the hosted TDS in the cloud with multi-GPU machines.
-- Explore and download pre-trianed ML models for EO applications.
+- Explore and stage pre-trianed ML models for EO applications.
 
 In our blog you will find tutorials to learn how leverage the EOTDL to create and use TDS and ML models for your own EO applications.
 

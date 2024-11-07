@@ -11,10 +11,10 @@
 The **Earth Observation Training Data Lab**
 (EOTDL) allows you, among other things, to:
 
-- Explore and download Training Datasets (TDS) for Earth Observation (EO) applications.
+- Explore and stage Training Datasets (TDS) for Earth Observation (EO) applications.
 - Create and upload your own TDS by combining and annotating EO data from different sources.
 - Train Machine Learning (ML) models using the hosted TDS in the cloud with multi-GPU machines.
-- Explore and download pre-trained ML models for EO applications.
+- Explore and stage pre-trained ML models for EO applications.
 
 Here you will find information on how to use the platform and how to contribute to the project and get involved. 
 
