@@ -1,13 +1,6 @@
 <script>
   import events from "./events.json";
-
-  // Example event:
-  // {
-  // 	"title": "Event 1",
-  // 	"description": "Description 1",
-  // 	"date": "2024-09-05",
-  // 	"link": "https://www.google.com"
-  // }
+  import { parseISO, compareAsc } from "date-fns";
 
   let currentDate = new Date();
   let currentMonth;
@@ -54,16 +47,17 @@
   function hasDayEvent(day) {
     const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return events.some(
-      (event) => event.date === dateString || event.dateTo === dateString
+      (event) => event.date === dateString || event.dateTo === dateString,
     );
   }
+
   function hasEvent(day) {
     const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return events.some(
       (event) =>
         event.dateTo >= dateString &&
         event.date <= dateString &&
-        event.dateTo > event.date
+        event.dateTo > event.date,
     );
   }
 
@@ -76,6 +70,21 @@
   }
 
   $: calendarDays = generateCalendar(currentMonth, currentYear);
+
+  $: sortedEvents = events.sort((a, b) =>
+    compareAsc(parseISO(a.dateTo), parseISO(b.dateTo)),
+  );
+
+  $: filteredEvents = sortedEvents.filter(
+    (event) =>
+      new Date(event.dateTo || event.date) >=
+      new Date(new Date().setDate(new Date().getDate() - 1)),
+  );
+
+  let limit = 3;
+  $: shownEvents = filteredEvents.slice(0, limit);
+
+  let showMore = -1;
 </script>
 
 <div class="w-full flex flex-col gap-3">
@@ -154,7 +163,7 @@
     <p class="text-center text-gray-500">No events found</p>
   {/if}
   <ul class="flex flex-col gap-2">
-    {#each events.filter((event) => new Date(event.dateTo || event.date) >= new Date(new Date().setDate(new Date().getDate() - 1))) as event}
+    {#each shownEvents as event, ix}
       <li class="mb-4">
         <h3 class="text-md font-bold">{event.title}</h3>
         {#if !event.dateTo}
@@ -180,15 +189,37 @@
             })}
           </p>
         {/if}
-        <p class="text-gray-600 text-xs">{event.description}</p>
-        <a
-          href={event.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-[rgb(74,191,167)] hover:underline text-xs">More Info</a
-        >
+        {#if showMore === ix}
+          <p class="text-gray-600 text-xs">{event.description}</p>
+        {:else}
+          <p class="text-gray-600 text-xs line-clamp-3">
+            {event.description}
+          </p>
+        {/if}
+        <span class="flex flex-row justify-between mt-2">
+          {#if showMore === ix}
+            <button
+              on:click={() => (showMore = -1)}
+              class="text-xs text-[rgb(74,191,167)]">Show less</button
+            >
+          {:else}
+            <button
+              on:click={() => (showMore = ix)}
+              class="text-xs text-[rgb(74,191,167)]">Show more</button
+            >
+          {/if}
+          <a
+            href={event.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[rgb(74,191,167)] hover:underline text-xs">More Info</a
+          >
+        </span>
         <hr class="my-2 border-t border-[rgb(74,191,167)]" />
       </li>
     {/each}
+    <button on:click={() => (limit += 3)} class="text-xs text-[rgb(74,191,167)]"
+      >Show more events</button
+    >
   </ul>
 </div>
