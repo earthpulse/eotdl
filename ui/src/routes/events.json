@@ -1,8 +1,93 @@
-{
-  "title": "ISPRS Geospatial Week 2025",
-  "description": "As the hub of innovation, Dubai will proudly host the ISPRS Geo-Spatial Week (GSW 2025), bringing together the brightest minds in photogrammetry, remote sensing, and spatial sciences. On behalf of the Mohammed bin Rashid Space Centre (MBRSC), I am deeply honored to usher you into a week of exploration, collaboration, and inspiration.
-  The theme of our conference, “Photogrammetry and Remote Sensing for a Better Tomorrow”, resonates profoundly with our collective mission. These are not just scientific domains but tools of transformation, enabling us to see our world from new perspectives, to make informed decisions, and to chart a course for a sustainable and inclusive future. By harnessing the precision of photogrammetry, the insights from remote sensing, and the encompassing knowledge of spatial sciences, we hold the keys to understanding our planet’s past, navigating its present, and shaping its future.",
-  "date": "2025-04-06",
-  "dateTo": "2025-04-11",
-  "link": "https://gsw2025.ae/"
-}
+[
+  {
+    "title": "ISPRS Geospatial Week 2025",
+    "description": "As the hub of innovation, Dubai will proudly host the ISPRS Geo-Spatial Week (GSW 2025), bringing together the brightest minds in photogrammetry, remote sensing, and spatial sciences. On behalf of the Mohammed bin Rashid Space Centre (MBRSC), I am deeply honored to usher you into a week of exploration, collaboration, and inspiration. The theme of our conference, “Photogrammetry and Remote Sensing for a Better Tomorrow”, resonates profoundly with our collective mission. These are not just scientific domains but tools of transformation, enabling us to see our world from new perspectives, to make informed decisions, and to chart a course for a sustainable and inclusive future. By harnessing the precision of photogrammetry, the insights from remote sensing, and the encompassing knowledge of spatial sciences, we hold the keys to understanding our planet’s past, navigating its present, and shaping its future.",
+    "date": "2025-04-06",
+    "dateTo": "2025-04-11",
+    "link": "https://gsw2025.ae/"
+  },
+  {
+    "title": "Ignite Space 2025",
+    "description": "Acting as a catalyst for commercial success, Ignite Space conference and exhibition 2025 will create opportunities for you and your business to engage with new customers, collaborators and investors within the UK space industry and its supply chain. Showcasing an industry worth more than £17.5bn to the UK economy, this event will accelerate growth and collaboration across the sector. All those working in, or who seek opportunities in, the UK space sector are welcome. We especially encourage SMEs in the space sector and businesses from sectors with space-applicable technologies to come along. Delegate tickets are free of charge and are limited so please only book your place if you can attend in person.",
+    "date": "2025-02-05",
+    "dateTo": "2025-02-06",
+    "link": "https://www.ignite-space.co.uk/"
+  },
+  {
+    "title": "17th European Space Conference",
+    "description": "In 2025, the European space sector is set to experience significant developments as Europe commits to expand its space capabilities, cultivate a dynamic space ecosystem, and establish a strong presence in the global space arena amid an evolving international context. Building on the successes of the previous editions, this year’s European Space Conference will explore the current status of Europe’s space endeavours  through a series of high-level  dialogues and serve as a platform for in-depth, engaging, and forward-thinking discussions about the future direction of European space initiatives.    Participate in the dialogue, collaborate with policymakers, visionary leaders, and key industry figures, and influence the trajectory of the European space sector. Don’t miss the 17th European Space Conference.",
+    "date": "2025-01-28",
+    "dateTo": "2025-01-29",
+    "link": "https://spaceconference.eu/"
+  },
+  {
+    "title": "ESA Towards a Space-Powered Economy",
+    "description": "Towards a Space-Powered Economy is a conference focusing on using space and space technologies to tackle the multiple challenges facing our societies, from climate change and urban growth to the energy transition and protecting the environment. The event will centre on harnessing the power of space to encourage cross-sector collaboration, share innovative financing solutions, and integrating sustainability with economic growth in a space-powered economy.",
+    "date": "2024-11-25",
+    "dateTo": "2024-11-26",
+    "link": "https://www.spaceagenda.com/event/towards-a-space-powered-economy/"
+  },
+  {
+    "title": "Secure World Foundation",
+    "description": "Secure World Foundation and the Agência Espacial Brasileira (AEB) are partnering to organize the 2024 International Workshop on Space Resources: Perspectives for Future Ecosystems in São José dos Campos, Brazil.  This workshop will be a thematic follow-on to the 2023 International Workshop on Space Resources Perspectives of Emerging Space Programs which was organized by SWF and several Korean research institutes in November 2023.  Discussion at this event will focus on regional perspectives on the ways space resource activities will contribute to the future development of the space sector and its benefits.",
+    "date": "2024-11-21",
+    "dateTo": "2024-11-22",
+    "link": "https://swfound.org/events/2024/2024-international-workshop-on-space-resources-perspectives-for-future-ecosystems"
+  },
+  {
+    "title": "ISDE 10th Digital Earth Summit",
+    "description": "The International Society for Digital Earth (ISDE), in collaboration with the University of Rwanda and the Rwanda Convention Bureau, is organising its 10th Digital Earth Summit, themed “Digital Intelligence to Sense our Planet and Sustain its Future” at the Kigali Conference and Exhibition Village, Kigali, Rwanda between 19 – 22 November 2024. Interested individuals are invited to submit an abstract that aligns with the following thematic areas.",
+    "date": "2024-11-19",
+    "dateTo": "2024-11-22",
+    "link": "https://opportunities.spaceinafrica.com/call-for-abstracts-isdes-10th-digital-earth-summit/"
+  },
+  {
+    "title": "Slush 2024",
+    "description": "Slush is a not-for-profit organization on a mission to help and create founders to change the world. Based in Helsinki, Slush annually hosts the world’s leading startup event bringing together a curated crowd of European startups, world-class investors, and tech journalists. We stand by relevance over scale, bringing tangible value, and sharing actionable company-building advice. No fluff.",
+    "date": "2024-11-20",
+    "dateTo": "2024-11-21",
+    "link": "https://slush.org/"
+  },
+  {
+    "title": "2nd Annual Space Economy Summit",
+    "description": "The space economy, now a vital backbone of global industries, demands strategies grounded in reality as well as rocket fuel for sustainable growth. The Economist’s 2nd annual Space Economy Summit will offer a uniquely high-profile forum for stakeholders to debate how we can maximise commercial and environmental returns to Earth from the final frontier. Building on the success of the first event of its kind in LA in October 2023 and held with the support of the Portuguese Space Agency, this international summit serves as a pivotal nexus for space sector leaders to converge with industry and a platform to share outcomes from new earth observation applications. Ad astra!",
+    "date": "2024-12-04",
+    "dateTo": "2024-12-05",
+    "link": "https://events.economist.com/space-economy-summit/"
+  },
+  {
+    "title": "ESA 35th Annual GRSG Conference and AGM",
+    "description": "We’re thrilled to announce our return to ESA for our 2024 event. Mark your calendars for another fantastic event on all things geological remote sensing, with a side of italian hospitality! This year our key conference themes will be: Mine site closure and rehabilitation Climate and environmental monitoring applications ESA Special: Geological Remote Sensing using ESA Satellites  Other geological remote sensing topics that do not directly fit into the above themes will also be considered",
+    "date": "2024-12-10",
+    "dateTo": "2024-12-12",
+    "link": "https://www.spaceagenda.com/event/esa-35th-annual-grsg-conference-and-agm/"
+  },
+  {
+    "title": "NSE 2024",
+    "description": "New Space Economy, expo and conference, was created in 2019 with the scope of becoming the international reference event on the new space economy challenges and perspectives, organized by Fiera Roma. With the 6th edition scheduled on 16-18 December, 2024 in Fiera Roma, the event offers three days of works, to discuss and cultivate new connections, exploring new collaborations within the space sector and beyond. The NSE 2024 format consists of an exhibition section, a main conference session completed by a rich networking and b2b program, and focuses on the ability of the new space economy to give rise, from space, to new terrestrial markets based on technological innovation. And these markets experience these days continuous evolution and offer unprecedented opportunities.",
+    "date": "2024-12-16",
+    "dateTo": "2024-12-18",
+    "link": "https://www.nseexpoforum.com/"
+  },
+  {
+    "title": "ESA VH-RODA 2024",
+    "description": "The 5th Edition of the VH-RODA Workshop will provide an open forum (for the new space, commercial and institutional space sectors) to present and discuss about the current status and future developments related to Earth Observation (EO) data quality, calibration and validation of space-borne very high-resolution SAR, Optical, and, for the first time, atmospheric constellations, sensors and data products, with a dedicated focus on commercial EO data providers and related Cal/Val activities, synergies between optical, SAR and atmospheric communities, presentation of standards and best practices for data quality.",
+    "date": "2024-12-02",
+    "dateTo": "2024-12-06",
+    "link": "https://earth.esa.int/eogateway/events/vh-roda"
+  },
+  {
+    "title": "ESA 2nd Earth Observation Commercialisation Forum",
+    "description": "Taking place at KAP Europa in Frankfurt (Germany), from 27 to 28 November 2024, end users, institutions, entrepreneurs and companies of any size from the Earth observation (EO) sector will come together to discuss the commercial potentials and challenges of the fast-growing EO commercial space sector.",
+    "date": "2024-11-27",
+    "dateTo": "2024-11-28",
+    "link": "https://philab.esa.int/CommEO/"
+  },
+  {
+    "title": "Space Tech Expo Europe",
+    "description": "Welcome to Space Tech Expo Europe, the premier gathering for space professionals across the continent. Get ready to ignite your network, engage with top industry players, and discover the latest advancements in one convenient location. Join us for an unparalleled opportunity to elevate your expertise and forge meaningful connections in the dynamic world of space technology.",
+    "date": "2024-11-19",
+    "dateTo": "2024-11-21",
+    "link": "https://www.spacetechexpo-europe.com/"
+  }
+]
