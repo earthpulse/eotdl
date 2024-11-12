@@ -4,10 +4,27 @@
       "process_id": "load_collection",
       "arguments": {
         "bands": [
-          "VH",
-          "VV"
+          "B04",
+          "B03",
+          "B02"
         ],
-        "id": "SENTINEL1_GRD",
+        "id": "SENTINEL2_L2A",
+        "properties": {
+          "eo:cloud_cover": {
+            "process_graph": {
+              "lte1": {
+                "process_id": "lte",
+                "arguments": {
+                  "x": {
+                    "from_parameter": "value"
+                  },
+                  "y": 70
+                },
+                "result": true
+              }
+            }
+          }
+        },
         "spatial_extent": null,
         "temporal_extent": {
           "from_parameter": "temporal_extent"
@@ -25,26 +42,70 @@
         }
       }
     },
-    "sarbackscatter1": {
-      "process_id": "sar_backscatter",
+    "loadcollection2": {
+      "process_id": "load_collection",
       "arguments": {
-        "coefficient": "sigma0-ellipsoid",
-        "contributing_area": false,
+        "bands": [
+          "SCL"
+        ],
+        "id": "SENTINEL2_L2A",
+        "properties": {
+          "eo:cloud_cover": {
+            "process_graph": {
+              "lte2": {
+                "process_id": "lte",
+                "arguments": {
+                  "x": {
+                    "from_parameter": "value"
+                  },
+                  "y": 70
+                },
+                "result": true
+              }
+            }
+          }
+        },
+        "spatial_extent": null,
+        "temporal_extent": {
+          "from_parameter": "temporal_extent"
+        }
+      }
+    },
+    "filterspatial2": {
+      "process_id": "filter_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "loadcollection2"
+        },
+        "geometries": {
+          "from_parameter": "geometry"
+        }
+      }
+    },
+    "toscldilationmask1": {
+      "process_id": "to_scl_dilation_mask",
+      "arguments": {
+        "data": {
+          "from_node": "filterspatial2"
+        }
+      }
+    },
+    "mask1": {
+      "process_id": "mask",
+      "arguments": {
         "data": {
           "from_node": "filterspatial1"
         },
-        "elevation_model": "COPERNICUS_30",
-        "ellipsoid_incidence_angle": false,
-        "local_incidence_angle": false,
-        "mask": false,
-        "noise_removal": true
+        "mask": {
+          "from_node": "toscldilationmask1"
+        }
       }
     },
     "aggregatetemporalperiod1": {
       "process_id": "aggregate_temporal_period",
       "arguments": {
         "data": {
-          "from_node": "sarbackscatter1"
+          "from_node": "mask1"
         },
         "period": "weekly",
         "reducer": {
@@ -100,22 +161,27 @@
         },
         "dimension": "bands",
         "target": [
-          "VH_P10",
-          "VH_P25",
-          "VH_P50",
-          "VH_P75",
-          "VH_P90",
-          "VV_P10",
-          "VV_P25",
-          "VV_P50",
-          "VV_P75",
-          "VV_P90"
+          "B04_P10",
+          "B04_P25",
+          "B04_P50",
+          "B04_P75",
+          "B04_P90",
+          "B03_P10",
+          "B03_P25",
+          "B03_P50",
+          "B03_P75",
+          "B03_P90",
+          "B02_P10",
+          "B02_P25",
+          "B02_P50",
+          "B02_P75",
+          "B02_P90"
         ]
       },
       "result": true
     }
   },
-  "id": "s1_statistics",
+  "id": "s2_weekly_statistics",
   "parameters": [
     {
       "name": "temporal_extent",
@@ -155,21 +221,30 @@
     },
     {
       "name": "bands",
-      "description": "Sentinel-1 bands to include in the composite.",
+      "description": "Sentinel-2 L2A bands to include in the composite.",
       "schema": {
         "type": "array",
         "items": {
           "type": "string",
           "enum": [
-            "VH",
-            "VV"
+            "B02",
+            "B03",
+            "B04",
+            "B05",
+            "B06",
+            "B07",
+            "B08",
+            "B8A",
+            "B11",
+            "B12"
           ]
         }
       },
       "optional": true,
       "default": [
-        "VH",
-        "VV"
+        "B04",
+        "B03",
+        "B02"
       ]
     },
     {
