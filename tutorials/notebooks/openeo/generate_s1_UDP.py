@@ -15,12 +15,10 @@ bands_param = Parameter.array(name="bands",description="Sentinel-1 bands to incl
 
 percentile_param = Parameter.array(name="percentiles",description="percentiles calculated across the BAP composite.", default=[0.1, 0.25, 0.50, 0.75, 0.9], optional=True)
 
-orbit_param = Parameter.string(name="orbit direction",description="sentinel 1 orbit direction", values = ['ASCENDING', 'DESCENDING'], default='ASCENDING', optional=True)
 
 # Get the values provided or fall back on the default
 user_bands = getattr(bands_param, 'value', bands_param.default)
 user_percentile = getattr(percentile_param, 'value', percentile_param.default)
-user_orbit = getattr(orbit_param, 'value', orbit_param.default)
 
 ##Define input scl
 connection=openeo.connect("openeofed.dataspace.copernicus.eu").authenticate_oidc()
@@ -29,15 +27,13 @@ connection=openeo.connect("openeofed.dataspace.copernicus.eu").authenticate_oidc
 sentinel1 = connection.load_collection(
     collection_id="SENTINEL1_GRD",
     temporal_extent=temporal_extent,
-    bands=user_bands,
-    properties={"sat:orbit_state": lambda orbdir: orbdir == user_orbit},
-).filter_spatial(area)
+    bands=user_bands).filter_spatial(area)
 
 # apply back scatter filtering
 sentinel1 = sentinel1.sar_backscatter(elevation_model= "COPERNICUS_30", coefficient="sigma0-ellipsoid")
 
 #get montly composites
-composite = sentinel1.aggregate_temporal_period(period="month", reducer="mean")
+composite = sentinel1.aggregate_temporal_period(period="weekly", reducer="mean")
 
 statistics = compute_percentiles(composite, user_percentile)
 
