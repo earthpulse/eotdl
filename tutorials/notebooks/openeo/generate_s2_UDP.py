@@ -47,55 +47,28 @@ sentinel2 = connection.load_collection(
 sentinel2_masked = sentinel2.mask(mask)
 
 #select the first day per month
-composite = sentinel2_masked.aggregate_temporal_period(period="weekly", reducer="mean")
+composite = sentinel2_masked.aggregate_temporal_period(period="week", reducer="mean")
 
 statistics = compute_percentiles(composite, user_percentile)
+
+result = statistics.save_result(format="NetCDF")
 
 ##save the process graph
 process_id = "s2_bap_statistics"
 connection.save_user_defined_process(
     user_defined_process_id=process_id,
-    process_graph=composite,
+    process_graph=result,
     parameters=[temporal_extent, area, bands_param, percentile_param],
 )
 
 spec = build_process_dict(
     process_id="s2_weekly_statistics",
-    process_graph=statistics,
+    process_graph=result,
     parameters=[temporal_extent, area, bands_param, percentile_param],
 )
 
 with open("s2_weekly_statistics.json", "w") as f:
     json.dump(spec, f, indent=2)
 
-#%%
-import openeo
-import json
-
-connection = openeo.connect("openeofed.dataspace.copernicus.eu").authenticate_oidc()
-
-# Load the process graph from the JSON file (if you saved it before, adapt the path)
-process_graph_file = "C:\\Git_projects\\eotdl\\tutorials\\notebooks\\openeo\\eotdl_bap_statistics.json"
-
-
-with open(process_graph_file, 'r') as f:
-    process_graph  = json.load(f)
-
-# Define the spatial extent
-spatial_extent = dict(zip(["west", "south", "east", "north"], [664000.0, 5611120.0, 665000.0, 5612120.0]))
-spatial_extent['crs'] = "EPSG:32631"
-
-# Define the temporal extent
-temporal_extent = ["2023-05-01", "2023-07-30"]
-
-job = connection.datacube_from_json(process_graph_file,
-                                    parameters = {'geometry': spatial_extent,
-                                                'temporal_extent': temporal_extent})
-
-job.execute_batch(
-    outputfile="./test.nc",  # File path where NetCDF will be saved
-    out_format="NetCDF",
-    title="test"
-)
 
     

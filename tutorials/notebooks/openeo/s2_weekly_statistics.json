@@ -107,7 +107,7 @@
         "data": {
           "from_node": "mask1"
         },
-        "period": "weekly",
+        "period": "week",
         "reducer": {
           "process_graph": {
             "mean1": {
@@ -177,6 +177,16 @@
           "B02_P75",
           "B02_P90"
         ]
+      }
+    },
+    "saveresult1": {
+      "process_id": "save_result",
+      "arguments": {
+        "data": {
+          "from_node": "renamelabels1"
+        },
+        "format": "NetCDF",
+        "options": {}
       },
       "result": true
     }

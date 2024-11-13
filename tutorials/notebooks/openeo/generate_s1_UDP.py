@@ -12,7 +12,6 @@ area = Parameter.geojson(name="geometry")
 
 schema = {"type": "string", "enum":["VH", "VV"]}
 bands_param = Parameter.array(name="bands",description="Sentinel-1 bands to include in the composite.", item_schema=schema, default=["VH", "VV"], optional=True)
-
 percentile_param = Parameter.array(name="percentiles",description="percentiles calculated across the BAP composite.", default=[0.1, 0.25, 0.50, 0.75, 0.9], optional=True)
 
 
@@ -33,23 +32,25 @@ sentinel1 = connection.load_collection(
 sentinel1 = sentinel1.sar_backscatter(elevation_model= "COPERNICUS_30", coefficient="sigma0-ellipsoid")
 
 #get montly composites
-composite = sentinel1.aggregate_temporal_period(period="weekly", reducer="mean")
+composite = sentinel1.aggregate_temporal_period(period="week", reducer="mean")
 
 statistics = compute_percentiles(composite, user_percentile)
 
+result = statistics.save_result(format="NetCDF")
+
 ##save the process graph
-process_id = "s1_statistics"
+process_id = "s1_weekly_statistics"
 connection.save_user_defined_process(
     user_defined_process_id=process_id,
-    process_graph=statistics,
+    process_graph=result,
     parameters=[temporal_extent, area, bands_param, percentile_param],
 )
 
 spec = build_process_dict(
-    process_id="s1_statistics",
-    process_graph=statistics,
+    process_id="s1_weekly_statistics",
+    process_graph=result,
     parameters=[temporal_extent, area, bands_param, percentile_param],
 )
 
-with open("s1_statistics.json", "w") as f:
+with open("s1_weekly_statistics.json", "w") as f:
     json.dump(spec, f, indent=2)
