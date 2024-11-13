@@ -46,7 +46,7 @@
         "data": {
           "from_node": "sarbackscatter1"
         },
-        "period": "weekly",
+        "period": "week",
         "reducer": {
           "process_graph": {
             "mean1": {
@@ -111,11 +111,21 @@
           "VV_P75",
           "VV_P90"
         ]
+      }
+    },
+    "saveresult1": {
+      "process_id": "save_result",
+      "arguments": {
+        "data": {
+          "from_node": "renamelabels1"
+        },
+        "format": "NetCDF",
+        "options": {}
       },
       "result": true
     }
   },
-  "id": "s1_statistics",
+  "id": "s1_weekly_statistics",
   "parameters": [
     {
       "name": "temporal_extent",
