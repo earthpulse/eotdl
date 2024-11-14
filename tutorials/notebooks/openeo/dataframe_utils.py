@@ -10,6 +10,8 @@ import geopandas as gpd
 import rasterio
 from shapely.geometry import Point
 import pandas as pd
+from shapely.ops import transform
+from pyproj import Transformer
 from openeo_gfmap.manager.job_splitters import split_job_s2grid, append_h3_index
 
 
@@ -47,36 +49,39 @@ def process_file(file_path: str, start_date: str, nb_months: int, distance_m: fl
         center_geom = gpd.GeoDataFrame(geometry=[center_point], crs="EPSG:4326")
 
         utm_patch, utm_crs = create_utm_patch(center_geom, distance_m=distance_m, resolution=resolution)
-        #transformer = Transformer.from_crs(utm_crs, "EPSG:4326", always_xy=True)
-        #latlon_patch = transform(transformer.transform, utm_patch)
+        transformer = Transformer.from_crs(utm_crs, "EPSG:4326", always_xy=True)
+        latlon_patch = transform(transformer.transform, utm_patch)
 
         temporal_extent = compute_temporal_extent(start_date, nb_months)
         
         return {
             "file_name": file_path,
-            "geometry": utm_patch,  # Extract the geometry from the GeoDataFrame
-            "crs": crs,
+            "geometry": latlon_patch,  # Extract the geometry from the GeoDataFrame
+            "crs": "EPSG:4326",
             "temporal_extent": temporal_extent
         }
 
-def generate_geodataframe_from_files(tif_files: List[str], start_date: str, nb_months: int, distance_m: float, resolution: float) -> gpd.GeoDataFrame:
-    """Generate a GeoDataFrame with metadata and geometry for each .tif file."""
+def generate_geodataframe_from_files(tif_files: List[str], start_date: str, nb_months: int, distance_m: float, resolution: float, target_crs="EPSG:4326") -> gpd.GeoDataFrame:
+    """Generate a GeoDataFrame with metadata and geometry for each .tif file, reprojecting to a common CRS."""
     
     data = []
     
     for file in tif_files:
         result = process_file(file, start_date, nb_months, distance_m, resolution)
         
-        # Convert the result dictionary into a GeoDataFrame
-        # Wrap the geometry into a GeoDataFrame with the correct CRS
+        # Convert the result dictionary into a GeoDataFrame with the file's original CRS
         file_gdf = gpd.GeoDataFrame([result], geometry="geometry", crs=result['crs'])
         
-        # Append the file_gdf to the list
+        # Reproject to the target CRS if needed
+        if file_gdf.crs != target_crs:
+            file_gdf = file_gdf.to_crs(target_crs)
+        
+        # Append the reprojected file_gdf to the list
         data.append(file_gdf)
     
     # Concatenate all the GeoDataFrames into one final GeoDataFrame
     final_gdf = gpd.GeoDataFrame(pd.concat(data, ignore_index=True))
-    final_gdf.set_crs(crs=result['crs'])
+    final_gdf.set_crs(target_crs)
     
     return final_gdf
 
@@ -130,7 +135,7 @@ def create_job_dataframe_from_tif_files(
 
     return job_df
 
-def create_geodataframe(job_df: pd.DataFrame, geometry_col: str = 'geometry') -> gpd.GeoDataFrame:
+def create_geodataframe(job_df: pd.DataFrame, geometry_col: str = 'geometry', target_crs="EPSG:4326") -> gpd.GeoDataFrame:
     """
     Convert a DataFrame with JSON geometries to a GeoDataFrame with the appropriate CRS.
 
@@ -143,15 +148,16 @@ def create_geodataframe(job_df: pd.DataFrame, geometry_col: str = 'geometry') ->
     """
     # Parse the JSON in the specified geometry column to extract features
     features_list = [
-        json.loads(geojson_str)['features'][0]  # Extracts the first feature from each FeatureCollection
+        json.loads(geojson_str)['features'][0]  
         for geojson_str in job_df[geometry_col]
     ]
     
     # Attempt to extract CRS from the first geometry entry in the DataFrame
     crs_info = json.loads(job_df[geometry_col].iloc[0]).get("crs", {}).get("properties", {}).get("name")
     
+    # If CRS is missing, set a default CRS (e.g., EPSG:4326)
     if not crs_info:
-        raise ValueError("CRS information is missing in the input geometry data.")
+        crs_info = target_crs
     
     # Create the GeoDataFrame from the extracted features and set the CRS
     gdf = gpd.GeoDataFrame.from_features(features_list)

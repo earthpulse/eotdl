@@ -1,11 +1,9 @@
 
 import rasterio
-from pyproj import Transformer, CRS
-from rasterio import transform as r_transform
+from pyproj import Transformer
+from pyproj import Transformer
+from shapely.geometry import Point
 
-from shapely.geometry import Point, Polygon
-import geopandas as gpd
-from typing import List, Dict, Tuple
 
 def get_latlon_bbox(transform, crs, width, height):
     """Calculate bounding box in WGS84 for a given image."""
@@ -37,9 +35,7 @@ def create_utm_patch(geometry, distance_m=320, resolution=20.0):
     :return: Buffered square patch and the UTM CRS.
     """
     # Estimate UTM CRS based on geometry
-    utm_crs = geometry.estimate_utm_crs()
-    print(utm_crs)
-    geometry = geometry.to_crs(utm_crs)
+    geometry = geometry.to_crs(geometry.estimate_utm_crs())
     
     # Get the centroid and round to the specified resolution grid
     centroid = geometry.centroid
@@ -50,4 +46,4 @@ def create_utm_patch(geometry, distance_m=320, resolution=20.0):
     
     # Create square buffer
     utm_patch = adjusted_centroid.buffer(distance_m, cap_style=3)
-    return utm_patch, utm_crs
+    return utm_patch, geometry.estimate_utm_crs()
