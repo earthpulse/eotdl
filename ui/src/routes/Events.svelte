@@ -61,6 +61,19 @@
     );
   }
 
+  function getEvent(day) {
+    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    let eventsOnDay = []
+    events.filter(
+      (event) =>
+        event.dateTo >= dateString &&
+        event.date <= dateString &&
+        event.dateTo > event.date).forEach(event => {
+          eventsOnDay.push(event.title)
+        }); 
+    return eventsOnDay.join(", ");
+  }
+
   function prevMonth() {
     currentDate = new Date(currentYear, currentMonth - 1, 1);
   }
@@ -82,8 +95,14 @@
   );
 
   let limit = 3;
-  $: shownEvents = filteredEvents.slice(0, limit);
-
+  $: shownEvents = filteredEvents.slice(0, limit).sort(function(a ,b) {
+    if (a.date > b.date){
+      return 1;
+    }
+    else if (a.date < b.date) {
+      return -1;
+    }
+    return 0});
   let showMore = -1;
 </script>
 
@@ -136,7 +155,7 @@
                         : 'rounded-full'} 
 									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]"
                 >
-                  {day}
+                  <p class="tooltip" data-tip="{getEvent(day)}">{day}</p>
                 </td>
               {:else if day && hasEvent(day)}
                 <td
