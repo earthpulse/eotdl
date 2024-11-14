@@ -181,7 +181,7 @@
   {#if events.length == 0}
     <p class="text-center text-gray-500">No events found</p>
   {/if}
-  <ul class="flex flex-col gap-2">
+  <ul class="flex flex-col gap-2 h-96 pr-6 overflow-y-auto">
     {#each shownEvents as event, ix}
       <li class="mb-4">
         <h3 class="text-md font-bold">{event.title}</h3>
