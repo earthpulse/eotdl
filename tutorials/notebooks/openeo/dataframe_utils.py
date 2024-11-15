@@ -55,7 +55,7 @@ def process_file(file_path: str, start_date: str, nb_months: int, distance_m: fl
         temporal_extent = compute_temporal_extent(start_date, nb_months)
         
         return {
-            "file_name": file_path,
+            "file_name": os.path.splitext(os.path.basename(file_path))[0],
             "geometry": latlon_patch,  # Extract the geometry from the GeoDataFrame
             "crs": "EPSG:4326",
             "temporal_extent": temporal_extent
@@ -92,25 +92,33 @@ def prepare_split_jobs(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resoluti
     base_gdf = append_h3_index(base_gdf, grid_resolution=grid_resolution)
     # Transform back to the original CRS
     h3_gdf = base_gdf.to_crs(original_crs)
-
     split_gdf = split_job_s2grid(h3_gdf, max_points=max_points)
     return split_gdf
 
 #TODO evaluate need
 def create_job_dataframe_s2(split_jobs: List[gpd.GeoDataFrame]) -> pd.DataFrame:
-    """Create a DataFrame from split jobs with essential information for each job."""
+    """Create a DataFrame from split jobs with essential information for each job, including feature count."""
     job_data = []
     for job in split_jobs:
         temporal_extent = job.temporal_extent.iloc[0]
         s2_tile = job.tile.iloc[0]
         h3index = job.h3index.iloc[0]
-        geometry = job.geometry.to_json()
+        crs = job.crs
+        
+        # Count the number of features in the GeoDataFrame (each row is a feature)
+        feature_count = len(job)
+        
+        # Convert the GeoDataFrame to JSON
+        job_json = job.to_json()
 
+        # Append all information, including feature count
         job_data.append({
             'temporal_extent': temporal_extent,
-            'geometry': geometry,
+            'geometry': job_json,
             's2_tile': s2_tile,
-            'h3index': h3index
+            'h3index': h3index,
+            'crs': crs,
+            'feature_count': feature_count  # Add the feature count here
         })
 
     return pd.DataFrame(job_data)
