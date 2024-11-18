@@ -10,8 +10,9 @@ import geopandas as gpd
 import rasterio
 from shapely.geometry import Point
 import pandas as pd
-from shapely.ops import transform
-from pyproj import Transformer
+from typing import List, Dict
+
+
 from openeo_gfmap.manager.job_splitters import split_job_s2grid, append_h3_index
 
 
@@ -49,43 +50,53 @@ def process_file(file_path: str, start_date: str, nb_months: int, distance_m: fl
         center_geom = gpd.GeoDataFrame(geometry=[center_point], crs="EPSG:4326")
 
         utm_patch, utm_crs = create_utm_patch(center_geom, distance_m=distance_m, resolution=resolution)
-        transformer = Transformer.from_crs(utm_crs, "EPSG:4326", always_xy=True)
-        latlon_patch = transform(transformer.transform, utm_patch)
+        #transformer = Transformer.from_crs(utm_crs, "EPSG:4326", always_xy=True)
+        #latlon_patch = transform(transformer.transform, utm_patch)
 
         temporal_extent = compute_temporal_extent(start_date, nb_months)
         
         return {
             "file_name": os.path.splitext(os.path.basename(file_path))[0],
-            "geometry": latlon_patch,  # Extract the geometry from the GeoDataFrame
-            "crs": "EPSG:4326",
+            "geometry": utm_patch,  # Extract the geometry from the GeoDataFrame
+            "crs": utm_crs.to_string(),
             "temporal_extent": temporal_extent
         }
 
-def generate_geodataframe_from_files(tif_files: List[str], start_date: str, nb_months: int, distance_m: float, resolution: float, target_crs="EPSG:4326") -> gpd.GeoDataFrame:
-    """Generate a GeoDataFrame with metadata and geometry for each .tif file, reprojecting to a common CRS."""
+def generate_geodataframe_pet_utm(
+    tif_files: List[str],
+    start_date: str,
+    nb_months: int,
+    distance_m: float,
+    resolution: float,
+) -> List[gpd.GeoDataFrame]:
+    """Generate a list of GeoDataFrames, one per unique CRS, with metadata and geometry for each .tif file."""
     
-    data = []
+    # Dictionary to hold lists of GeoDataFrames per unique CRS
+    crs_dict: Dict[str, List[gpd.GeoDataFrame]] = {}
     
     for file in tif_files:
         result = process_file(file, start_date, nb_months, distance_m, resolution)
         
-        # Convert the result dictionary into a GeoDataFrame with the file's original CRS
+        # Create a GeoDataFrame for each file with its original CRS
         file_gdf = gpd.GeoDataFrame([result], geometry="geometry", crs=result['crs'])
         
-        # Reproject to the target CRS if needed
-        if file_gdf.crs != target_crs:
-            file_gdf = file_gdf.to_crs(target_crs)
+        # Use the CRS as a key in crs_dict
+        crs_key = file_gdf.crs
+        if crs_key not in crs_dict:
+            crs_dict[crs_key] = []
         
-        # Append the reprojected file_gdf to the list
-        data.append(file_gdf)
+        # Append the file-specific GeoDataFrame to the corresponding CRS list
+        crs_dict[crs_key].append(file_gdf)
     
-    # Concatenate all the GeoDataFrames into one final GeoDataFrame
-    final_gdf = gpd.GeoDataFrame(pd.concat(data, ignore_index=True))
-    final_gdf.set_crs(target_crs)
+    # Create a list of concatenated GeoDataFrames, one per unique CRS
+    geodataframes_per_crs = [
+        gpd.GeoDataFrame(pd.concat(gdfs, ignore_index=True), crs=crs)
+        for crs, gdfs in crs_dict.items()
+    ]
     
-    return final_gdf
+    return geodataframes_per_crs
 
-def prepare_split_jobs(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resolution:int = 3) -> List[gpd.GeoDataFrame]:
+def split_jobs_per_utm(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resolution:int = 3) -> List[gpd.GeoDataFrame]:
     """Append H3 index and split into smaller job dataframes."""
     original_crs = base_gdf.crs
     # Append H3 index, which will change the CRS temporarily
@@ -95,15 +106,34 @@ def prepare_split_jobs(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resoluti
     split_gdf = split_job_s2grid(h3_gdf, max_points=max_points)
     return split_gdf
 
+def process_split_jobs(
+    geodataframes: List[gpd.GeoDataFrame], max_points: int, grid_resolution: int = 3
+) -> List[gpd.GeoDataFrame]:
+    """Processes a list of GeoDataFrames by applying H3 indexing and splitting as needed."""
+    
+    all_splits = []
+    
+    # Loop over each GeoDataFrame in the list
+    for gdf in geodataframes:
+        # Apply prepare_split_jobs to each GeoDataFrame
+        split_gdfs = split_jobs_per_utm(gdf, max_points=max_points, grid_resolution=grid_resolution)
+        
+        # Extend the all_splits list with the resulting split GeoDataFrames
+        all_splits.extend(split_gdfs)
+    
+    return all_splits
+
 #TODO evaluate need
 def create_job_dataframe_s2(split_jobs: List[gpd.GeoDataFrame]) -> pd.DataFrame:
     """Create a DataFrame from split jobs with essential information for each job, including feature count."""
     job_data = []
     for job in split_jobs:
-        temporal_extent = job.temporal_extent.iloc[0]
-        s2_tile = job.tile.iloc[0]
-        h3index = job.h3index.iloc[0]
-        crs = job.crs
+
+        temporal_extent = job.temporal_extent.iloc[0] if job.temporal_extent.iloc[0] else None
+        s2_tile = job.tile.iloc[0] if job.tile.iloc[0] else None
+        h3index = job.h3index.iloc[0] if job.h3index.iloc[0] else None
+        crs = job.crs.to_string() if job.crs else None
+
         
         # Count the number of features in the GeoDataFrame (each row is a feature)
         feature_count = len(job)
