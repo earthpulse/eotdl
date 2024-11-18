@@ -14,13 +14,6 @@
         }
       }
     },
-    "loadurl1": {
-      "process_id": "load_url",
-      "arguments": {
-        "format": "Parquet",
-        "url": "https://s3.prod.warsaw.openeo.dataspace.copernicus.eu/OpenEO-artifacts/7b9a7a133160c440a4fa6586e3a3de183e1df18e/2024/11/18/bounding_box_geometry.parquet?AWSAccessKeyId=bc8a2543ca5745d1be397b6dfb313cb2&Signature=xL5xa86eUxR%2Bbh6cHpbEir4eYKY%3D&x-amz-security-token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlX2FybiI6ImFybjphd3M6aWFtOjowMDAwMDAwMDAwMDA6cm9sZS9TM0FjY2VzcyIsImluaXRpYWxfaXNzdWVyIjoiaHR0cHM6Ly9pZGVudGl0eS5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldS9hdXRoL3JlYWxtcy9DRFNFIiwiaXNzIjoic3RzLnByb2Qud2Fyc2F3Lm9wZW5lby5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldSIsInN1YiI6ImE0MjFmODQ5LTJhZTYtNDJkMy05M2YwLWI0M2FhMjU2N2YxZSIsImV4cCI6MTczMTk2OTMzNSwibmJmIjoxNzMxOTI2MTM1LCJpYXQiOjE3MzE5MjYxMzUsImp0aSI6IjQ4YTM2ZWE0LTFjNzktNGY4Yy1iNGE4LTM3ZjMyMmE0ZDRkNSJ9.NGCobbkMSwIh5XVK520jvqpFwCoHzDVAEzk9Fe_FZGelyyFDbWHJT67DnAsMLDh8oXrA2KNJGImUDBBWr6lsWQl6xjCfJvn7LHTjRWQvBnqsy6WiSEoLsr1OkI7KwBxSJWSnHjmHDZy6tXuV_dcvpLzlQoxXFeyZBISZ5peKcTxNzVjuoFBWmNw32ZhH5FRKcE_wTH2SAdsjBC-qsdxVHwxAJe4P97MLSOW0PupKh0D0kG1n5fw0vhRhg3uAhNSHWM0h5RLdDxBCbxjtbjwavJXJQiBhu8qphH3HP3kPGnDMMUWG0AOX_M_VQv0QyBw-mEHleRw-tyLzG0VEAJzUlA&Expires=1732444536"
-      }
-    },
     "filterspatial1": {
       "process_id": "filter_spatial",
       "arguments": {
@@ -28,7 +21,7 @@
           "from_node": "loadcollection1"
         },
         "geometries": {
-          "from_node": "loadurl1"
+          "from_parameter": "geometry"
         }
       }
     },
@@ -208,40 +201,6 @@
         ]
       },
       "optional": true
-    },
-    {
-      "name": "bands",
-      "description": "Sentinel-1 bands to include in the composite.",
-      "schema": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "enum": [
-            "VH",
-            "VV"
-          ]
-        }
-      },
-      "optional": true,
-      "default": [
-        "VH",
-        "VV"
-      ]
-    },
-    {
-      "name": "percentiles",
-      "description": "percentiles calculated across the BAP composite.",
-      "schema": {
-        "type": "array"
-      },
-      "optional": true,
-      "default": [
-        0.1,
-        0.25,
-        0.5,
-        0.75,
-        0.9
-      ]
     }
   ]
 }
