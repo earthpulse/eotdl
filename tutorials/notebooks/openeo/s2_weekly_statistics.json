@@ -31,6 +31,13 @@
         }
       }
     },
+    "loadurl1": {
+      "process_id": "load_url",
+      "arguments": {
+        "format": "Parquet",
+        "url": "https://s3.prod.warsaw.openeo.dataspace.copernicus.eu/OpenEO-artifacts/7b9a7a133160c440a4fa6586e3a3de183e1df18e/2024/11/18/bounding_box_geometry.parquet?AWSAccessKeyId=93bf46120a0b46e18320c7a794f7c5d0&Signature=RtwpmS%2B%2B3gA9t01PTyDQ5dHGw%2BM%3D&x-amz-security-token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlX2FybiI6ImFybjphd3M6aWFtOjowMDAwMDAwMDAwMDA6cm9sZS9TM0FjY2VzcyIsImluaXRpYWxfaXNzdWVyIjoiaHR0cHM6Ly9pZGVudGl0eS5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldS9hdXRoL3JlYWxtcy9DRFNFIiwiaXNzIjoic3RzLnByb2Qud2Fyc2F3Lm9wZW5lby5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldSIsInN1YiI6ImE0MjFmODQ5LTJhZTYtNDJkMy05M2YwLWI0M2FhMjU2N2YxZSIsImV4cCI6MTczMTk2OTQ4OCwibmJmIjoxNzMxOTI2Mjg4LCJpYXQiOjE3MzE5MjYyODgsImp0aSI6ImI0MTAzNzZhLWIyNzItNDAxNC1hMzUyLTgzOTZhMWM2NjczMSJ9.nETcVLb8OHY6AiODQT6wxKWLMlgsP7CMnhyYfFWy9Z8SAs3hQiCunEXwogX8etLa6SMUIDKY5dsit6f8R2sNS-BInrz2H8phqc7gYC6MXAhsxis8QPDS9I5mvuD4m0DOnUZJ2Sd36TmQ7gNbdF2aLRZeH-ikCgNaE990JHmywhkR1z5r1nR5HCRKS2V8evy6n9jj9_5bmt-qrjx27I2o0xhGAY0E9tg49UEA7Cerjh5zdJ-SLtudPUPp8_gGPSC5CfVlLfBdBJWBQiDwq6qaf884yhdJ-ObnNHS73japZEPmd7rjOfOsBlkA6Jk8OqlesjKzpCD-Bm454IdkGf4p_w&Expires=1732444689"
+      }
+    },
     "filterspatial1": {
       "process_id": "filter_spatial",
       "arguments": {
@@ -38,7 +45,7 @@
           "from_node": "loadcollection1"
         },
         "geometries": {
-          "from_parameter": "geometry"
+          "from_node": "loadurl1"
         }
       }
     },
@@ -71,6 +78,13 @@
         }
       }
     },
+    "loadurl2": {
+      "process_id": "load_url",
+      "arguments": {
+        "format": "Parquet",
+        "url": "https://s3.prod.warsaw.openeo.dataspace.copernicus.eu/OpenEO-artifacts/7b9a7a133160c440a4fa6586e3a3de183e1df18e/2024/11/18/bounding_box_geometry.parquet?AWSAccessKeyId=93bf46120a0b46e18320c7a794f7c5d0&Signature=RtwpmS%2B%2B3gA9t01PTyDQ5dHGw%2BM%3D&x-amz-security-token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlX2FybiI6ImFybjphd3M6aWFtOjowMDAwMDAwMDAwMDA6cm9sZS9TM0FjY2VzcyIsImluaXRpYWxfaXNzdWVyIjoiaHR0cHM6Ly9pZGVudGl0eS5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldS9hdXRoL3JlYWxtcy9DRFNFIiwiaXNzIjoic3RzLnByb2Qud2Fyc2F3Lm9wZW5lby5kYXRhc3BhY2UuY29wZXJuaWN1cy5ldSIsInN1YiI6ImE0MjFmODQ5LTJhZTYtNDJkMy05M2YwLWI0M2FhMjU2N2YxZSIsImV4cCI6MTczMTk2OTQ4OCwibmJmIjoxNzMxOTI2Mjg4LCJpYXQiOjE3MzE5MjYyODgsImp0aSI6ImI0MTAzNzZhLWIyNzItNDAxNC1hMzUyLTgzOTZhMWM2NjczMSJ9.nETcVLb8OHY6AiODQT6wxKWLMlgsP7CMnhyYfFWy9Z8SAs3hQiCunEXwogX8etLa6SMUIDKY5dsit6f8R2sNS-BInrz2H8phqc7gYC6MXAhsxis8QPDS9I5mvuD4m0DOnUZJ2Sd36TmQ7gNbdF2aLRZeH-ikCgNaE990JHmywhkR1z5r1nR5HCRKS2V8evy6n9jj9_5bmt-qrjx27I2o0xhGAY0E9tg49UEA7Cerjh5zdJ-SLtudPUPp8_gGPSC5CfVlLfBdBJWBQiDwq6qaf884yhdJ-ObnNHS73japZEPmd7rjOfOsBlkA6Jk8OqlesjKzpCD-Bm454IdkGf4p_w&Expires=1732444689"
+      }
+    },
     "filterspatial2": {
       "process_id": "filter_spatial",
       "arguments": {
@@ -78,7 +92,7 @@
           "from_node": "loadcollection2"
         },
         "geometries": {
-          "from_parameter": "geometry"
+          "from_node": "loadurl2"
         }
       }
     },

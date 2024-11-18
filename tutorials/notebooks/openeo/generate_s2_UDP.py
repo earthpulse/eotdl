@@ -1,10 +1,13 @@
 #%%
 import openeo
-
-from openeo.api.process import Parameter
-from openeo.rest.udp import build_process_dict
-from utils import compute_percentiles
+import geopandas as gpd
 import json
+from openeo.api.process import Parameter
+
+from openeo.rest.udp import build_process_dict
+from utils import default_geojson, compute_percentiles
+from s3proxy_utils import upload_geoparquet_file
+
 
 ##Define input parameters
 temporal_extent = Parameter.temporal_interval(name="temporal_extent")
@@ -22,16 +25,23 @@ max_cloud_param = Parameter.integer(name="max_cloud_cover",description="Maximal 
 user_bands = getattr(bands_param, 'value', bands_param.default)
 user_percentile = getattr(percentile_param, 'value', percentile_param.default)
 user_max_cloud = getattr(max_cloud_param, 'value', max_cloud_param.default)
+user_area = getattr(area, 'value', default_geojson)  
 
-##Define input scl
+#Define input scl
 connection=openeo.connect("openeofed.dataspace.copernicus.eu").authenticate_oidc()
+
+#upload the feature collection to the S3 proxy in order to use it within filter spatial
+feature_crs  = user_area.get("features", {})[0].get("properties", {})['crs']
+features = gpd.GeoDataFrame.from_features(user_area).set_crs(feature_crs)
+url = upload_geoparquet_file(features,connection)
+
 
 scl = connection.load_collection(
     "SENTINEL2_L2A",
     temporal_extent=temporal_extent,
     bands=["SCL"],
     max_cloud_cover=user_max_cloud
-).filter_spatial(area)
+).filter_spatial(connection.load_url(url, format="Parquet"))
 
 
 mask = scl.process("to_scl_dilation_mask", data=scl) 
@@ -42,7 +52,7 @@ sentinel2 = connection.load_collection(
     temporal_extent = temporal_extent,
     bands = user_bands,
     max_cloud_cover=user_max_cloud
-).filter_spatial(area)
+).filter_spatial(connection.load_url(url, format="Parquet"))
 
 sentinel2_masked = sentinel2.mask(mask)
 
