@@ -181,7 +181,7 @@
   {#if events.length == 0}
     <p class="text-center text-gray-500">No events found</p>
   {/if}
-  <ul class="flex flex-col gap-2 h-96 pr-6 overflow-y-auto">
+  <ul class="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-hide">
     {#each shownEvents as event, ix}
       <li class="mb-4">
         <h3 class="text-md font-bold">{event.title}</h3>
@@ -242,3 +242,15 @@
     >
   </ul>
 </div>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+</style>
