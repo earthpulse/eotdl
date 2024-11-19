@@ -6,10 +6,12 @@ from openeo.rest.udp import build_process_dict
 from utils import compute_percentiles
 
 ##Define input parameters
-
 spatial_extent = Parameter.bounding_box(
-        name="spatial_extent", default=None, optional=True
-    )
+        name="spatial_extent",
+        default=None,
+        optional=True
+)
+
 temporal_extent = Parameter.temporal_interval(name="temporal_extent")
 
 #Define input scl
@@ -29,8 +31,10 @@ mask = scl.process("to_scl_dilation_mask", data=scl)
 sentinel2 = connection.load_collection(
     "SENTINEL2_L2A",
     temporal_extent = temporal_extent,
+    spatial_extent=spatial_extent
     bands = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"],
-    max_cloud_cover=75.0)
+    max_cloud_cover=75.0
+)
 
 sentinel2_masked = sentinel2.mask(mask)
 

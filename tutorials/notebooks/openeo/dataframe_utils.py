@@ -2,16 +2,13 @@
 from temporal_utils import compute_temporal_extent
 from spatial_utils import  get_latlon_bbox, create_utm_patch
 
-import json
 import os
-import random
 from typing import List
 import geopandas as gpd
 import rasterio
 from shapely.geometry import Point
 import pandas as pd
 from typing import List, Dict
-
 
 from openeo_gfmap.manager.job_splitters import split_job_s2grid, append_h3_index
 
@@ -154,51 +151,4 @@ def create_job_dataframe_s2(split_jobs: List[gpd.GeoDataFrame]) -> pd.DataFrame:
     return pd.DataFrame(job_data)
 
 
-def create_job_dataframe_from_tif_files(
-    src_dir: str,
-    num_files: int,
-    start_date: str,
-    nb_months: int,
-    distance_m: float = 320.0,
-    resolution: float = 20.0,
-    max_points: int = 1
-) -> pd.DataFrame:
-    """Full pipeline to process .tif files and generate a job DataFrame."""
-    tif_files = get_tif_files(src_dir)
-    selected_files = random.sample(tif_files, num_files)
 
-    base_df = generate_geodataframe_from_files(selected_files, start_date, nb_months, distance_m, resolution)
-    split_df = prepare_split_jobs(base_df, max_points)
-    job_df = create_job_dataframe_s2(split_df)
-
-    return job_df
-
-def create_geodataframe(job_df: pd.DataFrame, geometry_col: str = 'geometry', target_crs="EPSG:4326") -> gpd.GeoDataFrame:
-    """
-    Convert a DataFrame with JSON geometries to a GeoDataFrame with the appropriate CRS.
-
-    Parameters:
-        job_df (pd.DataFrame): DataFrame containing a column with JSON-encoded geometries.
-        geometry_col (str): The column name that contains the JSON geometry data.
-
-    Returns:
-        gpd.GeoDataFrame: GeoDataFrame with geometries and CRS set based on the input data.
-    """
-    # Parse the JSON in the specified geometry column to extract features
-    features_list = [
-        json.loads(geojson_str)['features'][0]  
-        for geojson_str in job_df[geometry_col]
-    ]
-    
-    # Attempt to extract CRS from the first geometry entry in the DataFrame
-    crs_info = json.loads(job_df[geometry_col].iloc[0]).get("crs", {}).get("properties", {}).get("name")
-    
-    # If CRS is missing, set a default CRS (e.g., EPSG:4326)
-    if not crs_info:
-        crs_info = target_crs
-    
-    # Create the GeoDataFrame from the extracted features and set the CRS
-    gdf = gpd.GeoDataFrame.from_features(features_list)
-    gdf = gdf.set_crs(crs_info)  # Automatically set the CRS from the JSON metadata
-    
-    return gdf
