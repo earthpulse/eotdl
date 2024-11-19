@@ -8,9 +8,12 @@ from utils import compute_percentiles
 #Define input parameters
 temporal_extent = Parameter.temporal_interval(name="temporal_extent")
 
+##Define input parameters
 spatial_extent = Parameter.bounding_box(
-        name="spatial_extent", default=None, optional=True
-        )
+        name="spatial_extent",
+        default=None,
+        optional=True
+)
 
 #Define input scl
 connection=openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
@@ -18,6 +21,7 @@ connection=openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
 # load collection
 sentinel1 = connection.load_collection(
     collection_id="SENTINEL1_GRD",
+    spatial_extent=spatial_extent,
     temporal_extent=temporal_extent,
     bands=["VH", "VV"])
 
@@ -26,8 +30,7 @@ sentinel1 = sentinel1.sar_backscatter(elevation_model= "COPERNICUS_30", coeffici
 
 #get montly composites
 composite = sentinel1.aggregate_temporal_period(period="week", reducer="mean")
-
-statistics = compute_percentiles(composite, [0.1, 0.25, 0.50, 0.75, 0.9]).filter_bbox(spatial_extent)
+statistics = compute_percentiles(composite, [0.1, 0.25, 0.50, 0.75, 0.9])
 
 ##save the process graph
 process_id = "s1_weekly_statistics"
