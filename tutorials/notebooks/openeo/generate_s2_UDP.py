@@ -74,4 +74,4 @@ with open("s2_weekly_statistics.json", "w") as f:
     json.dump(spec, f, indent=2)
 
 
-    
+
