@@ -14,20 +14,6 @@ spatial_extent = Parameter.bounding_box(
         name="spatial_extent", default=None, optional=True
     )
 
-schema = {
-        "type": "string",
-        "enum": ["VH", "VV"],
-    }
-
-bands_param = Parameter.array(
-    name="bands",
-    description="Sentinel-1 bands to include in the composite.",
-    item_schema=schema,
-    default=["VH", "VV"],
-    optional=True,
-)
-
-
 #Define input scl
 connection=openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
 
@@ -50,13 +36,13 @@ process_id = "s1_weekly_statistics"
 connection.save_user_defined_process(
     user_defined_process_id=process_id,
     process_graph=statistics,
-    parameters=[temporal_extent, spatial_extent, bands_param],
+    parameters=[temporal_extent, spatial_extent],
 )
 
 spec = build_process_dict(
     process_id="s1_weekly_statistics",
     process_graph=statistics,
-    parameters=[temporal_extent,spatial_extent, bands_param],
+    parameters=[temporal_extent,spatial_extent],
 )
 
 with open("s1_weekly_statistics.json", "w") as f:
