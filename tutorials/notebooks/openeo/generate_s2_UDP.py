@@ -1,9 +1,7 @@
 #%%
 import openeo
-import geopandas as gpd
 import json
 from openeo.api.process import Parameter
-
 from openeo.rest.udp import build_process_dict
 from utils import compute_percentiles
 
@@ -19,6 +17,7 @@ connection=openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
 
 scl = connection.load_collection(
     "SENTINEL2_L2A",
+    spatial_extent=spatial_extent,
     temporal_extent=temporal_extent,
     bands=["SCL"],
     max_cloud_cover=75.0
@@ -37,7 +36,7 @@ sentinel2_masked = sentinel2.mask(mask)
 
 #select the first day per month
 composite = sentinel2_masked.aggregate_temporal_period(period="week", reducer="mean")
-statistics = compute_percentiles(composite, [0.1, 0.25, 0.50, 0.75, 0.9]).filter_bbox(spatial_extent)
+statistics = compute_percentiles(composite, [0.1, 0.25, 0.50, 0.75, 0.9])
 
 ##save the process graph
 process_id = "s2_bap_statistics"
