@@ -62,7 +62,7 @@ def process_file(file_path: str, start_date: str, nb_months: int, distance_m: fl
             "temporal_extent": temporal_extent
         }
 
-def generate_geodataframe_pet_utm(
+def generate_geodataframe_per_utm(
     tif_files: List[str],
     start_date: str,
     nb_months: int,
