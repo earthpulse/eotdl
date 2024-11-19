@@ -14,24 +14,13 @@
         }
       }
     },
-    "filterspatial1": {
-      "process_id": "filter_spatial",
-      "arguments": {
-        "data": {
-          "from_node": "loadcollection1"
-        },
-        "geometries": {
-          "from_parameter": "geometry"
-        }
-      }
-    },
     "sarbackscatter1": {
       "process_id": "sar_backscatter",
       "arguments": {
         "coefficient": "sigma0-ellipsoid",
         "contributing_area": false,
         "data": {
-          "from_node": "filterspatial1"
+          "from_node": "loadcollection1"
         },
         "elevation_model": "COPERNICUS_30",
         "ellipsoid_incidence_angle": false,
@@ -113,14 +102,15 @@
         ]
       }
     },
-    "saveresult1": {
-      "process_id": "save_result",
+    "filterbbox1": {
+      "process_id": "filter_bbox",
       "arguments": {
         "data": {
           "from_node": "renamelabels1"
         },
-        "format": "NetCDF",
-        "options": {}
+        "extent": {
+          "from_parameter": "spatial_extent"
+        }
       },
       "result": true
     }
@@ -156,51 +146,55 @@
       }
     },
     {
-      "name": "geometry",
-      "description": "Geometries specified as GeoJSON object.",
+      "name": "spatial_extent",
+      "description": "Spatial extent specified as a bounding box with 'west', 'south', 'east' and 'north' fields.",
       "schema": {
         "type": "object",
-        "subtype": "geojson"
-      },
-      "default": {
-        "type": "FeatureCollection",
-        "features": [
-          {
-            "type": "Feature",
-            "properties": {
-              "crs": "EPSG:4326"
-            },
-            "geometry": {
-              "type": "Polygon",
-              "coordinates": [
-                [
-                  [
-                    0.0,
-                    0.0
-                  ],
-                  [
-                    0.0,
-                    1.0
-                  ],
-                  [
-                    1.0,
-                    1.0
-                  ],
-                  [
-                    1.0,
-                    0.0
-                  ],
-                  [
-                    0.0,
-                    0.0
-                  ]
-                ]
-              ]
-            }
+        "subtype": "bounding-box",
+        "required": [
+          "west",
+          "south",
+          "east",
+          "north"
+        ],
+        "properties": {
+          "west": {
+            "type": "number",
+            "description": "West (lower left corner, coordinate axis 1)."
+          },
+          "south": {
+            "type": "number",
+            "description": "South (lower left corner, coordinate axis 2)."
+          },
+          "east": {
+            "type": "number",
+            "description": "East (upper right corner, coordinate axis 1)."
+          },
+          "north": {
+            "type": "number",
+            "description": "North (upper right corner, coordinate axis 2)."
+          },
+          "crs": {
+            "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/) or [WKT2 CRS string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+            "anyOf": [
+              {
+                "type": "integer",
+                "subtype": "epsg-code",
+                "title": "EPSG Code",
+                "minimum": 1000
+              },
+              {
+                "type": "string",
+                "subtype": "wkt2-definition",
+                "title": "WKT2 definition"
+              }
+            ],
+            "default": 4326
           }
-        ]
+        }
       },
-      "optional": true
+      "optional": true,
+      "default": null
     }
   ]
 }

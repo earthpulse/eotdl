@@ -1,19 +1,3 @@
-# Dummy default GeoJSON (for example, a small polygon)
-default_geojson = {
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": {"crs": "EPSG:4326"},
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]]
-            }
-        }
-    ]
-}
-
-
 def compute_percentiles(base_features, percentiles=[0.1, 0.25, 0.50, 0.75, 0.9]):
     """
     Computes P10, P25, P50, P75, P90 without depending on metadata early.
