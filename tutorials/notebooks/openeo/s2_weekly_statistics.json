@@ -61,7 +61,9 @@
             }
           }
         },
-        "spatial_extent": null,
+        "spatial_extent": {
+          "from_parameter": "spatial_extent"
+        },
         "temporal_extent": {
           "from_parameter": "temporal_extent"
         }
@@ -197,17 +199,6 @@
           "B12_P75",
           "B12_P90"
         ]
-      }
-    },
-    "filterbbox1": {
-      "process_id": "filter_bbox",
-      "arguments": {
-        "data": {
-          "from_node": "renamelabels1"
-        },
-        "extent": {
-          "from_parameter": "spatial_extent"
-        }
       },
       "result": true
     }

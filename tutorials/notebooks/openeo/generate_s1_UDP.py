@@ -1,10 +1,8 @@
 #%%
 import openeo
+import json
 from openeo.api.process import Parameter
 from openeo.rest.udp import build_process_dict
-import json
-import geopandas as gpd
-
 from utils import compute_percentiles
 
 #Define input parameters
@@ -12,7 +10,7 @@ temporal_extent = Parameter.temporal_interval(name="temporal_extent")
 
 spatial_extent = Parameter.bounding_box(
         name="spatial_extent", default=None, optional=True
-    )
+        )
 
 #Define input scl
 connection=openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()

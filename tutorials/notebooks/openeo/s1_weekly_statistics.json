@@ -8,7 +8,9 @@
           "VV"
         ],
         "id": "SENTINEL1_GRD",
-        "spatial_extent": null,
+        "spatial_extent": {
+          "from_parameter": "spatial_extent"
+        },
         "temporal_extent": {
           "from_parameter": "temporal_extent"
         }
@@ -100,17 +102,6 @@
           "VV_P75",
           "VV_P90"
         ]
-      }
-    },
-    "filterbbox1": {
-      "process_id": "filter_bbox",
-      "arguments": {
-        "data": {
-          "from_node": "renamelabels1"
-        },
-        "extent": {
-          "from_parameter": "spatial_extent"
-        }
       },
       "result": true
     }
