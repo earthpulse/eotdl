@@ -377,7 +377,7 @@ class MLDatasetQualityMetrics:
                 destination
             )  # Remove the old catalog and replace it with the new one
             catalog.set_root(catalog)
-            catalog.normalize_and_save(root_href=destination)
+            catalog.normalize_and_save(root_href=destination, catalog_type=pystac.CatalogType.SELF_CONTAINED)
             print("Success!")
         except STACValidationError:
             # Return full callback

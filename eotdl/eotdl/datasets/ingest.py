@@ -3,6 +3,7 @@ import yaml
 from tqdm import tqdm
 import json
 import frontmatter
+import pystac
 
 from ..auth import with_auth
 from .metadata import Metadata
@@ -129,7 +130,7 @@ def ingest_stac(stac_catalog, logger=None, user=None):
     repo, files_repo = DatasetsAPIRepo(), FilesAPIRepo()
     # load catalog
     logger("Loading STAC catalog...")
-    df = STACDataFrame.from_stac_file(stac_catalog)
+    df = STACDataFrame.from_stac_file(stac_catalog) # assets are absolute for file ingestion
     catalog = df[df["type"] == "Catalog"]
     assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
     dataset_name = catalog.id.iloc[0]

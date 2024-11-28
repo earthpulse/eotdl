@@ -356,6 +356,12 @@ class MLDatasetQualityMetrics:
         # 		f"MLDatasetExtension does not apply to type '{type(catalog).__name__}'"
         # 	)
 
+        print("hyola1")
+
+        catalog.make_all_asset_hrefs_relative()
+
+        print("hyola2")
+
         try:
             catalog.add_metric(cls._search_spatial_duplicates(catalog))
             # catalog.add_metric(cls._get_classes_balance(catalog))
@@ -366,6 +372,8 @@ class MLDatasetQualityMetrics:
         finally:
             catalog.make_all_asset_hrefs_relative()
 
+        print("hyola")
+        
         try:
             print("Validating and saving...")
             catalog.validate()
@@ -374,7 +382,7 @@ class MLDatasetQualityMetrics:
                 destination
             )  # Remove the old catalog and replace it with the new one
             catalog.set_root(catalog)
-            catalog.normalize_and_save(root_href=destination)
+            catalog.normalize_and_save(root_href=destination, catalog_type=pystac.CatalogType.SELF_CONTAINED)
         except STACValidationError:
             # Return full callback
             traceback.print_exc()
