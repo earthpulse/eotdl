@@ -5,14 +5,14 @@
   <div
     class="gap-6 max-w-[600px] text-center text-white flex flex-col items-center px-4 justify-center h-full mt-[-30px] sm:mt-0"
   >
-    <!-- <h1 class="text-6xl font-bold leading-[70px]">
+    <h1 class="text-6xl font-bold leading-[70px]">
       Earth Observation Training Data Lab
     </h1>
     <p class="py-8 leading-7 text-xl">
       Create, share and use training datasets for Earth Observation Machine
       Learning applications with our open source tools.
-    </p> -->
-    <img src="backgrounds/eodtl_teaser.gif" alt="EOTDL Teaser" />
+    </p>
+    <!-- <img src="backgrounds/eodtl_teaser.gif" alt="EOTDL Teaser" /> -->
     <span class="flex flex-row gap-3">
       <a
         href="https://github.com/earthpulse/eotdl"
