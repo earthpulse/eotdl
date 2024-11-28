@@ -5,6 +5,7 @@ import os
 import geopandas as gpd
 import json
 import shutil
+import pystac
 
 from .retrieve_dataset import retrieve_owned_dataset
 from ...errors import DatasetVersionDoesNotExistError
