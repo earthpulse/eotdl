@@ -61,6 +61,19 @@
     );
   }
 
+  function getEvent(day) {
+    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    let eventsOnDay = []
+    events.filter(
+      (event) =>
+        event.dateTo >= dateString &&
+        event.date <= dateString &&
+        event.dateTo > event.date).forEach(event => {
+          eventsOnDay.push(event.title)
+        }); 
+    return eventsOnDay.join(", ");
+  }
+
   function prevMonth() {
     currentDate = new Date(currentYear, currentMonth - 1, 1);
   }
@@ -82,8 +95,14 @@
   );
 
   let limit = 3;
-  $: shownEvents = filteredEvents.slice(0, limit);
-
+  $: shownEvents = filteredEvents.slice(0, limit).sort(function(a ,b) {
+    if (a.date > b.date){
+      return 1;
+    }
+    else if (a.date < b.date) {
+      return -1;
+    }
+    return 0});
   let showMore = -1;
 </script>
 
@@ -136,7 +155,7 @@
                         : 'rounded-full'} 
 									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]"
                 >
-                  {day}
+                  <p class="tooltip" data-tip="{getEvent(day)}">{day}</p>
                 </td>
               {:else if day && hasEvent(day)}
                 <td
@@ -162,7 +181,7 @@
   {#if events.length == 0}
     <p class="text-center text-gray-500">No events found</p>
   {/if}
-  <ul class="flex flex-col gap-2">
+  <ul class="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-hide">
     {#each shownEvents as event, ix}
       <li class="mb-4">
         <h3 class="text-md font-bold">{event.title}</h3>
@@ -223,3 +242,15 @@
     >
   </ul>
 </div>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+</style>
