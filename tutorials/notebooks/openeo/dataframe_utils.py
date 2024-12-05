@@ -15,7 +15,7 @@ from openeo_gfmap.manager.job_splitters import split_job_s2grid, append_h3_index
 
 
 
-def process_geodataframe_to_patch(
+def create_utm_patch(
     row: Any,
     parent_crs: str,
     start_date: str,
@@ -58,7 +58,7 @@ def process_geodataframe_to_patch(
         "temporal_extent": temporal_extent,
     }
 
-def process_geodataframe(
+def process_patch_geodataframe(
     geodataframe: gpd.GeoDataFrame,
     start_date: str,
     nb_months: int,
@@ -82,7 +82,7 @@ def process_geodataframe(
     
     for _, row in geodataframe.iterrows():
         # Process each row and collect the result
-        result = process_geodataframe_to_patch(row, geodataframe.crs, start_date, nb_months, buffer_distance, resolution)
+        result = create_utm_patch(row, geodataframe.crs, start_date, nb_months, buffer_distance, resolution)
         results.append(result)
     
     # Convert the list of results into a GeoDataFrame
@@ -93,6 +93,53 @@ def process_geodataframe(
     )
     
     return processed_gdf
+
+def process_geodataframe(
+    geodataframe: gpd.GeoDataFrame,
+    start_date: str,
+    nb_months: int,
+
+) -> gpd.GeoDataFrame:
+    """
+    Process a GeoDataFrame to generate buffered geometries and metadata for each row.
+    
+    Parameters:
+        geodataframe: The input GeoDataFrame with geometries to process.
+        start_date: Start date for the temporal extent (ISO format string).
+        nb_months: Number of months for the temporal extent.
+        buffer_distance: Buffer distance in meters for the geometry.
+        resolution: Spatial resolution for geometry rounding.
+    
+    Returns:
+        A processed GeoDataFrame with buffered geometries and additional metadata.
+    """
+    results = []  # List to store processed rows
+    geodataframe = geodataframe.to_crs(epsg=4326)
+    
+    for _, row in geodataframe.iterrows():
+    
+        # Compute the temporal extent
+        temporal_extent = compute_temporal_extent(start_date, nb_months)
+
+        # Return the processed data
+        result =  {
+            "fid": row.get("fid"),  # Include any relevant identifier
+            "geometry": row.geometry,
+            "crs": geodataframe.crs.to_string(),
+            "temporal_extent": temporal_extent,
+        }  
+        
+        results.append(result)
+    
+    # Convert the list of results into a GeoDataFrame
+    processed_gdf = gpd.GeoDataFrame(
+        results, 
+        geometry="geometry", 
+        crs=result['crs']
+    )
+    
+    return processed_gdf
+
 
 def split_geodataframe_by_s2_grid(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resolution:int = 3) -> List[gpd.GeoDataFrame]:
     """Append H3 index and split into smaller job dataframes."""
@@ -140,7 +187,7 @@ def generate_featurecollection_dataframe(split_jobs: List[gpd.GeoDataFrame]) -> 
     return pd.DataFrame(job_data)
 
 
-def process_and_create_jobs(
+def process_and_create_advanced_patch_jobs(
     gdf: gpd.GeoDataFrame, 
     start_date: str, 
     nb_months: int, 
@@ -163,7 +210,7 @@ def process_and_create_jobs(
         pd.DataFrame: A DataFrame containing the job metadata.
     """
     # Step 1: Process GeoDataFrame in which we create patches and temporal info
-    processed_gdf = process_geodataframe(
+    processed_gdf = process_patch_geodataframe(
         gdf, start_date, nb_months, pixel_size, resolution
     )
 
