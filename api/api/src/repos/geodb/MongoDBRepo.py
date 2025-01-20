@@ -2,6 +2,7 @@ from shapely.geometry import Polygon
 # from .client import get_client
 from pymongo import MongoClient
 import os
+import geopandas as gpd
 
 # mock geodb with mongo
 
@@ -30,7 +31,7 @@ class MongoDBRepo:
         values.rename(columns={"id": "stac_id"}, inplace=True)
 
         # remove geometry column for now
-        values.drop(columns=["geometry"], inplace=True)
+        # values.drop(columns=["geometry"], inplace=True)
 
 
         if self.exists(collection):  # DELETEING COLLECTION IF EXISTS !!!
@@ -42,10 +43,18 @@ class MongoDBRepo:
         #     collection, database=self.database, values=values
         # )
         # self.client.publish_collection(collection, self.database)
+
         self.database[collection].insert_many(values.to_dict(orient="records"))
 
     def retrieve(self, collection):
-        return self.client.get_collection(collection, database=self.database)
+        # return self.client.get_collection(collection, database=self.database)
+        data = list(self.database[collection].find())
+        # every item in the list is a row on a GeoDataFrame
+        gdf = gpd.GeoDataFrame(data)
+        # remove _id and rename stac_id to id
+        gdf = gdf.drop(columns=["_id"])
+        gdf = gdf.rename(columns={"stac_id": "id"})
+        return gdf
 
     def create_collection_structure(self, columns: list) -> dict:
         # TODO: in order to query geodb we must set the correct types !!!

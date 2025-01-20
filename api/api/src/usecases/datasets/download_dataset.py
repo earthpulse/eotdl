@@ -1,7 +1,7 @@
 import json
 import prometheus_client
 
-from ...repos import OSRepo, GeoDBRepo, FilesDBRepo
+from ...repos import OSRepo, GeoDBRepo, FilesDBRepo, MongoDBRepo
 from .retrieve_dataset import retrieve_dataset
 from ..user import retrieve_user_credentials
 
@@ -33,11 +33,13 @@ def download_stac_catalog(dataset_id, user):
     # check if dataset exists 
     dataset = retrieve_dataset(dataset_id)
     # retrieve from geodb
-    credentials = retrieve_user_credentials(user)
-    geodb_repo = GeoDBRepo(credentials)
+    # credentials = retrieve_user_credentials(user)
+    # geodb_repo = GeoDBRepo(credentials)
+    geodb_repo = MongoDBRepo()
     gdf = geodb_repo.retrieve(dataset_id)
     # TODO: report usage
-    return json.loads(gdf.to_json())
+    data = json.loads(gdf.to_json())
+    return data
 
 def generate_presigned_url(dataset_id, filename, version=None):
     repo = OSRepo()

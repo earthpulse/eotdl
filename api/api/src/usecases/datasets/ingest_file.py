@@ -110,25 +110,25 @@ def ingest_stac(stac, dataset_id, user):
     dataset_quality = 1
     # TODO: validate Q1 dataset with required fields/extensions (author, license)
     # TODO: validate Q2 dataset, not only check name
-    if "ml-dataset:name" in keys:
-        dataset_quality = 2
-        # compute and report automatic qa metrics
-        # save stac locally
-        tmp_path = f"/tmp/{dataset_id}"
-        df = STACDataFrame(values)
-        df.to_stac(tmp_path)
-        # compute metrics
-        catalog_path = f"{tmp_path}/{dataset.name}/catalog.json"
-        MLDatasetQualityMetrics.calculate(catalog_path)
-        # overwrite catalog with computed metrics
-        df = STACDataFrame.from_stac_file(catalog_path)
-        catalog = df[df["type"] == "Catalog"]
-        # print("1", catalog)
-        catalog = json.loads(catalog.to_json())["features"][0]["properties"]
-        # print("2", catalog)
-        # delete tmp files
-        shutil.rmtree(tmp_path)
-    print("quality", dataset_quality)
+    # if "ml-dataset:name" in keys:
+    #     dataset_quality = 2
+    #     # compute and report automatic qa metrics
+    #     # save stac locally
+    #     tmp_path = f"/tmp/{dataset_id}"
+    #     df = STACDataFrame(values)
+    #     df.to_stac(tmp_path)
+    #     # compute metrics
+    #     catalog_path = f"{tmp_path}/{dataset.name}/catalog.json"
+    #     MLDatasetQualityMetrics.calculate(catalog_path)
+    #     # overwrite catalog with computed metrics
+    #     df = STACDataFrame.from_stac_file(catalog_path)
+    #     catalog = df[df["type"] == "Catalog"]
+    #     # print("1", catalog)
+    #     catalog = json.loads(catalog.to_json())["features"][0]["properties"]
+    #     # print("2", catalog)
+    #     # delete tmp files
+    #     shutil.rmtree(tmp_path)
+    # print("quality", dataset_quality)
     # ingest to geodb
     # credentials = retrieve_user_credentials(user)
     # geodb_repo = GeoDBRepo(credentials)

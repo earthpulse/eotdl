@@ -91,8 +91,9 @@ class STACDataFrame(gpd.GeoDataFrame):
             stac_output_folder = join(collections[collection], row[id_column])
 
             # Convert the geometry from WKT back to geojson
-            row["geometry"] = row["geometry"].wkt
-            row["geometry"] = wkt.loads(row["geometry"])
+            if row["geometry"] is not None:
+                row["geometry"] = row["geometry"].wkt
+                row["geometry"] = wkt.loads(row["geometry"])
             makedirs(stac_output_folder, exist_ok=True)
             row_json = row.to_dict()
 
