@@ -9,7 +9,7 @@ import pystac
 
 from .retrieve_dataset import retrieve_owned_dataset
 from ...errors import DatasetVersionDoesNotExistError
-from ...repos import DatasetsDBRepo, GeoDBRepo
+from ...repos import DatasetsDBRepo, GeoDBRepo, MongoDBRepo
 from ..files import ingest_file, ingest_existing_file
 from ..user import retrieve_user_credentials
 from .stac import MLDatasetQualityMetrics
@@ -130,12 +130,14 @@ def ingest_stac(stac, dataset_id, user):
         shutil.rmtree(tmp_path)
     print("quality", dataset_quality)
     # ingest to geodb
-    credentials = retrieve_user_credentials(user)
-    geodb_repo = GeoDBRepo(credentials)
+    # credentials = retrieve_user_credentials(user)
+    # geodb_repo = GeoDBRepo(credentials)
+    # geodb_repo.insert(dataset.id, values)
+    geodb_repo = MongoDBRepo()
     geodb_repo.insert(dataset.id, values)
     # the catalog should contain all the info we want to show in the UI
     dataset.catalog = catalog
-    dataset.items = items
+    # dataset.items = items
     dataset.quality = dataset_quality
     repo = DatasetsDBRepo()
     dataset.updatedAt = datetime.now()

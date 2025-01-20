@@ -1,18 +1,27 @@
 from datetime import datetime
 from pathlib import Path
-import json
 import pystac
 from glob import glob
-import uuid
+import os
 
-def create_stac_catalog_from_folder(folder, metadata, content):
+def create_stac_catalog_from_folder(folder, metadata):
 	folder = Path(folder)
 	
 	# Create catalog
 	catalog = pystac.Catalog(
 		id=metadata.name,
-		description=content,
-		title=metadata.name
+		title=metadata.name,
+		description="STAC catalog",
+		extra_fields={
+			"eotdl": {
+				"name": metadata.name,
+				"license": metadata.license,
+				"source": metadata.source,
+				"thumbnail": metadata.thumbnail,
+				"authors": metadata.authors,
+				"description": metadata.description
+			}
+		}
 	)
 	
 	# Create collection
@@ -28,7 +37,7 @@ def create_stac_catalog_from_folder(folder, metadata, content):
 
 	# TODO: explore ways to infere spatial and temporal extent from the data, otherwise use the default values
 	
-	# # Add collection to catalog
+	# Add collection to catalog
 	catalog.add_child(collection)
 	
 	# Create items for each file in the folder
@@ -37,31 +46,33 @@ def create_stac_catalog_from_folder(folder, metadata, content):
 		file_path = Path(file_path)
 		if file_path.is_file():
 			item = pystac.Item(
-				id=file_path.stem,
+				id=file_path.name,
 				geometry=None,  # infere from data if possible
 				bbox=[-180, -90, 180, 90], # infere from data if possible
 				datetime=datetime.fromtimestamp(file_path.stat().st_mtime), # infere from data if possible
 				properties={}
 			)
 			
+			# Calculate relative path from item location to asset
+			# Item will be stored in collection/filename/filename.json
+			item_dir = folder / "collection" / file_path.name
+			relative_path = Path(os.path.relpath(file_path, item_dir))
+			
 			# Add the file as an asset
 			item.add_asset(
 				key=file_path.name,
 				asset=pystac.Asset(
-					href=str(file_path),
+					href=str(relative_path),
 					media_type=f"application/{file_path.suffix[1:]}"  # Simple media type inference
 				)
 			)
 
-			# make path relative to the catalog
-			item.set_self_href(str(file_path.relative_to(folder)))
-			
 			# Add item to collection
 			collection.add_item(item)
 	
-	# # Save catalog and collection as JSON files
+	# Save catalog and collection as JSON files
 	catalog.normalize_and_save(
-	    root_href=str(folder),
+	    root_href=str(folder.absolute()),
 	    catalog_type=pystac.CatalogType.SELF_CONTAINED
 	)
 	

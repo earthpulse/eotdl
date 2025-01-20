@@ -1,4 +1,4 @@
-from ...models import Dataset, STACDataset
+from ...models import Dataset
 from ...errors import DatasetDoesNotExistError, UserUnauthorizedError
 from ...repos import DatasetsDBRepo
 from ..files import retrieve_files
@@ -7,7 +7,7 @@ from ..files import retrieve_files
 def retrieve(data):
     if data is None:
         raise DatasetDoesNotExistError()
-    return Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
+    return Dataset(**data)
 
 
 def retrieve_dataset(dataset_id):

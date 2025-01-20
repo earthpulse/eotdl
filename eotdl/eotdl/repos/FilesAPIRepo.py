@@ -52,10 +52,12 @@ class FilesAPIRepo(APIRepo):
     def ingest_file(
         self, file, dataset_or_model_id, user, checksum, endpoint, version=None
     ):
-        # TODO: ingest file URL
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
             url += "?version=" + str(version)
+        if isinstance(file, str) and file.startswith("http"):
+            # TODO: ingest file URL
+            return
         reponse = requests.post(
             url,
             files={"file": open(file, "rb")},

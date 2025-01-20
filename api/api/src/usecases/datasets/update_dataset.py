@@ -12,7 +12,7 @@ from ...errors import (
     DatasetDoesNotExistError,
     InvalidTagError,
 )
-from ...models import Dataset, STACDataset
+from ...models import Dataset
 
 
 def toggle_like_dataset(dataset_id, user):
@@ -61,7 +61,7 @@ def update_dataset(
             license=license if license is not None else dataset.license,
             thumbnail=thumbnail if thumbnail is not None else dataset.thumbnail,
         )
-    updated_dataset = Dataset(**data) if data["quality"] == 0 else STACDataset(**data)
+    updated_dataset = Dataset(**data)
     # update dataset in db
     repo.update_dataset(dataset_id, updated_dataset.model_dump())
     return updated_dataset

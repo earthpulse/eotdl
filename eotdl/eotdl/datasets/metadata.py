@@ -8,6 +8,7 @@ class Metadata(BaseModel):
     license: str
     source: str
     name: str
+    description: str
     thumbnail: Optional[str] = ""
 
     # validate source is a URL

@@ -4,41 +4,132 @@ from tqdm import tqdm
 import json
 import frontmatter
 import pystac
+import os 
 
 from ..auth import with_auth
 from .metadata import Metadata
 from ..repos import DatasetsAPIRepo, FilesAPIRepo
 from ..files import ingest_files, create_new_version
-from ..curation.stac import STACDataFrame, create_stac_catalog_from_folder
+from ..curation.stac import STACDataFrame, create_stac_catalog_from_folder, create_stac_catalog_from_links
 from ..shared import calculate_checksum
 from .update import update_dataset
 from .metadata import generate_metadata
 
-def ingest_dataset_prototype(path):
+def ingest_dataset_prototype(path, metadata=None, links=None, replicate=False):
     path = Path(path)
-    if not path.is_dir():
-        raise Exception("Path must be a folder")
-    if "catalog.json" in [f.name for f in path.iterdir()]:
-        raise Exception("Catalog already exists")
-        return
-    return ingest_folder_prototype(path)
+    if path.exists() and "catalog.json" in [f.name for f in path.iterdir()]:
+        return ingest_catalog_prototype(path, metadata, replicate)
+    if links:
+        return ingest_links_prototype(path, metadata, links, replicate)
+    return ingest_folder_prototype(path, metadata)
 
 @with_auth
 def ingest_folder_prototype(
     folder,
+    metadata,
     user=None,
 ):
+    folder = Path(folder)
+    if not folder.is_dir():
+        raise Exception("Path must be a folder")
     # read metadata from README.md
     try:
-        readme = frontmatter.load(folder.joinpath("README.md"))
-        metadata, content = readme.metadata, readme.content
+        if not metadata:
+            readme = frontmatter.load(folder.joinpath("README.md"))
+            metadata, content = readme.metadata, readme.content
+            metadata["description"] = content
         metadata = Metadata(**metadata)
     except Exception as e:
         print(str(e))
         raise Exception("README.md not found")
     # create stac catalog
-    create_stac_catalog_from_folder(folder, metadata, content)
-    pass
+    catalog = create_stac_catalog_from_folder(folder, metadata)
+    # ingest assets
+    return ingest_stac_prototype(catalog, user)
+
+@with_auth
+def ingest_links_prototype(path, metadata, links, replicate=False, user=None):
+    # create folder
+    for link in links:
+        assert isinstance(link, str), "Links must be strings"
+        assert link.startswith("http"), "Links must be HTTP or HTTPS"
+    os.makedirs(path, exist_ok=True)
+    metadata = Metadata(**metadata)
+    # generate_metadata(str(path), metadata.dict())
+    catalog = create_stac_catalog_from_links(path, metadata, links)
+    return ingest_stac_prototype(catalog, user, replicate)
+
+@with_auth
+def ingest_catalog_prototype(path, metadata, replicate=False, user=None):
+    folder = Path(path)
+    try:
+        if not metadata:
+            readme = frontmatter.load(folder.joinpath("README.md"))
+            metadata, content = readme.metadata, readme.content
+            metadata["description"] = content
+        metadata = Metadata(**metadata)
+    except Exception as e:
+        print(str(e))
+        raise Exception("README.md not found")
+    catalog = pystac.Catalog.from_file(folder.joinpath("catalog.json"))
+    # add metadata to catalog
+    catalog.extra_fields["eotdl"] = {
+        "name": metadata.name,
+        "license": metadata.license,
+        "source": metadata.source,
+        "thumbnail": metadata.thumbnail,
+        "authors": metadata.authors,
+        "description": metadata.description
+    }
+    catalog.normalize_and_save(
+	    root_href=str(folder.absolute()),
+	    catalog_type=pystac.CatalogType.SELF_CONTAINED
+	)
+    return ingest_stac_prototype(catalog, user, replicate)
+
+
+def ingest_stac_prototype(stac_catalog, user, replicate=False):
+    repo, files_repo = DatasetsAPIRepo(), FilesAPIRepo()
+    # load catalog
+    print("Loading STAC catalog...")
+    df = STACDataFrame.from_stac_file(stac_catalog) # assets are absolute for file ingestion
+    catalog = df[df["type"] == "Catalog"]
+    assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
+    dataset_name = catalog.eotdl.iloc[0]['name']
+    # retrieve dataset (create if doesn't exist)
+    dataset_id = retrieve_stac_dataset(dataset_name, user)
+    # create new version
+    version = create_new_version(repo, dataset_id, user)
+    print("New version created, version: " + str(version))
+    df2 = df.dropna(subset=["assets"])
+    for row in tqdm(df2.iterrows(), total=len(df2)):
+        try:
+            for k, v in row[1]["assets"].items():
+                if v["href"].startswith("http") and not replicate: continue
+                # will ingest the file into eotdl (including public links)
+                data, error = files_repo.ingest_file(
+                    v["href"],
+                    dataset_id,
+                    user,
+                    calculate_checksum(v["href"]),  # is always absolute?
+                    "datasets",
+                    version,
+                )
+                if error:
+                    raise Exception(error)
+                file_url = f"{repo.url}datasets/{data['dataset_id']}/download/{data['filename']}"
+                df.loc[row[0], "assets"][k]["href"] = file_url
+        except Exception as e:
+            print(f"Error uploading asset {row[0]}: {e}")
+            break
+    # ingest the STAC catalog into geodb
+    print("Ingesting STAC catalog...")
+    data, error = repo.ingest_stac(json.loads(df.to_json()), dataset_id, user)
+    if error:
+        # TODO: delete all assets that were uploaded
+        raise Exception(error)
+    print("Done")
+    return
 
 def ingest_dataset(
     path,

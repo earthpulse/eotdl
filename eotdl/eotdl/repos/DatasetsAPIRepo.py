@@ -41,7 +41,8 @@ class DatasetsAPIRepo(APIRepo):
 
     def create_stac_dataset(self, name, user):
         response = requests.post(
-            self.url + "datasets/stac",
+            # self.url + "datasets/stac",
+            self.url + "datasets",
             json={"name": name},
             headers=self.generate_headers(user),
         )

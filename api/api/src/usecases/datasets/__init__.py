@@ -3,7 +3,7 @@ from .retrieve_datasets import (
     retrieve_datasets_leaderboard,
     retrieve_popular_datasets,
 )
-from .create_dataset import create_dataset, create_stac_dataset
+from .create_dataset import create_dataset
 from .retrieve_dataset import retrieve_dataset_by_name, retrieve_dataset_files
 from .create_dataset_version import create_dataset_version
 from .ingest_file import (

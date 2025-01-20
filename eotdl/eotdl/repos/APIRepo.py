@@ -7,7 +7,8 @@ class APIRepo:
         default_url = "https://api.eotdl.com/"
         # default_url = "http://localhost:8001/"
         self.url = url if url else os.getenv("EOTDL_API_URL", default_url)
-
+        print("Using EOTDL API URL:", self.url)
+        
     def format_response(self, response):
         if response.status_code == 200:
             return response.json(), None

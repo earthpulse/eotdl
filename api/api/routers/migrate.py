@@ -8,7 +8,7 @@ from .auth import admin_key_auth
 from ..src.repos.mongo.client import get_db
 from ..src.repos.minio.client import get_client
 from ..src.repos.boto3.client import get_client as get_boto3_client
-from ..src.models import File, Files, Dataset, Version, STACDataset
+from ..src.models import File, Files, Dataset, Version
 
 from bson.objectid import ObjectId
 

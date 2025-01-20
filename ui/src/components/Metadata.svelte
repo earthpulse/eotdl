@@ -1,7 +1,7 @@
 <script>
 	export let data;
 
-	$: ({ authors, license, source } = data);
+	$: ({ authors, license, source } = data.catalog.eotdl);
 </script>
 
 <p>Metadata:</p>

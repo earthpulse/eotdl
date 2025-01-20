@@ -98,7 +98,6 @@ def create_new_version(repo, dataset_or_model_id, user):
         raise Exception(error)
     return data["version"]
 
-
 def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpoint):
     files_repo = FilesAPIRepo()
     logger(f"Uploading directory {folder}...")
