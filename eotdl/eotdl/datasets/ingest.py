@@ -9,11 +9,36 @@ from ..auth import with_auth
 from .metadata import Metadata
 from ..repos import DatasetsAPIRepo, FilesAPIRepo
 from ..files import ingest_files, create_new_version
-from ..curation.stac import STACDataFrame
+from ..curation.stac import STACDataFrame, create_stac_catalog_from_folder
 from ..shared import calculate_checksum
 from .update import update_dataset
 from .metadata import generate_metadata
 
+def ingest_dataset_prototype(path):
+    path = Path(path)
+    if not path.is_dir():
+        raise Exception("Path must be a folder")
+    if "catalog.json" in [f.name for f in path.iterdir()]:
+        raise Exception("Catalog already exists")
+        return
+    return ingest_folder_prototype(path)
+
+@with_auth
+def ingest_folder_prototype(
+    folder,
+    user=None,
+):
+    # read metadata from README.md
+    try:
+        readme = frontmatter.load(folder.joinpath("README.md"))
+        metadata, content = readme.metadata, readme.content
+        metadata = Metadata(**metadata)
+    except Exception as e:
+        print(str(e))
+        raise Exception("README.md not found")
+    # create stac catalog
+    create_stac_catalog_from_folder(folder, metadata, content)
+    pass
 
 def ingest_dataset(
     path,

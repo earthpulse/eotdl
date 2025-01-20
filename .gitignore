@@ -34,3 +34,4 @@ playwright-report
 playwright/.cache/
 test-results
 lightning_logs
+.venv
