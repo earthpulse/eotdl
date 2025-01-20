@@ -4,15 +4,14 @@
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
-	// import Ingest from "./Ingest.svelte";
+	import Ingest from "./Ingest.svelte";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
 	import QualitySelector from "$components/QualitySelector.svelte";
-	import Ingest from "./Ingest.svelte";
 	export let data;
-	import { links } from "$stores/images"
+	import { links } from "$stores/images";
 	let loading = true;
 	let show_liked = false;
 	let selected_tags = [];
@@ -88,11 +87,6 @@
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
-					<!-- <p
-						class="text-gray-400 hover:underline cursor-pointer text-sm"
-					>
-						advanced filtering
-					</p> -->
 					<button on:click={toggleLike}
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
@@ -100,7 +94,6 @@
 					>
 					<QualitySelector bind:selected_qualities />
 				</span>
-				<!-- <Ingest tags={data?.tags} /> -->
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
@@ -117,7 +110,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_datasets as dataset, i}
 					<Card
-						img={links[i%links.length]}
+						img={links[i % links.length]}
 						data={dataset}
 						liked={$user?.liked_datasets.includes(dataset.id)}
 						tags={data.tags}

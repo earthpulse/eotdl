@@ -1,8 +1,5 @@
 <script>
-  import Code from "../docs/components/Code.svelte";
-  import CLI from "../docs/components/CLI.svelte";
   import TextEditor from "./TextEditor.svelte";
-  // import formatFileSize from "../../lib/datasets/formatFileSize.js";
 
   export let tags;
   export let submit;

@@ -10,15 +10,16 @@
 	import { onMount } from "svelte";
 	import Map from "$components/Map.svelte";
 	import { Carta } from "carta-md";
-	import DOMPurify from "isomorphic-dompurify";
+	// import DOMPurify from "isomorphic-dompurify";
 	import "$styles/file-explorer-md.css";
 	import { BasicTable } from "csv2table";
 	import JSONTree from "svelte-json-tree";
 	import "$styles/preview-tables.css";
 
+	let DOMPurify;
 	const carta = new Carta({
 		extensions: [],
-		sanitizer: DOMPurify.sanitize,
+		sanitizer: DOMPurify?.sanitize,
 	});
 
 	let allowedExtensions = {
@@ -88,8 +89,10 @@
 
 	let currentBlob;
 	let currentFormat;
+
 	onMount(async () => {
 		if (browser) {
+			DOMPurify = await import("isomorphic-dompurify");
 			// only works in browser
 			const streamsaver = await import("streamsaver");
 			createWriteStream = streamsaver.createWriteStream;
