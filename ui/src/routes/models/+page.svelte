@@ -10,7 +10,7 @@
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
 	import QualitySelector from "$components/QualitySelector.svelte";
 	import Ingest from "./Ingest.svelte";
-	import { links, modelImagesOffset } from "$stores/images"
+	import { links, modelImagesOffset } from "$stores/images";
 	export let data;
 
 	let loading = true;
@@ -116,7 +116,7 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_models as model, i}
 					<Card
-						img={links[(i+modelImagesOffset)%links.length]}
+						img={links[(i + modelImagesOffset) % links.length]}
 						data={model}
 						link="models"
 						liked={$user?.liked_models?.includes(model.id)}

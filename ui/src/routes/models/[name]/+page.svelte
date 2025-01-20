@@ -12,11 +12,16 @@
   import Update from "$components/Update.svelte";
   import { Carta } from "carta-md";
   import { links, modelImagesOffset } from "$stores/images.js";
-  import DOMPurify from "isomorphic-dompurify";
+  // import DOMPurify from "isomorphic-dompurify";
+
+  let DOMPurify;
+  const loadDOMPurify = async () => {
+    DOMPurify = await import("isomorphic-dompurify");
+  };
 
   const carta = new Carta({
     extensions: [],
-    sanitizer: DOMPurify.sanitize,
+    sanitizer: DOMPurify?.sanitize,
   });
 
   export let data;
@@ -50,6 +55,7 @@
   };
 
   $: if (browser) {
+    loadDOMPurify();
     load();
     loadModels();
   }

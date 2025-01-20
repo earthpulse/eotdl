@@ -12,12 +12,22 @@
   import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
   import Map from "$components/Map.svelte";
   import { Carta } from "carta-md";
-  import DOMPurify from "isomorphic-dompurify";
   import { links } from "$stores/images.js";
+
+  let DOMPurify;
+  const loadDOMPurify = async () => {
+    DOMPurify = await import("isomorphic-dompurify");
+  };
+
+  $: if (browser) {
+    loadDOMPurify();
+    load();
+    loadDatasets();
+  }
 
   const carta = new Carta({
     extensions: [],
-    sanitizer: DOMPurify.sanitize,
+    sanitizer: DOMPurify?.sanitize,
   });
 
   export let data;
@@ -46,11 +56,6 @@
     await datasets.retrieve(fetch);
     filtered_datasets = JSON.parse(localStorage.getItem("filtered_datasets"));
   };
-
-  $: if (browser) {
-    load();
-    loadDatasets();
-  }
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);

@@ -11,8 +11,8 @@
 			name: "SCANEO",
 			thumbnail: "/applications/scaneo.png",
 			description:
-				"SCANEO is a web-based application that allows users to visualize and labell satellite data, with tight integration with the EOTDL API and AI assited capabilities for Active Learning.",
-			link: "https://pypi.org/project/scaneo/",
+				"SCANEO is a web-based application that allows users to visualize and labell satellite data, with tight integration with the EOTDL API and AI assited capabilities for Active Learning. Learn more <a href='https://github.com/earthpulse/scaneo' target='_blank' class='underline'>here</a>. <b>IMPORTANT:</b> SCANEO is only available in the EOTDL Cloud Workspace for Premium users.",
+			link: "https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/scaneo/",
 		},
 		{
 			name: "AI4EO Challenges",
@@ -57,7 +57,9 @@
 							src={application.thumbnail}
 							alt={application.name}
 						/>
-						<p class="mb-2 text-sm">{application.description}</p>
+						<p class="mb-2 text-sm">
+							{@html application.description}
+						</p>
 					</div>
 					<div class="text-right">
 						<a

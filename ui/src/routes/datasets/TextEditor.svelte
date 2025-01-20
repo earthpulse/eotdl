@@ -2,13 +2,20 @@
   import { Carta, MarkdownEditor } from "carta-md";
   import "carta-md/default.css"; /* Default theme */
   import "$styles/carta-md.css";
-  import DOMPurify from "isomorphic-dompurify";
   import { browser } from "$app/environment";
 
   let x;
   let sm;
 
+  let DOMPurify;
+  const loadDOMPurify = async () => {
+    DOMPurify = await import("isomorphic-dompurify");
+  };
+
   $: if (browser) {
+    // dynamic import DOMPurify
+    loadDOMPurify();
+
     x = window?.matchMedia("(max-width: 640px)");
     let sm = x.matches ? true : false;
     let normal = x.matches ? false : true;
@@ -26,7 +33,7 @@
 
   const carta = new Carta({
     extensions: [],
-    sanitizer: DOMPurify.sanitize,
+    sanitizer: DOMPurify?.sanitize,
   });
 
   export let value;

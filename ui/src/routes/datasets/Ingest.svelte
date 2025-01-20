@@ -12,7 +12,7 @@
         authors,
         source,
         license,
-        selected_tags
+        selected_tags,
     ) => {
         if (
             !name ||
@@ -27,7 +27,7 @@
         let data;
         if (files.length == 0) throw new Error("Please upload a file");
         const datasetExists = $datasets.data.find(
-            (d) => d.name == name && d.uid == $user.uid
+            (d) => d.name == name && d.uid == $user.uid,
         );
         if (datasetExists)
             throw new Error("Dataset already exists, choose a different name");
@@ -36,11 +36,17 @@
             authors,
             source,
             license,
-            $id_token
+            $id_token,
         );
         const version = await datasets.setVersion(dataset_id, $id_token);
         for (var i = 0; i < files.length; i++) {
-            data = await datasets.ingest(dataset_id, files[i], $id_token, version, name);
+            data = await datasets.ingest(
+                dataset_id,
+                files[i],
+                $id_token,
+                version,
+                name,
+            );
         }
         await datasets.update(
             dataset_id,
@@ -50,23 +56,24 @@
             source,
             license,
             selected_tags,
-            $id_token
+            $id_token,
         );
     };
 </script>
 
 {#if $user}
-    <IngestForm 
-    {tags} 
-    {submit} 
-    text="Ingest dataset" 
-    forCreate={true} 
-    required={true}
-    name={""}
-    authors={""}
-    source={""}
-    license={""}
-    content={""}>
+    <IngestForm
+        {tags}
+        {submit}
+        text="Ingest dataset"
+        forCreate={true}
+        required={true}
+        name={""}
+        authors={""}
+        source={""}
+        license={""}
+        content={""}
+    >
         <h3 class="text-lg font-bold">Ingest dataset</h3>
     </IngestForm>
 {/if}
