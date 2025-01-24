@@ -47,6 +47,7 @@ class STACDataset(BaseModel):
     createdAt: datetime = Field(default_factory=datetime.now)
     updatedAt: datetime = Field(default_factory=datetime.now)
     likes: int = 0
+    training_template: str = ""
     downloads: int = 0
     quality: int = 1
     size: int = 0

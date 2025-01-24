@@ -72,6 +72,8 @@
     else if (dataset?.quality == 1) upgradeNotebook = "04_q2_datasets";
     else upgradeNotebook = "";
   }
+
+  $: console.log(dataset);
 </script>
 
 <svelte:head>
