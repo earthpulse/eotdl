@@ -13,6 +13,7 @@
   import Map from "$components/Map.svelte";
   import { Carta } from "carta-md";
   import { links } from "$stores/images.js";
+  import Train from "./Train.svelte";
 
   let DOMPurify;
   const loadDOMPurify = async () => {
@@ -121,6 +122,9 @@
               href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
               target="_blank">Upgrade</a
             >
+          {/if}
+          {#if dataset.training_template}
+            <Train {dataset} />
           {/if}
           {#if $user}
             {#if $user.uid == dataset.uid}
