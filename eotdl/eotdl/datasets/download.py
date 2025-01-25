@@ -33,6 +33,9 @@ def download_dataset(
     download_base_path = os.getenv(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )
+    cache_base_path = os.getenv(
+        "EOTDL_CACHE_PATH", str(Path.home()) + "-"
+    )
     if path is None:
         download_path = download_base_path + "/" + dataset_name + "/v" + str(version)
     else:
@@ -50,16 +53,30 @@ def download_dataset(
         repo = FilesAPIRepo()
         for file in tqdm(dataset_files, disable=verbose, unit="file", position=0):
             filename, file_version = file["filename"], file["version"]
-            if verbose:
-                logger(f"Downloading {file['filename']}...")
-            dst_path = repo.download_file(
-                dataset["id"],
-                filename,
-                user,
-                download_path,
-                file_version,
-                progress=True,
-            )
+            cache_path = Path(
+                f"{cache_base_path}/{dataset['id']}/{filename}_{file_version}")
+            if cache_base_path != "-" and cache_path.exists():
+                file_path = Path(download_path + "/" + filename)
+                if verbose:
+                    logger(f"Symlinking {filename}...")
+                if file_path.exists():
+                    file_path.unlink()
+                else:
+                    file_path.parent.mkdir(parents=True, exist_ok=True)
+                if verbose:
+                    logger(f"Symlinking {filename}...")                
+                file_path.symlink_to(cache_path)
+            else:
+                if verbose:
+                    logger(f"Downloading {filename}...")
+                repo.download_file(
+                    dataset["id"],
+                    filename,
+                    user,
+                    download_path,
+                    file_version,
+                    progress=True,
+                )
             if verbose:
                 logger("Generating README.md ...")
             generate_metadata(download_path, dataset)

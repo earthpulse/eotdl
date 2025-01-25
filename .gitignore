@@ -36,3 +36,4 @@ test-results
 lightning_logs
 jobs.csv
 jobs.parquet
+.venv
