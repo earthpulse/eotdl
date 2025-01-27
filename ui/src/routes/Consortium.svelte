@@ -44,9 +44,9 @@
       >
       <a href="https://www.spacetec.partners/" target="_blank" rel="noreferrer">
         <img
-          src="/logos/Logo_space.tec_500px.png"
+          src="/logos/Novaspace_logo.png"
           alt="spacetec logo"
-          class="h-[35px]"
+          class="w-[135px] pl-2"
         />
       </a>
     </div>
