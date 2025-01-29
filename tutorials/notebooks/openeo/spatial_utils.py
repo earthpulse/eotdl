@@ -26,3 +26,5 @@ def buffer_geometry(gdf: gpd.GeoDataFrame, buffer: int, resolution: int) -> gpd.
     ).buffer(distance=buffer, cap_style=3)
     
     return gdf_utm
+
+
