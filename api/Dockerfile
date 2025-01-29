@@ -24,7 +24,7 @@ RUN apt-get update --fix-missing && \
     apt-get clean
 
 # Install xcube_geodb using mamba (conda takes forever)
-RUN mamba install -c conda-forge xcube_geodb
+RUN mamba install -c conda-forge xcube_geodb>=1.0.9
 
 RUN pip install --upgrade pip 
 RUN pip install fastapi
