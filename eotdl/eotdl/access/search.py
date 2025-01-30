@@ -19,8 +19,6 @@ def search_sentinel_imagery(
     evaluate_sentinel_parameters(
         sensor, time_interval, bounding_box, output_needed=False
     )
-
     client = SHClient()
     parameters = SH_PARAMETERS_DICT[sensor]()
-
     return client.search_data(bounding_box, time_interval, parameters)
