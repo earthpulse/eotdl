@@ -1,7 +1,7 @@
 from .client import get_client
 import os
 import hashlib
-
+import base64
 
 class Boto3Repo:
     def __init__(self):
@@ -14,12 +14,23 @@ class Boto3Repo:
         ]
 
     def store_chunk(self, data, storage, part, upload_id):
+        # Calculate SHA256 hash of the chunk data
+        if isinstance(data, bytes):
+            chunk_data = data
+        else:
+            chunk_data = data.read()
+            
+        content_sha256 = hashlib.sha256(chunk_data).digest()
+        content_sha256_b64 = base64.b64encode(content_sha256).decode('utf-8')
+
         response = self.client.upload_part(
-            Body=data,
+            Body=chunk_data,
             Bucket=self.bucket,
             Key=storage,
-            PartNumber=part,  # (offset // CHUNK_SIZE) + 1,
-            UploadId=upload_id,  # request.headers.get("upload_id"),
+            PartNumber=part,
+            UploadId=upload_id,
+            ChecksumAlgorithm='SHA256',
+            ChecksumSHA256=content_sha256_b64
         )
         return response["ETag"].strip('"')
 
