@@ -4,6 +4,8 @@ from glob import glob
 import stac_geoparquet
 import pandas as pd
 import geopandas as gpd
+import os
+from shapely.geometry import Polygon
 
 # import yaml
 # from tqdm import tqdm
@@ -11,7 +13,6 @@ import geopandas as gpd
 # import pystac
 
 from ..auth import with_auth
-from .metadata import Metadata
 # from ..repos import DatasetsAPIRepo, FilesAPIRepo
 # from ..files import ingest_files, create_new_version
 # # from ..curation.stac import STACDataFrame
@@ -19,74 +20,111 @@ from .metadata import Metadata
 # # from .update import update_dataset
 # # from .metadata import generate_metadata
 
-from ..curation.stac import create_stac_catalog_from_folder
+from ..curation.stac import create_stac_items_from_folder
+from ..models import Metadata
 
 
 def ingest_dataset(
-    path,
-    verbose=False,
-    logger=print,
-    force_metadata_update=False,
-    sync_metadata=False,
+	path,
+	verbose=False,
+	logger=print,
+	force_metadata_update=False,
+	sync_metadata=False,
 ):
-    path = Path(path)
-    if not path.is_dir():
-        raise Exception("Path must be a folder")
-    # if "catalog.json" in [f.name for f in path.iterdir()]:
-    #     return ingest_stac(path / "catalog.json", logger)
-    return ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
+	path = Path(path)
+	if not path.is_dir():
+		raise Exception("Path must be a folder")
+	# if "catalog.json" in [f.name for f in path.iterdir()]:
+	#     return ingest_stac(path / "catalog.json", logger)
+	return ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
 
 
 @with_auth
 def ingest_folder(
-    folder,
-    verbose=False,
-    logger=print,
-    force_metadata_update=False,
-    sync_metadata=False,
-    user=None,
+	folder,
+	verbose=False,
+	logger=print,
+	force_metadata_update=False,
+	sync_metadata=False,
+	user=None,
 ):
-    try:
-        readme = frontmatter.load(folder.joinpath("README.md"))
-        metadata, content = readme.metadata, readme.content
-        metadata["description"] = content
-        print(metadata)
-        metadata = Metadata(**metadata)
-        print(metadata)
-    except Exception as e:
-        print(str(e))
-        raise Exception("Error loading metadata")
+	try:
+		readme = frontmatter.load(folder.joinpath("README.md"))
+		metadata_dict = readme.metadata
+		# Add description from content before creating Metadata object
+		metadata_dict["description"] = readme.content
+		metadata = Metadata(**metadata_dict)
+	except Exception as e:
+		print(str(e))
+		raise Exception("Error loading metadata")
 
-    # repo = DatasetsAPIRepo()
-    # # retrieve dataset (create if doesn't exist)
-    # dataset = retrieve_dataset(metadata, user)
-    # update_metadata = True
-    # if "description" in dataset:
-    #     # do not do this if the dataset is new, only if it already exists
-    #     update_metadata = check_metadata(
-    #         dataset, metadata, content, force_metadata_update, sync_metadata, folder
-    #     )
-    # if update_metadata:
-    #     update_dataset(dataset["id"], metadata, content, user)
-    # return ingest_files(
-    #     repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
-    # )
+	# repo = DatasetsAPIRepo()
+	# # retrieve dataset (create if doesn't exist)
+	# dataset = retrieve_dataset(metadata, user)
+	# update_metadata = True
+	# if "description" in dataset:
+	#     # do not do this if the dataset is new, only if it already exists
+	#     update_metadata = check_metadata(
+	#         dataset, metadata, content, force_metadata_update, sync_metadata, folder
+	#     )
+	# if update_metadata:
+	#     update_dataset(dataset["id"], metadata, content, user)
+	# return ingest_files(
+	#     repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
+	# )
 
-    # print("Ingesting directory: ", folder)
-    # files = glob(str(folder) + '/**/*', recursive=True)
-    # print("Found", len(files), "files")
+	print("Ingesting directory: ", folder)
+	files = glob(str(folder) + '/**/*', recursive=True)
 
-    # # TODO: inger geometry from files (if tifs) or additional list of geometries
-    # gdf = gpd.GeoDataFrame({"path": files}, geometry=[None] * len(files))
-    
-    # # Save to parquet
-    # output_path = folder.joinpath("catalog.parquet")
-    # # df.to_parquet(output_path)
-    # gdf.to_parquet(output_path)
-    # return output_path
+	# TODO: inger geometry from files (if tifs) or additional list of geometries
+	# https://stac-utils.github.io/stac-geoparquet/latest/spec/stac-geoparquet-spec/#use-cases
+	data = []
+	for file in files:
+		file_path = Path(file)
+		if file_path.is_file():
+			# file_path = Path(file)
+			# item_dir = folder / file_path.name
+			# relative_path = Path(os.path.relpath(file_path.name, item_dir))
 
-    catalog = create_stac_catalog_from_folder(folder, metadata)
-    return catalog
+			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
+			data.append({
+				'stac_extensions': [],
+				'id': file,
+				'bbox': {
+                    'xmin': 0.0,
+                    'ymin': 0.0,
+                    'xmax': 0.0,
+                    'ymax': 0.0
+                }, # infer from file or from list of geometries
+				'geometry': Polygon(), # empty polygon
+				'assets': [{
+					'href': file,
+					# "checksum": "TODO",
+				}],
+				"links": [],
+				'collection': metadata.name,
+				# anything below are properties (need at least one!)
+				# 'properties': [],
+				'abc': [],
+				'123': {
+					'asfhjk': [1, 2, 3]
+				},
+				# '123:asd': [1, 2, 3] # this does not work for deeply nested properties
+			})
+
+
+	gdf = gpd.GeoDataFrame(data, geometry='geometry')
+	
+	# # Save to parquet
+	output_path = folder.joinpath("catalog.parquet")
+	# df.to_parquet(output_path)
+	gdf.to_parquet(output_path)
+	return output_path
+
+	# TODO: ingest files and parquet file
+
+	# catalog = create_stac_items_from_folder(folder, metadata)
+	# return catalog
 
 
 # def retrieve_dataset(metadata, user):
