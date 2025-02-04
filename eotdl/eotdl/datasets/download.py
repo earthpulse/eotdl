@@ -6,7 +6,7 @@ from ..auth import with_auth
 from .retrieve import retrieve_dataset, retrieve_dataset_files
 from ..repos import FilesAPIRepo, DatasetsAPIRepo
 from ..curation.stac import STACDataFrame
-from .metadata import generate_metadata
+# from .metadata import generate_metadata
 
 
 @with_auth
@@ -62,7 +62,7 @@ def download_dataset(
             )
             if verbose:
                 logger("Generating README.md ...")
-            generate_metadata(download_path, dataset)
+            # generate_metadata(download_path, dataset)
     else:
         if verbose:
             logger("Downloading STAC metadata...")

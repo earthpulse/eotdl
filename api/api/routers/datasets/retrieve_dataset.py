@@ -8,9 +8,9 @@ from ...src.models import Dataset
 from ...src.usecases.datasets import (
     retrieve_datasets,
     retrieve_dataset_by_name,
-    retrieve_dataset_files,
-    retrieve_datasets_leaderboard,
-    retrieve_popular_datasets,
+    # retrieve_dataset_files,
+    # retrieve_datasets_leaderboard,
+    # retrieve_popular_datasets,
 )
 from .responses import retrieve_datasets_responses, retrieve_files_responses
 
@@ -41,38 +41,38 @@ def retrieve(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get(
-    "/{dataset_id}/files",
-    summary="Retrieve list of files of a dataset",
-    responses=retrieve_files_responses,
-)
-def retrieve_files(
-    dataset_id: str = Path(..., description="ID of the dataset"),
-    version: int = Query(None, description="Version of the dataset"),
-):
-    """
-    Retrieve a list with the files of a given dataset. Files can be optionally filtered by version.
-    """
-    try:
-        return retrieve_dataset_files(dataset_id, version)
-    except Exception as e:
-        logger.exception("datasets:retrieve")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.get(
+#     "/{dataset_id}/files",
+#     summary="Retrieve list of files of a dataset",
+#     responses=retrieve_files_responses,
+# )
+# def retrieve_files(
+#     dataset_id: str = Path(..., description="ID of the dataset"),
+#     version: int = Query(None, description="Version of the dataset"),
+# ):
+#     """
+#     Retrieve a list with the files of a given dataset. Files can be optionally filtered by version.
+#     """
+#     try:
+#         return retrieve_dataset_files(dataset_id, version)
+#     except Exception as e:
+#         logger.exception("datasets:retrieve")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/leaderboard", include_in_schema=False)
-def leaderboard():
-    try:
-        return retrieve_datasets_leaderboard()
-    except Exception as e:
-        logger.exception("datasets:leaderboard")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.get("/leaderboard", include_in_schema=False)
+# def leaderboard():
+#     try:
+#         return retrieve_datasets_leaderboard()
+#     except Exception as e:
+#         logger.exception("datasets:leaderboard")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.get("/popular", include_in_schema=False)
-def retrieve_popular(limit: Union[int, None] = None):
-    try:
-        return retrieve_popular_datasets(limit)
-    except Exception as e:
-        logger.exception("datasets:retrieve_popular")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+# @router.get("/popular", include_in_schema=False)
+# def retrieve_popular(limit: Union[int, None] = None):
+#     try:
+#         return retrieve_popular_datasets(limit)
+#     except Exception as e:
+#         logger.exception("datasets:retrieve_popular")
+#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

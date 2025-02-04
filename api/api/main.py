@@ -17,24 +17,24 @@ from .routers.auth import (
 )
 from .routers.tags import retrieve_tags
 from .routers.datasets import (
-    retrieve_dataset,
     create_dataset,
+    retrieve_dataset,
     ingest_dataset,
-    download_dataset,
-    update_dataset,
-    upload_large_dataset_files,
-    delete_dataset,
+    # download_dataset,
+    # update_dataset,
+    # upload_large_dataset_files,
+    # delete_dataset,
 )
-from .routers.models import (
-    retrieve_models,
-    create_model,
-    ingest_model,
-    download_model,
-    upload_large_model_files,
-    update_model,
-    delete_model,
-)
-from .routers import admin, migrate
+# from .routers.models import (
+#     retrieve_models,
+#     create_model,
+#     ingest_model,
+#     download_model,
+#     upload_large_model_files,
+#     update_model,
+#     delete_model,
+# )
+# from .routers import admin, migrate
 
 VERSION = "2025.01.30"
 
@@ -98,28 +98,28 @@ app.include_router(api_keys.router, prefix="/auth", tags=["auth"])
 # tags
 app.include_router(retrieve_tags.router, prefix="/tags", tags=["tags"])
 # dataset
-app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(create_dataset.router, prefix="/datasets", tags=["datasets"])
+app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
-app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"])
-app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
-app.include_router(
-    upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
-)
-app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
-# files
+# app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"])
+# app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
+# app.include_router(
+#     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
+# )
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
-# models
-app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
-app.include_router(create_model.router, prefix="/models", tags=["models"])
-app.include_router(ingest_model.router, prefix="/models", tags=["models"])
-app.include_router(download_model.router, prefix="/models", tags=["models"])
-app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
-app.include_router(update_model.router, prefix="/models", tags=["models"])
-app.include_router(delete_model.router, prefix="/models", tags=["models"])
+# # files
+# # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
+# # models
+# app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
+# app.include_router(create_model.router, prefix="/models", tags=["models"])
+# app.include_router(ingest_model.router, prefix="/models", tags=["models"])
+# app.include_router(download_model.router, prefix="/models", tags=["models"])
+# app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
+# app.include_router(update_model.router, prefix="/models", tags=["models"])
+# app.include_router(delete_model.router, prefix="/models", tags=["models"])
 # other
-app.include_router(admin.router)
-app.include_router(migrate.router)
+# app.include_router(admin.router)
+# app.include_router(migrate.router)
 
 
 def make_metrics_app():

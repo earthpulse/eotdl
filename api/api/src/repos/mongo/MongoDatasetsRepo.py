@@ -20,14 +20,14 @@ class MongoDatasetsRepo(MongoRepo):
     def retrieve_dataset(self, dataset_id):
         return self.retrieve("datasets", dataset_id)
 
-    def persist_files(self, files, id):
-        return self.persist("files", files, id)
+    # def persist_files(self, files, id):
+    #     return self.persist("files", files, id)
 
-    def retrieve_files(self, id):
-        return self.retrieve("files", id)
+    # def retrieve_files(self, id):
+    #     return self.retrieve("files", id)
 
-    def delete_files(self, id):
-        return self.delete("files", id)
+    # def delete_files(self, id):
+    #     return self.delete("files", id)
 
     def persist_dataset(self, dataset, id):
         return self.persist("datasets", dataset, id)

@@ -6,17 +6,17 @@ import pandas as pd
 import geopandas as gpd
 import os
 from shapely.geometry import Polygon
+from tqdm import tqdm
 
 # import yaml
-# from tqdm import tqdm
 # import json
 # import pystac
 
 from ..auth import with_auth
-# from ..repos import DatasetsAPIRepo, FilesAPIRepo
+from ..repos import DatasetsAPIRepo, FilesAPIRepo
+from ..shared import calculate_checksum
 # from ..files import ingest_files, create_new_version
 # # from ..curation.stac import STACDataFrame
-# # from ..shared import calculate_checksum
 # # from .update import update_dataset
 # # from .metadata import generate_metadata
 
@@ -58,9 +58,9 @@ def ingest_folder(
 		print(str(e))
 		raise Exception("Error loading metadata")
 
-	# repo = DatasetsAPIRepo()
-	# # retrieve dataset (create if doesn't exist)
-	# dataset = retrieve_dataset(metadata, user)
+	repo = DatasetsAPIRepo()
+	# retrieve dataset (create if doesn't exist)
+	dataset = retrieve_dataset(metadata, user)
 	# update_metadata = True
 	# if "description" in dataset:
 	#     # do not do this if the dataset is new, only if it already exists
@@ -76,8 +76,9 @@ def ingest_folder(
 	print("Ingesting directory: ", folder)
 	files = glob(str(folder) + '/**/*', recursive=True)
 
-	# TODO: inger geometry from files (if tifs) or additional list of geometries
+	# ingest geometry from files (if tifs) or additional list of geometries
 	# https://stac-utils.github.io/stac-geoparquet/latest/spec/stac-geoparquet-spec/#use-cases
+	# TODO: for large datasets, explore pyarrow
 	data = []
 	for file in files:
 		file_path = Path(file)
@@ -91,11 +92,11 @@ def ingest_folder(
 				'stac_extensions': [],
 				'id': file,
 				'bbox': {
-                    'xmin': 0.0,
-                    'ymin': 0.0,
-                    'xmax': 0.0,
-                    'ymax': 0.0
-                }, # infer from file or from list of geometries
+					'xmin': 0.0,
+					'ymin': 0.0,
+					'xmax': 0.0,
+					'ymax': 0.0
+				}, # infer from file or from list of geometries
 				'geometry': Polygon(), # empty polygon
 				'assets': [{
 					'href': file,
@@ -115,32 +116,59 @@ def ingest_folder(
 
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
 	
-	# # Save to parquet
-	output_path = folder.joinpath("catalog.parquet")
-	# df.to_parquet(output_path)
-	gdf.to_parquet(output_path)
-	return output_path
+
 
 	# TODO: ingest files and parquet file
 
-	# catalog = create_stac_items_from_folder(folder, metadata)
-	# return catalog
+	files_repo = FilesAPIRepo()
+	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Uploading files"):
+		try:
+			for i, asset in enumerate(row[1]["assets"]):
+				# print(asset['href'])
+				file = Path(asset["href"])
+				data, error = files_repo.ingest_file(
+					asset["href"],
+					file.stat().st_size,
+					dataset['id'],
+					user,
+					# calculate_checksum(asset["href"]),  # is always absolute?
+					"datasets",
+					# version,
+				)
+				if error:
+					raise Exception(error)
+				file_url = f"{repo.url}datasets/{dataset['id']}/download/{asset["href"]}"
+				gdf.loc[row[0], "assets"][i]["href"] = file_url
+		except Exception as e:
+			print(f"Error uploading asset {row[0]}: {e}")
+			break
+
+	# Save to parquet
+	output_path = folder.joinpath("catalog.parquet")
+	# df.to_parquet(output_path)
+	gdf.to_parquet(output_path)
+
+	# TODO: ingest parquet file
+
+	
+	return output_path
 
 
-# def retrieve_dataset(metadata, user):
-#     repo = DatasetsAPIRepo()
-#     data, error = repo.retrieve_dataset(metadata.name)
-#     # print(data, error)
-#     if data and data["uid"] != user["uid"]:
-#         raise Exception("Dataset already exists.")
-#     if error and error == "Dataset doesn't exist":
-#         # create dataset
-#         data, error = repo.create_dataset(metadata.dict(), user)
-#         # print(data, error)
-#         if error:
-#             raise Exception(error)
-#         data["id"] = data["dataset_id"]
-#     return data
+
+def retrieve_dataset(metadata, user):
+	repo = DatasetsAPIRepo()
+	data, error = repo.retrieve_dataset(metadata.name)
+	# print(data, error)
+	if data and data["uid"] != user["uid"]:
+		raise Exception("Dataset already exists.")
+	if error and error == "Dataset doesn't exist":
+		# create dataset
+		data, error = repo.create_dataset(metadata.dict(), user)
+		# print(data, error)
+		if error:
+			raise Exception(error)
+		data["id"] = data["dataset_id"]
+	return data
 
 
 
