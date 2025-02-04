@@ -9,34 +9,6 @@ from ..datasets import (
 
 app = typer.Typer(help="Explore, ingest and download training datasets.")
 
-
-@app.command()
-def list(
-    name: str = typer.Option(
-        None, "--name", "-n", help="Filter the returned datasets by name"
-    ),
-    limit: int = typer.Option(
-        None, "--limit", "-l", help="Limit the number of returned results"
-    ),
-):
-    """
-    Retrieve a list with all the datasets in the EOTDL.
-
-    If using --name, it will filter the results by name. If no name is provided, it will return all the datasets.\n
-    If using --limit, it will limit the number of results. If no limit is provided, it will return all the datasets.
-    \n\n
-    Examples\n
-    --------\n
-    $ eotdl datasets list\n
-    $ eotdl datasets list --name YourModel --limit 5
-    """
-    try:
-        datasets = retrieve_datasets(name, limit)
-        typer.echo(datasets)
-    except Exception as e:
-        typer.echo(e)
-
-
 @app.command()
 def ingest(
     path: Path = typer.Option(
@@ -62,7 +34,7 @@ def ingest(
     ),
 ):
     """
-    Ingest a dataset to the EOTDL.
+    Ingest a dataset to the EOTDL.asdf
 
     This command ingests the dataset to the EOTDL. The dataset must be a folder with the dataset files,
     and at least a README.md file (and a catalog.json file for Q1+). If these files are missing, the ingestion
@@ -90,6 +62,35 @@ def ingest(
         ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata)
     except Exception as e:
         typer.echo(e)
+        
+@app.command()
+def list(
+    name: str = typer.Option(
+        None, "--name", "-n", help="Filter the returned datasets by name"
+    ),
+    limit: int = typer.Option(
+        None, "--limit", "-l", help="Limit the number of returned results"
+    ),
+):
+    """
+    Retrieve a list with all the datasets in the EOTDL.
+
+    If using --name, it will filter the results by name. If no name is provided, it will return all the datasets.\n
+    If using --limit, it will limit the number of results. If no limit is provided, it will return all the datasets.
+    \n\n
+    Examples\n
+    --------\n
+    $ eotdl datasets list\n
+    $ eotdl datasets list --name YourModel --limit 5
+    """
+    try:
+        datasets = retrieve_datasets(name, limit)
+        typer.echo(datasets)
+    except Exception as e:
+        typer.echo(e)
+
+
+
 
 
 @app.command()

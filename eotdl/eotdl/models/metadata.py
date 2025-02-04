@@ -8,6 +8,7 @@ class Metadata(BaseModel):
     license: str
     source: str
     name: str
+    description: str
     thumbnail: Optional[str] = ""
 
     # validate source is a URL
@@ -20,23 +21,25 @@ class Metadata(BaseModel):
     # validate thumbnail is a url
     @validator("thumbnail")
     def thumbnail_is_url(cls, v):
+        if not v:
+            return ""
         if not v.startswith("http") and not v.startswith("https"):
             raise ValueError("thumbnail must be a URL")
         return v
 
 
-def generate_metadata(download_path, model):
+def generate_metadata(download_path, dataset):
     with open(download_path + "/README.md", "w") as f:
         f.write("---\n")
-        f.write(f"name: {model['name']}\n")
-        f.write(f"license: {model['license']}\n")
-        f.write(f"source: {model['source']}\n")
-        f.write(f"thumbnail: {model['thumbnail']}\n")
+        f.write(f"name: {dataset['name']}\n")
+        f.write(f"license: {dataset['license']}\n")
+        f.write(f"source: {dataset['source']}\n")
+        f.write(f"thumbnail: {dataset['thumbnail']}\n")
         f.write(f"authors:\n")
-        for author in model["authors"]:
+        for author in dataset["authors"]:
             f.write(f"  - {author}\n")
         f.write("---\n")
-        f.write(model["description"])
+        f.write(dataset["description"])
     # remove metadata.yml if exists
     if Path(download_path + "/metadata.yml").exists():
         Path(download_path + "/metadata.yml").unlink()
