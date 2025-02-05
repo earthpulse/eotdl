@@ -4,7 +4,7 @@ from pathlib import Path
 from ..datasets import (
     retrieve_datasets,
     ingest_dataset,
-    download_dataset,
+    stage_dataset,
 )
 
 app = typer.Typer(help="Explore, ingest and download training datasets.")
@@ -89,10 +89,6 @@ def list(
     except Exception as e:
         typer.echo(e)
 
-
-
-
-
 @app.command()
 def get(
     dataset: str = typer.Argument(None, help="Name of the dataset to download"),
@@ -131,7 +127,7 @@ def get(
     $ eotdl dataset get YourDataset --path /path/to/download --file dataset.zip --version 1 --assets True --force True --verbose True
     """
     try:
-        dst_path = download_dataset(
+        dst_path = stage_dataset(
             dataset,
             version,
             path,

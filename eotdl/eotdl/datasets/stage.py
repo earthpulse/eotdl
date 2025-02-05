@@ -33,17 +33,19 @@ def stage_dataset(
     download_base_path = os.getenv(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )
-    # if path is None:
-    #     download_path = download_base_path + "/" + dataset_name + "/v" + str(version)
-    # else:
-    #     download_path = path + "/" + dataset_name + "/v" + str(version)
-    download_path = download_base_path + "/" + dataset_name 
-    # # check if dataset already exists
-    # if os.path.exists(download_path) and not force:
-    #     os.makedirs(download_path, exist_ok=True)
-    #     raise Exception(
-    #         f"Dataset `{dataset['name']} v{str(version)}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
-    #     )
+    if path is None:
+        download_path = download_base_path + "/" + dataset_name #+ "/v" + str(version)
+    else:
+        download_path = path + "/" + dataset_name #∫+ "/v" + str(version)
+    # check if dataset already exists
+    if os.path.exists(download_path) and not force:
+        os.makedirs(download_path, exist_ok=True)
+        # raise Exception(
+        #     f"Dataset `{dataset['name']} v{str(version)}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
+        # )
+        raise Exception(
+            f"Dataset `{dataset['name']}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
+        )
 
     # stage metadata
     repo = FilesAPIRepo()
