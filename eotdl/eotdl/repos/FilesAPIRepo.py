@@ -12,7 +12,7 @@ class FilesAPIRepo(APIRepo):
         super().__init__(url)
 
     def ingest_file(
-        self, file_path, file_name, files_size, dataset_or_model_id, user, endpoint, version=None
+        self, file_path_or_bytes, file_name, files_size, dataset_or_model_id, user, endpoint, version=None
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
@@ -36,12 +36,19 @@ class FilesAPIRepo(APIRepo):
         error = None
         try:
             presigned_url = data["presigned_url"]
-            with open(file_path, 'rb') as f:
-                # Read file data into memory
-                file_data = f.read()
+            if isinstance(file_path_or_bytes, (str, bytes)):
+                if isinstance(file_path_or_bytes, str):
+                    # Handle file path
+                    with open(file_path_or_bytes, 'rb') as f:
+                        file_data = f.read()
+                else:
+                    # Handle bytes directly
+                    file_data = file_path_or_bytes
                 # Send file data to presigned URL
                 response = requests.put(presigned_url, data=file_data)
                 response.raise_for_status()
+            else:
+                raise TypeError("file_path_or_bytes must be either a file path string or bytes")
         except Exception as e:
             error = str(e)
         return data, error
@@ -67,12 +74,16 @@ class FilesAPIRepo(APIRepo):
         path,
         user,
     ):
-        file_name = url.split("/stage/")[-1]
-        reponse = requests.get(url, headers=self.generate_headers(user))
-        data, error = self.format_response(reponse)
-        if error:
-            raise Exception(error)
-        presigned_url = data["presigned_url"]
+        if '/stage/' in url:  # asset is in EOTDL (can do better...)
+            file_name = url.split("/stage/")[-1] 
+            reponse = requests.get(url, headers=self.generate_headers(user))
+            data, error = self.format_response(reponse)
+            if error:
+                raise Exception(error)
+            presigned_url = data["presigned_url"]
+        else:
+            file_name = url.split("//")[-1]
+            presigned_url = url
         file_path = f"{path}/{file_name}"
         for i in range(1, len(file_path.split("/")) - 1):
             os.makedirs("/".join(file_path.split("/")[: i + 1]), exist_ok=True)

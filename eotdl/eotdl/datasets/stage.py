@@ -51,6 +51,8 @@ def stage_dataset(
     repo = FilesAPIRepo()
     catalog_path = repo.stage_file(dataset["id"], "catalog.parquet", user, download_path)
 
+    # TODO: stage README.md
+
     if assets:
         gdf = gpd.read_parquet(catalog_path)
         for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):

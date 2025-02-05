@@ -7,10 +7,12 @@ import geopandas as gpd
 import os
 from shapely.geometry import Polygon
 from tqdm import tqdm
+from io import BytesIO
+import pystac
+import stac_geoparquet
 
 # import yaml
 # import json
-# import pystac
 
 from ..auth import with_auth
 from ..repos import DatasetsAPIRepo, FilesAPIRepo
@@ -34,22 +36,17 @@ def ingest_dataset(
 	path = Path(path)
 	if not path.is_dir():
 		raise Exception("Path must be a folder")
-	# if "catalog.json" in [f.name for f in path.iterdir()]:
-	#     return ingest_stac(path / "catalog.json", logger)
-	return ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
+	if "catalog.json" in [f.name for f in path.iterdir()]:
+		prep_ingest_stac(path, logger)
+	else:
+		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
+	return ingest(path)
 
 
 @with_auth
-def ingest_folder(
-	folder,
-	verbose=False,
-	logger=print,
-	force_metadata_update=False,
-	sync_metadata=False,
-	user=None,
-):
+def ingest(path, user):
 	try:
-		readme = frontmatter.load(folder.joinpath("README.md"))
+		readme = frontmatter.load(path.joinpath("README.md"))
 		metadata_dict = readme.metadata
 		# Add description from content before creating Metadata object
 		metadata_dict["description"] = readme.content
@@ -57,7 +54,6 @@ def ingest_folder(
 	except Exception as e:
 		print(str(e))
 		raise Exception("Error loading metadata")
-
 	repo = DatasetsAPIRepo()
 	# retrieve dataset (create if doesn't exist)
 	dataset = retrieve_dataset(metadata, user)
@@ -72,25 +68,57 @@ def ingest_folder(
 	# return ingest_files(
 	#     repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
 	# )
+	catalog_path = path.joinpath("catalog.parquet")
+	gdf = gpd.read_parquet(catalog_path)
+	files_repo = FilesAPIRepo()
+	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
+		try:
+			for k, v in row[1]["assets"].items():
+				if v["href"].startswith("http"): continue
+				file = catalog_path.parent / Path(v["href"])
+				data, error = files_repo.ingest_file(
+					str(file),
+					v["href"],
+					file.stat().st_size,
+					dataset['id'],
+					user,
+					# calculate_checksum(asset["href"]),  # is always absolute?
+					"datasets",
+					# version,
+				)
+				if error:
+					raise Exception(error)
+				file_url = f"{repo.url}datasets/{dataset['id']}/stage/{v["href"]}"
+				gdf.loc[row[0], "assets"][k]["href"] = file_url
+		except Exception as e:
+			print(f"Error uploading asset {row[0]}: {e}")
+			break
+	files_repo.ingest_file(str(catalog_path), "catalog.parquet", catalog_path.stat().st_size, dataset['id'], user, "datasets")
+	# TODO: ingest README.md
+	data, error = repo.complete_ingestion(dataset['id'], user)
+	if error:
+		raise Exception(error)
+	return catalog_path
 
-	print("Ingesting directory: ", folder)
+def prep_ingest_folder(
+	folder,
+	verbose=False,
+	logger=print,
+	force_metadata_update=False,
+	sync_metadata=False,
+):
+	logger("Ingesting directory: ", folder)
 	catalog_path = folder.joinpath("catalog.parquet")
 	catalog_path.touch()
-
 	files = glob(str(folder) + '/**/*', recursive=True)
-
+	# TODO: exclude README y catalog de files
 	# ingest geometry from files (if tifs) or additional list of geometries
 	# https://stac-utils.github.io/stac-geoparquet/latest/spec/stac-geoparquet-spec/#use-cases
-	# TODO: for large datasets, explore pyarrow
 	data = []
 	for file in files:
 		file_path = Path(file)
 		if file_path.is_file():
-			# file_path = Path(file)
-			# item_dir = folder / file_path.name
-			# relative_path = Path(os.path.relpath(file_path.name, item_dir))
 			relative_path = os.path.relpath(file_path, catalog_path.parent)
-
 			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
 			data.append({
 				'stac_extensions': [],
@@ -102,13 +130,13 @@ def ingest_folder(
 					'ymax': 0.0
 				}, # infer from file or from list of geometries
 				'geometry': Polygon(), # empty polygon
-				'assets': [{
+				'assets': { 'asset': {
 					# 'href': file,
 					'href': relative_path,
 					# "checksum": "TODO",
-				}],
+				}},
 				"links": [],
-				'collection': metadata.name,
+				'collection': 'source',
 				# anything below are properties (need at least one!)
 				# 'properties': [],
 				'abc': [],
@@ -117,44 +145,82 @@ def ingest_folder(
 				},
 				# '123:asd': [1, 2, 3] # this does not work for deeply nested properties
 			})
-
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
-
-	files_repo = FilesAPIRepo()
-	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
-		try:
-			for i, asset in enumerate(row[1]["assets"]):
-				# print(asset['href'])
-				file = catalog_path.parent / Path(asset["href"])
-				data, error = files_repo.ingest_file(
-					str(file),
-					asset["href"],
-					file.stat().st_size,
-					dataset['id'],
-					user,
-					# calculate_checksum(asset["href"]),  # is always absolute?
-					"datasets",
-					# version,
-				)
-				if error:
-					raise Exception(error)
-				file_url = f"{repo.url}datasets/{dataset['id']}/stage/{asset["href"]}"
-				gdf.loc[row[0], "assets"][i]["href"] = file_url
-		except Exception as e:
-			print(f"Error uploading asset {row[0]}: {e}")
-			break
-
 	# Save to parquet
 	gdf.to_parquet(catalog_path)
-	files_repo.ingest_file(str(catalog_path), "catalog.parquet", catalog_path.stat().st_size, dataset['id'], user, "datasets")
+	return catalog_path
+
+def prep_ingest_stac(path, logger=None): # in theory should work with a remote catalog (given URL)
+	# read stac catalog
+	stac_catalog = path / "catalog.json"
+	catalog = pystac.Catalog.from_file(stac_catalog)
+	# generate list of items for all collections
+	items = []
+	for collection in catalog.get_collections():
+		# iterate over items
+		for item in tqdm(collection.get_items(), desc=f"Ingesting items from collection {collection.id}"):
+			assert isinstance(item, pystac.Item)
+			items.append(item)
+	# save parquet file
+	record_batch_reader = stac_geoparquet.arrow.parse_stac_items_to_arrow(items)
+	output_path = stac_catalog.parent / "catalog.parquet"
+	stac_geoparquet.arrow.to_parquet(record_batch_reader, output_path)
+	return output_path
+
+@with_auth
+def ingest_virutal_dataset( # could work for a list of paths with minimal changes...
+	metadata, 
+	links,
+	logger=print,
+	user=None,
+):
+	metadata = Metadata(**metadata)
+	repo = DatasetsAPIRepo()
+	dataset = retrieve_dataset(metadata, user)
+	data = []
+	for link in links:
+		assert link.startswith("http"), "All links must start with http or https"
+		data.append({
+			'stac_extensions': [],
+			'id': link,
+			'bbox': {
+				'xmin': 0.0,
+				'ymin': 0.0,
+				'xmax': 0.0,
+				'ymax': 0.0
+			}, # infer from file or from list of geometries
+			'geometry': Polygon(), # empty polygon
+			'assets': [{
+				# 'href': file,
+				'href': link,
+				# "checksum": "TODO",
+			}],
+			"links": [],
+			'collection': metadata.name,
+			# anything below are properties (need at least one!)
+			# 'properties': [],
+			'abc': [],
+			'123': {
+				'asfhjk': [1, 2, 3]
+			},
+			# '123:asd': [1, 2, 3] # this does not work for deeply nested properties
+		})
+	gdf = gpd.GeoDataFrame(data, geometry='geometry')
+
+	# TODO: ingest catalog and README.md
+	files_repo = FilesAPIRepo()
+	# Create parquet bytes in memory
+	buffer = BytesIO()
+	gdf.to_parquet(buffer)
+	parquet_bytes = buffer.getvalue()
+	buffer.close()
+	files_repo.ingest_file(parquet_bytes, "catalog.parquet", len(parquet_bytes), dataset['id'], user, "datasets")
+
 
 	data, error = repo.complete_ingestion(dataset['id'], user)
 	if error:
 		raise Exception(error)
-	
-	return catalog_path
-
-
+	return "Dataset ingested successfully"
 
 def retrieve_dataset(metadata, user):
 	repo = DatasetsAPIRepo()
@@ -170,10 +236,6 @@ def retrieve_dataset(metadata, user):
 			raise Exception(error)
 		data["id"] = data["dataset_id"]
 	return data
-
-
-
-
 
 # def check_metadata(
 #     dataset, metadata, content, force_metadata_update, sync_metadata, folder
@@ -214,44 +276,3 @@ def retrieve_dataset(metadata, user):
 #     return data["id"]
 
 
-# @with_auth
-# def ingest_stac(stac_catalog, logger=None, user=None):
-#     repo, files_repo = DatasetsAPIRepo(), FilesAPIRepo()
-#     # load catalog
-#     logger("Loading STAC catalog...")
-#     df = STACDataFrame.from_stac_file(stac_catalog) # assets are absolute for file ingestion
-#     catalog = df[df["type"] == "Catalog"]
-#     assert len(catalog) == 1, "STAC catalog must have exactly one root catalog"
-#     dataset_name = catalog.id.iloc[0]
-#     # retrieve dataset (create if doesn't exist)
-#     dataset_id = retrieve_stac_dataset(dataset_name, user)
-#     # create new version
-#     version = create_new_version(repo, dataset_id, user)
-#     logger("New version created, version: " + str(version))
-#     df2 = df.dropna(subset=["assets"])
-#     for row in tqdm(df2.iterrows(), total=len(df2)):
-#         try:
-#             for k, v in row[1]["assets"].items():
-#                 data, error = files_repo.ingest_file(
-#                     v["href"],
-#                     dataset_id,
-#                     user,
-#                     calculate_checksum(v["href"]),  # is always absolute?
-#                     "datasets",
-#                     version,
-#                 )
-#                 if error:
-#                     raise Exception(error)
-#                 file_url = f"{repo.url}datasets/{data['dataset_id']}/download/{data['filename']}"
-#                 df.loc[row[0], "assets"][k]["href"] = file_url
-#         except Exception as e:
-#             logger(f"Error uploading asset {row[0]}: {e}")
-#             break
-#     # ingest the STAC catalog into geodb
-#     logger("Ingesting STAC catalog...")
-#     data, error = repo.ingest_stac(json.loads(df.to_json()), dataset_id, user)
-#     if error:
-#         # TODO: delete all assets that were uploaded
-#         raise Exception(error)
-#     logger("Done")
-#     return
