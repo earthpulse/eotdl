@@ -12,7 +12,7 @@ class FilesAPIRepo(APIRepo):
         super().__init__(url)
 
     def ingest_file(
-        self, file_name, files_size, dataset_or_model_id, user, endpoint, version=None
+        self, file_path, file_name, files_size, dataset_or_model_id, user, endpoint, version=None
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
@@ -36,7 +36,7 @@ class FilesAPIRepo(APIRepo):
         error = None
         try:
             presigned_url = data["presigned_url"]
-            with open(file_name, 'rb') as f:
+            with open(file_path, 'rb') as f:
                 # Read file data into memory
                 file_data = f.read()
                 # Send file data to presigned URL
@@ -45,6 +45,74 @@ class FilesAPIRepo(APIRepo):
         except Exception as e:
             error = str(e)
         return data, error
+
+    def stage_file(
+        self,
+        dataset_or_model_id,
+        file_name,
+        user,
+        path,
+        endpoint="datasets",
+        progress=False,
+    ):
+        url = self.url + f"{endpoint}/{dataset_or_model_id}/stage/{file_name}"
+        # if file_version is not None:
+        #     url += "?version=" + str(file_version)
+        return self.stage_file_url(url, path, user)
+
+
+    def stage_file_url(
+        self,
+        url,
+        path,
+        user,
+    ):
+        file_name = url.split("/stage/")[-1]
+        reponse = requests.get(url, headers=self.generate_headers(user))
+        data, error = self.format_response(reponse)
+        if error:
+            raise Exception(error)
+        presigned_url = data["presigned_url"]
+        file_path = f"{path}/{file_name}"
+        for i in range(1, len(file_path.split("/")) - 1):
+            os.makedirs("/".join(file_path.split("/")[: i + 1]), exist_ok=True)
+        try:
+            response = requests.get(presigned_url)
+            response.raise_for_status()  # This will raise an HTTPError for 4XX and 5XX status codes
+            with open(file_path, 'wb') as f:
+                f.write(response.content)
+        except requests.exceptions.HTTPError as e:
+            raise Exception(f"Failed to stage file: {str(e)}")
+        except Exception as e:
+            raise Exception(f"Unexpected error while staging file: {str(e)}")
+        return file_path
+        
+        # can we download large files?
+
+        # with requests.get(presigned_url, headers=headers, stream=True) as r:
+        #     r.raise_for_status()
+        #     total_size = int(r.headers.get("content-length", 0))
+        #     block_size = 1024 * 1024 * 10
+        #     progress = progress and total_size > 1024 * 1024 * 16
+        #     if progress:
+        #         progress_bar = tqdm(
+        #             total=total_size,
+        #             unit="iB",
+        #             unit_scale=True,
+        #             unit_divisor=1024,
+        #             position=1,
+        #         )
+        #     with open(path, "wb") as f:
+        #         for chunk in r.iter_content(block_size):
+        #             if progress:
+        #                 progress_bar.update(len(chunk))
+        #             if chunk:
+        #                 f.write(chunk)
+        #     if progress:
+        #         progress_bar.close()
+        #     return path
+
+
 
     # def ingest_files_batch(
     #     self,
@@ -91,20 +159,7 @@ class FilesAPIRepo(APIRepo):
     #     response = requests.get(url)
     #     return self.format_response(response)
 
-    # def download_file(
-    #     self,
-    #     dataset_or_model_id,
-    #     file_name,
-    #     user,
-    #     path,
-    #     file_version,
-    #     endpoint="datasets",
-    #     progress=False,
-    # ):
-    #     url = self.url + f"{endpoint}/{dataset_or_model_id}/download/{file_name}"
-    #     if file_version is not None:
-    #         url += "?version=" + str(file_version)
-    #     return self.download_file_url(url, file_name, path, user, progress=progress)
+
 
     # def download_file_url(self, url, filename, path, user, progress=False):
     #     headers = self.generate_headers(user)

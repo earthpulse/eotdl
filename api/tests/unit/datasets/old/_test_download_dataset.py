@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import asyncio
 from prometheus_client import REGISTRY
 
-from api.src.usecases.datasets.download_dataset import DownloadDataset
+from api.api.src.usecases.datasets.stage_dataset import DownloadDataset
 from api.src.errors import (
     TierLimitError,
     DatasetDoesNotExistError,

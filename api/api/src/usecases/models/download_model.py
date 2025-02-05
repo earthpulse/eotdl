@@ -4,7 +4,7 @@ import prometheus_client
 from ...repos import OSRepo, GeoDBRepo, FilesDBRepo
 from .retrieve_model import retrieve_model
 from ..user import retrieve_user_credentials
-from ..datasets.download_dataset import eotdl_api_downloaded_bytes
+from ..datasets.stage_dataset import eotdl_api_downloaded_bytes
 
 
 def download_model_file(model_id, filename, user, version=None):

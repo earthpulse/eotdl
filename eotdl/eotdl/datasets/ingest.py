@@ -74,6 +74,9 @@ def ingest_folder(
 	# )
 
 	print("Ingesting directory: ", folder)
+	catalog_path = folder.joinpath("catalog.parquet")
+	catalog_path.touch()
+
 	files = glob(str(folder) + '/**/*', recursive=True)
 
 	# ingest geometry from files (if tifs) or additional list of geometries
@@ -86,11 +89,12 @@ def ingest_folder(
 			# file_path = Path(file)
 			# item_dir = folder / file_path.name
 			# relative_path = Path(os.path.relpath(file_path.name, item_dir))
+			relative_path = os.path.relpath(file_path, catalog_path.parent)
 
 			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
 			data.append({
 				'stac_extensions': [],
-				'id': file,
+				'id': relative_path,
 				'bbox': {
 					'xmin': 0.0,
 					'ymin': 0.0,
@@ -99,7 +103,8 @@ def ingest_folder(
 				}, # infer from file or from list of geometries
 				'geometry': Polygon(), # empty polygon
 				'assets': [{
-					'href': file,
+					# 'href': file,
+					'href': relative_path,
 					# "checksum": "TODO",
 				}],
 				"links": [],
@@ -113,20 +118,16 @@ def ingest_folder(
 				# '123:asd': [1, 2, 3] # this does not work for deeply nested properties
 			})
 
-
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
-	
-
-
-	# TODO: ingest files and parquet file
 
 	files_repo = FilesAPIRepo()
-	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Uploading files"):
+	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
 		try:
 			for i, asset in enumerate(row[1]["assets"]):
 				# print(asset['href'])
-				file = Path(asset["href"])
+				file = catalog_path.parent / Path(asset["href"])
 				data, error = files_repo.ingest_file(
+					str(file),
 					asset["href"],
 					file.stat().st_size,
 					dataset['id'],
@@ -137,21 +138,21 @@ def ingest_folder(
 				)
 				if error:
 					raise Exception(error)
-				file_url = f"{repo.url}datasets/{dataset['id']}/download/{asset["href"]}"
+				file_url = f"{repo.url}datasets/{dataset['id']}/stage/{asset["href"]}"
 				gdf.loc[row[0], "assets"][i]["href"] = file_url
 		except Exception as e:
 			print(f"Error uploading asset {row[0]}: {e}")
 			break
 
 	# Save to parquet
-	output_path = folder.joinpath("catalog.parquet")
-	# df.to_parquet(output_path)
-	gdf.to_parquet(output_path)
+	gdf.to_parquet(catalog_path)
+	files_repo.ingest_file(str(catalog_path), "catalog.parquet", catalog_path.stat().st_size, dataset['id'], user, "datasets")
 
-	# TODO: ingest parquet file
-
+	data, error = repo.complete_ingestion(dataset['id'], user)
+	if error:
+		raise Exception(error)
 	
-	return output_path
+	return catalog_path
 
 
 

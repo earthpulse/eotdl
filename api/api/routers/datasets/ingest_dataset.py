@@ -8,6 +8,7 @@ from ..auth import get_current_user
 from ...src.models import User
 from ...src.usecases.datasets import (
     ingest_dataset_file,
+    complete_dataset_ingestion
     # ingest_dataset_files_batch,
     # add_files_batch_to_dataset_version,
     # ingest_stac,
@@ -51,6 +52,24 @@ async def ingest_files(
         )
         return {
             "presigned_url": presigned_url,
+        }
+    except Exception as e:
+        logger.exception("datasets:ingest")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@router.post(
+    "/complete/{dataset_id}",
+    summary="Complete the ingestion of a dataset",
+    responses=ingest_files_responses,
+)
+def complete_ingestion(
+    dataset_id: str = Path(..., description="ID of the dataset"),
+    user: User = Depends(get_current_user),
+):
+    try:
+        complete_dataset_ingestion(dataset_id, user)
+        return {
+            "message": "Ingestion completed"
         }
     except Exception as e:
         logger.exception("datasets:ingest")

@@ -20,7 +20,7 @@ from .routers.datasets import (
     create_dataset,
     retrieve_dataset,
     ingest_dataset,
-    # download_dataset,
+    stage_dataset,
     # update_dataset,
     # upload_large_dataset_files,
     # delete_dataset,
@@ -101,7 +101,7 @@ app.include_router(retrieve_tags.router, prefix="/tags", tags=["tags"])
 app.include_router(create_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
-# app.include_router(download_dataset.router, prefix="/datasets", tags=["datasets"])
+app.include_router(stage_dataset.router, prefix="/datasets", tags=["datasets"])
 # app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 # app.include_router(
 #     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]

@@ -20,6 +20,11 @@ class MinioRepo:
         return self.client.presigned_put_object(
             self.bucket, self.get_object(dataset_id, file_name)
         )
+    
+    def get_presigned_url(self, dataset_id, file_name):
+        return self.client.presigned_get_object(
+            self.bucket, self.get_object(dataset_id, file_name)
+        )
 
     # def persist_file(self, path_or_file, dataset_id, filename):
     #     object = self.get_object(dataset_id, filename)
