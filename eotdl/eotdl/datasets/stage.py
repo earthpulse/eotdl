@@ -12,7 +12,7 @@ from ..repos import FilesAPIRepo, DatasetsAPIRepo
 @with_auth
 def stage_dataset(
     dataset_name,
-    version=1,
+    version=None,
     path=None,
     logger=print,
     assets=False,
@@ -22,9 +22,12 @@ def stage_dataset(
     file=None,
 ):
     dataset = retrieve_dataset(dataset_name)
-    # assert version in [
-    #     v["version_id"] for v in dataset["versions"]
-    # ], f"Version {version} not found"
+    if version is None:
+        version = sorted([v['version_id'] for v in dataset["versions"]])[-1]
+    else:
+        assert version in [
+            v["version_id"] for v in dataset["versions"]
+        ], f"Version {version} not found"
     download_base_path = os.getenv(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )

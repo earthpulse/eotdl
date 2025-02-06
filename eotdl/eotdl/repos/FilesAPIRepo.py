@@ -12,7 +12,7 @@ class FilesAPIRepo(APIRepo):
         super().__init__(url)
 
     def ingest_file(
-        self, file_path_or_bytes, file_name, files_size, dataset_or_model_id, user, endpoint, version=None
+        self, file_path_or_bytes, file_name, dataset_or_model_id, user, endpoint, version=None
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
@@ -20,16 +20,14 @@ class FilesAPIRepo(APIRepo):
         # get a presigned url to upload the file directly to the bucket
         reponse = requests.post(
             url,
-            # files={"file": open(file, "rb")},
             json={
                 "file_name": file_name,
-                "file_size": files_size,
+                # "file_size": files_size,
                 # "checksum": checksum
             },
             headers=self.generate_headers(user),
         )
         data, error = self.format_response(reponse)
-        # TODO: if file exists, compare sizes/checksums to avoid reupload
         if error:
             raise Exception(error)
         # ingest the file

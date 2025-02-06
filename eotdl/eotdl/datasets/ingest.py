@@ -83,6 +83,7 @@ def ingest(path, user):
 
 	# first time ingesting
 	if catalog_url is None:
+		total_size = 0
 		for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
 			try:
 				for k, v in row[1]["assets"].items():
@@ -91,7 +92,7 @@ def ingest(path, user):
 					data, error = files_repo.ingest_file(
 						v["href"],
 						item_id, 
-						Path(v["href"]).stat().st_size,
+						# Path(v["href"]).stat().st_size,
 						dataset['id'],
 						user,
 						"datasets",
@@ -100,20 +101,23 @@ def ingest(path, user):
 						raise Exception(error)
 					file_url = f"{repo.url}datasets/{dataset['id']}/stage/{item_id}"
 					gdf.loc[row[0], "assets"][k]["href"] = file_url
+					total_size += v["size"]
 			except Exception as e:
 				print(f"Error uploading asset {row[0]}: {e}")
 				break
 		gdf.to_parquet(catalog_path)
-		files_repo.ingest_file(str(catalog_path), f'catalog.v{current_version}.parquet', catalog_path.stat().st_size, dataset['id'], user, "datasets")
-		data, error = repo.complete_ingestion(dataset['id'], user)
+		files_repo.ingest_file(str(catalog_path), f'catalog.v{current_version}.parquet', dataset['id'], user, "datasets")
+		data, error = repo.complete_ingestion(dataset['id'], current_version, total_size, user)
 		if error:
 			raise Exception(error)
 		return catalog_path
 	
 	# files were already ingested
 	# TODO: check for deleted files (currently only updating existing files and ingesting new ones)
+	# TODO: adding new links in virtual datasets dont trigger new version (but changing README does)
 	new_version = False
 	num_changes = 0
+	total_size = 0
 	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
 		try:
 			for k, v in row[1]["assets"].items():
@@ -125,10 +129,11 @@ def ingest(path, user):
 					filters=[('id', '=', item_id)]
 				)
 				if len(df) > 0: # file exists in previous versions
-					if df.iloc[0]['assets'][k]["checksum"] == v["checksum"]: # files is the same
+					if df.iloc[0]['assets'][k]["checksum"] == v["checksum"]: # file is the same
 						# still need to update the required fields
 						file_url = f"{repo.url}datasets/{dataset['id']}/stage/{item_id}"
 						gdf.loc[row[0], "assets"][k]["href"] = file_url
+						total_size += v["size"]
 						continue
 					else: # file is different, so ingest new version but with a different id
 						item_id = item_id + f"-{random.randint(1, 1000000)}"
@@ -139,7 +144,7 @@ def ingest(path, user):
 				data, error = files_repo.ingest_file(
 					v["href"],
 					item_id, # item id, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
-					Path(v["href"]).stat().st_size,
+					# Path(v["href"]).stat().st_size,
 					dataset['id'],
 					user,
 					# calculate_checksum(asset["href"]),  # is always absolute?
@@ -150,6 +155,7 @@ def ingest(path, user):
 					raise Exception(error)
 				file_url = f"{repo.url}datasets/{dataset['id']}/stage/{item_id}"
 				gdf.loc[row[0], "assets"][k]["href"] = file_url
+				total_size += v["size"]
 		except Exception as e:
 			print(f"Error uploading asset {row[0]}: {e}")
 			break
@@ -160,9 +166,9 @@ def ingest(path, user):
 		print("A new version was created, your dataset has changed.")
 		print(f"Num changes: {num_changes}")
 		gdf.to_parquet(catalog_path)
-		files_repo.ingest_file(str(catalog_path), f'catalog.v{new_version}.parquet', catalog_path.stat().st_size, dataset['id'], user, "datasets")
+		files_repo.ingest_file(str(catalog_path), f'catalog.v{new_version}.parquet', dataset['id'], user, "datasets")
 		# TODO: ingest README.md
-		data, error = repo.complete_ingestion(dataset['id'], user)
+		data, error = repo.complete_ingestion(dataset['id'], new_version, total_size, user)
 		if error:
 			raise Exception(error)
 		return catalog_path
@@ -189,29 +195,7 @@ def prep_ingest_folder(
 			relative_path = os.path.relpath(file_path, catalog_path.parent)
 			absolute_path = str(file_path)
 			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
-			data.append({
-				'type': 'Feature',
-				'stac_version': '1.0.0',
-				'stac_extensions': [],
-				'datetime': datetime.now(),  # must be native timestamp (https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp)
-				'id': relative_path,
-				'bbox': {
-					'xmin': 0.0,
-					'ymin': 0.0,
-					'xmax': 0.0,
-					'ymax': 0.0
-				}, # infer from file or from list of geometries
-				'geometry': Polygon(), # empty polygon
-				'assets': { 'asset': { # STAC needs this to be a Dict[str, Asset], not list !!! use same key or parquet breaks !!!
-					'href': absolute_path,
-					'checksum': calculate_checksum(absolute_path),
-					'timestamp': datetime.now(),
-				}},
-				"links": [],
-				# 'collection': 'source',
-				# anything below are properties (need at least one!)
-				'repository': 'eotdl',				
-			})
+			data.append(create_stac_item(relative_path, absolute_path))
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
 	# Save to parquet
 	gdf.to_parquet(catalog_path)
@@ -255,53 +239,14 @@ def ingest_virutal_dataset( # could work for a list of paths with minimal change
 	else:
 		metadata = Metadata(**metadata)
 		metadata.save_metadata(path)
-
-	repo = DatasetsAPIRepo()
-	dataset = retrieve_dataset(metadata, user)
 	data = []
 	for link in links:
 		assert link.startswith("http"), "All links must start with http or https"
-		data.append({
-			'type': 'Feature',
-			'stac_version': '1.0.0',
-			'stac_extensions': [],
-			'datetime': datetime.now(), 
-			'id': link,
-			'bbox': {
-				'xmin': 0.0,
-				'ymin': 0.0,
-				'xmax': 0.0,
-				'ymax': 0.0
-			}, # infer from file or from list of geometries
-			'geometry': Polygon(), # empty polygon
-			'assets': { 'asset': { 
-				'href': link,
-			}},
-			"links": [],
-			'collection': metadata.name,
-			# anything below are properties (need at least one!)
-			'repository': 'eotdl',
-		})
+		data.append(create_stac_item(link, link))
+	data.append(create_stac_item('README.md', str(path / "README.md")))
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
-
-	# TODO: ingest catalog and README.md
-	files_repo = FilesAPIRepo()
-	# Create parquet bytes in memory
-	# buffer = BytesIO()
-	# gdf.to_parquet(buffer)
-	# parquet_bytes = buffer.getvalue()
-	# buffer.close()
-	# files_repo.ingest_file(parquet_bytes, "catalog.parquet", len(parquet_bytes), dataset['id'], user, "datasets")
-
-	os.makedirs(path, exist_ok=True)
 	gdf.to_parquet(path / "catalog.parquet")
-	files_repo.ingest_file(str(path / "catalog.parquet"), "catalog.parquet", path.stat().st_size, dataset['id'], user, "datasets")
-	files_repo.ingest_file(str(path / "README.md"), "README.md", path.stat().st_size, dataset['id'], user, "datasets")
-
-	data, error = repo.complete_ingestion(dataset['id'], user)
-	if error:
-		raise Exception(error)
-	return "Dataset ingested successfully"
+	return ingest(path)
 
 def retrieve_dataset(metadata, user):
 	repo = DatasetsAPIRepo()
@@ -315,9 +260,33 @@ def retrieve_dataset(metadata, user):
 		# print(data, error)
 		if error:
 			raise Exception(error)
-		data["id"] = data["dataset_id"]
 	return data
 
+def create_stac_item(item_id, asset_href):
+	return {
+		'type': 'Feature',
+		'stac_version': '1.0.0',
+		'stac_extensions': [],
+		'datetime': datetime.now(),  # must be native timestamp (https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp)
+		'id': item_id,
+		'bbox': {
+			'xmin': 0.0,
+			'ymin': 0.0,
+			'xmax': 0.0,
+			'ymax': 0.0
+		}, # infer from file or from list of geometries
+		'geometry': Polygon(), # empty polygon
+		'assets': { 'asset': { # STAC needs this to be a Dict[str, Asset], not list !!! use same key or parquet breaks !!!
+			'href': asset_href,
+			'checksum': calculate_checksum(asset_href) if not asset_href.startswith("http") else None,
+			'timestamp': datetime.now(),
+			'size': Path(asset_href).stat().st_size if not asset_href.startswith("http") else None,
+		}},
+		"links": [],
+		# 'collection': 'source',
+		# anything below are properties (need at least one!)
+		'repository': 'eotdl',				
+	}
 # def check_metadata(
 #     dataset, metadata, content, force_metadata_update, sync_metadata, folder
 # ):

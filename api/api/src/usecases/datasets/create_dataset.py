@@ -35,7 +35,7 @@ def create_dataset(user, name, authors, source, license, thumbnail, description)
         # repo.persist_files(files.model_dump(), files.id)
         repo.persist_dataset(dataset.model_dump(), dataset.id)
         repo.increase_user_dataset_count(user.uid)
-        return dataset.id
+        return dataset
 
 
 # def create_stac_dataset(user, name):

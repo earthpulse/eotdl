@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class IngestDatasetBody(BaseModel):
     file_name: str
-    file_size: int
+    # file_size: int
     # checksum: str ?
     # version: Optional[int] = None # necesairo ?
 
@@ -48,7 +48,7 @@ async def ingest_files(
     """
     try:
         presigned_url = await ingest_dataset_file(
-            body.file_name, body.file_size, dataset_id, user
+            body.file_name, dataset_id, user
         )
         return {
             "presigned_url": presigned_url,
@@ -57,6 +57,10 @@ async def ingest_files(
         logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+class CompleteIngestionBody(BaseModel):
+    version: int
+    size: int
+
 @router.post(
     "/complete/{dataset_id}",
     summary="Complete the ingestion of a dataset",
@@ -64,10 +68,11 @@ async def ingest_files(
 )
 def complete_ingestion(
     dataset_id: str = Path(..., description="ID of the dataset"),
+    body: CompleteIngestionBody = Body(..., description="Version and size of the dataset"),
     user: User = Depends(get_current_user),
 ):
     try:
-        complete_dataset_ingestion(dataset_id, user)
+        complete_dataset_ingestion(dataset_id, user, body.version, body.size)
         return {
             "message": "Ingestion completed"
         }

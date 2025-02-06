@@ -16,28 +16,10 @@ from ...repos import DatasetsDBRepo, OSRepo#, GeoDBRepo
 # from ..utils.stac import STACDataFrame
 
 
-async def ingest_dataset_file(file_name, file_size, dataset_id, user, version = None):
+async def ingest_dataset_file(file_name, dataset_id, user):
     dataset = retrieve_owned_dataset(dataset_id, user.uid)
-    versions = [v.version_id for v in dataset.versions]
-    version = versions[0] if not version else version
-    if not version in versions:
-        raise DatasetVersionDoesNotExistError()
     os_repo = OSRepo()
     presigned_url = os_repo.generate_presigned_put_url(dataset_id, file_name)
-    # TODO check if files exists
-    # file_size = await ingest_file(
-    #     filename,
-    #     version,
-    #     dataset_id,
-    #     checksum,
-    #     dataset.files,
-    # )
-    # version = [v for v in dataset.versions if v.version_id == version][0]
-    # version.size += file_size
-    # dataset.updatedAt = datetime.now()
-    # dataset_db_repo = DatasetsDBRepo()
-    # dataset_db_repo.update_dataset(dataset.id, dataset.dict())
-    # presigned_url = presigned_url.replace("http://eotdl-minio:9000/", "http://localhost:1030/")
     return presigned_url
 
 

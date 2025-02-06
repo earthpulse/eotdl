@@ -39,7 +39,7 @@ def create(
     - thumbnail: an image to use as the thumbnail of the dataset in the website.
     """
     try:
-        dataset_id = create_dataset(
+        dataset = create_dataset(
             user,
             body.name,
             body.authors,
@@ -48,7 +48,7 @@ def create(
             body.thumbnail,
             body.description,
         )
-        return {"dataset_id": dataset_id}
+        return dataset
     except Exception as e:
         logger.exception("datasets:create")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

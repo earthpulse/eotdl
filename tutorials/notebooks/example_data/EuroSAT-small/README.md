@@ -1,11 +1,11 @@
 ---
-name: EuroSAT-small
+name: EuroSAT-RGB-small-STAC
 authors: 
   - Juan B. Pedro
 license: free
-source: https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/02_ingesting.ipynb
+source: https://github.com/earthpulse/eotdl/blob/develop/tutorials/workshops/philab24/02_prototype_ingesting.ipynb
 ---
 
-# EuroSAT-small
+# EuroSAT-RGB-small-STAC
 
-This is a small subet of the EuroSAT dataset.
+This is a prototype of the EuroSAT dataset.

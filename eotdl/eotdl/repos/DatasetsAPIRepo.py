@@ -36,10 +36,10 @@ class DatasetsAPIRepo(APIRepo):
         )
         return self.format_response(response)
 
-    def complete_ingestion(self, dataset_id, user):
+    def complete_ingestion(self, dataset_id, version, size, user):
         response = requests.post(
             self.url + "datasets/complete/" + dataset_id,
-            # json={"version": new_version},
+            json={"version": version, "size": size},
             headers=self.generate_headers(user),
         )
         return self.format_response(response)
