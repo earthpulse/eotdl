@@ -12,7 +12,7 @@ from ..repos import FilesAPIRepo, DatasetsAPIRepo
 @with_auth
 def stage_dataset(
     dataset_name,
-    version=None,
+    version=1,
     path=None,
     logger=print,
     assets=False,
@@ -22,14 +22,9 @@ def stage_dataset(
     file=None,
 ):
     dataset = retrieve_dataset(dataset_name)
-    if version is None:
-        version = sorted(dataset["versions"], key=lambda v: v["version_id"])[-1][
-            "version_id"
-        ]
-    else:
-        assert version in [
-            v["version_id"] for v in dataset["versions"]
-        ], f"Version {version} not found"
+    # assert version in [
+    #     v["version_id"] for v in dataset["versions"]
+    # ], f"Version {version} not found"
     download_base_path = os.getenv(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )
@@ -49,15 +44,15 @@ def stage_dataset(
 
     # stage metadata
     repo = FilesAPIRepo()
-    catalog_path = repo.stage_file(dataset["id"], "catalog.parquet", user, download_path)
+    catalog_path = repo.stage_file(dataset["id"], f"catalog.v{version}.parquet", user, download_path)
 
     # TODO: stage README.md
 
     if assets:
         gdf = gpd.read_parquet(catalog_path)
         for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):
-            for asset in row["assets"]:
-                stage_dataset_file(asset["href"], download_path)
+            for k, v in row["assets"].items():
+                stage_dataset_file(v["href"], download_path)
 
     return download_path
 

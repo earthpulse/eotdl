@@ -97,7 +97,16 @@ class FilesAPIRepo(APIRepo):
         except Exception as e:
             raise Exception(f"Unexpected error while staging file: {str(e)}")
         return file_path
-        
+    
+    def generate_presigned_url(self, filename, dataset_or_model_id, user, endpoint="datasets"):
+        url = f"{self.url}{endpoint}/{dataset_or_model_id}/stage/{filename}"
+        reponse = requests.get(url, headers=self.generate_headers(user))
+        data, error = self.format_response(reponse)
+        if error:
+            print("ERROR generate_presigned_url", error)
+            return None
+        return data["presigned_url"]
+
         # can we download large files?
 
         # with requests.get(presigned_url, headers=headers, stream=True) as r:

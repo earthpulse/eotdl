@@ -1,7 +1,7 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional
 from pathlib import Path
-
+import os
 
 class Metadata(BaseModel):
     authors: List[str]
@@ -28,19 +28,17 @@ class Metadata(BaseModel):
         return v
 
 
-def generate_metadata(download_path, dataset):
-    with open(download_path + "/README.md", "w") as f:
-        f.write("---\n")
-        f.write(f"name: {dataset['name']}\n")
-        f.write(f"license: {dataset['license']}\n")
-        f.write(f"source: {dataset['source']}\n")
-        f.write(f"thumbnail: {dataset['thumbnail']}\n")
-        f.write(f"authors:\n")
-        for author in dataset["authors"]:
-            f.write(f"  - {author}\n")
-        f.write("---\n")
-        f.write(dataset["description"])
-    # remove metadata.yml if exists
-    if Path(download_path + "/metadata.yml").exists():
-        Path(download_path + "/metadata.yml").unlink()
-    return download_path + "/README.md"
+    def save_metadata(self, dst_path):
+        os.makedirs(dst_path, exist_ok=True)
+        with open(Path(dst_path) / "README.md", "w") as f:
+            f.write("---\n")
+            f.write(f"name: {self.name}\n")
+            f.write(f"license: {self.license}\n") 
+            f.write(f"source: {self.source}\n")
+            f.write(f"thumbnail: {self.thumbnail}\n")
+            f.write(f"authors:\n")
+            for author in self.authors:
+                f.write(f"  - {author}\n")
+            f.write("---\n")
+            f.write(self.description)
+        return str(Path(dst_path) / "README.md")

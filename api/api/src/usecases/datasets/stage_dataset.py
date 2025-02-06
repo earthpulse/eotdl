@@ -14,6 +14,9 @@ eotdl_api_downloaded_bytes = prometheus_client.Counter(
 
 def stage_dataset_file(dataset_id, filename, user, version=None):
     os_repo = OSRepo()
+    # if file does not exist, return None
+    if not os_repo.exists(dataset_id, filename):
+        raise Exception(f"File `{filename}` does not exist")
     return os_repo.get_presigned_url(dataset_id, filename)
 
 

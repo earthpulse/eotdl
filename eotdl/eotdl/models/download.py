@@ -6,8 +6,7 @@ from ..auth import with_auth
 from .retrieve import retrieve_model, retrieve_model_files
 from ..shared import calculate_checksum
 from ..repos import FilesAPIRepo, ModelsAPIRepo
-from .metadata import generate_metadata
-from ..curation.stac import STACDataFrame
+# from .metadata import generate_metadata
 
 
 @with_auth
@@ -63,7 +62,7 @@ def download_model(
             )
             if verbose:
                 logger("Generating README.md ...")
-            generate_metadata(download_path, model)
+            # generate_metadata(download_path, model)
     else:
         if verbose:
             logger("Downloading STAC metadata...")

@@ -5,12 +5,11 @@ from tqdm import tqdm
 import json
 
 from ..auth import with_auth
-from .metadata import Metadata, generate_metadata
+from .metadata import Metadata
 from ..repos import ModelsAPIRepo, FilesAPIRepo
 from ..shared import calculate_checksum
 from ..files import ingest_files, create_new_version
 from .update import update_model
-from ..curation.stac import STACDataFrame
 
 
 def ingest_model(
@@ -98,9 +97,9 @@ def check_metadata(
             )
         if force_metadata_update:
             return True
-        if sync_metadata:
-            generate_metadata(str(folder), dataset)
-            return False
+        # if sync_metadata:
+        #     generate_metadata(str(folder), dataset)
+        #     return False
     return False
 
 

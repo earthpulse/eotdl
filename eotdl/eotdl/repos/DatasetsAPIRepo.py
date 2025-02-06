@@ -39,6 +39,7 @@ class DatasetsAPIRepo(APIRepo):
     def complete_ingestion(self, dataset_id, user):
         response = requests.post(
             self.url + "datasets/complete/" + dataset_id,
+            # json={"version": new_version},
             headers=self.generate_headers(user),
         )
         return self.format_response(response)
