@@ -10,6 +10,7 @@ from tqdm import tqdm
 from io import BytesIO
 import pystac
 import stac_geoparquet
+from datetime import datetime
 
 # import yaml
 # import json
@@ -75,11 +76,10 @@ def ingest(path, user):
 		try:
 			for k, v in row[1]["assets"].items():
 				if v["href"].startswith("http"): continue
-				file = catalog_path.parent / Path(v["href"])
 				data, error = files_repo.ingest_file(
-					str(file),
 					v["href"],
-					file.stat().st_size,
+					row[1]["id"], # item id, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
+					Path(v["href"]).stat().st_size,
 					dataset['id'],
 					user,
 					# calculate_checksum(asset["href"]),  # is always absolute?
@@ -93,6 +93,7 @@ def ingest(path, user):
 		except Exception as e:
 			print(f"Error uploading asset {row[0]}: {e}")
 			break
+	gdf.to_parquet(catalog_path)
 	files_repo.ingest_file(str(catalog_path), "catalog.parquet", catalog_path.stat().st_size, dataset['id'], user, "datasets")
 	# TODO: ingest README.md
 	data, error = repo.complete_ingestion(dataset['id'], user)
@@ -119,9 +120,13 @@ def prep_ingest_folder(
 		file_path = Path(file)
 		if file_path.is_file():
 			relative_path = os.path.relpath(file_path, catalog_path.parent)
+			absolute_path = str(file_path)
 			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
 			data.append({
+				'type': 'Feature',
+				'stac_version': '1.0.0',
 				'stac_extensions': [],
+				'datetime': datetime.now(),  # must be native timestamp (https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp)
 				'id': relative_path,
 				'bbox': {
 					'xmin': 0.0,
@@ -130,13 +135,12 @@ def prep_ingest_folder(
 					'ymax': 0.0
 				}, # infer from file or from list of geometries
 				'geometry': Polygon(), # empty polygon
-				'assets': { 'asset': {
-					# 'href': file,
-					'href': relative_path,
+				'assets': { 'asset': { # STAC needs this to be a Dict[str, Asset], not list !!! use same key or parquet breaks !!!
+					'href': absolute_path,
 					# "checksum": "TODO",
 				}},
 				"links": [],
-				'collection': 'source',
+				# 'collection': 'source',
 				# anything below are properties (need at least one!)
 				# 'properties': [],
 				'abc': [],
@@ -150,10 +154,14 @@ def prep_ingest_folder(
 	gdf.to_parquet(catalog_path)
 	return catalog_path
 
+# IF THE KEYS IN THE ASSETS ARE NOT THE SAME ON ALL ITEMS, THE PARQUET WILL NOT BE VALID !!!
 def prep_ingest_stac(path, logger=None): # in theory should work with a remote catalog (given URL)
 	# read stac catalog
 	stac_catalog = path / "catalog.json"
 	catalog = pystac.Catalog.from_file(stac_catalog)
+	# make all items paths hredf in assets absolute
+	catalog.normalize_hrefs(str(path))
+	catalog.make_all_asset_hrefs_absolute() 
 	# generate list of items for all collections
 	items = []
 	for collection in catalog.get_collections():
