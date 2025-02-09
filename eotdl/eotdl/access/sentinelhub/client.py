@@ -15,6 +15,7 @@ from sentinelhub import (
     SentinelHubDownloadClient,
     MimeType,
 )
+import uuid
 
 from ...repos.AuthRepo import AuthRepo
 from .parameters import SHParameters
@@ -57,7 +58,7 @@ class SHClient:
                     self.config.sh_client_id = creds["SH_CLIENT_ID"]
                     self.config.sh_client_secret = creds["SH_CLIENT_SECRET"]
         self.catalog = SentinelHubCatalog(config=self.config)
-        self.tmp_dir = "/tmp/sentinelhub"
+        self.tmp_dir = "/tmp/sentinelhub/" + str(uuid.uuid4())
 
     def search_data(
         self, bounding_box: list, time_interval: list, parameters: SHParameters
@@ -109,5 +110,4 @@ class SHClient:
             requests = [requests]
         download_requests = [request.download_list[0] for request in requests]
         data = download_client.download(download_requests)
-
         return data

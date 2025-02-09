@@ -7,7 +7,7 @@ from datetime import timedelta
 
 path = '/fastdata/Satellogic/data/'
 
-NUM_SAMPLES = 100000
+NUM_SAMPLES = 1000000
 TIME_BUFFER = 6 # days
 NUM_CORES = multiprocessing.cpu_count()
 REQUEST_LIMIT = 1200
