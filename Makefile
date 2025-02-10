@@ -1,7 +1,11 @@
 build:
-	sed -i 's/^VERSION = .*/VERSION = "$(v)"/' api/api/main.py
-	docker build -t eotdl/api:${v} ./api
-
+	# linux
+	# sed -i 's/^VERSION = .*/VERSION = "$(v)"/' api/api/main.py
+	# docker build -t eotdl/api:${v} ./api
+	# mac
+	sed -i '' 's/^VERSION = .*/VERSION = "$(v)"/' api/api/main.py
+	docker build --platform linux/amd64 -t eotdl/api:${v} ./api
+	
 push:
 	docker push eotdl/api:${v}
 
