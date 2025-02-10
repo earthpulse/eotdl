@@ -2,15 +2,6 @@
 #  SH API rate limit: 1200 requests/minute
 REQUEST_LIMIT = 1200
 
-path = '/fastdata/Satellogic/data/'
-dst_path = '/fastdata/Satellogic/data/'
-
-SAMPLES_PER_ZONE= 10000 # 69 zones
-TIME_BUFFER = 6 # days
-CLOUD_COVER_THRESHOLD = 0.0 # %
-WIDTH = 38
-HEIGHT = 38
-
 import geopandas as gpd
 import json
 from pathlib import Path
@@ -18,11 +9,22 @@ import requests
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
-from eotdl.access import search_sentinel_imagery, download_sentinel_imagery
-from datetime import datetime, timedelta
+from eotdl.access import download_sentinel_imagery
+from datetime import datetime
 from eotdl.tools import bbox_from_centroid
 
+path = '/fastdata/Satellogic/data/'
+dst_path = '/fastdata/Satellogic/data/'
+
+CLOUD_COVER_THRESHOLD = 0.1 # %
+WIDTH = 38
+HEIGHT = 38
+NUM_CORES = multiprocessing.cpu_count()
+
+
+
 def download_images(json_path, centroid, date):
+	json_path = json_path.replace('data/', path)
 	# satellogic
 	with open(json_path, 'r') as f:
 		metadata = json.load(f)
@@ -54,17 +56,14 @@ def download_images(json_path, centroid, date):
 		return None
 	return (dst_path_sentinel, output_path)
 
-def search_matches(args):
-	date, bb, json_path, centroid = args
-	dates = [(date - timedelta(days=TIME_BUFFER/2)).strftime('%Y-%m-%d'), (date + timedelta(days=TIME_BUFFER/2)).strftime('%Y-%m-%d')]
-	bb = [bb[0], bb[1], bb[2], bb[3]]
-	results = list(search_sentinel_imagery(dates, bb, 'sentinel-2-l2a'))
-	if len(results) > 0:
+def download_matches(args):
+	matches, date, json_path, centroid = args
+	if len(matches) > 0:
 		# filter by cloud cover
-		results_filtered = [r for r in results if r['properties']['eo:cloud_cover'] <= CLOUD_COVER_THRESHOLD]
-		if len(results_filtered) > 0:
+		matches_filtered = [r for r in matches if r['properties']['eo:cloud_cover'] <= CLOUD_COVER_THRESHOLD]
+		if len(matches_filtered) > 0:
 			# Find closest match by date
-			closest_match = min(results_filtered, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
+			closest_match = min(matches_filtered, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
 			return download_images(json_path, centroid, closest_match['properties']['datetime'])
 		return None
 	return None
@@ -88,28 +87,22 @@ def search_matches(args):
 
 if __name__ == "__main__":
 	print("Reading Satellogic Earthview items... ", end="", flush=True)
-	gdf = gpd.read_parquet(path + 'satellogic-earthview-items.parquet')
+	gdf = gpd.read_parquet(path + 'satellogic-earthview-items-with-matches.parquet')
 	print("Done")
-
 	zones = sorted(gdf['zone'].unique())
-
-	num_cores = 1 #multiprocessing.cpu_count()
 	for z, zone in enumerate(zones):
 		zone_gdf = gdf[gdf['zone'] == zone]
-		n_samples = min(SAMPLES_PER_ZONE, len(zone_gdf))  
-		print("Zone:", zone, f"({z+1}/{len(zones)})", f"({n_samples} samples)")
-		sample = zone_gdf.sample(n_samples, random_state=2025)
-		args = [(item.date, item.geometry.bounds, item.json_path, item.geometry.centroid) for _, item in sample.iterrows()]
-		with ProcessPoolExecutor(max_workers=num_cores) as pool:
+		print("Zone:", zone, f"({z+1}/{len(zones)})", f"({len(zone_gdf)} samples)")
+		args = [(item.matches, item.date, item.json_path, item.geometry.centroid) for _, item in zone_gdf.iterrows()]
+		with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
 			with tqdm(total=len(args)) as progress:
 				futures = []
 				for arg in args:
-					future = pool.submit(search_matches, arg) 
+					future = pool.submit(download_matches, arg) 
 					future.add_done_callback(lambda p: progress.update())
 					futures.append(future)
 				results = []
 				for future in futures:
 					result = future.result()
 					results.append(result)
-		print("Found", sum(1 for r in results if r is not None), "matches")
-		# break
+		print("Downloaded", sum(1 for r in results if r is not None), "matches")

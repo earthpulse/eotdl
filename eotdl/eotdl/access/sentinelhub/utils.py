@@ -50,7 +50,7 @@ def evaluate_sentinel_parameters(
 
 def imagery_from_tmp_to_dir(
     output_dir: str,
-    tmp_dir: Optional[str] = "/tmp/sentinelhub",
+    tmp_dir: Optional[str],
     name: Optional[str] = None,
     bulk: Optional[bool] = False,
 ) -> None:
@@ -60,9 +60,7 @@ def imagery_from_tmp_to_dir(
     downloaded_files = glob(f"{tmp_dir}/**/response.tiff")
     if len(downloaded_files) == 0:
         return
-
     makedirs(output_dir, exist_ok=True)
-
     for downloaded_file in downloaded_files:
         request_json = downloaded_file.replace("response.tiff", "request.json")
         metadata = generate_raster_metadata(downloaded_file, request_json)
@@ -75,11 +73,9 @@ def imagery_from_tmp_to_dir(
                 output_filename = f"{metadata['type']}_{metadata['acquisition-date']}"
             else:
                 output_filename = metadata["type"]
-
         copyfile(downloaded_file, f"{output_dir}/{output_filename}.tif")
         with open(f"{output_dir}/{output_filename}.json", "w", encoding="utf-8") as f:
             json.dump(metadata, f)
-
     rmtree(tmp_dir)
 
 

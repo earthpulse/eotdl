@@ -42,8 +42,9 @@ def download_sentinel_imagery(
         bulk = False
     else:
         bulk = True
-    client.download_data(requests_list)
-    imagery_from_tmp_to_dir(output, name=name, bulk=bulk)
+
+    data = client.download_data(requests_list)
+    imagery_from_tmp_to_dir(output, client.tmp_dir, name=name, bulk=bulk)
 
 
 def search_and_download_sentinel_imagery(
