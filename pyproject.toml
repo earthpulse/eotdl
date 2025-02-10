@@ -19,3 +19,6 @@ dependencies = [
     "tqdm>=4.67.1",
     "typer>=0.15.1",
 ]
+
+[tool.uv.workspace]
+members = ["eotdl"]
