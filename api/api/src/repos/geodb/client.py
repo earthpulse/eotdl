@@ -10,5 +10,5 @@ def get_client(credentials):
         server_port=credentials["GEODB_API_SERVER_PORT"],
         client_id=credentials["GEODB_AUTH_CLIENT_ID"],
         client_secret=credentials["GEODB_AUTH_CLIENT_SECRET"],
-        auth_aud=credentials["GEODB_AUTH_DOMAIN"],
+        auth_domain=credentials["GEODB_AUTH_DOMAIN"],
     )
