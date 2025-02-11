@@ -1,0 +1,25 @@
+[project]
+name = "eotdl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "geomet>=1.1.0",
+    "geopandas>=1.0.1",
+    "jupyter>=1.1.1",
+    "markdown>=3.7",
+    "minio>=7.2.15",
+    "pydantic>=2.10.6",
+    "pyjwt>=2.10.1",
+    "pystac>=1.12.1",
+    "python-dotenv>=1.0.1",
+    "python-frontmatter>=1.1.0",
+    "pyyaml>=6.0.2",
+    "rasterio>=1.4.3",
+    "requests>=2.32.3",
+    "sentinelhub>=3.11.1",
+    "stac-geoparquet>=0.6.0",
+    "tqdm>=4.67.1",
+    "typer>=0.15.1",
+]
