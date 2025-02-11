@@ -40,17 +40,14 @@
   let filtered_datasets;
   const load = async () => {
     dataset = await retrieveDataset(data.name);
-    description = await carta.render(dataset.description);
-    if (!description) {
-      description = dataset.description;
-    }
+    description = await carta.render(dataset.metadata.description);
   };
 
   $: {
     filtered_datasets = $datasets.data;
     filtered_datasets &&
       filtered_datasets.forEach((element, i) => {
-        if (element.id == dataset.id) curent_image = links[i % links.length];
+        if (element?.id == dataset?.id) curent_image = links[i % links.length];
       });
   }
   const loadDatasets = async () => {
@@ -73,8 +70,6 @@
     else if (dataset?.quality == 1) upgradeNotebook = "04_q2_datasets";
     else upgradeNotebook = "";
   }
-
-  $: console.log(dataset);
 </script>
 
 <svelte:head>
@@ -116,17 +111,15 @@
           </span>
         </span>
         <span class="flex flex-row gap-2">
-          {#if dataset.quality < 2}
-            <a
-              class="btn btn-outline"
-              href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
-              target="_blank">Upgrade</a
-            >
-          {/if}
-          {#if dataset.training_template}
+          <!-- <a
+            class="btn btn-outline"
+            href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
+            target="_blank">Upgrade</a
+          > -->
+          <!-- {#if dataset.training_template}
             <Train {dataset} />
-          {/if}
-          {#if $user}
+          {/if} -->
+          <!-- {#if $user}
             {#if $user.uid == dataset.uid}
               <Update
                 store={datasets}
@@ -143,7 +136,7 @@
                 bind:selected_tags={dataset.tags}
               />
             {/if}
-          {/if}
+          {/if} -->
         </span>
       </div>
       <hr class="sm:hidden" />
@@ -152,19 +145,8 @@
       >
         <div class="w-full overflow-auto">
           <div class="content">
-            {#if description}
               {@html description}
-            {:else}
-              <p class="italic">No description.</p>
-            {/if}
           </div>
-          {#if dataset.quality > 0}
-            <pre class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
-                dataset.catalog,
-                null,
-                4,
-              )}</pre>
-          {/if}
         </div>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
           <hr class="sm:hidden" />
@@ -185,22 +167,15 @@
               >
             {/if}
           </div>
-          {#if dataset.quality == 0}
             <div class="flex flex-col gap-3">
-              <Metadata data={dataset} />
-              <FileExplorer
+              <Metadata data={dataset.metadata} />
+              <!-- <FileExplorer
                 data={dataset}
                 {version}
                 retrieveFiles={retrieveDatasetFiles}
                 datasetId={dataset.id}
-              />
-            </div>
-          {:else if dataset.items?.features?.length > 0}
-            <div class="flex flex-col gap-3 w-full h-[200px]">
-              <p>Total items: {dataset.items?.features.length}</p>
-              <Map geojson={dataset.items} />
-            </div>
-          {/if}
+              /> -->
+          </div>
         </div>
       </div>
     </div>

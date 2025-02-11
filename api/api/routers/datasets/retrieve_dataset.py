@@ -8,8 +8,8 @@ from ...src.models import Dataset
 from ...src.usecases.datasets import (
     retrieve_datasets,
     retrieve_dataset_by_name,
+    retrieve_datasets_leaderboard,
     # retrieve_dataset_files,
-    # retrieve_datasets_leaderboard,
     # retrieve_popular_datasets,
 )
 from .responses import retrieve_datasets_responses, retrieve_files_responses
@@ -40,6 +40,13 @@ def retrieve(
         logger.exception("datasets:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+@router.get("/leaderboard", include_in_schema=False)
+def leaderboard():
+    try:
+        return retrieve_datasets_leaderboard()
+    except Exception as e:
+        logger.exception("datasets:leaderboard")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 # @router.get(
 #     "/{dataset_id}/files",
@@ -60,13 +67,7 @@ def retrieve(
 #         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-# @router.get("/leaderboard", include_in_schema=False)
-# def leaderboard():
-#     try:
-#         return retrieve_datasets_leaderboard()
-#     except Exception as e:
-#         logger.exception("datasets:leaderboard")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
 
 
 # @router.get("/popular", include_in_schema=False)

@@ -1,6 +1,6 @@
 from .retrieve_datasets import (
     retrieve_datasets,
-    # retrieve_datasets_leaderboard,
+    retrieve_datasets_leaderboard,
     # retrieve_popular_datasets,
 )
 from .retrieve_dataset import retrieve_dataset_by_name#, retrieve_dataset_files
