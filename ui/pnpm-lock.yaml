@@ -20,6 +20,9 @@ importers:
       date-fns:
         specifier: ^2.29.3
         version: 2.30.0
+      dompurify:
+        specifier: ^3.2.4
+        version: 3.2.4
       georaster:
         specifier: ^1.6.0
         version: 1.6.0(typescript@5.7.3)(webpack@4.47.0)

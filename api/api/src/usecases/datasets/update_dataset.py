@@ -13,18 +13,8 @@ from ...errors import (
 #     InvalidTagError,
 )
 from ...models import Dataset, Change, Notification, ChangeType, NotificationType
-
-
-# def toggle_like_dataset(dataset_id, user):
-#     repo = DatasetsDBRepo()
-#     dataset = retrieve_dataset(dataset_id)
-#     user = retrieve_user(user.uid)
-#     if dataset.id in user.liked_datasets:
-#         repo.unlike_dataset(dataset_id, user.uid)
-#     else:
-#         repo.like_dataset(dataset_id, user.uid)
-#     return "done"
-
+from ..notifications import create_notification
+from ..changes import create_change
 
 def update_dataset(
     dataset_id, user, dataset
@@ -32,7 +22,7 @@ def update_dataset(
     _dataset = retrieve_dataset(dataset_id)
     if user.uid != _dataset.uid:
         # user is not the owner of the dataset, so any change should be approved by the owner or moderators
-        return propose_dataset_update(dataset_id, user, dataset)
+        return propose_dataset_update(_dataset.name, user, dataset)
     
     # update name
     if dataset.name != _dataset.name:
@@ -60,25 +50,29 @@ def update_dataset(
     repo.update_dataset(dataset_id, updated_dataset.model_dump())
     return updated_dataset
 
-def propose_dataset_update(dataset_id, user, dataset):
-    changes_repo = ChangesDBRepo()
-    change_id = changes_repo.generate_id()
-    change = Change(
-        id=change_id,
-        uid=user.uid,
-        type=ChangeType.DATASET_UPDATE,
-        payload=dataset,
+def propose_dataset_update(dataset_name, user, dataset):
+    change = create_change(
+        user,
+        ChangeType.DATASET_UPDATE,
+        dataset,
     )
-    changes_repo.persist_change(change.model_dump(), change_id)
-    notifications_repo = NotificationsDBRepo()
-    notification_id = notifications_repo.generate_id()
-    notification = Notification(
-        id=notification_id,
-        uid=dataset.uid,
-        type=NotificationType.DATASET_UPDATE,
-        payload={
-            'change_id': change_id,
-        },
+    create_notification(
+        dataset.uid, 
+        NotificationType.DATASET_UPDATE, 
+        {
+            'change_id': change.id,
+            'dataset_name': dataset_name,
+        }
     )
-    notifications_repo.persist_notification(notification.model_dump(), notification_id)
     return dataset
+
+
+# def toggle_like_dataset(dataset_id, user):
+#     repo = DatasetsDBRepo()
+#     dataset = retrieve_dataset(dataset_id)
+#     user = retrieve_user(user.uid)
+#     if dataset.id in user.liked_datasets:
+#         repo.unlike_dataset(dataset_id, user.uid)
+#     else:
+#         repo.like_dataset(dataset_id, user.uid)
+#     return "done"

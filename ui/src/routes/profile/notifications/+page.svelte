@@ -5,10 +5,6 @@
     const dismiss = (id) => {
         notifications.dismiss(id, $id_token);
     };
-
-    const accept = (id) => {
-        notifications.accept(id, $id_token);
-    };
 </script>
 
 <div class="w-full flex flex-col gap-3">
@@ -26,15 +22,11 @@
                                     Dataset Update Request
                                 </h2>
                                 <a
-                                    href="/"
+                                    href="/datasets/{notification.payload
+                                        .dataset_name}?change={notification
+                                        .payload.change_id}"
                                     class="text-blue-500 hover:underline"
                                     >See changes</a
-                                >
-                                <button
-                                    class="btn btn-sm btn-outline btn-success"
-                                    on:click={() => accept(notification.id)}
-                                >
-                                    Accept</button
                                 >
                             {:else if notification.type == "model_update"}
                                 <h2 class="card-title text-lg">

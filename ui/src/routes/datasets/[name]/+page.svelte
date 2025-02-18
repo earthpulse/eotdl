@@ -11,37 +11,48 @@
   import { fade } from "svelte/transition";
   import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
   import Map from "$components/Map.svelte";
-  import { Carta } from "carta-md";
   import { links } from "$stores/images.js";
   import Train from "./Train.svelte";
   import EditableTitle from "./EditableTitle.svelte";
-
-  let DOMPurify;
-  const loadDOMPurify = async () => {
-    DOMPurify = await import("isomorphic-dompurify");
-  };
+  import { page } from "$app/stores";
+  import retrieveChange from "$lib/changes/retrieveChange";
+  import acceptChange from "$lib/changes/acceptChange";
+  import declineChange from "$lib/changes/declineChange";
+  import { goto } from "$app/navigation";
+  import EditableContent from "./EditableContent.svelte";
 
   $: if (browser) {
-    loadDOMPurify();
     load();
     loadDatasets();
   }
 
-  const carta = new Carta({
-    extensions: [],
-    sanitizer: DOMPurify?.sanitize,
-  });
-
   export let data;
   let dataset = null;
+  let dataset0 = null;
   let version = null;
   let message = null;
   let description = null;
   let curent_image;
   let filtered_datasets;
+  let _change = null;
+  let change = false;
+
   const load = async () => {
-    dataset = await retrieveDataset(data.name);
-    description = await carta.render(dataset.metadata.description);
+    if ($page.url.searchParams.get("change")) {
+      try {
+        _change = await retrieveChange(
+          $page.url.searchParams.get("change"),
+          $id_token,
+        );
+        dataset = _change.payload;
+        change = true;
+      } catch (error) {
+        alert("Error retrieving change");
+      }
+    } else {
+      dataset = await retrieveDataset(data.name);
+      dataset0 = { ...dataset, metadata: { ...dataset.metadata } };
+    }
   };
 
   $: {
@@ -75,8 +86,41 @@
   let edit = false;
 
   const save = () => {
-    // edit = !edit;
+    edit = !edit;
     datasets.update(dataset, $id_token);
+    if (dataset.uid != $user.uid) {
+      dataset = { ...dataset0, metadata: { ...dataset0.metadata } };
+      alert("Your changes have been notified to the dataset owner.");
+    }
+  };
+
+  const close = () => {
+    dataset = { ...dataset0, metadata: { ...dataset0.metadata } };
+    edit = false;
+  };
+
+  const accept = async () => {
+    try {
+      await acceptChange($page.url.searchParams.get("change"), $id_token);
+      change = false;
+      await goto(`/datasets/${dataset.name}`);
+      load();
+    } catch (error) {
+      console.log(error);
+      alert("Error accepting change");
+    }
+  };
+
+  const decline = async () => {
+    try {
+      await declineChange($page.url.searchParams.get("change"), $id_token);
+      change = false;
+      await goto(`/datasets/${$page.params.name}`);
+      load();
+    } catch (error) {
+      console.log(error);
+      alert("Error declining change");
+    }
   };
 </script>
 
@@ -119,16 +163,17 @@
             />
           </span>
         </span>
-        <span class="flex flex-row gap-2">
-          <!-- <a
+        {#if !change}
+          <span class="flex flex-row gap-2">
+            <!-- <a
             class="btn btn-outline"
             href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
             target="_blank">Upgrade</a
           > -->
-          <!-- {#if dataset.training_template}
+            <!-- {#if dataset.training_template}
             <Train {dataset} />
           {/if} -->
-          <!-- {#if $user}
+            <!-- {#if $user}
             {#if $user.uid == dataset.uid}
               <Update
                 store={datasets}
@@ -146,25 +191,30 @@
               />
             {/if}
           {/if} -->
-          {#if $user}
-            {#if edit}
-              <button class="btn btn-outline" on:click={save}>Save</button>
-            {:else}
-              <button class="btn btn-outline" on:click={() => (edit = !edit)}
-                >Edit</button
-              >
+            {#if $user}
+              {#if edit}
+                <button class="btn btn-outline" on:click={save}>Save</button>
+                <button class="btn btn-outline" on:click={close}>Close</button>
+              {:else}
+                <button class="btn btn-outline" on:click={() => (edit = !edit)}
+                  >Edit</button
+                >
+              {/if}
             {/if}
-          {/if}
-        </span>
+          </span>
+        {:else if dataset.uid == $user.uid && _change.status == "pending"}
+          <span>
+            <button class="btn btn-outline" on:click={accept}>Accept</button>
+            <button class="btn btn-outline" on:click={decline}>Decline</button>
+          </span>
+        {/if}
       </div>
       <hr class="sm:hidden" />
       <div
         class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5"
       >
         <div class="w-full overflow-auto">
-          <div class="content">
-            {@html description}
-          </div>
+          <EditableContent {edit} bind:value={dataset.metadata.description} />
         </div>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
           <hr class="sm:hidden" />

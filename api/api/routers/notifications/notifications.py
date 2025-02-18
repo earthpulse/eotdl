@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Depends
 import logging
 
 from ..auth import get_current_user
-from ...src.usecases.notifications import retrieve_notifications, accept_notification, decline_notification
+from ...src.usecases.notifications import retrieve_notifications, dismiss_notification
 from ...src.models import User
 
 router = APIRouter()
@@ -19,25 +19,14 @@ def retrieve(
     except Exception as e:
         logger.exception("notification:retrieve")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-@router.post("/{id}/accept")
-def accept(
-    id: str,
-    user: User = Depends(get_current_user),
-):
-    try:
-        return accept_notification(id, user)
-    except Exception as e:
-        logger.exception("notification:accept")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.post("/{id}/decline")
-def decline(
+@router.post("/{id}/dismiss")
+def dismiss(
     id: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        return decline_notification(id, user)
+        return dismiss_notification(id, user)
     except Exception as e:
-        logger.exception("notification:decline")
+        logger.exception("notification:dismiss")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
