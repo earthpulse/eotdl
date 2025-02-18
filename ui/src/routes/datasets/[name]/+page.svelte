@@ -14,6 +14,7 @@
   import { Carta } from "carta-md";
   import { links } from "$stores/images.js";
   import Train from "./Train.svelte";
+  import EditableTitle from "./EditableTitle.svelte";
 
   let DOMPurify;
   const loadDOMPurify = async () => {
@@ -70,6 +71,13 @@
     else if (dataset?.quality == 1) upgradeNotebook = "04_q2_datasets";
     else upgradeNotebook = "";
   }
+
+  let edit = false;
+
+  const save = () => {
+    // edit = !edit;
+    datasets.update(dataset, $id_token);
+  };
 </script>
 
 <svelte:head>
@@ -89,7 +97,8 @@
             />
           </span>
           <span>
-            <h1 class="text-3xl">{dataset.name}</h1>
+            <!-- <h1 class="text-3xl">{dataset.name}</h1> -->
+            <EditableTitle bind:text={dataset.name} {edit} />
             <div class="flex flex-wrap gap-1">
               {#each dataset.tags as tag}
                 <p
@@ -137,6 +146,15 @@
               />
             {/if}
           {/if} -->
+          {#if $user}
+            {#if edit}
+              <button class="btn btn-outline" on:click={save}>Save</button>
+            {:else}
+              <button class="btn btn-outline" on:click={() => (edit = !edit)}
+                >Edit</button
+              >
+            {/if}
+          {/if}
         </span>
       </div>
       <hr class="sm:hidden" />
@@ -145,7 +163,7 @@
       >
         <div class="w-full overflow-auto">
           <div class="content">
-              {@html description}
+            {@html description}
           </div>
         </div>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
@@ -167,9 +185,9 @@
               >
             {/if}
           </div>
-            <div class="flex flex-col gap-3">
-              <Metadata data={dataset.metadata} />
-              <!-- <FileExplorer
+          <div class="flex flex-col gap-3">
+            <Metadata data={dataset.metadata} />
+            <!-- <FileExplorer
                 data={dataset}
                 {version}
                 retrieveFiles={retrieveDatasetFiles}

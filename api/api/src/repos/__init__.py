@@ -9,3 +9,5 @@ from .minio import MinioRepo as OSRepo
 from .boto3 import Boto3Repo as S3Repo
 from .EOXRepo import EOXRepo
 from .geodb import GeoDBRepo
+from .mongo import MongoChangesRepo as ChangesDBRepo
+from .mongo import MongoNotificationsRepo as NotificationsDBRepo

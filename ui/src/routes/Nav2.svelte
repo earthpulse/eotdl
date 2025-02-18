@@ -8,7 +8,10 @@
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
     import SchoolOutline from "svelte-material-icons/SchoolOutline.svelte";
+    import { notifications } from "$stores/notifications";
+
     export let loading;
+
     const links = [
         { href: "/", label: "Home", icon: HomeOutline },
         { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
@@ -34,6 +37,8 @@
         { href: "https://github.com/earthpulse/eotdl", label: "Github" },
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
+
+    $: notificationCount = $notifications.data?.length || 0;
 </script>
 
 <div class="grid place-items-center w-full">
@@ -80,7 +85,12 @@
                     class={$user ? "tooltip tooltip-bottom" : ""}
                     data-tip={$user ? "Profile" : "Profile"}
                 >
-                    <div class="avatar">
+                    <div class="avatar indicator">
+                        {#if notificationCount > 0}
+                            <span class="indicator-item badge badge-secondary"
+                                >{notificationCount}</span
+                            >
+                        {/if}
                         <div class="w-10 rounded-full">
                             <img
                                 src={$user?.picture || "/avatar.webp"}

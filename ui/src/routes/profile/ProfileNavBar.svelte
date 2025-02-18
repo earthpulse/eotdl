@@ -1,9 +1,11 @@
 <script>
     import { page } from "$app/stores";
+
     let profileSections = {
         Profile: "/profile",
         Credentials: "/profile/credentials",
         "Api keys": "/profile/apikeys",
+        Notifications: "/profile/notifications",
     };
 </script>
 

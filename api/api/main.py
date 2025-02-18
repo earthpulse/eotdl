@@ -21,10 +21,11 @@ from .routers.datasets import (
     retrieve_dataset,
     ingest_dataset,
     stage_dataset,
-    # update_dataset,
+    update_dataset,
     # upload_large_dataset_files,
     # delete_dataset,
 )
+from .routers.notifications import notifications
 # from .routers.models import (
 #     retrieve_models,
 #     create_model,
@@ -102,11 +103,13 @@ app.include_router(create_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(stage_dataset.router, prefix="/datasets", tags=["datasets"])
-# app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
+app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 # app.include_router(
 #     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
 # )
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
+# notifications
+app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # # files
 # # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # # models

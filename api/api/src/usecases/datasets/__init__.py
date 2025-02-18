@@ -19,7 +19,7 @@ from .stage_dataset import (
     # download_stac_catalog,
     # generate_presigned_url,
 )
-# from .update_dataset import toggle_like_dataset, update_dataset
+from .update_dataset import update_dataset #, toggle_like_dataset
 # from .delete_dataset import delete_dataset
 # # from .like_dataset import like_dataset
 # from .upload_large_file import (

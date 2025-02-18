@@ -5,6 +5,7 @@
   import Footer from "./Footer.svelte";
   import { user, id_token } from "$stores/auth";
   import { browser } from "$app/environment";
+  import { notifications } from "$stores/notifications";
 
   export let data;
   let loading = !data?.user;
@@ -21,6 +22,7 @@
     const data = await res.json();
     user.set(data.user);
     id_token.set(data.id_token);
+    notifications.retrieve(data.id_token);
     loading = false;
   };
 
