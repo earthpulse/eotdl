@@ -27,6 +27,7 @@ from .routers.datasets import (
 )
 from .routers.notifications import notifications
 from .routers.changes import changes
+from .routers.stac import stac
 # from .routers.models import (
 #     retrieve_models,
 #     create_model,
@@ -113,6 +114,8 @@ app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # changes
 app.include_router(changes.router, prefix="/changes", tags=["changes"])
+# stac
+app.include_router(stac.router, prefix="/stac", tags=["stac"])
 # # files
 # # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # # models
