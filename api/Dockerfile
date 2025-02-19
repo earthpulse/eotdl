@@ -50,5 +50,6 @@ RUN pip install pyarrow
 RUN pip install starlette_exporter
 RUN pip install geomet
 RUN pip install rasterio
+RUN pip install duckdb
 
 COPY ./api /api
