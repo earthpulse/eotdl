@@ -19,7 +19,6 @@ import uuid
 
 from ...repos.AuthRepo import AuthRepo
 from .parameters import SHParameters
-from ...tools.time_utils import prepare_time_interval
 from ...tools.geo_utils import compute_image_size
 
 
