@@ -131,11 +131,11 @@ def get_day_between(
     Get the day between two dates
     """
     if isinstance(from_date, str):
-        from_date = datetime.strptime(from_date, "%Y-%m-%dT%H:%M:%SZ")
+        from_date = format_time_acquired(from_date)
     if isinstance(to_date, str):
-        to_date = datetime.strptime(to_date, "%Y-%m-%dT%H:%M:%SZ")
+        to_date = format_time_acquired(to_date)
 
-    date_between = from_date + timedelta(days=1)
+    date_between = from_date + (to_date - from_date) / 2
     date_between = date_between.strftime("%Y-%m-%d")
 
     return date_between
