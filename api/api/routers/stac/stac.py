@@ -48,7 +48,6 @@ def item(collection_id: str, item_id: str):
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-
 @router.get("/search")
 def search(collection: str):
     try:
