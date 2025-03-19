@@ -1,0 +1,97 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+  ],
+  "id": "ship_636092297_2022-08-12",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          9.74569650496619,
+          54.3389915622399
+        ],
+        [
+          9.74569650496619,
+          54.35037115870532
+        ],
+        [
+          9.765596020777982,
+          54.35037115870532
+        ],
+        [
+          9.765596020777982,
+          54.3389915622399
+        ],
+        [
+          9.74569650496619,
+          54.3389915622399
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    9.74569650496619,
+    54.3389915622399,
+    9.765596020777982,
+    54.35037115870532
+  ],
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "Boat"
+        ],
+        "name": "label"
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "raster",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "automated"
+    ],
+    "label:tasks": [
+      "segmentation"
+    ],
+    "datetime": "2022-08-12T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../sentinel-2-ships/ship_636092297_2022-08-12/ship_636092297_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "../../../sentinel_2/ship_636092297_2022-08-12_labels.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-raster"
+      ]
+    }
+  },
+  "collection": "labels"
+}

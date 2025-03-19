@@ -1,0 +1,97 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+  ],
+  "id": "ship_219105000_2022-08-25",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          11.673814354250629,
+          56.36622861534659
+        ],
+        [
+          11.673814354250629,
+          56.37726752826171
+        ],
+        [
+          11.695322530237362,
+          56.37726752826171
+        ],
+        [
+          11.695322530237362,
+          56.36622861534659
+        ],
+        [
+          11.673814354250629,
+          56.36622861534659
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    11.673814354250629,
+    56.36622861534659,
+    11.695322530237362,
+    56.37726752826171
+  ],
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "Boat"
+        ],
+        "name": "label"
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "raster",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "automated"
+    ],
+    "label:tasks": [
+      "segmentation"
+    ],
+    "datetime": "2022-08-25T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../sentinel-2-ships/ship_219105000_2022-08-25/ship_219105000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "../../../sentinel_2/ship_219105000_2022-08-25_labels.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-raster"
+      ]
+    }
+  },
+  "collection": "labels"
+}

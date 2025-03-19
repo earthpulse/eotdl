@@ -1,0 +1,97 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json"
+  ],
+  "id": "ship_211216570_2022-08-12",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          10.153150707262865,
+          54.327746470657374
+        ],
+        [
+          10.153150707262865,
+          54.33905827214405
+        ],
+        [
+          10.173156128541153,
+          54.33905827214405
+        ],
+        [
+          10.173156128541153,
+          54.327746470657374
+        ],
+        [
+          10.153150707262865,
+          54.327746470657374
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    10.153150707262865,
+    54.327746470657374,
+    10.173156128541153,
+    54.33905827214405
+  ],
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "Boat"
+        ],
+        "name": "label"
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "raster",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "automated"
+    ],
+    "label:tasks": [
+      "segmentation"
+    ],
+    "datetime": "2022-08-12T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../sentinel-2-ships/ship_211216570_2022-08-12/ship_211216570_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "../../../sentinel_2/ship_211216570_2022-08-12_labels.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-raster"
+      ]
+    }
+  },
+  "collection": "labels"
+}

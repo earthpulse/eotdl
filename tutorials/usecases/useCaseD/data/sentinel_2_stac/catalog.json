@@ -1,0 +1,23 @@
+{
+  "type": "Catalog",
+  "id": "ship-segmentation-dataset",
+  "stac_version": "1.0.0",
+  "description": "Ship segmentation dataset",
+  "links": [
+    {
+      "rel": "root",
+      "href": "./catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./sentinel-2-ships/collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "child",
+      "href": "./labels/collection.json",
+      "type": "application/json"
+    }
+  ]
+}

@@ -1,0 +1,302 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/projection/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "id": "ship_636092297_2022-08-12",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          9.74569650496619,
+          54.3389915622399
+        ],
+        [
+          9.74569650496619,
+          54.35037115870532
+        ],
+        [
+          9.765596020777982,
+          54.35037115870532
+        ],
+        [
+          9.765596020777982,
+          54.3389915622399
+        ],
+        [
+          9.74569650496619,
+          54.3389915622399
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    9.74569650496619,
+    54.3389915622399,
+    9.765596020777982,
+    54.35037115870532
+  ],
+  "properties": {
+    "proj:epsg": 4326,
+    "proj:shape": [
+      128,
+      128
+    ],
+    "proj:transform": [
+      0.00015546496727962544,
+      0.0,
+      9.74569650496619,
+      0.0,
+      -8.890309738612823e-05,
+      54.35037115870532,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "constellation": "Sentinel-2",
+    "platform": "Sentinel-2",
+    "instruments": [
+      "Sentinel-2"
+    ],
+    "gsd": 10,
+    "eo:bands": [
+      {
+        "name": "B01",
+        "common_name": "coastal",
+        "description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)"
+      },
+      {
+        "name": "B02",
+        "common_name": "blue",
+        "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+      },
+      {
+        "name": "B03",
+        "common_name": "green",
+        "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+      },
+      {
+        "name": "B04",
+        "common_name": "red",
+        "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+      },
+      {
+        "name": "B05",
+        "common_name": "rededge",
+        "description": "Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)"
+      },
+      {
+        "name": "B06",
+        "common_name": "rededge",
+        "description": "Vegetation red edge, 740.5 nm (S2A), 739.1 nm (S2B)"
+      },
+      {
+        "name": "B07",
+        "common_name": "rededge",
+        "description": "Vegetation red edge, 782.8 nm (S2A), 779.7 nm (S2B)"
+      },
+      {
+        "name": "B08",
+        "common_name": "nir",
+        "description": "NIR, 832.8 nm (S2A), 833.0 nm (S2B)"
+      },
+      {
+        "name": "B09",
+        "common_name": "nir09",
+        "description": "Water vapour, 945.1 nm (S2A), 943.2 nm (S2B)"
+      },
+      {
+        "name": "B11",
+        "common_name": "swir16",
+        "description": "SWIR, 1613.7 nm (S2A), 1610.4 nm (S2B)"
+      },
+      {
+        "name": "B12",
+        "common_name": "swir22",
+        "description": "SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)"
+      }
+    ],
+    "datetime": "2022-08-12T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "ship_636092297_2022-08-12": {
+      "href": "../../../sentinel_2/ship_636092297_2022-08-12.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "ship_636092297_2022-08-12",
+      "raster:bands": [
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        },
+        {
+          "data_type": "int16",
+          "spatial_resolution": [
+            0.00015546496727962544,
+            8.890309738612823e-05
+          ]
+        }
+      ],
+      "constellation": "Sentinel-2",
+      "platform": "Sentinel-2",
+      "instruments": [
+        "Sentinel-2"
+      ],
+      "gsd": 10,
+      "eo:bands": [
+        {
+          "name": "B01",
+          "common_name": "coastal",
+          "description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)"
+        },
+        {
+          "name": "B02",
+          "common_name": "blue",
+          "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)"
+        },
+        {
+          "name": "B03",
+          "common_name": "green",
+          "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)"
+        },
+        {
+          "name": "B04",
+          "common_name": "red",
+          "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)"
+        },
+        {
+          "name": "B05",
+          "common_name": "rededge",
+          "description": "Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)"
+        },
+        {
+          "name": "B06",
+          "common_name": "rededge",
+          "description": "Vegetation red edge, 740.5 nm (S2A), 739.1 nm (S2B)"
+        },
+        {
+          "name": "B07",
+          "common_name": "rededge",
+          "description": "Vegetation red edge, 782.8 nm (S2A), 779.7 nm (S2B)"
+        },
+        {
+          "name": "B08",
+          "common_name": "nir",
+          "description": "NIR, 832.8 nm (S2A), 833.0 nm (S2B)"
+        },
+        {
+          "name": "B09",
+          "common_name": "nir09",
+          "description": "Water vapour, 945.1 nm (S2A), 943.2 nm (S2B)"
+        },
+        {
+          "name": "B11",
+          "common_name": "swir16",
+          "description": "SWIR, 1613.7 nm (S2A), 1610.4 nm (S2B)"
+        },
+        {
+          "name": "B12",
+          "common_name": "swir22",
+          "description": "SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "collection": "sentinel-2-ships"
+}

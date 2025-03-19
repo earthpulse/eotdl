@@ -1,0 +1,424 @@
+{
+  "type": "Collection",
+  "id": "sentinel-2-ships",
+  "stac_version": "1.0.0",
+  "description": "Collection",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_210017000_2022-08-12/ship_210017000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219024604_2022-08-25/ship_219024604_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_311000277_2022-08-25/ship_311000277_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_265859000_2022-08-25/ship_265859000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211367180_2022-08-12/ship_211367180_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211336340_2022-08-12/ship_211336340_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_247353700_2022-08-12/ship_247353700_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211223120_2022-08-12/ship_211223120_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_220432000_2022-08-25/ship_220432000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_209075000_2022-08-12/ship_209075000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_220446000_2022-08-25/ship_220446000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_258709000_2022-08-25/ship_258709000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_664445000_2022-08-25/ship_664445000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219001771_2022-08-25/ship_219001771_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_244780000_2022-08-12/ship_244780000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211215730_2022-08-12/ship_211215730_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_275496000_2022-08-12/ship_275496000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_220352000_2022-08-25/ship_220352000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_210332000_2022-08-12/ship_210332000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211222710_2022-08-12/ship_211222710_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219018172_2022-08-25/ship_219018172_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219003217_2022-08-12/ship_219003217_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219018044_2022-08-25/ship_219018044_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219006478_2022-08-25/ship_219006478_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_257983000_2022-08-25/ship_257983000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219018865_2022-08-25/ship_219018865_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219009183_2022-08-25/ship_219009183_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_308924000_2022-08-12/ship_308924000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_636092729_2022-08-25/ship_636092729_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219024784_2022-08-25/ship_219024784_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219026197_2022-08-12/ship_219026197_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211216570_2022-08-12/ship_211216570_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_246819000_2022-08-25/ship_246819000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_220434000_2022-08-25/ship_220434000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_304089000_2022-08-25/ship_304089000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219022903_2022-08-25/ship_219022903_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_258897000_2022-08-25/ship_258897000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_210167000_2022-08-12/ship_210167000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211533370_2022-08-12/ship_211533370_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219016873_2022-08-25/ship_219016873_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219000606_2022-08-12/ship_219000606_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_636092240_2022-08-12/ship_636092240_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_275519000_2022-08-12/ship_275519000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_241604000_2022-08-25/ship_241604000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219023945_2022-08-25/ship_219023945_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211769770_2022-08-12/ship_211769770_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_563112100_2022-08-25/ship_563112100_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219105000_2022-08-25/ship_219105000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_636013272_2022-08-25/ship_636013272_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_265411000_2022-08-12/ship_265411000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_210223000_2022-08-25/ship_210223000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211848130_2022-08-12/ship_211848130_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_352335000_2022-08-25/ship_352335000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_245809000_2022-08-25/ship_245809000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_220304000_2022-08-25/ship_220304000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_352001630_2022-08-25/ship_352001630_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219001431_2022-08-12/ship_219001431_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219001125_2022-08-25/ship_219001125_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219000674_2022-08-12/ship_219000674_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_245808000_2022-08-25/ship_245808000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219850000_2022-08-12/ship_219850000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_266475000_2022-08-25/ship_266475000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219000177_2022-08-25/ship_219000177_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211812780_2022-08-12/ship_211812780_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_246818000_2022-08-25/ship_246818000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219000836_2022-08-12/ship_219000836_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_210359000_2022-08-12/ship_210359000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_636019326_2022-08-25/ship_636019326_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219001647_2022-08-12/ship_219001647_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_255806511_2022-08-12/ship_255806511_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_636092297_2022-08-12/ship_636092297_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219023648_2022-08-25/ship_219023648_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219002731_2022-08-25/ship_219002731_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219014875_2022-08-25/ship_219014875_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_219000558_2022-08-25/ship_219000558_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_273450990_2022-08-25/ship_273450990_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./ship_211855000_2022-08-12/ship_211855000_2022-08-12.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          9.503286081384012,
+          54.18475729457786,
+          11.953022266752841,
+          56.81074955699887
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2022-08-12T00:00:00Z",
+          "2022-08-25T00:00:00Z"
+        ]
+      ]
+    }
+  },
+  "license": "proprietary"
+}

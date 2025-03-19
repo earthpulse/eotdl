@@ -1,0 +1,104 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/label/v1.0.1/schema.json",
+    "https://raw.githubusercontent.com/earthpulse/ml-dataset/main/json-schema/schema.json"
+  ],
+  "id": "ship_266475000_2022-08-25",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          11.356199099923383,
+          56.250688588857656
+        ],
+        [
+          11.356199099923383,
+          56.261784095349235
+        ],
+        [
+          11.377551259722724,
+          56.261784095349235
+        ],
+        [
+          11.377551259722724,
+          56.250688588857656
+        ],
+        [
+          11.356199099923383,
+          56.250688588857656
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    11.356199099923383,
+    56.250688588857656,
+    11.377551259722724,
+    56.261784095349235
+  ],
+  "properties": {
+    "label:classes": [
+      {
+        "classes": [
+          "Boat"
+        ],
+        "name": "label"
+      }
+    ],
+    "label:description": "Item label",
+    "label:type": "raster",
+    "label:properties": [
+      "label"
+    ],
+    "label:methods": [
+      "automated"
+    ],
+    "label:tasks": [
+      "segmentation"
+    ],
+    "datetime": "2022-08-25T00:00:00Z",
+    "ml-dataset:split": "Training"
+  },
+  "links": [
+    {
+      "rel": "source",
+      "href": "../../sentinel-2-ships/ship_266475000_2022-08-25/ship_266475000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "root",
+      "href": "/home/pcoquard/git/eotdl/tutorials/usecases/useCaseD/data/sentinel_2_q2/catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "self",
+      "href": "/home/pcoquard/git/eotdl/tutorials/usecases/useCaseD/data/sentinel_2_q2/labels/ship_266475000_2022-08-25/ship_266475000_2022-08-25.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "/home/pcoquard/git/eotdl/tutorials/usecases/useCaseD/data/sentinel_2_q2/labels/collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "labels": {
+      "href": "../../../sentinel_2/ship_266475000_2022-08-25_labels.geojson",
+      "type": "application/geo+json",
+      "title": "Label",
+      "roles": [
+        "labels",
+        "labels-raster"
+      ]
+    }
+  },
+  "collection": "labels"
+}
