@@ -123,9 +123,9 @@ def process_geodataframe(
 
         # Return the processed data
         result =  {
-            "fid": row.get("fid"),  # Include any relevant identifier
+            # "fid": row.get("fid"),  # Include any relevant identifier
             "geometry": row.geometry,
-            "crs": geodataframe.crs.to_string(),
+            # "crs": geodataframe.crs.to_string(),
             "temporal_extent": temporal_extent,
         }  
         
@@ -135,7 +135,7 @@ def process_geodataframe(
     processed_gdf = gpd.GeoDataFrame(
         results, 
         geometry="geometry", 
-        crs=result['crs']
+        # crs=result['crs']
     )
     
     return processed_gdf
