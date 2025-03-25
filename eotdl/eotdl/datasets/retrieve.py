@@ -25,12 +25,3 @@ def retrieve_dataset_files(dataset_id, version):
         raise Exception(error)
     return data
 
-
-# def list_datasets(pattern=None):
-#     datasets = retrieve_datasets()
-#     if pattern:
-#         regex = re.compile(rf".*{re.escape(pattern)}.*", re.IGNORECASE)
-#         names = list(datasets.keys())
-#         valid = [name for name in names if regex.search(name)]
-#         return {name: datasets[name] for name in valid}
-#     return datasets

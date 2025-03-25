@@ -38,16 +38,16 @@ const createDatasets = () => {
       });
       return data
     },
-    update: async (dataset_id, name, content, authors, source, license, tags, token) => {
-      const data = await updateDataset(dataset_id, name, content, authors, source, license, tags, token);
+    update: async (dataset, token) => {
+      const data = await updateDataset(dataset, token);
       update((current) => ({
-        data: current.data.map((dataset) => 
-           dataset.id === dataset_id ? data : dataset          
+        data: current.data.map((_dataset) =>
+          _dataset.id === dataset.id ? data : _dataset
         ),
       }));
       return data;
     },
-    retrieve: async (fetch, limit=null) => {
+    retrieve: async (fetch, limit = null) => {
       set({ loading: true });
       try {
         const data = await retrieveDatasets(fetch, limit);

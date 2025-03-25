@@ -1,5 +1,5 @@
 from ...repos import DatasetsDBRepo
-from ...models import Dataset, STACDataset
+from ...models import Dataset
 
 
 def retrieve_datasets(match=None, limit=None):
@@ -7,10 +7,7 @@ def retrieve_datasets(match=None, limit=None):
     data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
-        if d["quality"] == 0:
-            datasets.append(Dataset(**d))
-        else:
-            datasets.append(STACDataset(**d))
+        datasets.append(Dataset(**d))
     return datasets
 
 
@@ -28,8 +25,5 @@ def retrieve_popular_datasets(limit):
     data = repo.retrieve_popular_datasets(limit)
     datasets = []
     for d in data:
-        if d["quality"] == 0:
-            datasets.append(Dataset(**d))
-        else:
-            datasets.append(STACDataset(**d))
+        datasets.append(Dataset(**d))
     return datasets

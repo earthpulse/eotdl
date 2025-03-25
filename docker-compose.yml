@@ -19,6 +19,7 @@ services:
     environment:
       - MINIO_ROOT_USER=eotdl
       - MINIO_ROOT_PASSWORD=12345678
+      - MINIO_HOST=0.0.0.0
     command: server /data --console-address ":9001"
 
   eotdl-api:
@@ -28,14 +29,14 @@ services:
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
-      - S3_ENDPOINT=eotdl-minio:9000
+      - S3_ENDPOINT=192.168.1.96:9000 # use host ip to generate presigned urls (allow minio port on firewal!)
       - ACCESS_KEY_ID=eotdl
       - SECRET_ACCESS_KEY=12345678
       - S3_BUCKET=dev
       - S3_SSL=False
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
-      - API_BASE_URL=http://localhost:8010 # used to generate file urls
+      # - API_BASE_URL=http://localhost:8000 # used to generate file urls
     env_file: # auth0 and eox credentials
       - .env
     volumes:

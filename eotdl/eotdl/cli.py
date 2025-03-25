@@ -1,7 +1,7 @@
 import typer
 import os
 
-from .commands import auth, datasets, models
+from .commands import auth, datasets, models, stac
 from .repos import APIRepo
 from . import __version__
 
@@ -10,7 +10,7 @@ app = typer.Typer(help="Welcome to EOTDL. Learn more at https://www.eotdl.com/")
 app.add_typer(auth.app, name="auth")
 app.add_typer(datasets.app, name="datasets")
 app.add_typer(models.app, name="models")
-
+app.add_typer(stac.app, name="stac")
 
 @app.command()
 def version():

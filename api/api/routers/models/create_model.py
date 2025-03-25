@@ -1,13 +1,13 @@
 from fastapi.exceptions import HTTPException
-from fastapi import APIRouter, status, Depends, Body, Path
+from fastapi import APIRouter, status, Depends, Body
 import logging
 from pydantic import BaseModel
 from typing import List
 
 from ..auth import get_current_user
 from ...src.models import User
-from ...src.usecases.models import create_model, create_model_version, create_stac_model
-from .responses import create_model_responses, version_model_responses
+from ...src.usecases.models import create_model
+from .responses import create_model_responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -18,6 +18,8 @@ class CreateModelBody(BaseModel):
     authors: List[str]
     source: str
     license: str
+    thumbnail: str
+    description: str
 
 
 @router.post("", summary="Create a new model", responses=create_model_responses)
@@ -33,47 +35,10 @@ def create(
     - source: the source of the model.
     """
     try:
-        model_id = create_model(
-            user, metadata.name, metadata.authors, metadata.source, metadata.license
+        model = create_model(
+            user, metadata.name, metadata.authors, metadata.source, metadata.license, metadata.thumbnail, metadata.description
         )
-        return {"model_id": model_id}
+        return model
     except Exception as e:
         logger.exception("models:ingest")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-@router.post(
-    "/version/{model_id}",
-    summary="Get the version of a model",
-    responses=version_model_responses,
-)
-def version_model(
-    model_id: str = Path(..., description="The ID of the model"),
-    user: User = Depends(get_current_user),
-):
-    """
-    Get the version of a model.
-    """
-    try:
-        version = create_model_version(user, model_id)
-        return {"model_id": model_id, "version": version}
-    except Exception as e:
-        logger.exception("models:version")
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-class CreateSTACModelBody(BaseModel):
-    name: str
-
-
-@router.post("/stac", summary="Create a new stac model")
-def create_stac(
-    body: CreateSTACModelBody,
-    user: User = Depends(get_current_user),
-):
-    try:
-        model_id = create_stac_model(user, body.name)
-        return {"model_id": model_id}
-    except Exception as e:
-        logger.exception("datasets:ingest")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
