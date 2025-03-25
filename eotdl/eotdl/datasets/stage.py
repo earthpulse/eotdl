@@ -4,10 +4,8 @@ from tqdm import tqdm
 import geopandas as gpd
 
 from ..auth import with_auth
-from .retrieve import retrieve_dataset, retrieve_dataset_files
-from ..repos import FilesAPIRepo, DatasetsAPIRepo
-# from .metadata import generate_metadata
-
+from .retrieve import retrieve_dataset
+from ..repos import FilesAPIRepo
 
 @with_auth
 def stage_dataset(
@@ -32,9 +30,9 @@ def stage_dataset(
         "EOTDL_DOWNLOAD_PATH", str(Path.home()) + "/.cache/eotdl/datasets"
     )
     if path is None:
-        download_path = download_base_path + "/" + dataset_name #+ "/v" + str(version)
+        download_path = download_base_path + "/" + dataset_name 
     else:
-        download_path = path + "/" + dataset_name #∫+ "/v" + str(version)
+        download_path = path + "/" + dataset_name 
     # check if dataset already exists
     if os.path.exists(download_path) and not force:
         os.makedirs(download_path, exist_ok=True)
@@ -64,10 +62,3 @@ def stage_dataset(
 def stage_dataset_file(file_url, path, user):
     repo = FilesAPIRepo()
     return repo.stage_file_url(file_url, path, user)
-
-
-# @with_auth
-# def download_file_url(url, path, progress=True, logger=print, user=None):
-#     repo = FilesAPIRepo()
-#     _, filename = url.split("/download/")
-#     return repo.download_file_url(url, filename, f"{path}/assets", user, progress)

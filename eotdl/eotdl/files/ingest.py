@@ -1,178 +1,243 @@
-from pathlib import Path
-import os
-from tqdm import tqdm
-import zipfile
-import io
 from glob import glob
+from pathlib import Path
+import geopandas as gpd
 import os
+import pystac
+from tqdm import tqdm
+import stac_geoparquet
+import frontmatter
+import random
+import pandas as pd
+from datetime import datetime
+from shapely.geometry import Polygon
 
+from ..auth import with_auth
+from ..files.metadata import Metadata
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
 
-
-def retrieve_files(folder):
-    # get all files in directory recursively
-    items = [Path(item) for item in glob(str(folder) + "/**/*", recursive=True)]
-    if not any(item.name == "metadata.yml" for item in items) and not any(
-        item.name == "README.md" for item in items
-    ):
-        raise Exception("README.md not found in directory")
-    # remove metadata files
-    items = [item for item in items if item.name != "metadata.yml"]
-    items = [item for item in items if item.name != "README.md"]
-    # remove directories
-    items = [item for item in items if not item.is_dir()]
-    if len(items) == 0:
-        raise Exception("No files found in directory")
-    return items
-
-
-def prepare_item(item, folder):
-    return {
-        "filename": item.name,
-        "path": str(item.relative_to(folder)),
-        "absolute_path": item.absolute(),
-        "size": os.path.getsize(item.absolute()),
-        "checksum": calculate_checksum(item.absolute()),
-    }
-
-
-def generate_batches(files, max_batch_size=1024 * 1024 * 10, max_batch_files=10):
-    batches = []
-    for item in tqdm(files):
-        if not batches:
-            batches.append([item])
-            continue
-        if max_batch_size:
-            size_check = sum([i["size"] for i in batches[-1]]) < max_batch_size
-        else:
-            size_check = True
-        if size_check and len(batches[-1]) < max_batch_files:
-            batches[-1].append(item)
-        else:
-            batches.append([item])
-    return batches
-
-
-def compress_batch(batch):
-    memory_file = io.BytesIO()
-    with zipfile.ZipFile(memory_file, "w") as zf:
-        for f in batch:
-            zf.write(f["absolute_path"], arcname=f["path"])
-    memory_file.seek(0)
-    return memory_file
-
-
-def generate_files_lists(
-    items, folder, dataset_or_model_id, endpoint, logger, max_size=1024 * 1024 * 16
+def prep_ingest_folder(
+	folder,
+	verbose=False,
+	logger=print,
+	force_metadata_update=False,
+	sync_metadata=False,
 ):
-    files_repo = FilesAPIRepo()
-    current_files, error = files_repo.retrieve_files(dataset_or_model_id, endpoint)
-    # print(len(current_files), len(items) - len(current_files))
-    # print(current_files, error)
-    if error:
-        current_files = []
-    # generate list of files to upload
-    logger("generating list of files to upload...")
-    upload_files, existing_files, large_files = [], [], []
-    current_names = [f["filename"] for f in current_files]
-    current_checksums = [f["checksum"] for f in current_files]
-    for item in tqdm(items):
-        data = prepare_item(item, folder)
-        if data["path"] in current_names and data["checksum"] in current_checksums:
-            existing_files.append(data)
-        else:
-            if data["size"] > max_size:
-                large_files.append(data)
-            else:
-                upload_files.append(data)
-    # TODO: should ingest new version if files removed
-    if len(upload_files) == 0 and len(large_files) == 0:
-        raise Exception("No new files to upload")
-    return upload_files, existing_files, large_files
+	logger("Ingesting directory: " + str(folder))
+	catalog_path = folder.joinpath("catalog.parquet")
+	files = glob(str(folder) + '/**/*', recursive=True)
+	# remove catalog.parquet from files
+	files = [f for f in files if f != str(catalog_path)]
+	# ingest geometry from files (if tifs) or additional list of geometries
+	# https://stac-utils.github.io/stac-geoparquet/latest/spec/stac-geoparquet-spec/#use-cases
+	data = []
+	for file in files:
+		file_path = Path(file)
+		if file_path.is_file():
+			relative_path = os.path.relpath(file_path, catalog_path.parent)
+			absolute_path = str(file_path)
+			# THIS IS THE MINIMUM REQUIRED FIELDS TO CREATE A VALID STAC ITEM
+			data.append(create_stac_item(relative_path, absolute_path))
+	gdf = gpd.GeoDataFrame(data, geometry='geometry')
+	# Save to parquet
+	gdf.to_parquet(catalog_path)
+	return catalog_path
 
+# IF THE KEYS IN THE ASSETS ARE NOT THE SAME ON ALL ITEMS, THE PARQUET WILL NOT BE VALID !!!
+def prep_ingest_stac(path, logger=None): # in theory should work with a remote catalog (given URL)
+	# read stac catalog
+	stac_catalog = path / "catalog.json"
+	catalog = pystac.Catalog.from_file(stac_catalog)
+	# make all items paths hredf in assets absolute
+	catalog.make_all_asset_hrefs_absolute() 
+	# generate list of items for all collections
+	items = []
+	for collection in catalog.get_collections():
+		# iterate over items
+		for item in tqdm(collection.get_items(), desc=f"Ingesting items from collection {collection.id}"):
+			assert isinstance(item, pystac.Item)
+			items.append(item)
+	# save parquet file
+	record_batch_reader = stac_geoparquet.arrow.parse_stac_items_to_arrow(items)
+	output_path = stac_catalog.parent / "catalog.parquet"
+	stac_geoparquet.arrow.to_parquet(record_batch_reader, output_path)
+	return output_path
 
-def create_new_version(repo, dataset_or_model_id, user):
-    data, error = repo.create_version(dataset_or_model_id, user)
-    if error:
-        raise Exception(error)
-    return data["version"]
+@with_auth
+def ingest_virutal_dataset( # could work for a list of paths with minimal changes...
+	path,
+	links,
+	metadata = None, 
+	logger=print,
+	user=None,
+):
+	path = Path(path)
+	if metadata is None:
+		readme = frontmatter.load(path.joinpath("README.md"))
+		metadata_dict = readme.metadata
+		# Add description from content before creating Metadata object
+		metadata_dict["description"] = readme.content
+		metadata = Metadata(**metadata_dict)
+	else:
+		metadata = Metadata(**metadata)
+		metadata.save_metadata(path)
+	data = []
+	for link in links:
+		assert link.startswith("http"), "All links must start with http or https"
+		data.append(create_stac_item(link, link))
+	data.append(create_stac_item('README.md', str(path / "README.md")))
+	gdf = gpd.GeoDataFrame(data, geometry='geometry')
+	gdf.to_parquet(path / "catalog.parquet")
+	return ingest(path)
 
+@with_auth
+def ingest(path, repo, retrieve, mode, user):
+	try:
+		readme = frontmatter.load(path.joinpath("README.md"))
+		metadata_dict = readme.metadata
+		# Add description from content before creating Metadata object
+		metadata_dict["description"] = readme.content
+		metadata = Metadata(**metadata_dict)
+	except Exception as e:
+		print(str(e))
+		raise Exception("Error loading metadata")
+	# retrieve dataset (create if doesn't exist)
+	dataset_or_model = retrieve(metadata, user)
+	current_version = sorted([v['version_id'] for v in dataset_or_model["versions"]])[-1]
+	print("current version: ", current_version)
 
-def ingest_files(repo, dataset_or_model_id, folder, verbose, logger, user, endpoint):
-    files_repo = FilesAPIRepo()
-    logger(f"Uploading directory {folder}...")
-    items = retrieve_files(folder)
-    # retrieve files
-    upload_files, existing_files, large_files = generate_files_lists(
-        items, folder, dataset_or_model_id, endpoint, logger
-    )
-    logger(f"{len(upload_files) + len(large_files)} new files will be ingested")
-    logger(f"{len(existing_files)} files already exist in dataset")
-    logger(f"{len(large_files)} large files will be ingested separately")
-    # create new version
-    version = create_new_version(repo, dataset_or_model_id, user)
-    logger("New version created, version: " + str(version))
-    # ingest new large files
-    if len(large_files) > 0:
-        logger("ingesting large files...")
-        for file in large_files:
-            logger("ingesting file: " + file["path"])
-            upload_id, parts = files_repo.prepare_large_upload(
-                file["path"],
-                dataset_or_model_id,
-                file["checksum"],
-                user,
-                endpoint,
-            )
-            # print(upload_id, parts)
-            files_repo.ingest_large_file(
-                file["absolute_path"],
-                file["size"],
-                upload_id,
-                user,
-                parts,
-                endpoint,
-            )
-            data, error = files_repo.complete_upload(user, upload_id, version, endpoint)
-    # ingest new small files in batches
-    if len(upload_files) > 0:
-        logger("generating batches...")
-        batches = generate_batches(upload_files)
-        logger(
-            f"Uploading {len(upload_files)} small files in {len(batches)} batches..."
-        )
-        repo = FilesAPIRepo()
-        for batch in tqdm(
-            batches, desc="Uploading batches", unit="batches", disable=verbose
-        ):
-            # compress batch
-            memory_file = compress_batch(batch)
-            # ingest batch
-            data, error = repo.ingest_files_batch(
-                memory_file,
-                [f["checksum"] for f in batch],
-                dataset_or_model_id,
-                user,
-                endpoint,
-                version,
-            )
-    # ingest existing files
-    if len(existing_files) > 0:
-        batches = generate_batches(existing_files, max_batch_size=None)
-        for batch in tqdm(
-            batches,
-            desc="Ingesting existing files",
-            unit="batches",
-            disable=verbose,
-        ):
-            data, error = files_repo.add_files_batch_to_version(
-                batch,
-                dataset_or_model_id,
-                version,
-                user,
-                endpoint,
-            )
-            if error:
-                raise Exception(error)
-    return data
+	# TODO: update README if metadata changed in UI (db)
+	# update_metadata = True
+	# if "description" in dataset:
+	#     # do not do this if the dataset is new, only if it already exists
+	#     update_metadata = check_metadata(
+	#         dataset, metadata, content, force_metadata_update, sync_metadata, folder
+	#     )
+	# if update_metadata:
+	#     update_dataset(dataset["id"], metadata, content, user)
+	# return ingest_files(
+	#     repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
+	# )
+
+	catalog_path = path.joinpath("catalog.parquet")
+	gdf = gpd.read_parquet(catalog_path)
+	files_repo = FilesAPIRepo()
+	catalog_url = files_repo.generate_presigned_url(f'catalog.v{current_version}.parquet', dataset_or_model['id'], user)
+
+	# first time ingesting
+	if catalog_url is None:
+		total_size = 0
+		for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
+			try:
+				for k, v in row[1]["assets"].items():
+					if v["href"].startswith("http"): continue
+					item_id = row[1]["id"]
+					data, error = files_repo.ingest_file(
+						v["href"],
+						item_id, 
+						# Path(v["href"]).stat().st_size,
+						dataset_or_model['id'],
+						user,
+						mode,
+					)
+					if error:
+						raise Exception(error)
+					file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
+					gdf.loc[row[0], "assets"][k]["href"] = file_url
+					total_size += v["size"]
+			except Exception as e:
+				print(f"Error uploading asset {row[0]}: {e}")
+				break
+		gdf.to_parquet(catalog_path)
+		files_repo.ingest_file(str(catalog_path), f'catalog.v{current_version}.parquet', dataset_or_model['id'], user, "datasets")
+		data, error = repo.complete_ingestion(dataset_or_model['id'], current_version, total_size, user)
+		if error:
+			raise Exception(error)
+		return catalog_path
+	
+	# files were already ingested
+	# TODO: check for deleted files (currently only updating existing files and ingesting new ones)
+	# TODO: adding new links in virtual datasets dont trigger new version (but changing README does)
+	new_version = False
+	num_changes = 0
+	total_size = 0
+	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
+		try:
+			for k, v in row[1]["assets"].items():
+				if v["href"].startswith("http"): continue
+				item_id = row[1]["id"]
+				# check if file exists in previous versions
+				df = pd.read_parquet(
+					path=catalog_url,
+					filters=[('id', '=', item_id)]
+				)
+				if len(df) > 0: # file exists in previous versions
+					if df.iloc[0]['assets'][k]["checksum"] == v["checksum"]: # file is the same
+						# still need to update the required fields
+						file_url = f"{repo.url}datasets/{dataset_or_model['id']}/stage/{item_id}"
+						gdf.loc[row[0], "assets"][k]["href"] = file_url
+						total_size += v["size"]
+						continue
+					else: # file is different, so ingest new version but with a different id
+						item_id = item_id + f"-{random.randint(1, 1000000)}"
+						gdf.loc[row[0], "id"] = item_id
+				new_version = True
+				num_changes += 1
+				# ingest new files
+				data, error = files_repo.ingest_file(
+					v["href"],
+					item_id, # item id, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
+					# Path(v["href"]).stat().st_size,
+					dataset_or_model['id'],
+					user,
+					# calculate_checksum(asset["href"]),  # is always absolute?
+					mode,
+					# version,
+				)
+				if error:
+					raise Exception(error)
+				file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
+				gdf.loc[row[0], "assets"][k]["href"] = file_url
+				total_size += v["size"]
+		except Exception as e:
+			print(f"Error uploading asset {row[0]}: {e}")
+			break
+	if not new_version:
+		print("No new version was created, your dataset has not changed.")
+	else:
+		new_version = current_version + 1
+		print("A new version was created, your dataset has changed.")
+		print(f"Num changes: {num_changes}")
+		gdf.to_parquet(catalog_path)
+		files_repo.ingest_file(str(catalog_path), f'catalog.v{new_version}.parquet', dataset_or_model['id'], user, mode)
+		# TODO: ingest README.md
+		data, error = repo.complete_ingestion(dataset_or_model['id'], new_version, total_size, user)
+		if error:
+			raise Exception(error)
+		return catalog_path
+
+def create_stac_item(item_id, asset_href):
+	return {
+		'type': 'Feature',
+		'stac_version': '1.0.0',
+		'stac_extensions': [],
+		'datetime': datetime.now(),  # must be native timestamp (https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#timestamp)
+		'id': item_id,
+		'bbox': {
+			'xmin': 0.0,
+			'ymin': 0.0,
+			'xmax': 0.0,
+			'ymax': 0.0
+		}, # infer from file or from list of geometries
+		'geometry': Polygon(), # empty polygon
+		'assets': { 'asset': { # STAC needs this to be a Dict[str, Asset], not list !!! use same key or parquet breaks !!!
+			'href': asset_href,
+			'checksum': calculate_checksum(asset_href) if not asset_href.startswith("http") else None,
+			'timestamp': datetime.now(),
+			'size': Path(asset_href).stat().st_size if not asset_href.startswith("http") else None,
+		}},
+		"links": [],
+		# 'collection': 'source',
+		# anything below are properties (need at least one!)
+		'repository': 'eotdl',				
+	}
