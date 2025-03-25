@@ -43,8 +43,7 @@ async def ingest_files(
     user: User = Depends(get_current_user),
 ):
     """
-    Batch ingest of files to an existing dataset. The batch file must be a compressed file (.zip).
-    The checksums are calculated using the SHA-1 checksums algorithm.
+     Ingest file to existing dataset.
     """
     try:
         presigned_url = await ingest_dataset_file(

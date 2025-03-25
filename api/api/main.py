@@ -28,18 +28,17 @@ from .routers.datasets import (
 from .routers.notifications import notifications
 from .routers.changes import changes
 from .routers.stac import stac
-# from .routers.models import (
-#     retrieve_models,
-#     create_model,
-#     ingest_model,
-#     download_model,
+from .routers.models import (
+    retrieve_models,
+    create_model,
+    ingest_model,
+    stage_model,
 #     upload_large_model_files,
 #     update_model,
-#     delete_model,
-# )
+)
 # from .routers import admin, migrate
 
-VERSION = "dev0211"
+VERSION = "2025.03.25"
 
 tags_metadata = [
     {
@@ -110,6 +109,11 @@ app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
 #     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
 # )
 # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
+# models
+app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
+app.include_router(create_model.router, prefix="/models", tags=["models"])
+app.include_router(ingest_model.router, prefix="/models", tags=["models"])
+app.include_router(stage_model.router, prefix="/models", tags=["models"])
 # notifications
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # changes

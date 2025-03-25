@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..repos import ModelsAPIRepo
-from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest
+from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual
 
 def retrieve_model(metadata, user):
 	repo = ModelsAPIRepo()
@@ -12,7 +12,6 @@ def retrieve_model(metadata, user):
 	if error and error == "Model doesn't exist":
 		# create model
 		data, error = repo.create_model(metadata.dict(), user)
-		# print(data, error)
 		if error:
 			raise Exception(error)
 	return data
@@ -32,3 +31,12 @@ def ingest_model(
 	else:
 		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
 	return ingest(path, ModelsAPIRepo(), retrieve_model, 'models')
+
+def ingest_virtual_model( # could work for a list of paths with minimal changes...
+	path,
+	links,
+	metadata = None, 
+	logger=print,
+	user=None,
+):
+	return ingest_virtual(path, links, ModelsAPIRepo(), retrieve_model, 'models', metadata, logger)

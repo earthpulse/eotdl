@@ -11,7 +11,7 @@ def create_stac_catalog(parquet_catalog_path, stac_catalog = None):
 	items = []
 	for item in tqdm(stac_geoparquet.arrow.stac_table_to_items(table), total=len(table)):
 		item = pystac.Item.from_dict(item)
-		item.validate()
+		# item.validate()
 		# collection.add_item(item)
 		if stac_catalog is not None:
 			stac_catalog.add_item(item)

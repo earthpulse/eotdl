@@ -56,6 +56,15 @@ def prep_ingest_stac(path, logger=None): # in theory should work with a remote c
 		# iterate over items
 		for item in tqdm(collection.get_items(), desc=f"Ingesting items from collection {collection.id}"):
 			assert isinstance(item, pystac.Item)
+			# Process each asset in the item
+			for asset in item.assets.values():
+				if not asset.href.startswith(('http://', 'https://')):
+					# Asset is a local file
+					file_path = Path(asset.href)
+					# Calculate and add file size
+					asset.extra_fields['size'] = file_path.stat().st_size
+					# Calculate and add checksum
+					asset.extra_fields['checksum'] = calculate_checksum(str(file_path))
 			items.append(item)
 	# save parquet file
 	record_batch_reader = stac_geoparquet.arrow.parse_stac_items_to_arrow(items)
@@ -63,13 +72,14 @@ def prep_ingest_stac(path, logger=None): # in theory should work with a remote c
 	stac_geoparquet.arrow.to_parquet(record_batch_reader, output_path)
 	return output_path
 
-@with_auth
-def ingest_virutal_dataset( # could work for a list of paths with minimal changes...
+def ingest_virtual( # could work for a list of paths with minimal changes...
 	path,
 	links,
+	repo,
+	retrieve,
+	mode,
 	metadata = None, 
 	logger=print,
-	user=None,
 ):
 	path = Path(path)
 	if metadata is None:
@@ -88,7 +98,7 @@ def ingest_virutal_dataset( # could work for a list of paths with minimal change
 	data.append(create_stac_item('README.md', str(path / "README.md")))
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
 	gdf.to_parquet(path / "catalog.parquet")
-	return ingest(path)
+	return ingest(path, repo, retrieve, mode)
 
 @with_auth
 def ingest(path, repo, retrieve, mode, user):
@@ -104,8 +114,6 @@ def ingest(path, repo, retrieve, mode, user):
 	# retrieve dataset (create if doesn't exist)
 	dataset_or_model = retrieve(metadata, user)
 	current_version = sorted([v['version_id'] for v in dataset_or_model["versions"]])[-1]
-	print("current version: ", current_version)
-
 	# TODO: update README if metadata changed in UI (db)
 	# update_metadata = True
 	# if "description" in dataset:
@@ -118,12 +126,10 @@ def ingest(path, repo, retrieve, mode, user):
 	# return ingest_files(
 	#     repo, dataset["id"], folder, verbose, logger, user, endpoint="datasets"
 	# )
-
 	catalog_path = path.joinpath("catalog.parquet")
 	gdf = gpd.read_parquet(catalog_path)
 	files_repo = FilesAPIRepo()
-	catalog_url = files_repo.generate_presigned_url(f'catalog.v{current_version}.parquet', dataset_or_model['id'], user)
-
+	catalog_url = files_repo.generate_presigned_url(f'catalog.v{current_version}.parquet', dataset_or_model['id'], user, endpoint=mode)
 	# first time ingesting
 	if catalog_url is None:
 		total_size = 0
@@ -149,7 +155,7 @@ def ingest(path, repo, retrieve, mode, user):
 				print(f"Error uploading asset {row[0]}: {e}")
 				break
 		gdf.to_parquet(catalog_path)
-		files_repo.ingest_file(str(catalog_path), f'catalog.v{current_version}.parquet', dataset_or_model['id'], user, "datasets")
+		files_repo.ingest_file(str(catalog_path), f'catalog.v{current_version}.parquet', dataset_or_model['id'], user, mode)
 		data, error = repo.complete_ingestion(dataset_or_model['id'], current_version, total_size, user)
 		if error:
 			raise Exception(error)
@@ -174,7 +180,7 @@ def ingest(path, repo, retrieve, mode, user):
 				if len(df) > 0: # file exists in previous versions
 					if df.iloc[0]['assets'][k]["checksum"] == v["checksum"]: # file is the same
 						# still need to update the required fields
-						file_url = f"{repo.url}datasets/{dataset_or_model['id']}/stage/{item_id}"
+						file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
 						gdf.loc[row[0], "assets"][k]["href"] = file_url
 						total_size += v["size"]
 						continue

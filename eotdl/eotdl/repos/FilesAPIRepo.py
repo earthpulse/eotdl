@@ -101,7 +101,7 @@ class FilesAPIRepo(APIRepo):
         reponse = requests.get(url, headers=self.generate_headers(user))
         data, error = self.format_response(reponse)
         if error:
-            print("ERROR generate_presigned_url", error)
+            # print("ERROR generate_presigned_url", error)
             return None
         return data["presigned_url"]
 
