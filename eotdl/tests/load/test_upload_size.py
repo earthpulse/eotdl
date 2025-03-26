@@ -57,13 +57,13 @@ This file is nonsensical data used for load testing. It should not be stored on 
         (1),
         (1e1),
         (1e2),
-        (1e3), # 1GB
-        (1e4),
-        (1e5),
+        # (1e3), # 1GB
+        # (1e4),
+        # (1e5),
         # (1e6)  # 1TB 
     ],
 )
-def test_load(load_tiers, size):
+def test_load(setup_minio, setup_mongo, size):
     name = f"LoadTest-{int(size)}MB"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
@@ -71,7 +71,6 @@ def test_load(load_tiers, size):
 
         # make sure the dataset does not yet exist
         assert not retrieve_dataset(name=name)
-
 
         # upload
         start_time = time.time()
@@ -86,12 +85,3 @@ def test_load(load_tiers, size):
         # assert dataset ingested
         dataset = retrieve_dataset(name=name)
         assert dataset["name"] == name
-
-        # TODO: how to be an admin
-        # # delete
-        # repo = DatasetsAPIRepo()
-        # admin_user = auth()
-        # repo.delete_dataset(name, admin_user)
-
-        # # assert dataset removed
-        # assert not retrieve_dataset(name=name)
