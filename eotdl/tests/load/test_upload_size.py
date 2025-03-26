@@ -1,12 +1,17 @@
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 import tempfile
+import time
 
+import pytest
+
+from eotdl.eotdl.auth.auth import auth
 from eotdl.eotdl.datasets import ingest_dataset, retrieve_dataset
+from eotdl.eotdl.repos import DatasetsAPIRepo
 
-# from api.api.src.usecases.datasets.delete_dataset import delete_dataset
 
-
+os.environ["EOTDL_API_URL"] = "http://localhost:8000/"
 
 
 def generate_fake_dataset(path: Path, size_mb: int = 10, name: str = "test_set"):
@@ -46,21 +51,47 @@ This file is nonsensical data used for load testing. It should not be stored on 
         outfile.write(readme_text)
 
 
-def test_load_10mb(load_tiers):
-
-    name = "LoadTest"
+@pytest.mark.parametrize(
+    "size",
+    [
+        (1),
+        (1e1),
+        (1e2),
+        (1e3), # 1GB
+        (1e4),
+        (1e5),
+        # (1e6)  # 1TB 
+    ],
+)
+def test_load(load_tiers, size):
+    name = f"LoadTest-{int(size)}MB"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
-        generate_fake_dataset(path=tmpdir, size_mb=10, name=name)
+        generate_fake_dataset(path=tmpdir, size_mb=int(size), name=name)
+
+        # make sure the dataset does not yet exist
+        assert not retrieve_dataset(name=name)
+
 
         # upload
+        start_time = time.time()
         ingest_dataset(path=str(tmpdir / name))
 
-        # check if it worked
-        assert retrieve_dataset(name=name)
+        upload_duration = time.time() - start_time
+        print(f"Upload for {name} took {upload_duration:.2f} seconds.")
 
-        # delete
-        # delete_dataset(name=name)
+        with open("eotdl/tests/load/upload_times.log", "a") as log_file:
+            log_file.write(f"{size} MB took {upload_duration:.2f} seconds.\n")
 
-        # check dataset is gone
+        # assert dataset ingested
+        dataset = retrieve_dataset(name=name)
+        assert dataset["name"] == name
+
+        # TODO: how to be an admin
+        # # delete
+        # repo = DatasetsAPIRepo()
+        # admin_user = auth()
+        # repo.delete_dataset(name, admin_user)
+
+        # # assert dataset removed
         # assert not retrieve_dataset(name=name)

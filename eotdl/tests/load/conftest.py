@@ -5,16 +5,19 @@ import pytest
 
 
 @pytest.fixture
-def load_tiers(scope="function", autouse=True):
+def load_tiers():
     client = MongoClient("mongodb://localhost:27017/")
     db = client["eotdl"]
     tiers_collection = db["tiers"]
 
+    # if the tiers somehow weren't deleted
     ids_to_delete = [
         ObjectId("645242248456b2cc058e43bf"),
         ObjectId("645242248456b2cc058e43c0")
     ]
-    if tiers_collection.count_documents({"_id": {"$in": ids_to_delete}}) > 0:
+
+    print(tiers_collection.count_documents({}))
+    if tiers_collection.count_documents({}) > 0:
         tiers_collection.delete_many({"_id": {"$in": ids_to_delete}})
 
     with open("eotdl/tests/load/eotdl.tiers.copy.json", "r") as file:
@@ -24,6 +27,7 @@ def load_tiers(scope="function", autouse=True):
         if "_id" in item:
             item["_id"] = ObjectId(item["_id"])
     tiers_collection.insert_many(json_data)
+    print(f"Created tiers")
 
     yield tiers_collection
 
