@@ -12,13 +12,11 @@ from eotdl.datasets import ingest_dataset, retrieve_dataset
 os.environ["EOTDL_API_URL"] = "http://localhost:8000/"
 
 
-def generate_fake_dataset(path: Path, size_mb: int = 10, name: str = "test_set"):
-    files_to_upload = [
-        f"{name}/Forest/Fake_tif1.tif",
-        f"{name}/Forest/Fake_tif2.tif",
-        f"{name}/AnnualCrop/Fake_tif1.tif",
-        f"{name}/AnnualCrop/Fake_tif2.tif",
-    ]
+def generate_fake_dataset(path: Path, size_mb: int = 10, n_files: int = 5, name: str = "test_set"):
+    
+    files_to_upload = []
+    for count in range(n_files):
+        files_to_upload.append(f"{name}/FakeFolder/Fake_tif{count}.tif",)
 
     total_size_bytes = size_mb * 1024 * 1024
     file_size = total_size_bytes // len(files_to_upload)
@@ -31,7 +29,6 @@ def generate_fake_dataset(path: Path, size_mb: int = 10, name: str = "test_set")
         with open(file_path, "wb") as f:
             f.write(os.urandom(file_size))  # Random binary data
 
-    # Write README file
     readme_text = f"""---
 name: {name}
 authors: 
@@ -50,22 +47,22 @@ This file is nonsensical data used for load testing. It should not be stored on 
 
 
 @pytest.mark.parametrize(
-    "size",
+    "total_size, n_files",
     [
-        (1),
-        (1e1),
-        (1e2),
-        (1e3), # 1GB
-        (1e4),
-        # (1e5),
-        # (1e6)  # 1TB 
+        (1, 10),
+        (1e1, 10),
+        (1e2, 10),
+        (1e3, 20), # 1GB
+        # (1e4, 1),
+        # (1e5, 1),
+        # (1e6, 1)  # 1TB 
     ],
 )
-def test_load(setup_mongo, size):
-    name = f"LoadTest-{int(size)}MB"
+def test_load(setup_mongo, total_size, n_files):
+    name = f"LoadTest-{int(total_size)}MB"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
-        generate_fake_dataset(path=tmpdir, size_mb=int(size), name=name)
+        generate_fake_dataset(path=tmpdir, size_mb=int(total_size), n_files=n_files, name=name)
 
         # upload
         start_time = time.time()
@@ -75,7 +72,7 @@ def test_load(setup_mongo, size):
         print(f"Upload for {name} took {upload_duration:.2f} seconds.")
 
         with open("eotdl/tests/load/upload_times.log", "a") as log_file:
-            log_file.write(f"{size} MB took {upload_duration:.2f} seconds.\n")
+            log_file.write(f"{total_size} MB made of {n_files} files took {upload_duration:.2f} seconds.\n")
 
         # assert dataset ingested
         dataset = retrieve_dataset(name=name)

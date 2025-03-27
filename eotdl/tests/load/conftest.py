@@ -8,11 +8,11 @@ import boto3
 @pytest.fixture
 def setup_mongo():
     client = MongoClient("mongodb://localhost:27017/")
-    db = client["eotdl"]
+    db = client["eotdl-test"]
 
-    client.drop_database("eotdl")
+    client.drop_database("eotdl-test")
 
-    db = client["eotdl"]
+    db = client["eotdl-test"]
     tiers_collection = db["tiers"]
 
     with open("eotdl/tests/load/eotdl.tiers.copy.json", "r") as file:
@@ -26,15 +26,16 @@ def setup_mongo():
 
     yield tiers_collection
 
-    client.drop_database("eotdl")
+    client.drop_database("eotdl-test")
 
 
+# TODO: use this, figure out the client/bucket
 @pytest.fixture
 def setup_minio():
-    minio_endpoint = "192.168.1.95:9000"  # Your MinIO endpoint
-    access_key = "eotdl"  # MinIO access key
-    secret_key = "12345678"  # MinIO secret key
-    bucket_name = "test-bucket"  # Name of the test bucket
+    minio_endpoint = "192.168.1.95:9000" 
+    access_key = "eotdl"  
+    secret_key = "12345678" 
+    bucket_name = "test-bucket" 
 
     s3_client = boto3.client(
         "s3",
