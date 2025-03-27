@@ -32,6 +32,13 @@
                                 <h2 class="card-title text-lg">
                                     Model Update Request
                                 </h2>
+                                <a
+                                    href="/models/{notification.payload
+                                        .model_name}?change={notification
+                                        .payload.change_id}"
+                                    class="text-blue-500 hover:underline"
+                                    >See changes</a
+                                >
                             {:else if notification.type == "dataset_update_request_declined"}
                                 <h2 class="card-title text-lg">
                                     Dataset Update Request Declined

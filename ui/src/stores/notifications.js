@@ -14,7 +14,6 @@ const createNotifications = () => {
             set({ loading: true, error: null, data: [] });
             try {
                 const data = await retrieveNotifications(token);
-                console.log(data);
                 set({ loading: false, data, error: null });
             } catch (e) {
                 set({ loading: false, error: e.message, data: [] });

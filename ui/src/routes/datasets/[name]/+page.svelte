@@ -13,13 +13,13 @@
   import Map from "$components/Map.svelte";
   import { links } from "$stores/images.js";
   import Train from "./Train.svelte";
-  import EditableTitle from "./EditableTitle.svelte";
+  import EditableTitle from "$components/EditableTitle.svelte";
   import { page } from "$app/stores";
   import retrieveChange from "$lib/changes/retrieveChange";
   import acceptChange from "$lib/changes/acceptChange";
   import declineChange from "$lib/changes/declineChange";
   import { goto } from "$app/navigation";
-  import EditableContent from "./EditableContent.svelte";
+  import EditableContent from "$components/EditableContent.svelte";
 
   $: if (browser) {
     load();

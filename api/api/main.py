@@ -33,8 +33,8 @@ from .routers.models import (
     create_model,
     ingest_model,
     stage_model,
+    update_model,
 #     upload_large_model_files,
-#     update_model,
 )
 # from .routers import admin, migrate
 
@@ -114,6 +114,7 @@ app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
 app.include_router(create_model.router, prefix="/models", tags=["models"])
 app.include_router(ingest_model.router, prefix="/models", tags=["models"])
 app.include_router(stage_model.router, prefix="/models", tags=["models"])
+app.include_router(update_model.router, prefix="/models", tags=["models"])
 # notifications
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # changes

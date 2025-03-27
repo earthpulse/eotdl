@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ...repos import DatasetsDBRepo, ChangesDBRepo, NotificationsDBRepo
+from ...repos import DatasetsDBRepo
 from .retrieve_dataset import (
     retrieve_dataset,
     retrieve_dataset_by_name,
@@ -12,7 +12,7 @@ from ...errors import (
     DatasetDoesNotExistError,
 #     InvalidTagError,
 )
-from ...models import Dataset, Change, Notification, ChangeType, NotificationType
+from ...models import Dataset, ChangeType, NotificationType
 from ..notifications import create_notification
 from ..changes import create_change
 
