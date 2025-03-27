@@ -42,7 +42,6 @@ def stage_dataset(
         raise Exception(
             f"Dataset `{dataset['name']}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
         )
-
     # stage metadata
     repo = FilesAPIRepo()
     catalog_path = repo.stage_file(dataset["id"], f"catalog.v{version}.parquet", user, download_path)
