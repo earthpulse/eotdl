@@ -236,7 +236,7 @@
             {/if}
           </div>
           <div class="flex flex-col gap-3">
-            <Metadata data={dataset.metadata} />
+            <Metadata bind:authors={dataset.metadata.authors} bind:license={dataset.metadata.license} bind:source={dataset.metadata.source}  edit={edit} />
             <!-- <FileExplorer
                 data={dataset}
                 {version}
