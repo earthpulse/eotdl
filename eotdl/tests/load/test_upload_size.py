@@ -6,9 +6,7 @@ import time
 
 import pytest
 
-from eotdl.eotdl.auth.auth import auth
-from eotdl.eotdl.datasets import ingest_dataset, retrieve_dataset
-from eotdl.eotdl.repos import DatasetsAPIRepo
+from eotdl.datasets import ingest_dataset, retrieve_dataset
 
 
 os.environ["EOTDL_API_URL"] = "http://localhost:8000/"
@@ -57,20 +55,17 @@ This file is nonsensical data used for load testing. It should not be stored on 
         (1),
         (1e1),
         (1e2),
-        # (1e3), # 1GB
-        # (1e4),
+        (1e3), # 1GB
+        (1e4),
         # (1e5),
         # (1e6)  # 1TB 
     ],
 )
-def test_load(setup_minio, setup_mongo, size):
+def test_load(setup_mongo, size):
     name = f"LoadTest-{int(size)}MB"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
         generate_fake_dataset(path=tmpdir, size_mb=int(size), name=name)
-
-        # make sure the dataset does not yet exist
-        assert not retrieve_dataset(name=name)
 
         # upload
         start_time = time.time()

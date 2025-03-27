@@ -10,7 +10,7 @@ def setup_mongo():
     client = MongoClient("mongodb://localhost:27017/")
     db = client["eotdl"]
 
-    db.drop_database("eotdl")
+    client.drop_database("eotdl")
 
     db = client["eotdl"]
     tiers_collection = db["tiers"]
@@ -26,7 +26,7 @@ def setup_mongo():
 
     yield tiers_collection
 
-    db.drop_database("eotdl")
+    client.drop_database("eotdl")
 
 
 @pytest.fixture
