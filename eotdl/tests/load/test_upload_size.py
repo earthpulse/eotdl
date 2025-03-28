@@ -1,12 +1,15 @@
 from datetime import datetime, timezone
+import io
 import os
 from pathlib import Path
 import tempfile
 import time
 
+from eotdl.datasets.retrieve import retrieve_dataset_files
 import pytest
 
 from eotdl.datasets import ingest_dataset, retrieve_dataset
+import rasterio
 
 
 os.environ["EOTDL_API_URL"] = "http://localhost:8000/"
@@ -51,14 +54,13 @@ This file is nonsensical data used for load testing. It should not be stored on 
     [
         (1, 10),
         (1e1, 10),
-        (1e2, 10),
-        (1e3, 20), # 1GB
-        # (1e4, 1),
-        # (1e5, 1),
-        # (1e6, 1)  # 1TB 
+        # (1e3, 2) # 2 files amounting to 1 GB,
+        # (1e3, 20), # 20 files amounting to 1 GB
+        # (1e4, 1), # 1 big GB file
+        # (1e5, 1000), # 1000 10 MB files
     ],
 )
-def test_load(setup_mongo, total_size, n_files):
+def test_load(setup_mongo, setup_minio, total_size, n_files):
     name = f"LoadTest-{int(total_size)}MB"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
@@ -77,3 +79,16 @@ def test_load(setup_mongo, total_size, n_files):
         # assert dataset ingested
         dataset = retrieve_dataset(name=name)
         assert dataset["name"] == name
+        assert len(dataset) == n_files + 1
+        assert round(dataset["versions"][0]["size"]/(1024*1024),2) == total_size
+
+        # check in minio
+        minio_files = []
+        minio_sizes = []
+        for obj in setup_minio.list_objects('eotdl-test', recursive=True):
+            minio_files.append(obj.object_name)
+            minio_sizes.append(obj.size)
+            assert obj.object_name.endswith(('tif', 'md', 'parquet'))
+
+        assert len(minio_files) == n_files + 2
+        assert round(sum(minio_sizes)/(1024*1024)) == total_size

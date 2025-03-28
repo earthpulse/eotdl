@@ -1,5 +1,6 @@
 import json
 from bson import ObjectId
+from minio import Minio
 from pymongo import MongoClient
 import pytest
 import boto3
@@ -28,28 +29,27 @@ def setup_mongo():
 
     client.drop_database("eotdl-test")
 
-
-# TODO: use this, figure out the client/bucket
 @pytest.fixture
 def setup_minio():
-    minio_endpoint = "192.168.1.95:9000" 
-    access_key = "eotdl"  
-    secret_key = "12345678" 
-    bucket_name = "test-bucket" 
 
-    s3_client = boto3.client(
-        "s3",
-        endpoint_url=f"http://{minio_endpoint}",
-        aws_access_key_id=access_key,
-        aws_secret_access_key=secret_key,
-        region_name="us-east-1",
-        config=boto3.session.Config(signature_version="s3v4"),
+    minio_client = Minio(
+        "localhost:9000",
+        access_key="eotdl",
+        secret_key="12345678",
+        secure=False  # Set to True if using TLS
     )
 
-    yield s3_client
+    bucket_name = "eotdl-test"
 
-    objects = s3_client.list_objects_v2(Bucket=bucket_name)
-    if "Contents" in objects:
-        for obj in objects["Contents"]:
-            s3_client.delete_object(Bucket=bucket_name, Key=obj["Key"])
-        print(f"Deleted all objects in '{bucket_name}'.")
+    if not minio_client.bucket_exists(bucket_name):
+        minio_client.make_bucket(bucket_name)
+
+    objects = minio_client.list_objects(bucket_name, recursive=True)
+    for obj in objects:
+        minio_client.remove_object(bucket_name, obj.object_name)
+
+    yield minio_client  
+
+    objects = minio_client.list_objects(bucket_name, recursive=True)
+    for obj in objects:
+        minio_client.remove_object(bucket_name, obj.object_name)
