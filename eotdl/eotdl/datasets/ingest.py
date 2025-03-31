@@ -16,7 +16,7 @@ def retrieve_dataset(metadata, user):
 			raise Exception(error)
 	return data
 
-def ingest_dataset(
+async def ingest_dataset(
 	path,
 	verbose=False,
 	logger=print,
@@ -29,8 +29,8 @@ def ingest_dataset(
 	if "catalog.json" in [f.name for f in path.iterdir()]:
 		prep_ingest_stac(path, logger)
 	else:
-		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
-	return ingest(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets')
+		await prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
+	return await ingest(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets')
 
 
 def ingest_virtual_dataset( # could work for a list of paths with minimal changes...

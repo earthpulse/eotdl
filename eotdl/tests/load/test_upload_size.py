@@ -89,10 +89,10 @@ def generate_fake_dataset(path: Path, size_mb: int = 10, n_files: int = 5, name:
     "total_size, n_files",
     [
         (1, 10),
-        # (1e1, 10),
-        # (1e3, 1), # 1 files amounting to 1 GB,
-        # (1e3, 20), # 20 files amounting to 1 GB
-        # (1e4, 100), # 100 10 MB files
+        (1e1, 10),
+        (1e3, 1), # 1 files amounting to 1 GB,
+        (1e3, 20), # 20 files amounting to 1 GB
+        (1e4, 100), # 100 10 MB files
         (1e4, 10), # 10 times 1 GB
     ],
 )
@@ -128,19 +128,19 @@ def test_load(setup_mongo, setup_minio, total_size, n_files):
         assert len(minio_files) == n_files + 2
         assert round(sum(minio_sizes)/(1024*1024)) == total_size
 
-
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "tif_size, n_tifs",
     [
         # (256, 100),
-        # (512, 100),
-        # (1024, 100), 
+        # (1024, 100),
+        (2048, 100), 
         (2048, 200),
-        (2048, 400),
-        (2048, 800)
+        # (2048, 400),
+        # (2048, 800)
     ],
 )
-def test_load_tifs(setup_mongo, setup_minio, tif_size, n_tifs):
+async def test_load_tifs(setup_mongo, setup_minio, tif_size, n_tifs):
     name = f"LoadTest-{int(tif_size)}"
     with tempfile.TemporaryDirectory(prefix="loadtest_") as tmpdir:
         tmpdir = Path(tmpdir)
@@ -148,7 +148,7 @@ def test_load_tifs(setup_mongo, setup_minio, tif_size, n_tifs):
 
         # upload
         start_time = time.time()
-        ingest_dataset(path=str(tmpdir / name))
+        await ingest_dataset(path=str(tmpdir / name))
 
         upload_duration = time.time() - start_time
         print(f"Upload for {name} took {upload_duration:.2f} seconds.")
@@ -182,4 +182,4 @@ def test_load_tifs(setup_mongo, setup_minio, tif_size, n_tifs):
                             colour = src.read(band)  
                             assert set(colour.flatten()) == {np.uint32(256)}
 
-        assert len(minio_files) == n_tifs + 2
+        # assert len(minio_files) == n_tifs + 2

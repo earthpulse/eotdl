@@ -16,7 +16,7 @@ from ..files.metadata import Metadata
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
 
-def prep_ingest_folder(
+async def prep_ingest_folder(
 	folder,
 	verbose=False,
 	logger=print,
@@ -101,8 +101,9 @@ def ingest_virtual( # could work for a list of paths with minimal changes...
 	return ingest(path, repo, retrieve, mode)
 
 @with_auth
-def ingest(path, repo, retrieve, mode, user):
+async def ingest(path, repo, retrieve, mode, user):
 	try:
+		print(frontmatter)
 		readme = frontmatter.load(path.joinpath("README.md"))
 		metadata_dict = readme.metadata
 		# Add description from content before creating Metadata object
@@ -113,6 +114,11 @@ def ingest(path, repo, retrieve, mode, user):
 		raise Exception("Error loading metadata")
 	# retrieve dataset (create if doesn't exist)
 	dataset_or_model = retrieve(metadata, user)
+
+	# TODO: catch this error when it happens
+	if not len(dataset_or_model["versions"]):
+		raise Exception("No versions found. This probably happened because you do not have tiers set up in the db. ")
+	
 	current_version = sorted([v['version_id'] for v in dataset_or_model["versions"]])[-1]
 	# TODO: update README if metadata changed in UI (db)
 	# update_metadata = True
@@ -138,7 +144,7 @@ def ingest(path, repo, retrieve, mode, user):
 				for k, v in row[1]["assets"].items():
 					if v["href"].startswith("http"): continue
 					item_id = row[1]["id"]
-					data, error = files_repo.ingest_file(
+					data, error = await files_repo.ingest_file(
 						v["href"],
 						item_id, 
 						# Path(v["href"]).stat().st_size,
@@ -190,7 +196,7 @@ def ingest(path, repo, retrieve, mode, user):
 				new_version = True
 				num_changes += 1
 				# ingest new files
-				data, error = files_repo.ingest_file(
+				data, error = await files_repo.ingest_file(
 					v["href"],
 					item_id, # item id, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
 					# Path(v["href"]).stat().st_size,

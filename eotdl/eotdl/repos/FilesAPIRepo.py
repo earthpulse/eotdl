@@ -1,3 +1,4 @@
+import httpx
 import requests
 import os
 from tqdm import tqdm
@@ -11,25 +12,24 @@ class FilesAPIRepo(APIRepo):
     def __init__(self, url=None):
         super().__init__(url)
 
-    def ingest_file(
+    async def ingest_file(
         self, file_path_or_bytes, file_name, dataset_or_model_id, user, endpoint, version=None
     ):
         url = self.url + f"{endpoint}/{dataset_or_model_id}"
         if version is not None:
             url += "?version=" + str(version)
-        # get a presigned url to upload the file directly to the bucket
-        reponse = requests.post(
-            url,
-            json={
-                "file_name": file_name,
-                # "file_size": files_size,
-                # "checksum": checksum
-            },
-            headers=self.generate_headers(user),
-        )
-        data, error = self.format_response(reponse)
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json={"file_name": file_name},
+                headers=self.generate_headers(user),
+            )
+
+        data, error = self.format_response(response)
         if error:
             raise Exception(error)
+
         # ingest the file
         error = None
         try:

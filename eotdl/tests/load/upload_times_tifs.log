@@ -3,3 +3,21 @@
 1024x 1024 made of 100 files took 23.38 seconds. (1200.62 mb)
 2048x 2048 made of 100 files took 81.27 seconds. (4801.21 mb)
 2048x 2048 made of 200 files took 202.64 seconds. (9602.42 mb)
+2048x 2048 made of 100 files took 65.93 seconds. (4801.21 mb)
+2048x 2048 made of 200 files took 129.27 seconds. (9602.42 mb)
+
+256x 256 made of 100 files took 6.26 seconds. (75.11 mb)  #httpx
+512x 512 made of 100 files took 8.70 seconds. (300.33 mb)  #httpx
+1024x 1024 made of 100 files took 18.77 seconds. (1200.62 mb)  #httpx
+2048x 2048 made of 100 files took 78.55 seconds. (4801.21 mb)  #httpx
+2048x 2048 made of 200 files took 119.68 seconds. (9602.42 mb)  #httpx
+2048x 2048 made of 100 files took 64.88 seconds. (4801.21 mb)  #httpx
+2048x 2048 made of 200 files took 145.25 seconds. (9602.42 mb)  #httpx
+
+# async
+1024x 1024 made of 100 files took 23.66 seconds. (1200.62 mb)
+1024x 1024 made of 100 files took 26.36 seconds. (1200.62 mb)
+1024x 1024 made of 100 files took 20.46 seconds. (1200.62 mb)
+1024x 1024 made of 100 files took 57.54 seconds. (1200.62 mb)
+2048x 2048 made of 100 files took 63.85 seconds. (4801.21 mb)
+2048x 2048 made of 200 files took 128.13 seconds. (9602.42 mb)
