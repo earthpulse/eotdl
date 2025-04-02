@@ -8,7 +8,6 @@
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
-	import QualitySelector from "$components/QualitySelector.svelte";
 	import Ingest from "./Ingest.svelte";
 	import { links, modelImagesOffset } from "$stores/images";
 	export let data;
@@ -98,14 +97,13 @@
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
-					<QualitySelector bind:selected_qualities />
 				</span>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
-		<span class="flex flex-row w-full justify-between items-center">
+		<!-- <span class="flex flex-row w-full justify-between items-center">
 			<Ingest tags={data?.tags} />
-		</span>
+		</span> -->
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each new Array(30) as _}
