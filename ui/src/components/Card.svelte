@@ -18,7 +18,7 @@
 >
   <span>
     <img
-      src={data.thumbnail ? data.thumbnail : `${img}`}
+      src={data.metadata.thumbnail ? data.metadata.thumbnail : `${img}`}
       class="h-48 rounded-t-lg w-full object-cover"
       alt=""
     />

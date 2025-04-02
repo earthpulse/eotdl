@@ -36,7 +36,7 @@ The CLI is the most convenient way to ingest datasets. You can ingest a dataset 
 
 Where `dataset-path` is the path to a folder containing your dataset. 
 
-For Q0 datasets, a file named `README.md` is expected in the root of the folder. This file should contain the following information:
+A file named `README.md` is expected in the root of the folder. This file should contain the following information:
 
 ```yaml
 ---
@@ -55,7 +55,7 @@ some markdown content (titles, text, links, code, images, ...)
 
 If this file is not present, the ingestion process will fail.
 
-> After uploading a dataset with the CLI you can visiting the dataset page to edit this information.
+> After uploading a dataset with the CLI you can edit this information visiting the dataset page in the website.
 
 You can update your dataset in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
 
@@ -72,7 +72,21 @@ You can ingest datasets using the following Python code:
 <Library><Code>
 	from eotdl.datasets import ingest_dataset<br/><br/>ingest_dataset("dataset-path")</Code></Library>
 
+The library also enables the ingestion of "virtual datasets", that is, datasets where only the metadat will be ingested while the assets live in a different place (such as a remote storage, cloud boucket, third party repositories, etc.). The only requirement is for the assets 
+to be accesible via a public URL. The following example shows how to ingest a virtual dataset:
 
+<Library><Code>
+from eotdl.datasets import ingest_virtual_dataset<br/>
+links = [
+	'https://link1.com',
+	'https://link2.com',
+	'https://link3.com',
+]<br/>
+ingest_virtual_dataset("dataset-path", links)</Code></Library>
+
+where "dataset-path" is the path to a folder where the metadata will be stored. If the path exists with a valid `README.md` file, the ingestion will work as usual. Otherwise, either create the README or pass its content as an additional argument.
+
+Learn more about virtual datasets in this [tutorial](https://github.com/earthpulse/eotdl/blob/main/tutorials/notebooks/02_ingesting.ipynb).
 
 <!-- ## API 
 

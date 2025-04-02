@@ -108,7 +108,9 @@
           <span class="flex sm:justify-start justify-center">
             <img
               class="w-36 h-36 bg-white object-cover"
-              src={model.thumbnail ? model.thumbnail : `${curent_image}`}
+              src={model.metadata.thumbnail
+                ? model.metadata.thumbnail
+                : `${curent_image}`}
               alt=""
             />
           </span>
@@ -208,7 +210,12 @@
             {/if}
           </div>
           <div class="flex flex-col gap-3">
-            <Metadata data={model.metadata} />
+            <Metadata
+              bind:authors={model.metadata.authors}
+              bind:license={model.metadata.license}
+              bind:source={model.metadata.source}
+              {edit}
+            />
             <!-- <FileExplorer
                 data={dataset}
                 {version}

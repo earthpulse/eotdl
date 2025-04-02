@@ -136,7 +136,9 @@
           <span class="flex sm:justify-start justify-center">
             <img
               class="w-36 h-36 bg-white object-cover"
-              src={dataset.thumbnail ? dataset.thumbnail : `${curent_image}`}
+              src={dataset.metadata.thumbnail
+                ? dataset.metadata.thumbnail
+                : `${curent_image}`}
               alt=""
             />
           </span>
@@ -236,7 +238,12 @@
             {/if}
           </div>
           <div class="flex flex-col gap-3">
-            <Metadata bind:authors={dataset.metadata.authors} bind:license={dataset.metadata.license} bind:source={dataset.metadata.source}  edit={edit} />
+            <Metadata
+              bind:authors={dataset.metadata.authors}
+              bind:license={dataset.metadata.license}
+              bind:source={dataset.metadata.source}
+              {edit}
+            />
             <!-- <FileExplorer
                 data={dataset}
                 {version}
