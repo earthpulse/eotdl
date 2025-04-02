@@ -24,6 +24,9 @@
   let model = null;
   let model0 = null;
   let version = null;
+
+  $: console.log(version);
+
   let message = null;
   let curent_image;
   let _change = null;

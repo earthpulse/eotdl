@@ -3,16 +3,11 @@
   import { browser } from "$app/environment";
   import { datasets } from "$stores/datasets";
   import "$styles/dataset.css";
-  import Update from "$components/Update.svelte";
   import retrieveDataset from "$lib/datasets/retrieveDataset";
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
-  import FileExplorer from "$components/FileExplorer.svelte";
   import { fade } from "svelte/transition";
-  import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
-  import Map from "$components/Map.svelte";
   import { links } from "$stores/images.js";
-  import Train from "./Train.svelte";
   import EditableTitle from "$components/EditableTitle.svelte";
   import { page } from "$app/stores";
   import retrieveChange from "$lib/changes/retrieveChange";
@@ -20,6 +15,7 @@
   import declineChange from "$lib/changes/declineChange";
   import { goto } from "$app/navigation";
   import EditableContent from "$components/EditableContent.svelte";
+  import FileExplorer from "$components/FileExplorer.svelte";
 
   $: if (browser) {
     load();
@@ -167,32 +163,6 @@
         </span>
         {#if !change}
           <span class="flex flex-row gap-2">
-            <!-- <a
-            class="btn btn-outline"
-            href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
-            target="_blank">Upgrade</a
-          > -->
-            <!-- {#if dataset.training_template}
-            <Train {dataset} />
-          {/if} -->
-            <!-- {#if $user}
-            {#if $user.uid == dataset.uid}
-              <Update
-                store={datasets}
-                route="datasets"
-                id={dataset.id}
-                tags={data.tags}
-                current_tags={dataset.tags}
-                bind:name={dataset.name}
-                quality={dataset.quality}
-                bind:authors={dataset.authors}
-                bind:source={dataset.source}
-                bind:license={dataset.license}
-                bind:description={dataset.description}
-                bind:selected_tags={dataset.tags}
-              />
-            {/if}
-          {/if} -->
             {#if $user}
               {#if edit}
                 <button class="btn btn-outline" on:click={save}>Save</button>
@@ -244,12 +214,7 @@
               bind:source={dataset.metadata.source}
               {edit}
             />
-            <!-- <FileExplorer
-                data={dataset}
-                {version}
-                retrieveFiles={retrieveDatasetFiles}
-                datasetId={dataset.id}
-              /> -->
+            <FileExplorer {version} collection={dataset.id} />
           </div>
         </div>
       </div>
