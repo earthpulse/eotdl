@@ -1,5 +1,5 @@
 <script>
-    import { user } from "$stores/auth";
+    import auth from "$stores/auth.svelte";
     import { page } from "$app/stores";
     import HomeOutline from "svelte-material-icons/HomeOutline.svelte";
     import DatabaseOutline from "svelte-material-icons/DatabaseOutline.svelte";
@@ -8,9 +8,9 @@
     import CloudCogOutline from "svelte-material-icons/CloudCogOutline.svelte";
     import ChartBoxPlusOutline from "svelte-material-icons/ChartBoxPlusOutline.svelte";
     import SchoolOutline from "svelte-material-icons/SchoolOutline.svelte";
-    import { notifications } from "$stores/notifications";
+    import notifications from "$stores/notifications.svelte";
 
-    export let loading;
+    let { loading } = $props();
 
     const links = [
         { href: "/", label: "Home", icon: HomeOutline },
@@ -38,7 +38,7 @@
         { href: "https://platform.ai4eo.eu/", label: "AI4EO" },
     ];
 
-    $: notificationCount = $notifications.data?.length || 0;
+    let notificationCount = $derived(notifications.data?.length || 0);
 </script>
 
 <div class="grid place-items-center w-full">
@@ -53,13 +53,13 @@
                         ? 'text-slate-300 hover:text-white'
                         : 'text-slate-600 hover:text-slate-800'} hover:underline flex floex-row gap-1 items-center"
                 >
-                    <svelte:component this={link.icon} class="h-4 w-4" />
+                    <link.icon class="h-4 w-4" />
                     {link.label}
                 </a>
             </li>
         {/each}
         <li>
-            {#if $user}
+            {#if auth.user}
                 <a
                     href={loading ? "" : "/api/auth/logout"}
                     class="border-2 rounded-md px-2 hover:border-gray-300 {$page
@@ -80,10 +80,10 @@
             {/if}
         </li>
         <li>
-            <a href={$user ? "/profile" : ""}>
+            <a href={auth.user ? "/profile" : ""}>
                 <div
-                    class={$user ? "tooltip tooltip-bottom" : ""}
-                    data-tip={$user ? "Profile" : "Profile"}
+                    class={auth.user ? "tooltip tooltip-bottom" : ""}
+                    data-tip={auth.user ? "Profile" : "Profile"}
                 >
                     <div class="avatar indicator">
                         {#if notificationCount > 0}
@@ -93,7 +93,7 @@
                         {/if}
                         <div class="w-10 rounded-full">
                             <img
-                                src={$user?.picture || "/avatar.webp"}
+                                src={auth.user?.picture || "/avatar.webp"}
                                 alt="avatar"
                             />
                         </div>

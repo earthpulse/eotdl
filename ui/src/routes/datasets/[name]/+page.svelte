@@ -1,5 +1,5 @@
 <script>
-  import { user, id_token } from "$stores/auth";
+  import auth from "$stores/auth.svelte";
   import { browser } from "$app/environment";
   import { datasets } from "$stores/datasets";
   import "$styles/dataset.css";
@@ -7,7 +7,6 @@
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
   import { fade } from "svelte/transition";
-  import { links } from "$stores/images.js";
   import EditableTitle from "$components/EditableTitle.svelte";
   import { page } from "$app/stores";
   import retrieveChange from "$lib/changes/retrieveChange";
@@ -17,28 +16,28 @@
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
 
-  $: if (browser) {
+  let { data } = $props();
+
+  $effect(() => {
     load();
     loadDatasets();
-  }
+  });
 
-  export let data;
-  let dataset = null;
-  let dataset0 = null;
-  let version = null;
-  let message = null;
-  let description = null;
-  let curent_image;
-  let filtered_datasets;
-  let _change = null;
-  let change = false;
+  let dataset = $state(null);
+  let dataset0 = $state(null);
+  let version = $state(null);
+  let message = $state(null);
+  let description = $state(null);
+  let curent_image = $state(null);
+  let _change = $state(null);
+  let change = $state(false);
 
   const load = async () => {
     if ($page.url.searchParams.get("change")) {
       try {
         _change = await retrieveChange(
           $page.url.searchParams.get("change"),
-          $id_token,
+          auth.id_token,
         );
         dataset = _change.payload;
         change = true;
@@ -51,16 +50,8 @@
     }
   };
 
-  $: {
-    filtered_datasets = $datasets.data;
-    filtered_datasets &&
-      filtered_datasets.forEach((element, i) => {
-        if (element?.id == dataset?.id) curent_image = links[i % links.length];
-      });
-  }
   const loadDatasets = async () => {
     await datasets.retrieve(fetch);
-    filtered_datasets = JSON.parse(localStorage.getItem("filtered_datasets"));
   };
 
   const copyToClipboard = (text) => {
@@ -72,19 +63,20 @@
     }, 1000);
   };
 
-  let upgradeNotebook = "";
-  $: {
+  let upgradeNotebook = $state("");
+
+  $effect(() => {
     if (dataset?.quality == 0) upgradeNotebook = "03_q1_datasets";
     else if (dataset?.quality == 1) upgradeNotebook = "04_q2_datasets";
     else upgradeNotebook = "";
-  }
+  });
 
-  let edit = false;
+  let edit = $state(false);
 
   const save = () => {
     edit = !edit;
-    datasets.update(dataset, $id_token);
-    if (dataset.uid != $user.uid) {
+    datasets.update(dataset, auth.id_token);
+    if (dataset.uid != auth.user.uid) {
       dataset = { ...dataset0, metadata: { ...dataset0.metadata } };
       alert("Your changes have been notified to the dataset owner.");
     }
@@ -97,7 +89,7 @@
 
   const accept = async () => {
     try {
-      await acceptChange($page.url.searchParams.get("change"), $id_token);
+      await acceptChange($page.url.searchParams.get("change"), auth.id_token);
       change = false;
       await goto(`/datasets/${dataset.name}`);
       load();
@@ -109,7 +101,7 @@
 
   const decline = async () => {
     try {
-      await declineChange($page.url.searchParams.get("change"), $id_token);
+      await declineChange($page.url.searchParams.get("change"), auth.id_token);
       change = false;
       await goto(`/datasets/${$page.params.name}`);
       load();
@@ -163,21 +155,21 @@
         </span>
         {#if !change}
           <span class="flex flex-row gap-2">
-            {#if $user}
+            {#if auth.user}
               {#if edit}
-                <button class="btn btn-outline" on:click={save}>Save</button>
-                <button class="btn btn-outline" on:click={close}>Close</button>
+                <button class="btn btn-outline" onclick={save}>Save</button>
+                <button class="btn btn-outline" onclick={close}>Close</button>
               {:else}
-                <button class="btn btn-outline" on:click={() => (edit = !edit)}
+                <button class="btn btn-outline" onclick={() => (edit = !edit)}
                   >Edit</button
                 >
               {/if}
             {/if}
           </span>
-        {:else if dataset.uid == $user.uid && _change.status == "pending"}
+        {:else if dataset.uid == auth.user.uid && _change.status == "pending"}
           <span>
-            <button class="btn btn-outline" on:click={accept}>Accept</button>
-            <button class="btn btn-outline" on:click={decline}>Decline</button>
+            <button class="btn btn-outline" onclick={accept}>Accept</button>
+            <button class="btn btn-outline" onclick={decline}>Decline</button>
           </span>
         {/if}
       </div>
@@ -193,7 +185,7 @@
           <p>Stage the dataset with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
-                on:click={() =>
+                onclick={() =>
                   copyToClipboard(
                     `eotdl datasets get ${dataset.name} -v ${version?.version_id}`,
                   )}

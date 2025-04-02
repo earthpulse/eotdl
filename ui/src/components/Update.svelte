@@ -1,5 +1,5 @@
 <script>
-	import { user, id_token } from "$stores/auth";
+	import { user, id_token } from "$stores/auth.svelte.svelte";
 	import IngestForm from "../routes/datasets/IngestForm.svelte";
 	import { goto } from "$app/navigation";
 
@@ -22,7 +22,7 @@
 		_authors,
 		_source,
 		_license,
-		_selected_tags
+		_selected_tags,
 	) => {
 		// const current = $datasets.data.find((d) => d.id == id);
 		// if (current.name == name) name = null;
@@ -34,7 +34,7 @@
 			_source,
 			_license,
 			_selected_tags,
-			$id_token
+			$id_token,
 		);
 		if (_name) name = _name;
 		if (_authors) authors = _authors;

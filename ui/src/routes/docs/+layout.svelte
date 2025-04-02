@@ -1,7 +1,9 @@
 <script>
 	import { page } from "$app/stores";
-	import "../../styles/docs.css";
+	import "$styles/docs.css";
 	import Nav from "./Nav.svelte";
+
+	let { children } = $props();
 
 	const links = [
 		{
@@ -58,14 +60,16 @@
 			.flat(),
 	];
 
-	$: previos_link =
+	let previos_link = $derived(
 		links_ordered_list[
 			links_ordered_list.map((l) => l.link).indexOf($page.route.id) - 1
-		];
-	$: next_link =
+		],
+	);
+	let next_link = $derived(
 		links_ordered_list[
 			links_ordered_list.map((l) => l.link).indexOf($page.route.id) + 1
-		];
+		],
+	);
 </script>
 
 <svelte:head>
@@ -80,7 +84,7 @@
 		<a class="text-3xl font-bold hover:underline" href="/docs"
 			>Documentation</a
 		>
-		<div class="grid grid-cols-1 sm:grid-cols-[150px,auto] h-full grow">
+		<div class="grid grid-cols-[150px,auto] h-full grow">
 			<div class="list pr-3">
 				{#each links as link}
 					<span class="pb-3 flex flex-col gap-2">
@@ -114,7 +118,7 @@
 			</div>
 			<div class="flex flex-col px-3 gap-3 w-full">
 				<Nav {previos_link} {next_link} />
-				<slot />
+				{@render children()}
 				<Nav {previos_link} {next_link} />
 			</div>
 		</div>

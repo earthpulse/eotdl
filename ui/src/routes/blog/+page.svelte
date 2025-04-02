@@ -1,5 +1,4 @@
 <script>
-    import { user, id_token } from "$stores/auth";
     import Card from "./Card.svelte";
     import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
@@ -31,7 +30,7 @@
             });
         if (show_liked) {
             filtered_posts = filtered_posts.filter((post) =>
-                data.liked_posts.includes(post.slug)
+                data.liked_posts.includes(post.slug),
             );
         }
     }
@@ -42,7 +41,7 @@
     $: if (numPages > 0) currentPage = 0;
     $: visible_posts = filtered_posts?.slice(
         currentPage * maxVisiblePosts,
-        (currentPage + 1) * maxVisiblePosts
+        (currentPage + 1) * maxVisiblePosts,
     );
 </script>
 
@@ -73,7 +72,7 @@
                 {#each data?.tags as tag}
                     <button
                         class="badge badge-outline text-slate-400 text-xs {selected_tags.includes(
-                            tag
+                            tag,
                         ) && 'badge-accent'}"
                         on:click={() => toggleTag(tag)}
                     >

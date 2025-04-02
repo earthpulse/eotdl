@@ -2,14 +2,9 @@
   import events from "./events.json";
   import { parseISO, compareAsc } from "date-fns";
 
-  let currentDate = new Date();
-  let currentMonth;
-  let currentYear;
-
-  $: {
-    currentMonth = currentDate.getMonth();
-    currentYear = currentDate.getFullYear();
-  }
+  let currentDate = $state(new Date());
+  let currentMonth = $derived(currentDate.getMonth());
+  let currentYear = $derived(currentDate.getFullYear());
 
   function getDaysInMonth(month, year) {
     return new Date(year, month + 1, 0).getDate();
@@ -63,14 +58,17 @@
 
   function getEvent(day) {
     const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    let eventsOnDay = []
-    events.filter(
-      (event) =>
-        event.dateTo >= dateString &&
-        event.date <= dateString &&
-        event.dateTo > event.date).forEach(event => {
-          eventsOnDay.push(event.title)
-        }); 
+    let eventsOnDay = [];
+    events
+      .filter(
+        (event) =>
+          event.dateTo >= dateString &&
+          event.date <= dateString &&
+          event.dateTo > event.date,
+      )
+      .forEach((event) => {
+        eventsOnDay.push(event.title);
+      });
     return eventsOnDay.join(", ");
   }
 
@@ -82,28 +80,33 @@
     currentDate = new Date(currentYear, currentMonth + 1, 1);
   }
 
-  $: calendarDays = generateCalendar(currentMonth, currentYear);
+  let calendarDays = $derived(generateCalendar(currentMonth, currentYear));
 
-  $: sortedEvents = events.sort((a, b) =>
-    compareAsc(parseISO(a.dateTo), parseISO(b.dateTo)),
+  let sortedEvents = $derived(
+    events.sort((a, b) => compareAsc(parseISO(a.dateTo), parseISO(b.dateTo))),
   );
 
-  $: filteredEvents = sortedEvents.filter(
-    (event) =>
-      new Date(event.dateTo || event.date) >=
-      new Date(new Date().setDate(new Date().getDate() - 1)),
+  let filteredEvents = $derived(
+    sortedEvents.filter(
+      (event) =>
+        new Date(event.dateTo || event.date) >=
+        new Date(new Date().setDate(new Date().getDate() - 1)),
+    ),
   );
 
   let limit = 3;
-  $: shownEvents = filteredEvents.slice(0, limit).sort(function(a ,b) {
-    if (a.date > b.date){
-      return 1;
-    }
-    else if (a.date < b.date) {
-      return -1;
-    }
-    return 0});
-  let showMore = -1;
+  let shownEvents = $derived(
+    filteredEvents.slice(0, limit).sort(function (a, b) {
+      if (a.date > b.date) {
+        return 1;
+      } else if (a.date < b.date) {
+        return -1;
+      }
+      return 0;
+    }),
+  );
+
+  let showMore = $state(-1);
 </script>
 
 <div class="w-full flex flex-col gap-3">
@@ -114,7 +117,7 @@
   </h2>
   <div class="max-w-sm mx-auto w-full">
     <div class="flex justify-between items-center mb-4">
-      <button class="text-md text-[rgb(74,191,167)]" on:click={prevMonth}
+      <button class="text-md text-[rgb(74,191,167)]" onclick={prevMonth}
         >&lt;</button
       >
       <h2 class="text-md">
@@ -123,7 +126,7 @@
           year: "numeric",
         })}
       </h2>
-      <button class="text-md text-[rgb(74,191,167)]" on:click={nextMonth}
+      <button class="text-md text-[rgb(74,191,167)]" onclick={nextMonth}
         >&gt;</button
       >
     </div>
@@ -155,7 +158,7 @@
                         : 'rounded-full'} 
 									text-center p-1 font-bold text-black bg-[rgb(74,191,167)]"
                 >
-                  <p class="tooltip" data-tip="{getEvent(day)}">{day}</p>
+                  <p class="tooltip" data-tip={getEvent(day)}>{day}</p>
                 </td>
               {:else if day && hasEvent(day)}
                 <td
@@ -218,12 +221,12 @@
         <span class="flex flex-row justify-between mt-2">
           {#if showMore === ix}
             <button
-              on:click={() => (showMore = -1)}
+              onclick={() => (showMore = -1)}
               class="text-xs text-[rgb(74,191,167)]">Show less</button
             >
           {:else}
             <button
-              on:click={() => (showMore = ix)}
+              onclick={() => (showMore = ix)}
               class="text-xs text-[rgb(74,191,167)]">Show more</button
             >
           {/if}
@@ -237,7 +240,7 @@
         <hr class="my-2 border-t border-[rgb(74,191,167)]" />
       </li>
     {/each}
-    <button on:click={() => (limit += 3)} class="text-xs text-[rgb(74,191,167)]"
+    <button onclick={() => (limit += 3)} class="text-xs text-[rgb(74,191,167)]"
       >Show more events</button
     >
   </ul>
@@ -246,11 +249,11 @@
 <style>
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-}
+  }
 
-/* For IE, Edge and Firefox */
-.scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
+  /* For IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 </style>

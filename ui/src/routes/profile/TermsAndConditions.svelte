@@ -1,23 +1,24 @@
 <script>
-	import { user, id_token } from "$stores/auth";
+	import auth from "$stores/auth.svelte";
 	import acceptTermsAndConditions from "$lib/auth/acceptTermsAndConditions";
 
-	let geodb = false,
-		sentinelhub = false,
-		eoxhub = false;
+	let geodb = $state(false);
+	let sentinelhub = $state(false);
+	let eoxhub = $state(false);
 
-	$: {
-		if ($user.terms?.geodb) geodb = true;
-		if ($user.terms?.sentinelhub) sentinelhub = true;
-		if ($user.terms?.eoxhub) eoxhub = true;
-	}
+	$effect(() => {
+		if (auth.user?.terms?.geodb) geodb = true;
+		if (auth.user?.terms?.sentinelhub) sentinelhub = true;
+		if (auth.user?.terms?.eoxhub) eoxhub = true;
+	});
 
-	$: disabled = !geodb || !sentinelhub || !eoxhub;
+	let disabled = $derived(!geodb || !sentinelhub || !eoxhub);
 
-	const submit = async () => {
+	const submit = async (e) => {
+		e.preventDefault();
 		disabled = true;
 		try {
-			$user = await acceptTermsAndConditions($id_token);
+			auth.user = await acceptTermsAndConditions(auth.id_token);
 		} catch (e) {
 			alert(e.message);
 		}
@@ -26,12 +27,9 @@
 </script>
 
 <h2 class="font-bold">Terms and Conditions:</h2>
-<form
-	class="flex flex-col items-left gap-1 text-sm"
-	on:submit|preventDefault={submit}
->
+<form class="flex flex-col items-left gap-1 text-sm" onsubmit={submit}>
 	<span>
-		{#if $user.terms?.geodb}
+		{#if auth.user?.terms?.geodb}
 			<p>
 				You have agreed to the <a
 					class="hover:underline text-green-200"
@@ -51,7 +49,7 @@
 		{/if}
 	</span>
 	<span>
-		{#if $user.terms?.sentinelhub}
+		{#if auth.user?.terms?.sentinelhub}
 			<p>
 				You have agreed to the <a
 					class="hover:underline text-green-200"
@@ -75,7 +73,7 @@
 		{/if}
 	</span>
 	<span>
-		{#if $user.terms?.eoxhub}
+		{#if auth.user?.terms?.eoxhub}
 			<p>
 				You have agreed to the <a
 					class="hover:underline text-green-200"
@@ -94,7 +92,7 @@
 			>
 		{/if}
 	</span>
-	{#if !$user.terms?.geodb || !$user.terms?.sentinelhub || !$user.terms?.eoxhub}
+	{#if !auth.user?.terms?.geodb || !auth.user?.terms?.sentinelhub || !auth.user?.terms?.eoxhub}
 		<button
 			class="btn btn-outline btn-sm w-[100px]"
 			type="submit"

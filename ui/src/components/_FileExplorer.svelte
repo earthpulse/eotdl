@@ -5,7 +5,7 @@
     import Download from "svelte-material-icons/Download.svelte";
     import Eye from "svelte-material-icons/Eye.svelte";
     import File from "svelte-material-icons/File.svelte";
-    import { id_token } from "$stores/auth";
+    import { id_token } from "$stores/auth.svelte.svelte";
     import { PUBLIC_EOTDL_API } from "$env/static/public";
     import { onMount } from "svelte";
     import Map from "$components/Map.svelte";

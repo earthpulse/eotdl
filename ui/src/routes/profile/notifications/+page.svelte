@@ -1,18 +1,18 @@
 <script>
-    import { notifications } from "$stores/notifications";
-    import { id_token } from "$stores/auth";
+    import notifications from "$stores/notifications.svelte";
+    import auth from "$stores/auth.svelte";
 
     const dismiss = (id) => {
-        notifications.dismiss(id, $id_token);
+        notifications.dismiss(id, auth.id_token);
     };
 </script>
 
 <div class="w-full flex flex-col gap-3">
     <h1 class="sm:text-left w-full text-2xl">Notifications</h1>
-    {#if $notifications.data.length == 0}
+    {#if notifications.data.length == 0}
         <p>You have no notifications</p>
     {:else}
-        {#each $notifications.data as notification}
+        {#each notifications.data as notification}
             <div class="card bg-base-100 shadow-xl mb-4">
                 <div class="card-body">
                     <div class="flex justify-between items-center">

@@ -1,7 +1,7 @@
 <script>
     import { parseISO, format } from "date-fns";
 
-    export let post;
+    let { post } = $props();
 </script>
 
 <a
@@ -13,7 +13,7 @@
             <div class="flex flex-wrap gap-1 content-start mt-1">
                 {#each post.tags as tag}
                     <p
-                        class="badge badge-outline bg-[rgb(74,191,167)] text-white text-slate-400 text-xs"
+                        class="badge badge-outline bg-[rgb(74,191,167)] text-slate-400 text-xs"
                     >
                         {tag}
                     </p>

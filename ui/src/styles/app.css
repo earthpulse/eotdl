@@ -1,4 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
+@plugin "daisyui" {
+    themes: light --default;
+}
+
+@theme {
+    --color-blue-500: #003247;
+    --color-green-200: #4ABFA7;
+}

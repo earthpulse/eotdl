@@ -1,5 +1,5 @@
 <script>
-  import { user, id_token } from "$stores/auth";
+  import auth from "$stores/auth.svelte";
   import { browser } from "$app/environment";
   import { models } from "$stores/models";
   import "$styles/dataset.css";
@@ -16,28 +16,26 @@
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
 
-  $: if (browser) {
+  $effect(() => {
     load();
-  }
+  });
 
-  export let data;
-  let model = null;
-  let model0 = null;
-  let version = null;
+  let { data } = $props();
 
-  $: console.log(version);
-
-  let message = null;
-  let curent_image;
-  let _change = null;
-  let change = false;
+  let model = $state(null);
+  let model0 = $state(null);
+  let version = $state(null);
+  let message = $state(null);
+  let curent_image = $state(null);
+  let _change = $state(null);
+  let change = $state(false);
 
   const load = async () => {
     if ($page.url.searchParams.get("change")) {
       try {
         _change = await retrieveChange(
           $page.url.searchParams.get("change"),
-          $id_token,
+          auth.id_token,
         );
         model = _change.payload;
         change = true;
@@ -59,12 +57,12 @@
     }, 1000);
   };
 
-  let edit = false;
+  let edit = $state(false);
 
   const save = () => {
     edit = !edit;
-    models.update(model, $id_token);
-    if (model.uid != $user.uid) {
+    models.update(model, auth.id_token);
+    if (model.uid != auth.user.uid) {
       model = { ...model0, metadata: { ...model0.metadata } };
       alert("Your changes have been notified to the model owner.");
     }
@@ -77,7 +75,7 @@
 
   const accept = async () => {
     try {
-      await acceptChange($page.url.searchParams.get("change"), $id_token);
+      await acceptChange($page.url.searchParams.get("change"), auth.id_token);
       change = false;
       await goto(`/models/${model.name}`);
       load();
@@ -89,7 +87,7 @@
 
   const decline = async () => {
     try {
-      await declineChange($page.url.searchParams.get("change"), $id_token);
+      await declineChange($page.url.searchParams.get("change"), auth.id_token);
       change = false;
       await goto(`/models/${$page.params.name}`);
       load();
@@ -143,21 +141,21 @@
         </span>
         {#if !change}
           <span class="flex flex-row gap-2">
-            {#if $user}
+            {#if auth.user}
               {#if edit}
-                <button class="btn btn-outline" on:click={save}>Save</button>
-                <button class="btn btn-outline" on:click={close}>Close</button>
+                <button class="btn btn-outline" onclick={save}>Save</button>
+                <button class="btn btn-outline" onclick={close}>Close</button>
               {:else}
-                <button class="btn btn-outline" on:click={() => (edit = !edit)}
+                <button class="btn btn-outline" onclick={() => (edit = !edit)}
                   >Edit</button
                 >
               {/if}
             {/if}
           </span>
-        {:else if model.uid == $user.uid && _change.status == "pending"}
+        {:else if model.uid == auth.user.uid && _change.status == "pending"}
           <span>
-            <button class="btn btn-outline" on:click={accept}>Accept</button>
-            <button class="btn btn-outline" on:click={decline}>Decline</button>
+            <button class="btn btn-outline" onclick={accept}>Accept</button>
+            <button class="btn btn-outline" onclick={decline}>Decline</button>
           </span>
         {/if}
       </div>
@@ -173,7 +171,7 @@
           <p>Stage the model with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
-                on:click={() =>
+                onclick={() =>
                   copyToClipboard(
                     `eotdl models get ${model.name} -v ${version?.version_id}`,
                   )}

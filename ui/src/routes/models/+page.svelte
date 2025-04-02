@@ -1,6 +1,6 @@
 <script>
 	import { models } from "$stores/models";
-	import { user } from "$stores/auth";
+	import auth from "$stores/auth.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
@@ -8,14 +8,14 @@
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
-	import Ingest from "./Ingest.svelte";
-	import { links, modelImagesOffset } from "$stores/images";
-	export let data;
+	// import Ingest from "./Ingest.svelte";
 
-	let loading = true;
-	let show_liked = false;
-	let selected_tags = [];
-	let selected_qualities = [];
+	let { data } = $props();
+
+	let loading = $state(true);
+	let show_liked = $state(false);
+	let selected_tags = $state([]);
+	let selected_qualities = $state([]);
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -25,11 +25,13 @@
 		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
 	};
 
-	$: if (browser) load();
+	$effect(() => {
+		load();
+	});
 
-	let filterName = "";
-	let filtered_models;
-	$: {
+	let filterName = $state("");
+	let filtered_models = $state(null);
+	$effect(() => {
 		filtered_models = $models.data
 			?.filter((models) => {
 				if (selected_tags.length === 0) return true;
@@ -45,7 +47,7 @@
 			});
 		if (show_liked) {
 			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_models.includes(models.id),
+				auth.user?.liked_models.includes(models.id),
 			);
 		}
 		if (selected_qualities.length > 0) {
@@ -53,10 +55,10 @@
 				selected_qualities?.includes(model.quality),
 			);
 		}
-	}
+	});
 
 	const toggleLike = () => {
-		show_liked = $user && !show_liked;
+		show_liked = auth.user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
 	};
 
@@ -92,7 +94,7 @@
 					>
 						advanced filtering
 					</p> -->
-					<button on:click={toggleLike}
+					<button onclick={toggleLike}
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
 						/></button
@@ -114,10 +116,9 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_models as model, i}
 					<Card
-						img={links[(i + modelImagesOffset) % links.length]}
 						data={model}
 						link="models"
-						liked={$user?.liked_models?.includes(model.id)}
+						liked={auth.user?.liked_models?.includes(model.id)}
 						tags={data.tags}
 					/>
 				{/each}

@@ -1,18 +1,23 @@
-import { writable } from "svelte/store";
 import retrieveNotifications from "$lib/notifications/retrieveNotifications";
 import dismissNotification from "$lib/notifications/dismissNotification";
 
 const createNotifications = () => {
-    const { subscribe, set, update } = writable({
-        loading: false,
-        error: null,
-        data: [],
-    });
+    let loading = $state(false);
+    let error = $state(null);
+    let data = $state([]);
     return {
-        subscribe,
+        get loading() {
+            return loading;
+        },
+        get error() {
+            return error;
+        },
+        get data() {
+            return data;
+        },
         retrieve: async (token) => {
-            set({ loading: true, error: null, data: [] });
             try {
+                loading = true;
                 const data = await retrieveNotifications(token);
                 set({ loading: false, data, error: null });
             } catch (e) {
@@ -29,4 +34,4 @@ const createNotifications = () => {
     };
 };
 
-export const notifications = createNotifications();
+export default createNotifications();

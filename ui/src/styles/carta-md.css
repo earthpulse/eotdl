@@ -1,28 +1,37 @@
+@reference "./app.css";
+
 .carta-renderer p code {
     @apply bg-slate-200 rounded-md py-[2px] px-1
 }
-.carta-renderer pre {
-    @apply bg-[rgb(31,41,55)] w-fit rounded-md my-2 py-[2px] px-1 text-white
-}
+
+/* .carta-renderer pre {
+    @apply bg-[rgb(31, 41, 55)] w-fit rounded-md my-2 py-[2px] px-1 text-white
+} */
+
 .carta-renderer table {
     @apply my-2 py-[2px] px-1 border-2
 }
-.carta-renderer td,.carta-renderer th{
+
+.carta-renderer td, .carta-renderer th {
     @apply border-[1px] border-slate-300 p-1
 }
 
-.carta-editor{
+.carta-editor {
     @apply w-[100%] max-w-[99%]
 }
-.carta-container{
+
+.carta-container {
     @apply flex h-96 justify-between max-w-[100%]
 }
+
 .carta-renderer, .carta-input {
     @apply w-max max-h-[95%]
 }
+
 .carta-renderer ol {
     @apply list-decimal pl-6
 }
+
 .carta-renderer ul {
     @apply list-disc pl-6
 }
@@ -31,29 +40,29 @@
 .carta-renderer h1 {
     @apply text-5xl
 }
+
 .carta-renderer h2 {
     @apply text-4xl
-
 }
+
 .carta-renderer h3 {
     @apply text-3xl
-
 }
+
 .carta-renderer h4 {
     @apply text-2xl
-
 }
+
 .carta-renderer h5 {
     @apply text-xl
-
 }
+
 .carta-renderer h6 {
     @apply text-lg
-
 }
+
 .carta-renderer blockquote {
     @apply bg-gray-100 border-l-8 border-gray-300 pl-4
-
 }
 
 
