@@ -6,6 +6,7 @@ import geopandas as gpd
 from ..auth import with_auth
 from .retrieve import retrieve_dataset
 from ..repos import FilesAPIRepo
+from ..files.metadata import Metadata
 
 @with_auth
 def stage_dataset(
@@ -42,19 +43,18 @@ def stage_dataset(
         raise Exception(
             f"Dataset `{dataset['name']}` already exists at {download_path}. To force download, use force=True or -f in the CLI."
         )
-
     # stage metadata
     repo = FilesAPIRepo()
     catalog_path = repo.stage_file(dataset["id"], f"catalog.v{version}.parquet", user, download_path)
-
-    # TODO: stage README.md
-
+    # stage README.md
+    metadata = Metadata(**dataset['metadata'], name=dataset['name'])
+    metadata.save_metadata(download_path)
+    # stage assets
     if assets:
         gdf = gpd.read_parquet(catalog_path)
         for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):
             for k, v in row["assets"].items():
                 stage_dataset_file(v["href"], download_path)
-
     return download_path
 
 

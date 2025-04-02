@@ -2,7 +2,8 @@ from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 from datetime import datetime
 
-from .dataset import Dataset#, Model
+from .dataset import Dataset
+from .model import Model
 
 class ChangeType(str, Enum):
     DATASET_UPDATE = "dataset_update"
@@ -17,7 +18,7 @@ class Change(BaseModel):
     uid: str
     id: str
     type: ChangeType
-    payload: dict | Dataset
+    payload: dict | Dataset | Model
     status: ChangeStatus = ChangeStatus.PENDING
     createdAt: datetime = Field(default_factory=datetime.now)
     updatedAt: datetime = Field(default_factory=datetime.now)

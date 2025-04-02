@@ -29,5 +29,5 @@ class Notification(BaseModel):
     def check_payload_is_valid(cls, payload, values):
         if values.data.get('type') == NotificationType.DATASET_UPDATE or values.data.get('type') == NotificationType.MODEL_UPDATE:
             if 'change_id' not in payload:
-                raise ValueError("Payload must contain change_id for dataset updates")
+                raise ValueError("Payload must contain change_id for dataset or model updates")
         return payload

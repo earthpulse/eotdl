@@ -1,60 +1,70 @@
 from datetime import datetime
 
-
 from ...repos import ModelsDBRepo
-from .retrieve_model import retrieve_model, retrieve_model_by_name, retrieve_owned_model
-from ..user import retrieve_user
-from ...errors import ModelAlreadyExistsError, ModelDoesNotExistError, InvalidTagError
-from ...models import Model
-
-
-def toggle_like_model(model_id, user):
-    repo = ModelsDBRepo()
-    model = retrieve_model(model_id)
-    user = retrieve_user(user.uid)
-    if model.id in user.liked_models:
-        repo.unlike_model(model_id, user.uid)
-    else:
-        repo.like_model(model_id, user.uid)
-    return "done"
-
+from .retrieve_model import retrieve_model, retrieve_model_by_name
+from ...errors import ModelAlreadyExistsError, ModelDoesNotExistError
+from ...models import Model, ChangeType, NotificationType
+from ..notifications import create_notification
+from ..changes import create_change
 
 def update_model(
-    model_id, user, name, authors, source, license, tags, description, thumbnail
+    model_id, user, model
 ):
-    model = retrieve_owned_model(model_id, user.uid)
-    # validate name
-    if name:
+    _model = retrieve_model(model_id)
+    if user.uid != _model.uid:
+        # user is not the owner of the model, so any change should be approved by the owner or moderators
+        return propose_model_update(_model.name, user, model)
+    
+    # update name
+    if model.name != _model.name:
         try:
-            _model = retrieve_model_by_name(name)
-            if _model.id != model_id:
+            __model = retrieve_model_by_name(model.name)
+            if __model.id != model_id:
                 raise ModelAlreadyExistsError()
         except ModelDoesNotExistError:
             pass
-    # validate tags
+
+    # # validate tags
+    # if tags:
+    #     tags_data = repo.retrieve_tags()
+    #     all_tags = [tag["name"] for tag in tags_data]
+    #     for tag in tags:
+    #         if tag not in all_tags:
+    #             raise InvalidTagError()
+
+    # update dataset
     repo = ModelsDBRepo()
-    if tags:
-        tags_data = repo.retrieve_tags()
-        all_tags = [tag["name"] for tag in tags_data]
-        for tag in tags:
-            if tag not in all_tags:
-                raise InvalidTagError()
-    # update model
     data = model.model_dump()
-    data.update(
-        updatedAt=datetime.now(),
-        description=description if description is not None else model.description,
-        tags=tags if tags is not None else model.tags,
-    )
-    if data["quality"] == 0:
-        data.update(
-            name=name if name is not None else model.name,
-            authors=authors if authors is not None else model.authors,
-            source=source if source is not None else model.source,
-            license=license if license is not None else model.license,
-            thumbnail=thumbnail if thumbnail is not None else model.thumbnail,
-        )
+    data.update(updatedAt=datetime.now())
     updated_model = Model(**data)
     # update model in db
     repo.update_model(model_id, updated_model.model_dump())
     return updated_model
+
+def propose_model_update(model_name, user, model):
+    change = create_change(
+        user,
+        ChangeType.MODEL_UPDATE,
+        model,
+    )
+    create_notification(
+        model.uid, 
+        NotificationType.MODEL_UPDATE, 
+        {
+            'change_id': change.id,
+            'model_name': model_name,
+        }
+    )
+    return model
+
+# def toggle_like_model(model_id, user):
+#     repo = ModelsDBRepo()
+#     model = retrieve_model(model_id)
+#     user = retrieve_user(user.uid)
+#     if model.id in user.liked_models:
+#         repo.unlike_model(model_id, user.uid)
+#     else:
+#         repo.like_model(model_id, user.uid)
+#     return "done"
+
+

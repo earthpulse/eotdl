@@ -15,7 +15,7 @@ const createModels = () => {
   });
   return {
     subscribe,
-    retrieve: async (fetch, limit=null) => {
+    retrieve: async (fetch, limit = null) => {
       set({ loading: true });
       try {
         const data = await retrieveModels(fetch, limit);
@@ -44,11 +44,11 @@ const createModels = () => {
       });
       return data
     },
-    update: async (model_id, name, content, authors, source, license, tags, token) => {
-      const data = await updateModel(model_id, name, content, authors, source, license, tags, token);
+    update: async (model, token) => {
+      const data = await updateModel(model, token);
       update((current) => ({
-        data: current.data.map((model) => 
-           model.id === model_id ? data : model          
+        data: current.data.map((_model) =>
+          _model.id === model_id ? data : _model
         ),
       }));
       return data;

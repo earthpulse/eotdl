@@ -44,5 +44,5 @@ def update(
             body,
         )
     except Exception as e:
-        logger.exception("datasets:ingest")
+        logger.exception("datasets:update")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -13,13 +13,13 @@
   import Map from "$components/Map.svelte";
   import { links } from "$stores/images.js";
   import Train from "./Train.svelte";
-  import EditableTitle from "./EditableTitle.svelte";
+  import EditableTitle from "$components/EditableTitle.svelte";
   import { page } from "$app/stores";
   import retrieveChange from "$lib/changes/retrieveChange";
   import acceptChange from "$lib/changes/acceptChange";
   import declineChange from "$lib/changes/declineChange";
   import { goto } from "$app/navigation";
-  import EditableContent from "./EditableContent.svelte";
+  import EditableContent from "$components/EditableContent.svelte";
 
   $: if (browser) {
     load();
@@ -136,7 +136,9 @@
           <span class="flex sm:justify-start justify-center">
             <img
               class="w-36 h-36 bg-white object-cover"
-              src={dataset.thumbnail ? dataset.thumbnail : `${curent_image}`}
+              src={dataset.metadata.thumbnail
+                ? dataset.metadata.thumbnail
+                : `${curent_image}`}
               alt=""
             />
           </span>
@@ -236,7 +238,12 @@
             {/if}
           </div>
           <div class="flex flex-col gap-3">
-            <Metadata data={dataset.metadata} />
+            <Metadata
+              bind:authors={dataset.metadata.authors}
+              bind:license={dataset.metadata.license}
+              bind:source={dataset.metadata.source}
+              {edit}
+            />
             <!-- <FileExplorer
                 data={dataset}
                 {version}
