@@ -1,19 +1,20 @@
 [project]
 name = "eotdl"
-version = "2025.04.03"
+version = "2025.04.02-4"
 description = "Earth Observation Training Data Lab"
 authors = [
     {name = "earthpulse", email = "it@earthpulse.es"},
 ]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "geopandas>=1.0.1",
     "pydantic>=2.11.1",
     "pyjwt>=2.10.1",
     "pystac>=1.12.2",
     "python-frontmatter>=1.1.0",
+    "requests>=2.32.3",
     "stac-geoparquet>=0.6.0",
     "tqdm>=4.67.1",
     "typer>=0.15.2",
