@@ -4,8 +4,7 @@
   import Nav2 from "./Nav2.svelte";
   import Footer from "./Footer.svelte";
   import auth from "$stores/auth.svelte";
-  // import { browser } from "$app/environment";
-  // import { notifications } from "$stores/notifications";
+  import notifications from "$stores/notifications.svelte";
 
   let { data, children } = $props();
   let loading = $derived(!data?.user);
@@ -28,8 +27,10 @@
     loading = false;
   };
 
-  // // retrieve user info client-side from API
-  // $: if (browser) me();
+  // retrieve user info client-side from API
+  $effect(() => {
+    me();
+  });
 </script>
 
 <svelte:head>

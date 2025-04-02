@@ -18,18 +18,18 @@ const createNotifications = () => {
         retrieve: async (token) => {
             try {
                 loading = true;
-                const data = await retrieveNotifications(token);
-                set({ loading: false, data, error: null });
+                data = await retrieveNotifications(token);
+                loading = false;
+                error = null;
             } catch (e) {
-                set({ loading: false, error: e.message, data: [] });
+                loading = false;
+                error = e.message;
+                data = [];
             }
         },
         dismiss: async (id, token) => {
             await dismissNotification(id, token);
-            update((state) => {
-                state.data = state.data.filter((notification) => notification.id !== id);
-                return state;
-            });
+            data = data.filter((notification) => notification.id !== id);
         },
     };
 };

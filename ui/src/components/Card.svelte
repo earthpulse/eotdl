@@ -9,7 +9,7 @@
 
 <a
   href="/{link}/{data.name}"
-  class="w-full bg-gray-100 border-2 rounded-xl flex flex-col justify-between h-full text-left shadow-xl"
+  class="w-full bg-gray-100 rounded-xl flex flex-col justify-between h-full text-left shadow-xl transition-transform duration-200 hover:scale-105 border-1 border-gray-200"
 >
   <span>
     <img

@@ -1,11 +1,10 @@
 <script>
 	import retrieveFiles from "$lib/files/retrieveFiles";
 
-	export let version;
-	export let collection;
+	let { version, collection } = $props();
 
-	let loading = true;
-	let files = [];
+	let loading = $state(true);
+	let files = $state([]);
 
 	const load = async () => {
 		loading = true;
@@ -13,32 +12,39 @@
 		loading = false;
 	};
 
-	$: if (collection && version) {
-		load();
-	}
+	$effect(() => {
+		if (collection && version) {
+			load();
+		}
+	});
 
-	let details = null;
+	let details = $state(null);
 
 	const showDetails = (file) => {
-		details = file.assets.asset;
+		// details = file.assets.asset;
 	};
 </script>
 
 {#if !loading}
 	<h2>Files ({files.length}) :</h2>
-	{#if details}
-		<div class="flex flex-col gap-1 items-start">
-			<button on:click={() => (details = null)}>Back</button>
-			<p>{details.checksum}</p>
-			<p>{details.href}</p>
-		</div>
-	{:else}
-		<div
-			class="max-h-[200px] overflow-y-auto flex flex-col gap-1 items-start"
-		>
-			{#each files as file}
-				<button on:click={() => showDetails(file)}>{file.id}</button>
-			{/each}
-		</div>
-	{/if}
+	<div class="flex flex-col gap-1 items-start border-1 border-gray-200 p-3">
+		{#if details}
+			<div class="flex flex-col gap-1 items-start">
+				<button onclick={() => (details = null)}>Back</button>
+				<p>{details.checksum}</p>
+				<p>{details.href}</p>
+			</div>
+		{:else}
+			<div
+				class="max-h-[200px] overflow-y-auto flex flex-col gap-1 items-start"
+			>
+				{#each files as file}
+					<button
+						onclick={() => showDetails(file)}
+						class="hover:underline cursor-pointer">{file.id}</button
+					>
+				{/each}
+			</div>
+		{/if}
+	</div>
 {/if}

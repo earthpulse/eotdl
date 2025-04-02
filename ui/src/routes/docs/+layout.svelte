@@ -84,7 +84,7 @@
 		<a class="text-3xl font-bold hover:underline" href="/docs"
 			>Documentation</a
 		>
-		<div class="grid grid-cols-[150px,auto] h-full grow">
+		<div class="grid grid-cols-[150px_auto] h-full grow">
 			<div class="list pr-3">
 				{#each links as link}
 					<span class="pb-3 flex flex-col gap-2">

@@ -32,29 +32,32 @@
 	let filterName = $state("");
 	let filtered_models = $state(null);
 	$effect(() => {
-		filtered_models = $models.data
-			?.filter((models) => {
-				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) =>
-					models.tags.includes(tag.name),
-				);
-			})
-			.filter((models) => {
-				if (filterName.length === 0) return true;
-				return models.name
-					.toLowerCase()
-					.includes(filterName.toLowerCase());
-			});
-		if (show_liked) {
-			filtered_models = filtered_models.filter((models) =>
-				auth.user?.liked_models.includes(models.id),
+		let base_models = $models.data || []; // Start with all datasets or an empty array
+
+		// Filter by tags
+		let models_after_tags = base_models.filter((model) => {
+			if (selected_tags.length === 0) return true;
+			return selected_tags.every((tag) => model.tags.includes(tag));
+		});
+
+		// Filter by name
+		let models_after_name = models_after_tags.filter((model) => {
+			if (filterName.length === 0) return true;
+			return model.name.toLowerCase().includes(filterName.toLowerCase());
+		});
+
+		// Filter by liked status if show_liked is true and user is logged in
+		let final_models;
+		if (show_liked && auth.user) {
+			final_models = models_after_name.filter((model) =>
+				auth.user.liked_models.includes(model.id),
 			);
+		} else {
+			final_models = models_after_name;
 		}
-		if (selected_qualities.length > 0) {
-			filtered_models = filtered_models?.filter((model) =>
-				selected_qualities?.includes(model.quality),
-			);
-		}
+
+		// Assign the final result
+		filtered_models = final_models;
 	});
 
 	const toggleLike = () => {
@@ -74,7 +77,7 @@
 	<div
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
 	>
-		<div class="grid grid-cols-1 sm:grid-cols-[250px,auto] gap-8 w-full">
+		<div class="grid grid-cols-1 sm:grid-cols-[250px_auto] gap-8 w-full">
 			<div class="flex flex-col w-full">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Models</h1>
@@ -96,6 +99,7 @@
 					</p> -->
 					<button onclick={toggleLike}
 						><HeartOutline
+							class="cursor-pointer hover:scale-115 transition-all duration-200"
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>

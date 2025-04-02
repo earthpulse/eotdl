@@ -161,7 +161,7 @@
       </div>
       <hr class="sm:hidden" />
       <div
-        class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5"
+        class="sm:grid sm:grid-cols-[auto_350px] sm:gap-3 flex flex-col mt-5"
       >
         <div class="w-full overflow-auto">
           <EditableContent {edit} bind:value={model.metadata.description} />

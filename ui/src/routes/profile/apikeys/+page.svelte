@@ -63,13 +63,13 @@
 				</p>
 			</div>
 			<div class="flex items-baseline justify-between flex-col ml-4">
-				<label
+				<button
 					for="confirm_modal"
 					onclick={() => (key2delete = key.id)}
 					class="active:bg-gray-300 p-1 rounded-md transition-all cursor-pointer"
 				>
 					<TrashCanOutline size="18" title="Delete" />
-				</label>
+				</button>
 				<button
 					class="active:bg-gray-300 p-1 rounded-md transition-all"
 					onclick={navigator.clipboard.writeText(key.id)}
@@ -88,8 +88,8 @@
 		<p class="py-4">Are you sure you want to delete this key?</p>
 		<div class="modal-action">
 			<label for="confirm_modal" class="btn btn-ghost">Close</label>
-			<label for="confirm_modal" class="btn" onclick={deleteKey}
-				>Confirm</label
+			<button for="confirm_modal" class="btn" onclick={deleteKey}
+				>Confirm</button
 			>
 		</div>
 	</div>

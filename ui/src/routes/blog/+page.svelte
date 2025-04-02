@@ -54,7 +54,7 @@
     <div
         class="px-3 py-10 mt-10 gap-3 w-full max-w-4xl flex flex-col items-center"
     >
-        <div class="grid grid-cols-1 sm:grid-cols-[200px,auto] gap-8 w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-[auto_auto] gap-8 w-full">
             <div class="flex flex-col">
                 <div class="flex flew-row justify-between text-3xl">
                     <h1 class="font-bold mb-3">Blog</h1>
@@ -71,9 +71,10 @@
             <div class="flex flex-wrap gap-1 content-start">
                 {#each data?.tags as tag}
                     <button
-                        class="badge badge-outline text-slate-400 text-xs {selected_tags.includes(
+                        class="cursor-pointer border-slate-300 badge badge-outline text-slate-400 text-xs transition-all duration-200 hover:scale-105 {selected_tags.includes(
                             tag,
-                        ) && 'badge-accent'}"
+                        ) &&
+                            'badge badge-outline bg-[rgb(74,191,167)] text-slate-600'}"
                         on:click={() => toggleTag(tag)}
                     >
                         {tag}

@@ -30,9 +30,9 @@
             {#each tags as tag}
                 {#if tag.category == category}
                     <button
-                        class={`badge text-slate-400 text-xs mx-[1px] ${
+                        class={`badge text-slate-400 border-slate-300 text-xs mx-[1px] hover:scale-105 transition-all duration-200 cursor-pointer ${
                             selected_tags.includes(tag.name)
-                                ? `badge badge-outline text-slate-200 border-0`
+                                ? `badge badge-outline text-white border-0`
                                 : "badge-outline"
                         }`}
                         style={`${selected_tags.includes(tag.name) && `background-color: ${tag.color};`}`}
