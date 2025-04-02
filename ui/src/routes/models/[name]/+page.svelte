@@ -14,6 +14,7 @@
   import declineChange from "$lib/changes/declineChange";
   import { goto } from "$app/navigation";
   import EditableContent from "$components/EditableContent.svelte";
+  import FileExplorer from "$components/FileExplorer.svelte";
 
   $: if (browser) {
     load();
@@ -139,32 +140,6 @@
         </span>
         {#if !change}
           <span class="flex flex-row gap-2">
-            <!-- <a
-            class="btn btn-outline"
-            href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
-            target="_blank">Upgrade</a
-          > -->
-            <!-- {#if dataset.training_template}
-            <Train {dataset} />
-          {/if} -->
-            <!-- {#if $user}
-            {#if $user.uid == dataset.uid}
-              <Update
-                store={datasets}
-                route="datasets"
-                id={dataset.id}
-                tags={data.tags}
-                current_tags={dataset.tags}
-                bind:name={dataset.name}
-                quality={dataset.quality}
-                bind:authors={dataset.authors}
-                bind:source={dataset.source}
-                bind:license={dataset.license}
-                bind:description={dataset.description}
-                bind:selected_tags={dataset.tags}
-              />
-            {/if}
-          {/if} -->
             {#if $user}
               {#if edit}
                 <button class="btn btn-outline" on:click={save}>Save</button>
@@ -216,12 +191,7 @@
               bind:source={model.metadata.source}
               {edit}
             />
-            <!-- <FileExplorer
-                data={dataset}
-                {version}
-                retrieveFiles={retrieveDatasetFiles}
-                datasetId={dataset.id}
-              /> -->
+            <FileExplorer {version} collection={model.id} />
           </div>
         </div>
       </div>

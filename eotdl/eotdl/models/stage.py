@@ -6,6 +6,7 @@ import geopandas as gpd
 from ..auth import with_auth
 from .retrieve import retrieve_model
 from ..repos import FilesAPIRepo
+from ..files.metadata import Metadata
 
 @with_auth
 def stage_model(
@@ -44,7 +45,9 @@ def stage_model(
     repo = FilesAPIRepo()
     catalog_path = repo.stage_file(model["id"], f"catalog.v{version}.parquet", user, download_path)
 
-    # TODO: stage README.md
+    # stage README.md
+    metadata = Metadata(**model['metadata'], name=model['name'])
+    metadata.save_metadata(download_path)
 
     if assets:
         gdf = gpd.read_parquet(catalog_path)
