@@ -16,27 +16,27 @@ def setup_mongo():
     db = client["eotdl-test"]
     tiers_collection = db["tiers"]
 
-    with open("eotdl/tests/load/eotdl.tiers.copy.json", "r") as file:
+    with open("eotdl/tests/load/eotdl.tiers.json", "r") as file:
         json_data = json.load(file)
 
     for item in json_data:
         if "_id" in item:
             item["_id"] = ObjectId(item["_id"])
-    
+
     tiers_collection.insert_many(json_data)
 
     yield tiers_collection
 
     client.drop_database("eotdl-test")
 
+
 @pytest.fixture
 def setup_minio():
-
     minio_client = Minio(
         "localhost:9000",
         access_key="eotdl",
         secret_key="12345678",
-        secure=False  # Set to True if using TLS
+        secure=False, 
     )
 
     bucket_name = "eotdl-test"
@@ -48,7 +48,7 @@ def setup_minio():
     for obj in objects:
         minio_client.remove_object(bucket_name, obj.object_name)
 
-    yield minio_client  
+    yield minio_client
 
     objects = minio_client.list_objects(bucket_name, recursive=True)
     for obj in objects:
