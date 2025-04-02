@@ -1,5 +1,4 @@
 import requests
-import geopandas as gpd
 
 from ..repos import APIRepo
 
