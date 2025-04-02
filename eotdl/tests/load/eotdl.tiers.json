@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "645242248456b2cc058e43bf",
+    "name": "free",
+    "limits": {
+      "datasets": {
+        "upload": 10,
+        "download": 3,
+        "count": 10
+      },
+      "models": {
+        "upload": 10,
+        "download": 10,
+        "count": 10
+      }
+    }
+  },
+  {
+    "_id": "645242248456b2cc058e43c0",
+    "name": "dev",
+    "limits": {
+      "datasets": {
+        "upload": 100000,
+        "download": 100000,
+        "count": 100
+      },
+      "models": {
+        "upload": 100000,
+        "download": 100000,
+        "count": 100
+      }
+    }
+  }
+]

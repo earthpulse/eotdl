@@ -1,0 +1,5 @@
+256x 256 made of 100 files took 5.89 seconds. (75.11 mb)
+512x 512 made of 100 files took 8.48 seconds. (300.33 mb)
+1024x 1024 made of 100 files took 23.38 seconds. (1200.62 mb)
+2048x 2048 made of 100 files took 81.27 seconds. (4801.21 mb)
+2048x 2048 made of 200 files took 202.64 seconds. (9602.42 mb)

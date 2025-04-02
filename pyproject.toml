@@ -23,3 +23,11 @@ dependencies = [
     "tqdm>=4.67.1",
     "typer>=0.15.1",
 ]
+
+[dependency-groups]
+dev = [
+    "boto3>=1.37.20",
+    "pymongo>=4.11.3",
+    "pytest>=8.3.5",
+    "ruff>=0.11.2",
+]
