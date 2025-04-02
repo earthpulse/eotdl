@@ -1,13 +1,12 @@
-from ...models import Model, STACModel
+from ...models import Model
 from ...errors import ModelDoesNotExistError, UserUnauthorizedError
 from ...repos import ModelsDBRepo
-from ..files import retrieve_files
 
 
 def retrieve(data):
     if data is None:
         raise ModelDoesNotExistError()
-    return Model(**data) if data["quality"] == 0 else STACModel(**data)
+    return Model(**data)
 
 
 def retrieve_model(model_id):
@@ -27,8 +26,3 @@ def retrieve_owned_model(model_id, uid):
     if model.uid != uid:
         raise UserUnauthorizedError()
     return model
-
-
-def retrieve_model_files(model_id, version=None):
-    model = retrieve_model(model_id)
-    return retrieve_files(model.versions, model.files, version)

@@ -3,7 +3,7 @@
 	import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
 	import Sd from "svelte-material-icons/Sd.svelte";
 	import formatFileSize from "$lib/datasets/formatFileSize.js";
-	import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
+	// import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import { user, id_token } from "$stores/auth";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
@@ -51,10 +51,10 @@
 		<Sd color="gray" size={20} />
 		<p>{formatFileSize(version?.size || 0)}</p>
 	</span>
-	<span class="flex flex-row items-center gap-1">
+	<!-- <span class="flex flex-row items-center gap-1">
 		<CheckDecagramOutline color="gray" size={20} />
 		<p>Q{quality}</p>
-	</span>
+	</span> -->
 </span>
 {#if version}
 	<span class="flex flex-row gap-3">

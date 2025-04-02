@@ -1,64 +1,50 @@
 <script>
   import { user, id_token } from "$stores/auth";
   import { browser } from "$app/environment";
+  import { models } from "$stores/models";
   import "$styles/dataset.css";
   import retrieveModel from "$lib/models/retrieveModel";
-  import { models } from "$stores/models";
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
-  import FileExplorer from "$components/FileExplorer.svelte";
   import { fade } from "svelte/transition";
-  import retrieveModelFiles from "$lib/models/retrieveModelFiles";
-  import Update from "$components/Update.svelte";
-  import { Carta } from "carta-md";
-  import { links, modelImagesOffset } from "$stores/images.js";
-  // import DOMPurify from "isomorphic-dompurify";
-
-  let DOMPurify;
-  const loadDOMPurify = async () => {
-    DOMPurify = await import("isomorphic-dompurify");
-  };
-
-  const carta = new Carta({
-    extensions: [],
-    sanitizer: DOMPurify?.sanitize,
-  });
-
-  export let data;
-
-  let model = null;
-  let version = null;
-  let message = null;
-  let description = null;
-  let curent_image;
-  let filtered_models = null;
-  const load = async () => {
-    model = await retrieveModel(data.name);
-    description = await carta.render(model.description);
-    if (!description) {
-      description = model.description;
-    }
-  };
-
-  $: {
-    filtered_models = $models.data;
-    filtered_models &&
-      filtered_models.forEach((element, i) => {
-        if (element.id == model.id)
-          curent_image = links[(i + modelImagesOffset) % links.length];
-      });
-  }
-
-  const loadModels = async () => {
-    await models.retrieve(fetch);
-    filtered_models = JSON.parse(localStorage.getItem("filtered_models"));
-  };
+  import EditableTitle from "$components/EditableTitle.svelte";
+  import { page } from "$app/stores";
+  import retrieveChange from "$lib/changes/retrieveChange";
+  import acceptChange from "$lib/changes/acceptChange";
+  import declineChange from "$lib/changes/declineChange";
+  import { goto } from "$app/navigation";
+  import EditableContent from "$components/EditableContent.svelte";
 
   $: if (browser) {
-    loadDOMPurify();
     load();
-    loadModels();
   }
+
+  export let data;
+  let model = null;
+  let model0 = null;
+  let version = null;
+  let message = null;
+  let curent_image;
+  let _change = null;
+  let change = false;
+
+  const load = async () => {
+    if ($page.url.searchParams.get("change")) {
+      try {
+        _change = await retrieveChange(
+          $page.url.searchParams.get("change"),
+          $id_token,
+        );
+        model = _change.payload;
+        change = true;
+      } catch (error) {
+        alert("Error retrieving change");
+      }
+    } else {
+      model = await retrieveModel(data.name);
+      model0 = { ...model, metadata: { ...model.metadata } };
+    }
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -67,6 +53,46 @@
     setTimeout(() => {
       message = null;
     }, 1000);
+  };
+
+  let edit = false;
+
+  const save = () => {
+    edit = !edit;
+    models.update(model, $id_token);
+    if (model.uid != $user.uid) {
+      model = { ...model0, metadata: { ...model0.metadata } };
+      alert("Your changes have been notified to the model owner.");
+    }
+  };
+
+  const close = () => {
+    model = { ...model0, metadata: { ...model0.metadata } };
+    edit = false;
+  };
+
+  const accept = async () => {
+    try {
+      await acceptChange($page.url.searchParams.get("change"), $id_token);
+      change = false;
+      await goto(`/models/${model.name}`);
+      load();
+    } catch (error) {
+      console.log(error);
+      alert("Error accepting change");
+    }
+  };
+
+  const decline = async () => {
+    try {
+      await declineChange($page.url.searchParams.get("change"), $id_token);
+      change = false;
+      await goto(`/models/${$page.params.name}`);
+      load();
+    } catch (error) {
+      console.log(error);
+      alert("Error declining change");
+    }
   };
 </script>
 
@@ -81,13 +107,16 @@
         <span class="flex flex-col sm:flex-row gap-2">
           <span class="flex sm:justify-start justify-center">
             <img
-              class="w-36 h-36 object-cover"
-              src={model.thumbnail ? model.thumbnail : `${curent_image}`}
+              class="w-36 h-36 bg-white object-cover"
+              src={model.metadata.thumbnail
+                ? model.metadata.thumbnail
+                : `${curent_image}`}
               alt=""
             />
           </span>
           <span>
-            <h1 class="text-3xl">{model.name}</h1>
+            <!-- <h1 class="text-3xl">{model.name}</h1> -->
+            <EditableTitle bind:text={model.name} {edit} />
             <div class="flex flex-wrap gap-1">
               {#each model.tags as tag}
                 <p
@@ -108,53 +137,61 @@
             />
           </span>
         </span>
-
-        {#if $user}
+        {#if !change}
           <span class="flex flex-row gap-2">
             <!-- <a
-					class="btn btn-outline"
-					href={`https://notebooks.api.eotdl.com/?search=${dataset.name}`}
-					target="_blank">Open</a
-				> -->
-            {#if $user.uid == model.uid}
+            class="btn btn-outline"
+            href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${upgradeNotebook}.ipynb`}
+            target="_blank">Upgrade</a
+          > -->
+            <!-- {#if dataset.training_template}
+            <Train {dataset} />
+          {/if} -->
+            <!-- {#if $user}
+            {#if $user.uid == dataset.uid}
               <Update
-                store={models}
-                route="models"
-                id={model.id}
+                store={datasets}
+                route="datasets"
+                id={dataset.id}
                 tags={data.tags}
-                current_tags={model.tags}
-                bind:name={model.name}
-                quality={model.quality}
-                bind:authors={model.authors}
-                bind:source={model.source}
-                bind:license={model.license}
-                bind:description={model.description}
-                bind:selected_tags={model.tags}
+                current_tags={dataset.tags}
+                bind:name={dataset.name}
+                quality={dataset.quality}
+                bind:authors={dataset.authors}
+                bind:source={dataset.source}
+                bind:license={dataset.license}
+                bind:description={dataset.description}
+                bind:selected_tags={dataset.tags}
               />
             {/if}
+          {/if} -->
+            {#if $user}
+              {#if edit}
+                <button class="btn btn-outline" on:click={save}>Save</button>
+                <button class="btn btn-outline" on:click={close}>Close</button>
+              {:else}
+                <button class="btn btn-outline" on:click={() => (edit = !edit)}
+                  >Edit</button
+                >
+              {/if}
+            {/if}
+          </span>
+        {:else if model.uid == $user.uid && _change.status == "pending"}
+          <span>
+            <button class="btn btn-outline" on:click={accept}>Accept</button>
+            <button class="btn btn-outline" on:click={decline}>Decline</button>
           </span>
         {/if}
       </div>
-
-      <div class="grid grid-cols-[auto,350px] gap-3 mt-5">
+      <hr class="sm:hidden" />
+      <div
+        class="sm:grid sm:grid-cols-[auto,350px] sm:gap-3 flex flex-col mt-5"
+      >
         <div class="w-full overflow-auto">
-          <div class="content">
-            {#if description}
-              {@html description}
-            {:else}
-              <p class="italic">No description.</p>
-            {/if}
-          </div>
-          <!-- {#if dataset.quality > 0}
-						<pre
-							class="text-xs bg-slate-100 p-3 mt-3">{JSON.stringify(
-								dataset.catalog,
-								null,
-								4
-							)}</pre>
-					{/if} -->
+          <EditableContent {edit} bind:value={model.metadata.description} />
         </div>
-        <div class="flex flex-col gap-3 text-xs">
+        <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
+          <hr class="sm:hidden" />
           <p>Stage the model with the CLI:</p>
           <div class="relative">
             <pre class="bg-gray-200 p-3 overflow-x-auto"><button
@@ -166,22 +203,26 @@
               ></pre>
             {#if message}
               <span
-                class=" text-gray-400 absolute bottom-[-20px] right-0"
+                class="text-gray-400 absolute bottom-[-20px] right-0"
                 in:fade
                 out:fade>{message}</span
               >
             {/if}
           </div>
-          {#if model.quality == 0}
-            <div class="flex flex-col gap-3">
-              <Metadata data={model} />
-              <FileExplorer
-                data={model}
+          <div class="flex flex-col gap-3">
+            <Metadata
+              bind:authors={model.metadata.authors}
+              bind:license={model.metadata.license}
+              bind:source={model.metadata.source}
+              {edit}
+            />
+            <!-- <FileExplorer
+                data={dataset}
                 {version}
-                retrieveFiles={retrieveModelFiles}
-              />
-            </div>
-          {/if}
+                retrieveFiles={retrieveDatasetFiles}
+                datasetId={dataset.id}
+              /> -->
+          </div>
         </div>
       </div>
     </div>

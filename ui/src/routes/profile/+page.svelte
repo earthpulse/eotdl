@@ -1,6 +1,7 @@
 <script>
 	import updateProfile from "$lib/auth/updateProfile";
 	import TermsAndConditions from "./TermsAndConditions.svelte";
+
 	export let data;
 
 	let newName;

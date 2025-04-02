@@ -38,3 +38,6 @@ jobs.csv
 *.parquet
 download_commands.txt
 _data
+datasets.csv
+files_map.csv
+models.csv

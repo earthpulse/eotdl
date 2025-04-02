@@ -11,7 +11,7 @@
 				{ name: "Install", link: "install" },
 				{ name: "Authenticate", link: "authenticate" },
 				{ name: "Cloud resources", link: "cloud" },
-				{ name: "Quality Levels", link: "quality" },
+				// { name: "Quality Levels", link: "quality" },
 			],
 		},
 		{

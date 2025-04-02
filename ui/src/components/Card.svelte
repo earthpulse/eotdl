@@ -1,9 +1,8 @@
 <script>
   import { parseISO, formatDistanceToNow } from "date-fns";
   import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
-  import Download from "svelte-material-icons/CloudDownloadOutline.svelte";
   import Sd from "svelte-material-icons/Sd.svelte";
-  import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
+  // import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
   import formatFileSize from "$lib/datasets/formatFileSize.js";
 
   export let data;
@@ -19,7 +18,7 @@
 >
   <span>
     <img
-      src={data.thumbnail ? data.thumbnail : `${img}`}
+      src={data.metadata.thumbnail ? data.metadata.thumbnail : `${img}`}
       class="h-48 rounded-t-lg w-full object-cover"
       alt=""
     />
@@ -58,10 +57,10 @@
             {formatFileSize(data.versions[data.versions.length - 1]?.size || 0)}
           </p>
         </span>
-        <span class="flex flex-row items-center gap-1">
+        <!-- <span class="flex flex-row items-center gap-1">
           <CheckDecagramOutline color="gray" size={14} />
           <p>Q{data.quality}</p>
-        </span>
+        </span> -->
       </span>
     </span>
   </span>

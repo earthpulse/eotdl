@@ -3,6 +3,7 @@ Module for managing the Sentinel Hub configuration and data access
 """
 
 import json
+from datetime import datetime
 from os import getenv
 from os.path import exists
 from sentinelhub import (
@@ -13,13 +14,11 @@ from sentinelhub import (
     CRS,
     SentinelHubRequest,
     SentinelHubDownloadClient,
-    MimeType,
 )
 import uuid
 
 from ...repos.AuthRepo import AuthRepo
 from .parameters import SHParameters
-from ...tools.time_utils import prepare_time_interval
 from ...tools.geo_utils import compute_image_size
 
 
@@ -28,7 +27,7 @@ class SHClient:
     Client class to manage the Sentinel Hub Python interface.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, base_url) -> None:
         """ """
         self.config = SHConfig()
         if getenv("SH_CLIENT_ID") and getenv("SH_CLIENT_SECRET"):
@@ -57,6 +56,7 @@ class SHClient:
                 else:
                     self.config.sh_client_id = creds["SH_CLIENT_ID"]
                     self.config.sh_client_secret = creds["SH_CLIENT_SECRET"]
+        self.config.sh_base_url = base_url
         self.catalog = SentinelHubCatalog(config=self.config)
         self.tmp_dir = "/tmp/sentinelhub/" + str(uuid.uuid4())
 
@@ -77,12 +77,11 @@ class SHClient:
         return search_iterator
 
     def request_data(
-        self, time_interval, bounding_box: list, parameters: SHParameters
+        self, time_interval: datetime, bounding_box: list, parameters: SHParameters
     ) -> list:
         """
         Request data from Sentinel Hub
         """
-        time_interval = prepare_time_interval(time_interval)
         bounding_box, _ = compute_image_size(bounding_box, parameters)
 
         return SentinelHubRequest(
@@ -95,7 +94,9 @@ class SHClient:
                     mosaicking_order=parameters.MOSAICKING_ORDER,
                 )
             ],
-            responses=[SentinelHubRequest.output_response("default", MimeType.TIFF)],
+            responses=[
+                SentinelHubRequest.output_response("default", parameters.OUTPUT_FORMAT)
+            ],
             bbox=bounding_box,
             size=bbox_to_dimensions(bounding_box, parameters.RESOLUTION),
             config=self.config,

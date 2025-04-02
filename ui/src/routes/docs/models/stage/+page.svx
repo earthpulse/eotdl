@@ -45,6 +45,10 @@ If you know the specific version of the model to stage, use the `--version` opti
 
 <CLI><Code>eotdl models get "model-name" --version 1</Code></CLI>
 
+By default, only the model metadata is staged. In order to stage the assets as well, use the `--assets` option.
+
+<CLI><Code>eotdl models get "model-name" --assets</Code></CLI>
+
 ## Library
 
 You can stage models using the following Python code:
@@ -54,7 +58,7 @@ You can stage models using the following Python code:
 
 And use the same options seen before.
 
-<Library><Code>download_model("model-name", force=True, path="data", version=1)</Code></Library>
+<Library><Code>download_model("model-name", force=True, path="data", version=1, assets=True)</Code></Library>
 
 <!-- ## API 
 

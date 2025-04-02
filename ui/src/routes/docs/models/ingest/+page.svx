@@ -31,7 +31,7 @@ The CLI is the most convenient way to ingest models. You can ingest a model usin
 
 Where `model-path` is the path to a folder containing your model and any other relevant files.
 
-For Q0 models, a file named `README.md` is expected in the root of the folder. This file should contain the following information:
+A file named `README.md` is expected in the root of the folder. This file should contain the following information:
 
 ```yaml
 ---
@@ -50,15 +50,13 @@ some markdown content (titles, text, links, code, images, ...)
 
 If this file is not present, the ingestion process will fail.
 
-> After uploading a model with the CLI you can visiting the model page to edit this information.
+> After uploading a model with the CLI you can edit this information visiting the model page in the website.
 
 You can update your model in multiple ways. If you modify your local folder and run the `ingest` command again, a new version will be created reflecting the new data structure and files. 
 
 If the metadata in the `README.md` file is not consistent with the one in the platform (either because you edited the file or because you edited the model in the platform), you should use:
 - the `--force` flag to overwrite the metadata in the platform with the one in the `README.md` file.
 - the `--sync` flag to update your file with the metadata in the platform.
-
-<BadgeWarning>Q1+ models are not supported yet</BadgeWarning>
 
 ## Library
 

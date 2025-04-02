@@ -4,38 +4,10 @@ from pathlib import Path
 from ..models import (
     retrieve_models,
     ingest_model,
-    download_model,
+    stage_model,
 )
 
 app = typer.Typer(help="Explore, ingest and download ML models.")
-
-
-@app.command()
-def list(
-    name: str = typer.Option(
-        None, "--name", "-n", help="Filter the returned models by name"
-    ),
-    limit: int = typer.Option(
-        None, "--limit", "-l", help="Limit the number of returned results"
-    ),
-):
-    """
-    Retrieve a list with all the models in the EOTDL.
-
-    If using --name, it will filter the results by name. If no name is provided, it will return all the models.\n
-    If using --limit, it will limit the number of results. If no limit is provided, it will return all the models.
-    \n\n
-    Examples\n
-    --------\n
-    $ eotdl models list\n
-    $ eotdl models list --name YourModel --limit 5
-    """
-    try:
-        models = retrieve_models(name, limit)
-        typer.echo(models)
-    except Exception as e:
-        typer.echo(e)
-
 
 @app.command()
 def ingest(
@@ -88,6 +60,31 @@ def ingest(
     except Exception as e:
         typer.echo(e)
 
+@app.command()
+def list(
+    name: str = typer.Option(
+        None, "--name", "-n", help="Filter the returned models by name"
+    ),
+    limit: int = typer.Option(
+        None, "--limit", "-l", help="Limit the number of returned results"
+    ),
+):
+    """
+    Retrieve a list with all the models in the EOTDL.
+
+    If using --name, it will filter the results by name. If no name is provided, it will return all the models.\n
+    If using --limit, it will limit the number of results. If no limit is provided, it will return all the models.
+    \n\n
+    Examples\n
+    --------\n
+    $ eotdl models list\n
+    $ eotdl models list --name YourModel --limit 5
+    """
+    try:
+        models = retrieve_models(name, limit)
+        typer.echo(models)
+    except Exception as e:
+        typer.echo(e)
 
 @app.command()
 def get(
@@ -127,7 +124,7 @@ def get(
     $ eotdl models get YourModel --path /path/to/download --file model.zip --version 1 --assets True --force True --verbose True
     """
     try:
-        dst_path = download_model(
+        dst_path = stage_model(
             model, version, path, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")

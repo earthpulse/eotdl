@@ -4,3 +4,5 @@ from .MongoTagsRepo import MongoTagsRepo
 from .MongoDatasetsRepo import MongoDatasetsRepo
 from .MongoFilesRepo import MongoFilesRepo
 from .MongoModelsRepo import MongoModelsRepo
+from .MongoChangesRepo import MongoChangesRepo
+from .MongoNotificationsRepo import MongoNotificationsRepo
