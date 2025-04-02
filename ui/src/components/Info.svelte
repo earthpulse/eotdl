@@ -43,10 +43,10 @@
 		</button>
 		<p>{likes}</p>
 	</span>
-	<span class="flex flex-row items-center gap-1">
+	<!-- <span class="flex flex-row items-center gap-1">
 		<Download color="gray" size={20} />
 		<p>{downloads}</p>
-	</span>
+	</span> -->
 	<span class="flex flex-row items-center gap-1">
 		<Sd color="gray" size={20} />
 		<p>{formatFileSize(version?.size || 0)}</p>

@@ -46,6 +46,27 @@
                                 <p>
                                     {notification.payload.message}
                                 </p>
+                            {:else if notification.type == "model_update_request_declined"}
+                                <h2 class="card-title text-lg">
+                                    Model Update Request Declined
+                                </h2>
+                                <p>
+                                    {notification.payload.message}
+                                </p>
+                            {:else if notification.type == "dataset_update_request_accepted"}
+                                <h2 class="card-title text-lg">
+                                    Dataset Update Request Accepted
+                                </h2>
+                                <p>
+                                    {notification.payload.message}
+                                </p>
+                            {:else if notification.type == "model_update_request_accepted"}
+                                <h2 class="card-title text-lg">
+                                    Model Update Request Accepted
+                                </h2>
+                                <p>
+                                    {notification.payload.message}
+                                </p>
                             {:else}
                                 <h2 class="card-title text-lg text-error">
                                     Invalid Notification Type
