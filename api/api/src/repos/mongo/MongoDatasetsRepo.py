@@ -20,6 +20,17 @@ class MongoDatasetsRepo(MongoRepo):
     def retrieve_dataset(self, dataset_id):
         return self.retrieve("datasets", dataset_id)
 
+    def deactivate_dataset(self, dataset_name):
+        return self.update(
+            "datasets",
+            {"name": dataset_name},
+            {
+                "$set": {
+                    "active": False,
+                }
+            },
+        )
+
     # def persist_files(self, files, id):
     #     return self.persist("files", files, id)
 

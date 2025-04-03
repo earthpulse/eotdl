@@ -12,6 +12,13 @@ class DatasetDoesNotExistError(Exception):
         super().__init__(self.message)
 
 
+class DatasetNotActiveError(Exception):
+    message = "Requested dataset(s) not active"
+
+    def __init__(self):
+        super().__init__(self.message)
+
+
 class FileDoesNotExistError(Exception):
     message = "File doesn't exist"
 

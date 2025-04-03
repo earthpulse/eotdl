@@ -5,6 +5,7 @@ from ..models import (
     retrieve_models,
     ingest_model,
     stage_model,
+    deactivate_model
 )
 
 app = typer.Typer(help="Explore, ingest and download ML models.")
@@ -128,6 +129,17 @@ def get(
             model, version, path, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")
+    except Exception as e:
+        typer.echo(e)
+
+
+@app.command()
+def deactivate(
+    dataset_name: str = typer.Argument(None, help="Name of the model to deactivate")
+):
+    try:
+        deactivate_model(dataset_name)
+        typer.echo(f"Model {dataset_name} deactivated")
     except Exception as e:
         typer.echo(e)
 

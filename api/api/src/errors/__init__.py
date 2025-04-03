@@ -10,12 +10,14 @@ from .datasets import (
     UploadIdDoesNotExist,
     ChecksumMismatch,
     DatasetVersionDoesNotExistError,
-	DatasetShouldBeSTAC
+	DatasetShouldBeSTAC,
+    DatasetNotActiveError
 )
 from .models import (
     ModelDoesNotExistError,
     ModelAlreadyExistsError,
     ModelVersionDoesNotExistError,
+    ModelNotActiveError
 )
 from .user import (
     UserUnauthorizedError,

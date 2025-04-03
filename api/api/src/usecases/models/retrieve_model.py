@@ -1,11 +1,13 @@
 from ...models import Model
-from ...errors import ModelDoesNotExistError, UserUnauthorizedError
+from ...errors import ModelDoesNotExistError, UserUnauthorizedError, ModelNotActiveError
 from ...repos import ModelsDBRepo
 
 
 def retrieve(data):
     if data is None:
         raise ModelDoesNotExistError()
+    if not data.get("active"):
+        raise ModelNotActiveError()
     return Model(**data)
 
 
