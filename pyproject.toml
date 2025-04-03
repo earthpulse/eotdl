@@ -8,6 +8,7 @@ dependencies = [
     "jupyter>=1.1.1",
     "matplotlib>=3.10.1",
     "minio>=7.2.15",
+    "onnxruntime>=1.21.0",
     "python-dotenv>=1.1.0",
     "pytorch-eo>=2025.4.3",
     "segmentation-models-pytorch>=0.4.0",
