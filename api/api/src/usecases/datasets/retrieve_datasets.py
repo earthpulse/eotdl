@@ -1,4 +1,4 @@
-from api.api.src.errors.datasets import DatasetNotActiveError
+from ...errors.datasets import DatasetNotActiveError
 from ...repos import DatasetsDBRepo
 from ...models import Dataset
 
