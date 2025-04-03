@@ -18,7 +18,7 @@
         href="https://github.com/earthpulse/eotdl"
         target="_blank"
         rel="noreferrer"
-        class="btn btn-lg bg-base-200 text-black border-base-300 capitalize hover:bg-base-300 hover:border-base-300"
+        class="btn btn-lg bg-base-200 text-black border-base-300 capitalize hover:bg-base-300 hover:border-base-300 transition-all duration-200 hover:scale-105"
       >
         <svg
           class="mr-2"
@@ -38,7 +38,10 @@
         >
         Github</a
       >
-      <a href="/tutorials" class="btn btn-lg bg-blue-500 text-white capitalize">
+      <a
+        href="/tutorials"
+        class="btn btn-lg bg-blue-500 text-white capitalize border-none transition-all duration-200 hover:scale-105"
+      >
         Tutorials</a
       ></span
     >

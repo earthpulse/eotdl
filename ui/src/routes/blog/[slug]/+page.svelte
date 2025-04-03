@@ -1,9 +1,10 @@
 <script>
-    import "../../../styles/post.css";
-    import "../../../styles/prism.css";
+    import "$styles/post.css";
+    import "$styles/prism.css";
 
-    export let data;
-    const { post } = data;
+    let { data } = $props();
+
+    let post = $derived(data.post);
 </script>
 
 <svelte:head>

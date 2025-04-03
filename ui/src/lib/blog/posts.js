@@ -1,9 +1,10 @@
 import fs from 'fs';
 import { format } from 'date-fns';
-import es from 'date-fns/locale/es/index.js';
+import { es } from 'date-fns/locale';
 import readingTime from 'reading-time';
 import matter from 'gray-matter';
-import { marked } from 'marked';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
 import prism from 'prismjs';
 import loadLanguages from 'prismjs/components/index.js';
 loadLanguages(['python', 'bash']);
@@ -22,29 +23,32 @@ export const fetchPost = async (post) => {
 	// parse block latex equations before parsing the rest since marked will screw up the equations
 	let content = await parseEquations(matterResult.content);
 	// add target blank to links
+	const marked = new Marked(
+		markedHighlight({
+			highlight(code, language, info) {
+				// const language = hljs.getLanguage(language) ? language : 'plaintext';
+				// return hljs.highlight(code, { language }).value;
+				const highlightedCode = prism.highlight(
+					code,
+					prism.languages[language] || prism.languages.html,
+					language
+				);
+				return `<pre class="language-${language}">${highlightedCode}</pre>`;
+			}
+		})
+	);
+	// open links in new tab
 	const renderer = new marked.Renderer();
 	renderer.link = function (href, title, text) {
 		return `<a target="_blank" href="${href}">${text}</a>`;
 	};
-	// parse inline latex equations (acts only on paragraphs, not code or other blocks)
-	// will screw up some of the symbols :(
-	const walkTokens = async (token) => {
-		if (token.type === 'text') token.text = await parseInlieEquation(token.text);
-	};
-	// parse markdown content with code highlighting
-	marked.setOptions({
-		highlight: function (code, language) {
-			const highlightedCode = prism.highlight(
-				code,
-				prism.languages[language] || prism.languages.html,
-				language
-			);
-			return `<pre class="language-${language}">${highlightedCode}</pre>`;
-			// return highlightedCode;
-		},
+	marked.use({
 		renderer,
 		async: true,
-		walkTokens
+		walkTokens: async (token) => {
+			// parse inline equations
+			if (token.type === 'text') token.text = await parseInlieEquation(token.text);
+		}
 	});
 	content = await marked.parse(content);
 	return {

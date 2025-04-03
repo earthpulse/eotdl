@@ -1,20 +1,20 @@
 <script>
 	import { datasets } from "$stores/datasets";
-	import { user } from "$stores/auth";
+	import auth from "$stores/auth.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
-	import { browser } from "$app/environment";
-	import Ingest from "./Ingest.svelte";
+	// import Ingest from "./Ingest.svelte";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
-	import QualitySelector from "$components/QualitySelector.svelte";
-	export let data;
-	import { links } from "$stores/images";
-	let loading = true;
-	let show_liked = false;
-	let selected_tags = [];
+	// import QualitySelector from "$components/QualitySelector.svelte";
+
+	let { data } = $props();
+
+	let loading = $state(true);
+	let show_liked = $state(false);
+	let selected_tags = $state([]);
 
 	const load = async () => {
 		await datasets.retrieve(fetch);
@@ -26,31 +26,45 @@
 		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
 	};
 
-	$: if (browser) load();
+	$effect(() => {
+		load();
+	});
 
-	let filterName = "";
-	let filtered_datasets;
-	$: {
-		filtered_datasets = $datasets.data
-			?.filter((dataset) => {
-				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) => dataset.tags.includes(tag));
-			})
-			.filter((dataset) => {
-				if (filterName.length === 0) return true;
-				return dataset.name
-					.toLowerCase()
-					.includes(filterName.toLowerCase());
-			});
-		if (show_liked) {
-			filtered_datasets = filtered_datasets.filter((dataset) =>
-				$user?.liked_datasets.includes(dataset.id),
+	let filterName = $state("");
+	let filtered_datasets = $state();
+	$effect(() => {
+		let base_datasets = $datasets.data || []; // Start with all datasets or an empty array
+
+		// Filter by tags
+		let datasets_after_tags = base_datasets.filter((dataset) => {
+			if (selected_tags.length === 0) return true;
+			return selected_tags.every((tag) => dataset.tags.includes(tag));
+		});
+
+		// Filter by name
+		let datasets_after_name = datasets_after_tags.filter((dataset) => {
+			if (filterName.length === 0) return true;
+			return dataset.name
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		});
+
+		// Filter by liked status if show_liked is true and user is logged in
+		let final_datasets;
+		if (show_liked && auth.user) {
+			final_datasets = datasets_after_name.filter((dataset) =>
+				auth.user.liked_datasets.includes(dataset.id),
 			);
+		} else {
+			final_datasets = datasets_after_name;
 		}
-	}
+
+		// Assign the final result
+		filtered_datasets = final_datasets;
+	});
 
 	const toggleLike = () => {
-		show_liked = $user && !show_liked;
+		show_liked = auth.user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
 	};
 
@@ -66,7 +80,7 @@
 	<div
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
 	>
-		<div class="grid grid-cols-1 sm:grid-cols-[250px,auto] gap-8 w-full">
+		<div class="grid grid-cols-1 sm:grid-cols-[250px_auto] gap-8 w-full">
 			<div class="flex flex-col w-full">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Datasets</h1>
@@ -81,7 +95,9 @@
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
-					<button on:click={toggleLike}
+					<button
+						onclick={toggleLike}
+						class="cursor-pointer hover:scale-115 transition-all duration-200"
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
 						/></button
@@ -103,9 +119,8 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_datasets as dataset, i}
 					<Card
-						img={links[i % links.length]}
 						data={dataset}
-						liked={$user?.liked_datasets.includes(dataset.id)}
+						liked={auth.user?.liked_datasets.includes(dataset.id)}
 						tags={data.tags}
 					/>
 				{/each}

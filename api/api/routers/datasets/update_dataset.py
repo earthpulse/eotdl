@@ -1,29 +1,27 @@
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, Path, Body
 import logging
-from typing import Optional, List
-from pydantic import BaseModel
 
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.models import Dataset
-from ...src.usecases.datasets import update_dataset
+from ...src.usecases.datasets import update_dataset, toggle_like_dataset
 from .responses import update_dataset_responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-# @router.put("/{id}/like", include_in_schema=False)
-# def like(
-#     id: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         return toggle_like_dataset(id, user)
-#     except Exception as e:
-#         logger.exception("datasets:like")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+@router.put("/{id}/like", include_in_schema=False)
+def like(
+    id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        return toggle_like_dataset(id, user)
+    except Exception as e:
+        logger.exception("datasets:like")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.put(

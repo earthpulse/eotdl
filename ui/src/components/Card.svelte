@@ -2,23 +2,18 @@
   import { parseISO, formatDistanceToNow } from "date-fns";
   import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
   import Sd from "svelte-material-icons/Sd.svelte";
-  // import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
   import formatFileSize from "$lib/datasets/formatFileSize.js";
 
-  export let data;
-  export let liked = null;
-  export let link = "datasets";
-  export let tags;
-  export let img;
+  let { data, liked = null, link = "datasets", tags } = $props();
 </script>
 
 <a
   href="/{link}/{data.name}"
-  class="w-full bg-gray-100 border-2 rounded-xl flex flex-col justify-between h-full text-left shadow-xl"
+  class="w-full bg-gray-100 rounded-xl flex flex-col justify-between h-full text-left shadow-xl transition-transform duration-200 hover:scale-105 border-1 border-gray-200"
 >
   <span>
     <img
-      src={data.metadata.thumbnail ? data.metadata.thumbnail : `${img}`}
+      src={data.metadata.thumbnail}
       class="h-48 rounded-t-lg w-full object-cover"
       alt=""
     />
@@ -57,10 +52,6 @@
             {formatFileSize(data.versions[data.versions.length - 1]?.size || 0)}
           </p>
         </span>
-        <!-- <span class="flex flex-row items-center gap-1">
-          <CheckDecagramOutline color="gray" size={14} />
-          <p>Q{data.quality}</p>
-        </span> -->
       </span>
     </span>
   </span>

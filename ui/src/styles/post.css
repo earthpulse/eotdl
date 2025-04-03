@@ -1,3 +1,5 @@
+@reference "./app.css";
+
 .post :where(p, h1, h2, h3, h4, h5, h6, pre, ul, li, blockquote, pre, code) {
     @apply w-full;
 }
@@ -10,7 +12,7 @@
     @apply text-2xl pt-4 font-bold;
 }
 
-.post :where(h3, h4, h5, h6)  {
+.post :where(h3, h4, h5, h6) {
     @apply text-xl pt-3 font-bold;
 }
 
@@ -35,7 +37,7 @@
 }
 
 .post .inline-equation {
-    @apply inline-block 
+    @apply inline-block
 }
 
 .post code {
@@ -46,7 +48,8 @@
     @apply w-full mx-auto inline-block overflow-auto border-collapse border-none relative left-1/2 -translate-x-1/2;
 }
 
-.post th, .post td {
+.post th,
+.post td {
     @apply border border-gray-300 p-2 text-left;
 }
 

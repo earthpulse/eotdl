@@ -1,3 +1,5 @@
+@reference "./app.css";
+
 .text-link {
     @apply text-green-200 underline;
 }

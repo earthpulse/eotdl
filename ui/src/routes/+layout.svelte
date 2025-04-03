@@ -3,15 +3,16 @@
   import Nav from "./Nav.svelte";
   import Nav2 from "./Nav2.svelte";
   import Footer from "./Footer.svelte";
-  import { user, id_token } from "$stores/auth";
-  import { browser } from "$app/environment";
-  import { notifications } from "$stores/notifications";
+  import auth from "$stores/auth.svelte";
+  import notifications from "$stores/notifications.svelte";
 
-  export let data;
-  let loading = !data?.user;
+  let { data, children } = $props();
+  let loading = $derived(!data?.user);
 
-  user.set(data?.user);
-  id_token.set(data?.id_token);
+  $effect(() => {
+    if (data?.user) auth.user = data.user;
+    if (data?.id_token) auth.id_token = data.id_token;
+  });
 
   const me = async () => {
     const res = await fetch("/api/auth/me");
@@ -20,14 +21,16 @@
       return;
     }
     const data = await res.json();
-    user.set(data.user);
-    id_token.set(data.id_token);
+    auth.user = data.user;
+    auth.id_token = data.id_token;
     notifications.retrieve(data.id_token);
     loading = false;
   };
 
   // retrieve user info client-side from API
-  $: if (browser) me();
+  $effect(() => {
+    me();
+  });
 </script>
 
 <svelte:head>
@@ -74,7 +77,7 @@
   <div class="w-full h-full grow flex flex-col">
     <Nav />
     <div class="relative grow flex flex-col">
-      <slot />
+      {@render children()}
       <div class="absolute top-0 left-0 w-full">
         <Nav2 {loading} />
       </div>

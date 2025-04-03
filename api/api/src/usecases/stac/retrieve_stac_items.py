@@ -1,16 +1,23 @@
 import pandas as pd
 
-from ..datasets import retrieve_dataset_by_name
+from ..datasets.retrieve_dataset import retrieve_dataset
+from ..models.retrieve_model import retrieve_model
 from ...repos import OSRepo
+from ...errors import DatasetDoesNotExistError
 
-# TODO: versioning
-
-def retrieve_stac_items(collection_id):
-    dataset = retrieve_dataset_by_name(collection_id)
+def retrieve_stac_items(collection_id, version):
+    try:
+        data = retrieve_dataset(collection_id)
+    except DatasetDoesNotExistError:
+        data = retrieve_model(collection_id)
     os_repo = OSRepo()
-    catalog_presigned_url = os_repo.get_presigned_url(dataset.id, "catalog.v1.parquet")
+    catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
     # this read the entire catalog into memory, which is not ideal
     df = pd.read_parquet(catalog_presigned_url)
-    item_ids = df["id"].tolist()
-    # should format items in some particular way???
-    return item_ids
+    return [
+        {
+            "id": row["id"],
+            "assets": row["assets"],
+        }
+        for _, row in df.iterrows()
+    ]

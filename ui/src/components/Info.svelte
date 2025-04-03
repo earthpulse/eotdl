@@ -4,7 +4,7 @@
 	import Sd from "svelte-material-icons/Sd.svelte";
 	import formatFileSize from "$lib/datasets/formatFileSize.js";
 	// import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
-	import { user, id_token } from "$stores/auth";
+	import auth from "$stores/auth.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 
 	export let data;
@@ -15,13 +15,13 @@
 	$: ({ likes, downloads, quality, versions, createdAt } = data);
 
 	const like = () => {
-		if (!$user) return;
-		store.like(data.id, $id_token);
-		if ($user[field].includes(data.id)) {
-			$user[field] = $user[field].filter((d) => d !== data.id);
+		if (!auth.user) return;
+		store.like(data.id, auth.id_token);
+		if (auth.user[field].includes(data.id)) {
+			auth.user[field] = auth.user[field].filter((d) => d !== data.id);
 			data.likes = data.likes - 1;
 		} else {
-			$user[field] = [...$user[field], data.id];
+			auth.user[field] = [...auth.user[field], data.id];
 			data.likes = data.likes + 1;
 		}
 	};
@@ -36,17 +36,17 @@
 	<span class="flex flex-row gap-1">
 		<button on:click={like}>
 			<HeartOutline
-				color={$user && $user[field]?.includes(data.id)
+				color={auth.user && auth.user[field]?.includes(data.id)
 					? "red"
 					: "gray"}
 			/>
 		</button>
 		<p>{likes}</p>
 	</span>
-	<span class="flex flex-row items-center gap-1">
+	<!-- <span class="flex flex-row items-center gap-1">
 		<Download color="gray" size={20} />
 		<p>{downloads}</p>
-	</span>
+	</span> -->
 	<span class="flex flex-row items-center gap-1">
 		<Sd color="gray" size={20} />
 		<p>{formatFileSize(version?.size || 0)}</p>

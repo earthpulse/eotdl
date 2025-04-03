@@ -1,12 +1,12 @@
 <script>
-	import { onMount } from "svelte";
 	import retrievePopularModels from "$lib/models/retrievePopularModels";
 	import Popular from "./Popular.svelte";
 
-	export let tags;
+	let { tags } = $props();
 
-	let data = null;
-	onMount(async () => {
+	let data = $state(null);
+
+	$effect(async () => {
 		data = await retrievePopularModels(fetch, 3);
 	});
 </script>

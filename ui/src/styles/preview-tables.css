@@ -1,6 +1,0 @@
-.modal-box table {
-    @apply my-2 border-2
-}
-.modal-box td,.modal-box th{
-    @apply border-[1px] border-slate-300 p-1
-}

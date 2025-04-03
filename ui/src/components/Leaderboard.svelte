@@ -1,11 +1,15 @@
 <script>
-    export let leaderboard;
-    export let field = "datasets";
-    export let msgText =
-        "Ingest datasets into EOTDL and climb up the leaderboard!";
-    export let textOnLeft = false;
-    export let textOnRight = false;
-    $: leaderboard = leaderboard?.filter((l) => l[field] > 0);
+    let {
+        leaderboard,
+        field = "datasets",
+        msgText = "Ingest datasets into EOTDL and climb up the leaderboard!",
+        textOnLeft = false,
+        textOnRight = false,
+    } = $props();
+
+    $effect(() => {
+        leaderboard = leaderboard?.filter((l) => l[field] > 0);
+    });
 </script>
 
 <div class="w-full grid place-items-center">
@@ -26,7 +30,7 @@
         <table class="w-full sm:max-w-2xl max-h-64 max-w">
             <thead>
                 <tr class="bg-[rgb(0,50,71)] text-white h-12">
-                    <th class="px-4" />
+                    <th class="px-4"></th>
                     <th class="text-left px-4">Name</th>
                     <th class="px-4">{field}</th>
                 </tr>
@@ -55,12 +59,12 @@
                             <td
                                 ><div
                                     class="animate-pulse bg-slate-100 p-3 rounded-xl w-[200px]"
-                                /></td
+                                ></div></td
                             >
                             <td
                                 ><div
                                     class="animate-pulse bg-slate-100 p-3 rounded-xl w-6"
-                                /></td
+                                ></div></td
                             >
                         </tr>
                     {/each}

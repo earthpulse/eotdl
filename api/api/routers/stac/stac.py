@@ -31,27 +31,27 @@ def collection(collection_id: str):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.get("/collections/{collection_id}/items")
-def items(collection_id: str):
+def items(collection_id: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_items(collection_id)
+        return retrieve_stac_items(collection_id, version)
     except Exception as e:
         logger.exception("stac:items")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.get("/collections/{collection_id}/items/{item_id}")
-def item(collection_id: str, item_id: str):
+def item(collection_id: str, item_id: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_item(collection_id, item_id)
+        return retrieve_stac_item(collection_id, item_id, version)
     except Exception as e:
         logger.exception("stac:item")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.get("/search")
-def search(collection: str):
+def search(collection_id: str):
     try:
-        return search_stac_columns(collection)
+        return search_stac_columns(collection_id)
     except Exception as e:
         logger.exception("stac:item")
         traceback.print_exc()

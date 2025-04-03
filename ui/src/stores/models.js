@@ -48,7 +48,7 @@ const createModels = () => {
       const data = await updateModel(model, token);
       update((current) => ({
         data: current.data.map((_model) =>
-          _model.id === model_id ? data : _model
+          _model.id === model.id ? data : _model
         ),
       }));
       return data;
