@@ -5,6 +5,7 @@ from ..datasets import (
     retrieve_datasets,
     ingest_dataset,
     stage_dataset,
+    deactivate_dataset,
 )
 
 app = typer.Typer(help="Explore, ingest and download training datasets.")
@@ -140,6 +141,16 @@ def get(
     except Exception as e:
         typer.echo(e)
 
+
+@app.command()
+def deactivate(
+    dataset_name: str = typer.Argument(None, help="Name of the dataset to deactivate")
+):
+    try:
+        deactivate_dataset(dataset_name)
+        typer.echo(f"Dataset {dataset_name} deactivated")
+    except Exception as e:
+        typer.echo(e)
 
 if __name__ == "__main__":
     app()

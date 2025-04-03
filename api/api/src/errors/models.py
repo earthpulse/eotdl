@@ -17,3 +17,10 @@ class ModelVersionDoesNotExistError(Exception):
 
     def __init__(self):
         super().__init__(self.message)
+
+
+class ModelNotActiveError(Exception):
+    message = "Requested model(s) not active"
+
+    def __init__(self):
+        super().__init__(self.message)

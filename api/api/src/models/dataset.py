@@ -18,6 +18,7 @@ class Dataset(BaseModel):
     likes: int = 0
     downloads: int = 0
     quality: int = 0
+    active: bool = True
 
     @field_validator("name")
     def check_name_is_valid(cls, name):
