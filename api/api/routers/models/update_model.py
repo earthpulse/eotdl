@@ -60,12 +60,12 @@ def update(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("/{name}", include_in_schema=False)
+@router.patch("/deactivate/{model_id}", include_in_schema=False)
 def deactivate(
-    name: str,
+    model_id: str,
 ):
     try:
-        message = deactivate_model(name)
+        message = deactivate_model(model_id)
         return {"message": message}
     except Exception as e:
         logger.exception("models:deactivate")

@@ -43,10 +43,10 @@ class MongoModelsRepo(MongoRepo):
             },
         )
     
-    def deactivate_model(self, model_name):
-        return self.update(
+    def deactivate_model(self, model_id):
+        return self._update(
             "models",
-            {"name": model_name},
+            {"id": model_id},
             {
                 "$set": {
                     "active": False,

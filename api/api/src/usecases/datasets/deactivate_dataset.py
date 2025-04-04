@@ -5,7 +5,6 @@ from ...errors import DatasetDoesNotExistError, DatasetNotActiveError
 def deactivate_dataset(dataset_id: str):
     repo = DatasetsDBRepo()
     dataset = repo.find_one_by_field('datasets', 'id', dataset_id, limit=None)
-    print('it exists!!!')
     if dataset is None:
         raise DatasetDoesNotExistError()
     if dataset.get("active") is False:
