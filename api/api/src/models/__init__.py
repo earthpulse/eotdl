@@ -8,3 +8,4 @@ from .verison import Version
 from .metadata import Metadata
 from .change import Change, ChangeType, ChangeStatus
 from .notification import Notification, NotificationType, NotificationStatus
+from .files import File, Folder, Files

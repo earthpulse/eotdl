@@ -1,6 +1,6 @@
-from api.api.src.errors.models import ModelNotActiveError
 from ...repos import ModelsDBRepo
 from ...models import Model
+from ...errors import ModelNotActiveError
 
 
 def retrieve_models(match=None, limit=None):
