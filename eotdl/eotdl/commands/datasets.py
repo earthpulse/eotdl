@@ -144,11 +144,11 @@ def get(
 
 @app.command()
 def deactivate(
-    dataset_name: str = typer.Argument(None, help="Name of the dataset to deactivate")
+    dataset_id: str = typer.Argument(None, help="ID of the dataset to deactivate")
 ):
     try:
-        deactivate_dataset(dataset_name)
-        typer.echo(f"Dataset {dataset_name} deactivated")
+        deactivate_dataset(dataset_id)
+        typer.echo(f"Dataset {dataset_id} deactivated")
     except Exception as e:
         typer.echo(e)
 

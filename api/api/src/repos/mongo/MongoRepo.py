@@ -55,10 +55,7 @@ class MongoRepo:
         return list(self.db[collection].find({field: {"$in": values}}))
 
     def update(self, collection, id, data):
-        result = self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
-        if result.matched_count == 0:
-            raise ValueError(f"No document found with _id {id}")
-        return result
+        return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
         
     def _update(self, collection, query, data):
         return self.db[collection].update_one(query, data)

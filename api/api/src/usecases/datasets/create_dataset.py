@@ -28,6 +28,7 @@ def create_dataset(user, name, authors, source, license, thumbnail, description)
                 thumbnail=thumbnail,
                 description=description,
             ),
+            active=True
         )
         repo.persist_dataset(dataset.model_dump(), dataset.id)
         repo.increase_user_dataset_count(user.uid)

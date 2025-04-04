@@ -8,7 +8,8 @@ def retrieve_datasets(match=None, limit=None):
     data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
-        if not d.get("active"):
+        print(d)
+        if d.get("active"):
             datasets.append(Dataset(**d))
     if not datasets:
         raise DatasetNotActiveError()

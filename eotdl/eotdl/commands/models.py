@@ -135,11 +135,11 @@ def get(
 
 @app.command()
 def deactivate(
-    dataset_name: str = typer.Argument(None, help="Name of the model to deactivate")
+    model_id: str = typer.Argument(None, help="ID of the model to deactivate")
 ):
     try:
-        deactivate_model(dataset_name)
-        typer.echo(f"Model {dataset_name} deactivated")
+        deactivate_model(model_id)
+        typer.echo(f"Model {model_id} deactivated")
     except Exception as e:
         typer.echo(e)
 

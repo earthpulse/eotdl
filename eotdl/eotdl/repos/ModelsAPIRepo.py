@@ -40,6 +40,6 @@ class ModelsAPIRepo(APIRepo):
 
     def deactivate_model(self, model_name):
         response = requests.patch(
-            self.url + "models/" + model_name
+            self.url + "models/deactivate/" + model_name
         )
         return self.format_response(response)

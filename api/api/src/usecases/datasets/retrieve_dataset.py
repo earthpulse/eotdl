@@ -7,7 +7,7 @@ from ...repos import DatasetsDBRepo
 def retrieve(data):
     if data is None:
         raise DatasetDoesNotExistError()
-    if not data.get("active"):
+    if data.get("active") == False:
         raise DatasetNotActiveError()
     return Dataset(**data)
 

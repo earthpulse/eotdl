@@ -1,3 +1,4 @@
+import traceback
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, Query, Path
 import logging
@@ -37,6 +38,7 @@ def retrieve(
         return retrieve_dataset_by_name(name)
     except Exception as e:
         logger.exception("datasets:retrieve")
+        traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("/leaderboard", include_in_schema=False)
