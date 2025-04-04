@@ -1,10 +1,14 @@
 from ...repos import DatasetsDBRepo
+from ...errors import DatasetDoesNotExistError, DatasetNotActiveError
 
 
-def deactivate_dataset(dataset_name: str):
+def deactivate_dataset(dataset_id: str):
     repo = DatasetsDBRepo()
-    dataset = repo.find_one_by_name(dataset_name)
+    dataset = repo.find_one_by_field('datasets', 'id', dataset_id, limit=None)
+    print('it exists!!!')
+    if dataset is None:
+        raise DatasetDoesNotExistError()
     if dataset.get("active") is False:
-        raise Exception(f"Dataset {dataset_name} is already deactivated.")
-    repo.deactivate_dataset(dataset_name)
-    return f"Dataset {dataset_name} has been deactivated."
+        raise DatasetNotActiveError()
+    repo.deactivate_dataset(dataset_id)
+    return f"Dataset {dataset_id} has been deactivated."

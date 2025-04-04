@@ -7,7 +7,8 @@ import traceback
 
 from ..auth import get_current_user
 from ...src.models import User, Model
-from ...src.usecases.models import update_model, toggle_like_model
+from ...src.usecases.models import update_model, toggle_like_model, deactivate_model
+
 from .responses import update_model_responses
 
 router = APIRouter()
@@ -56,4 +57,16 @@ def update(
     except Exception as e:  
         print(traceback.format_exc())
         logger.exception("models:update")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/{name}", include_in_schema=False)
+def deactivate(
+    name: str,
+):
+    try:
+        message = deactivate_model(name)
+        return {"message": message}
+    except Exception as e:
+        logger.exception("models:deactivate")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

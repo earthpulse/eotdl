@@ -20,10 +20,10 @@ class MongoDatasetsRepo(MongoRepo):
     def retrieve_dataset(self, dataset_id):
         return self.retrieve("datasets", dataset_id)
 
-    def deactivate_dataset(self, dataset_name):
-        return self.update(
+    def deactivate_dataset(self, dataset_id):
+        return self._update(
             "datasets",
-            {"name": dataset_name},
+            {"id": dataset_id},
             {
                 "$set": {
                     "active": False,

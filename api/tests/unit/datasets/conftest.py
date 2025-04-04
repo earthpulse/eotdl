@@ -1,30 +1,46 @@
-
-
+from unittest.mock import patch
+from bson import ObjectId
+import mongomock
 import pytest
 
 
-@pytest.fixture
-def dataset():
-    return {
-        "uid": "123",
-        "id": "123",
-        "name": "test3",
-        "description": "test 3",
-        "likes": 1,
-        "quality": 0,
+DATASET = {
+    "id": str(ObjectId()),
+    "uid": "123",
+    "name": "test3",
+    "description": "test 3",
+    "likes": 1,
+    "quality": 0,
+    "authors": ["test"],
+    "source": "http://test@m",
+    "license": "test",
+    "files": "123",
+    "active": True,
+    "metadata": {
+        "description": "test",
         "authors": ["test"],
         "source": "http://test@m",
         "license": "test",
         "files": "123",
-        "active": True,
-        "metadata": {
-            "description": "test",
-            "authors": ["test"],
-            "source": "http://test@m",
-            "license": "test",
-            "files": "123",
-        },
-    }
+    },
+}
+
+
+@pytest.fixture
+def mock_mongo():
+    mock_db = mongomock.MongoClient().db
+
+    mock_db.datasets.insert_one(DATASET)
+    with (
+        patch("api.src.repos.mongo.client.get_db", return_value=mock_db),
+        patch("api.src.repos.mongo.MongoRepo.get_db", return_value=mock_db),
+    ):
+        yield mock_db
+
+
+@pytest.fixture
+def dataset():
+    return DATASET
 
 
 @pytest.fixture
@@ -86,4 +102,5 @@ def datasets():
                 "license": "test",
                 "files": "123",
             },
-        },]
+        },
+    ]

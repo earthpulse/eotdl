@@ -5,7 +5,8 @@ import logging
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.models import Dataset
-from ...src.usecases.datasets import update_dataset, toggle_like_dataset
+from ...src.usecases.datasets import update_dataset, toggle_like_dataset, deactivate_dataset
+
 from .responses import update_dataset_responses
 
 router = APIRouter()
@@ -43,4 +44,16 @@ def update(
         )
     except Exception as e:
         logger.exception("datasets:update")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/deactivate/{id}", include_in_schema=False)
+def deactivate(
+    id: str,
+):
+    try:
+        message = deactivate_dataset(id)
+        return {"message": message}
+    except Exception as e:
+        logger.exception("datasets:deactivate")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
