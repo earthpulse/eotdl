@@ -1,425 +1,255 @@
 <script>
-	import { browser } from "$app/environment";
-	import Folder from "svelte-material-icons/Folder.svelte";
-	import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
-	import Download from "svelte-material-icons/Download.svelte";
-	import Eye from "svelte-material-icons/Eye.svelte";
-	import File from "svelte-material-icons/File.svelte";
-	import { id_token } from "$stores/auth";
-	import { PUBLIC_EOTDL_API } from "$env/static/public";
-	import { onMount } from "svelte";
-	import Map from "$components/Map.svelte";
-	import { Carta } from "carta-md";
-	// import DOMPurify from "isomorphic-dompurify";
-	import "$styles/file-explorer-md.css";
-	import { BasicTable } from "csv2table";
-	import JSONTree from "svelte-json-tree";
-	import "$styles/preview-tables.css";
+	import retrieveFiles from "$lib/files/retrieveFiles";
+	import { createFileTree } from "$lib/files/fileTree";
+	import fetchEOTDL from "$lib/shared/fetchEOTDL";
+	import auth from "$stores/auth.svelte";
 
-	let DOMPurify;
-	const carta = new Carta({
-		extensions: [],
-		sanitizer: DOMPurify?.sanitize,
-	});
+	let { version, collection } = $props();
 
-	let allowedExtensions = {
-		image: ["jpg", "png", "jpeg"],
-		map: ["geojson"],
-		tif: ["tiff", "tif"],
-		text: ["txt"],
-		pdf: ["pdf"],
-		md: ["md"],
-		json: ["json"],
-		csv: ["csv"],
-	};
-
-	let blobFunctions = {
-		image: async () => {
-			return URL.createObjectURL(blob);
-		},
-		text: async () => {
-			return blob.text();
-		},
-		pdf: async () => {
-			blob = blob.slice(0, blob.size, "application/pdf");
-			return await URL.createObjectURL(blob);
-		},
-		map: async () => {
-			return JSON.parse(await blob.text());
-		},
-		tif: async () => {
-			return blob.arrayBuffer();
-		},
-		map: async () => {
-			return JSON.parse(await blob.text());
-		},
-		tif: async () => {
-			return blob.arrayBuffer();
-		},
-		md: async () => {
-			return carta.render(await blob.text());
-		},
-		json: async () => {
-			return JSON.parse(await blob.text());
-		},
-		csv: async () => {
-			return blob.size < 4_000_000
-				? blob.text()
-				: "The csv file should be less than 4MB";
-		},
-	};
-
-	export let data;
-	export let retrieveFiles;
-	export let version;
-	export let datasetId;
-
-	let createWriteStream;
-	let files = null;
-	let tree = null;
-	let currentLevel = {};
-	let navigationStack = [];
-	let loading = false;
-	let currentPath = [];
-
-	let onDetails = false;
-	let blob;
-	let details = {};
-	let currentFileName = null;
-
-	let currentBlob;
-	let currentFormat;
-
-	onMount(async () => {
-		if (browser) {
-			DOMPurify = await import("isomorphic-dompurify");
-			// only works in browser
-			const streamsaver = await import("streamsaver");
-			createWriteStream = streamsaver.createWriteStream;
-		}
-	});
-
-	const sizeFormat = (bytes) => {
-		const size = bytes;
-		if (size < 1024) return `${size} bytes`;
-		else if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
-		else if (size < 1024 * 1024 * 1024)
-			`${(size / (1024 * 1024)).toFixed(2)} MB`;
-		else return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-	};
+	let loading = $state(true);
+	let files = $state([]);
+	let fileTree = $state({});
+	let currentPath = $state("");
+	let currentView = $state([]); // Current files/folders being displayed
+	let searchTerm = $state(""); // Search term for filtering
+	let filteredView = $state([]); // Filtered view based on search
+	let downloadLoading = $state(false);
 
 	const load = async () => {
 		loading = true;
-		tree = null;
-		files = null;
-		currentLevel = {};
-		navigationStack = [];
-		// only works in browser
-		// const streamsaver = await import("streamsaver");
-		// createWriteStream = streamsaver.createWriteStream;
-		files = await retrieveFiles(data.id, version.version_id);
-		tree = buildFileTree(files);
-		currentLevel = tree;
+		files = await retrieveFiles(collection, version.version_id);
+		fileTree = createFileTree(files);
+		navigateToPath("");
 		loading = false;
 	};
 
-	$: if (browser && version) load();
+	$effect(() => {
+		if (collection && version) {
+			load();
+		}
+	});
 
-	const buildFileTree = (files) => {
-		const tree = {};
-		files.forEach((file) => {
-			const path = file.filename.split("/");
-			let current = tree;
-			path.forEach((folder, i) => {
-				if (i == path.length - 1) {
-					current[folder] = file;
-				} else {
-					if (!current[folder]) current[folder] = {};
-					current = current[folder];
-				}
-			});
-		});
-
-		return tree;
-	};
-
-	const openFolder = (folderName) => {
-		navigationStack = [...navigationStack, currentLevel];
-		currentLevel = currentLevel[folderName];
-		getCurrentPath(folderName);
-	};
-
-	const goBack = () => {
-		if (onDetails) {
-			currentPath = currentPath.slice(0, currentPath.length - 1);
-			onDetails = false;
+	// Filter the current view based on search term
+	$effect(() => {
+		if (searchTerm.trim() === "") {
+			filteredView = currentView;
 		} else {
-			currentLevel = navigationStack.pop();
-			currentPath = currentPath.slice(0, currentPath.length - 1);
+			const term = searchTerm.toLowerCase();
+			filteredView = currentView.filter((item) =>
+				item.name.toLowerCase().includes(term),
+			);
 		}
-	};
+	});
 
-	const goToLevel = (folder) => {
-		const folderIndex = currentPath.indexOf(folder) + 1;
-
-		if (
-			currentPath.length > navigationStack.length &&
-			folder.split(".").length < 2
-		) {
-			onDetails = false;
-			currentPath = currentPath.slice(0, currentPath.length - 1);
-		}
-		for (let i = 0; navigationStack.length - folderIndex > 0; i++) {
-			goBack();
-		}
-	};
-
-	const goToDetails = (file, filename) => {
-		onDetails = true;
-		details = {
-			checksum: file.checksum,
-			version: file.version,
-			size: sizeFormat(file.size),
-		};
-		currentPath = [...currentPath, filename];
-		currentFileName = file.filename;
-	};
-
-	const getCurrentPath = (intoFolder) => {
-		if (navigationStack.length > 0) {
-			currentPath = [...currentPath, intoFolder];
+	function navigateToPath(path) {
+		currentPath = path;
+		if (path === "") {
+			// Root level
+			currentView = Object.keys(fileTree).map((key) => ({
+				name: key,
+				isFolder: !key.includes(".") || fileTree[key].children,
+				fullPath: key,
+			}));
 		} else {
-			currentPath = [];
-		}
-	};
-
-	const download = async () => {
-		// seems to work, but not sure if it will with large datasets (need to test)
-		fetch(
-			`${PUBLIC_EOTDL_API}/datasets/${datasetId}/download/${currentFileName}`,
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${$id_token}`,
-				},
-			},
-		)
-			.then((res) => {
-				if (!res.ok) return res.json();
-				const fileStream = createWriteStream(currentFileName);
-				const writer = fileStream.getWriter();
-				if (res.body.pipeTo) {
-					writer.releaseLock();
-					return res.body.pipeTo(fileStream);
+			// Get the node at current path
+			const parts = path.split("/");
+			let current = fileTree;
+			for (const part of parts) {
+				if (current[part]) {
+					current = current[part].children || {};
 				}
-				const reader = res.body.getReader();
-				const pump = () =>
-					reader
-						.read()
-						.then(({ value, done }) =>
-							done
-								? writer.close()
-								: writer.write(value).then(pump),
-						);
-				return pump();
-			})
-			.then((res) => {
-				alert(res.detail);
-			});
-	};
+			}
 
-	const getFileFormat = (fileName) => {
-		const ext = fileName.split(".").pop();
-		for (const type of Object.keys(allowedExtensions)) {
-			if (allowedExtensions[type].includes(ext)) return type;
+			// Map the current folder's contents
+			currentView = Object.keys(current).map((key) => ({
+				name: key,
+				isFolder: !key.includes(".") || current[key].children,
+				fullPath: path ? `${path}/${key}` : key,
+			}));
 		}
-		return false;
+		// Reset search when navigating
+		searchTerm = "";
+	}
+
+	function navigateUp() {
+		if (!currentPath) return;
+		const parts = currentPath.split("/");
+		parts.pop();
+		navigateToPath(parts.join("/"));
+	}
+
+	function handleItemClick(item) {
+		if (item.isFolder) {
+			navigateToPath(item.fullPath);
+		} else {
+			// Find the file object
+			const file = files.find((f) => f.id === item.fullPath);
+			if (file) showDetails(file);
+		}
+	}
+
+	let details = $state(null);
+	let selectedFile = $state(null);
+
+	const showDetails = (file) => {
+		selectedFile = file;
+		details = file.assets?.asset || {};
 	};
 
-	const preview = async () => {
-		await fetch(
-			`${PUBLIC_EOTDL_API}/datasets/${datasetId}/download/${currentFileName}`,
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${$id_token}`,
-				},
-			},
-		).then(async (res) => {
-			blob = await res.blob();
-			currentBlob = null;
-			currentFormat = getFileFormat(currentFileName).toString();
-			currentBlob = await blobFunctions[currentFormat]();
-		});
-	};
+	// Format file size in human-readable format
+	function formatFileSize(bytes) {
+		if (!bytes || isNaN(bytes)) return "Unknown size";
+
+		const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+		if (bytes === 0) return "0 Bytes";
+
+		const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+		if (i === 0) return `${bytes} ${sizes[i]}`;
+
+		return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+	}
+
+	// Download the file using the API
+	async function downloadFile() {
+		if (!auth.id_token) {
+			alert("Please login to download files");
+			return;
+		}
+		if (!selectedFile) return;
+
+		try {
+			downloadLoading = true;
+
+			// Call the API to get the presigned URL
+			const { data, error } = await fetchEOTDL(
+				selectedFile.assets.asset.href,
+				auth.id_token,
+			);
+
+			if (error) {
+				throw new Error(`Failed to get download URL: ${error}`);
+			}
+
+			// Create an anchor element
+			const downloadLink = document.createElement("a");
+			downloadLink.href = data.presigned_url;
+
+			// Set the download attribute with the filename
+			const filename = selectedFile.id.split("/").pop(); // Extract filename from path
+			downloadLink.download = filename;
+
+			// Append to the body, click it, and remove it
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+		} catch (error) {
+			console.error("Download error:", error);
+			alert("Failed to download file. Please try again.");
+		} finally {
+			downloadLoading = false;
+		}
+	}
 </script>
 
-<input type="checkbox" id="preview_modal" class="modal-toggle" />
-<div role="dialog" class="modal">
-	<div class="modal-box flex justify-center">
-		<form method="dialog">
-			<label
-				for="preview_modal"
-				class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-				>✕</label
-			>
-		</form>
-		{#if $id_token}
-			{#if currentBlob && currentFormat == "pdf"}
-				<div class="h-full w-full">
-					<iframe
-						src={currentBlob}
-						class="h-[450px] ml-2 my-4 w-[450px]"
-						title="PDFViewer"
-						alt="PDFViewer"
-					></iframe>
-				</div>
-			{:else if currentBlob && currentFormat == "image"}
-				<img
-					class="z-40 my-10 w-96 h-96 shadow-sm"
-					src={currentBlob}
-					alt="ImgPReview"
-				/>
-			{:else if currentBlob && currentFormat == "text"}
-				<div
-					class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
-				>
-					<p class="text-left m-1">{currentBlob}</p>
-				</div>
-			{:else if (currentBlob && currentFormat == "map") || (currentBlob && currentFormat == "tif")}
-				<div class="flex flex-col my-4 gap-3 w-full h-[300px]">
-					<Map
-						geojson={currentFormat == "map" ? currentBlob : null}
-						geotif={currentFormat == "tif" ? currentBlob : null}
-					/>
-				</div>
-			{:else if currentBlob && currentFormat == "md"}
-				<div id="md" class="flex flex-col my-4 gap-3 w-full h-[300px]">
-					{@html currentBlob}
-				</div>
-			{:else if currentBlob && currentFormat == "json"}
-				<div
-					id="tree"
-					class="w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50"
-				>
-					<JSONTree value={currentBlob} />
-				</div>
-			{:else if currentBlob && currentFormat == "csv"}
-				<div
-					class=" flex w-full m-3 overflow-auto h-[300px] rounded-md bg-slate-50 justify-center"
-				>
-					<BasicTable csv={currentBlob} csvColumnDelimiter="," />
-				</div>
-			{/if}
-		{:else}
-			<p>Please log in to download or preview files.</p>
-		{/if}
-	</div>
-</div>
-
 {#if !loading}
-	{#if files}
-		<p>Files ({files.length}) :</p>
-		<div class="overflow-auto w-full max-h-[200px] border-2">
-			<div class="text-[13px] flex">
-				{#if navigationStack.length > 0 || onDetails}
-					<button class="hover:underline flex p-2" on:click={goBack}
-						><ArrowLeft class="self-center mr-1" />
+	<h2>Files ({files.length}):</h2>
+	<div class="flex flex-col gap-1 items-start border-1 border-gray-200 p-3">
+		{#if details}
+			<div class="w-full bg-gray-50 p-4 rounded-lg">
+				<div class="flex justify-between items-center mb-4">
+					<h3 class="text-lg font-bold truncate">
+						{selectedFile?.id || "File Details"}
+					</h3>
+					<button
+						onclick={() => {
+							details = null;
+							selectedFile = null;
+						}}
+						class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+					>
+						⬆️
+					</button>
+				</div>
+
+				<div class="flex flex-col gap-2 mb-4">
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500">Checksum</span>
+						<span
+							class="font-mono text-sm overflow-hidden text-ellipsis"
+							>{details.checksum || "N/A"}</span
+						>
+					</div>
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500">Size</span>
+						<span
+							>{formatFileSize(
+								details.file_size || details.size,
+							)}</span
+						>
+					</div>
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500">Path</span>
+						<span class="overflow-hidden text-ellipsis"
+							>{selectedFile?.id || "N/A"}</span
+						>
+					</div>
+				</div>
+
+				<button
+					onclick={downloadFile}
+					disabled={downloadLoading}
+					class="w-full py-2 px-4 bg-blue-500 text-white rounded disabled:cursor-not-allowed cursor-pointer"
+				>
+					{downloadLoading ? "Preparing..." : "Download"}
+				</button>
+			</div>
+		{:else}
+			<div class="mb-2">
+				<span class="font-semibold">Current path:</span>
+				{currentPath || "/"}
+				{#if currentPath}
+					<button
+						onclick={navigateUp}
+						class="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+					>
+						⬆️ Up
 					</button>
 				{/if}
-				{#each currentPath as folder}
+			</div>
+			<div class="mb-2 w-full">
+				<input
+					type="text"
+					placeholder="Search in current folder..."
+					bind:value={searchTerm}
+					class="px-2 py-1 border border-gray-300 rounded w-full"
+				/>
+			</div>
+			<div
+				class="max-h-[200px] overflow-y-auto w-full flex flex-col gap-1 items-start"
+			>
+				{#each filteredView as item}
 					<button
-						on:click={goToLevel(folder)}
-						class="hover:underline"
+						onclick={() => handleItemClick(item)}
+						class="hover:underline cursor-pointer flex items-center w-full text-left"
 					>
-						/{folder}</button
-					>
+						<span class="mr-2">
+							{#if item.isFolder}
+								📁
+							{:else}
+								📄
+							{/if}
+						</span>
+						<span class="overflow-hidden text-ellipsis"
+							>{item.name}</span
+						>
+					</button>
 				{/each}
 			</div>
-			<table class="ml-2">
-				{#if onDetails == false}
-					{#each Object.keys(currentLevel) as item}
-						<!-- {#if $user}
-					<button on:click={() => download(file.name)}
-						><Download color="gray" size={20} /></button
-						>
-						{/if} -->
-						{#if typeof currentLevel[item] === "object" && !currentLevel[item].checksum}
-							<tr>
-								<td>
-									<button
-										class="hover:underline flex"
-										on:click={() => openFolder(item)}
-									>
-										<Folder
-											class=" self-center mr-[2px]"
-										/>{item}</button
-									>
-								</td>
-							</tr>
-						{:else}
-							<tr>
-								<td class="pr-1">
-									<button
-										on:click={goToDetails(
-											currentLevel[item],
-											item,
-										)}
-										><p class="hover:underline flex">
-											<File class=" self-center" />
-											{item}
-										</p></button
-									>
-								</td>
-								<!-- <td class="px-1">
-								<p>
-										{currentLevel[item].checksum.substr(0, 8)}...
-								</p>
-							</td>
-							<td class="px-1">
-								<p>
-										{currentLevel[item].version}
-								</p>
-							</td> -->
-							</tr>
-						{/if}
-						<!-- <td>{formatFileSize(file.size)}</td> -->
-						<!-- <td class="text-xs">{current_files[file].checksum}</td> -->
-					{/each}
-				{:else}
-					{#each Object.keys(details) as detail}
-						<tr>
-							<th class="text-left">{detail}:</th>
-							<td class="pl-1">{details[detail]}</td>
-						</tr>
-					{/each}
-					<div class="flex py-2 gap-2">
-						<label
-							class="hover:cursor-pointer"
-							for={$id_token ? "" : "preview_modal"}
-							title="Download"
-							on:click={() => download(details)}
-							><Download size="20" /></label
-						>
-						{#if getFileFormat(currentFileName)}
-							<label
-								class="hover:cursor-pointer"
-								title="Preview"
-								for="preview_modal"
-								on:click={() => {
-									preview();
-								}}
-							>
-								<Eye size="20" />
-							</label>
-						{/if}
-					</div>
-				{/if}
-			</table>
-		</div>
-	{:else}
-		<p>No files found.</p>
-	{/if}
-{:else}
-	<p>Loading files ...</p>
+			{#if filteredView.length === 0}
+				<div class="text-gray-500 italic">
+					No matching files or folders
+				</div>
+			{/if}
+		{/if}
+	</div>
 {/if}

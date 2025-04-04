@@ -1,10 +1,10 @@
 <script>
 	import Leaderboard from "$components/Leaderboard.svelte";
-	import { onMount } from "svelte";
 	import retrieveDatasetsLeaderboard from "$lib/datasets/retrieveDatasetsLeaderboard";
 
-	let data = null;
-	onMount(async () => {
+	let data = $state(null);
+
+	$effect(async () => {
 		data = await retrieveDatasetsLeaderboard(fetch);
 	});
 </script>

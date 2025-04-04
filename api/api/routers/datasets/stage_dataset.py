@@ -1,14 +1,10 @@
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, Query, Path
 import logging
-from fastapi.responses import StreamingResponse
 
 from ..auth import get_current_user
 from ...src.models import User
-from ...src.usecases.datasets import (
-    stage_dataset_file,
-    # download_stac_catalog,
-)
+from ...src.usecases.datasets import stage_dataset_file
 from .responses import download_dataset_responses as responses
 
 router = APIRouter()
@@ -32,19 +28,6 @@ async def stage_dataset(
     Stage a dataset file from the EOTDL.
     """
     try:
-        # data_stream, object_info, _filename = download_dataset_file(
-        #     dataset_id, filename, user, version
-        # )
-        # response_headers = {
-        #     "Content-Disposition": f'attachment; filename="{filename}"',
-        #     "Content-Type": object_info.content_type,
-        #     "Content-Length": str(object_info.size),
-        # }
-        # return StreamingResponse(
-        #     data_stream(dataset_id, _filename),
-        #     headers=response_headers,
-        #     media_type=object_info.content_type,
-        # )
         presigned_url = stage_dataset_file(dataset_id, filename, user, version)
         return {
             "presigned_url": presigned_url
@@ -53,14 +36,3 @@ async def stage_dataset(
         logger.exception("datasets:download")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
-# @router.get("/{dataset_id}/download")
-# async def download_stac_Catalog(
-#     dataset_id: str,
-#     user: User = Depends(get_current_user),
-# ):
-#     try:
-#         return download_stac_catalog(dataset_id, user)
-#     except Exception as e:
-#         logger.exception("datasets:download")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -3,14 +3,11 @@ from fastapi import APIRouter, status, Query, Path
 import logging
 from typing import Union
 
-# from ..auth import get_current_user
-# from ...src.models import User
 from ...src.usecases.models import (
     retrieve_models,
     retrieve_model_by_name,
     retrieve_models_leaderboard,
-    # retrieve_model_files,
-    # retrieve_popular_models,
+    retrieve_popular_models,
 )
 from .responses import retrieve_models_responses, retrieve_files_responses
 
@@ -47,30 +44,10 @@ def leaderboard():
         logger.exception("models:leaderboard")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
-# @router.get(
-#     "/{model_id}/files",
-#     summary="Retrieve list of files of a model",
-#     responses=retrieve_files_responses,
-# )
-# def retrieve_files(
-#     model_id: str = Path(..., description="ID of the model"),
-#     version: int = Query(None, description="Version of the dataset"),
-# ):
-#     """
-#     Retrieve a list with the files of a given model. Files can be optionally filtered by version.
-#     """
-#     try:
-#         return retrieve_model_files(model_id, version)
-#     except Exception as e:
-#         logger.exception("models:retrieve")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-
-
-# @router.get("/popular", include_in_schema=False)
-# def retrieve_popular(limit: Union[int, None] = None):
-#     try:
-#         return retrieve_popular_models(limit)
-#     except Exception as e:
-#         logger.exception("models:retrieve_popular")
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+@router.get("/popular", include_in_schema=False)
+def retrieve_popular(limit: Union[int, None] = None):
+    try:
+        return retrieve_popular_models(limit)
+    except Exception as e:
+        logger.exception("models:retrieve_popular")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

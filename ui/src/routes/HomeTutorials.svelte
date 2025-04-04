@@ -13,7 +13,7 @@
 			{#each tutorials as tutorial}
 				<a
 					href={tutorial.links[Object.keys(tutorial.links)[0]]}
-					class="bg-white rounded-lg shadow-xl overflow-hidden border-2"
+					class="bg-white rounded-lg shadow-xl overflow-hidden border-1 border-gray-200 transition-transform duration-200 hover:scale-105"
 				>
 					<img
 						src={tutorial.thumbnail}
