@@ -21,30 +21,30 @@ def stac():
         "type": "Catalog",
         "conformsTo": [
             "https://api.stacspec.org/v1.0.0/core",
-            # "https://api.stacspec.org/v1.0.0/item-search"
-            # "https://api.stacspec.org/v1.0.0/collections"
+            "https://api.stacspec.org/v1.0.0/item-search"
+            "https://api.stacspec.org/v1.0.0/collections"
         ],
         "links": [
             {
             "rel": "self",
             "type": "application/json",
-            "href": "https://stac-api.example.com"
+            "href": "https://api.eotdl.com"
             },
             {
             "rel": "root",
             "type": "application/json",
-            "href": "https://stac-api.example.com"
+            "href": "https://api.eotdl.com"
             },
-        #     {
-        #     "rel": "search",
-        #     "type": "application/json",
-        #     "href": "https://my.api.com/search"
-        #     },
-        #     {
-        #     "rel": "collections",
-        #     "type": "application/json",
-        #     "href": "https://my.api.com/collections"
-        #     }
+            {
+            "rel": "search",
+            "type": "application/json",
+            "href": "https://api.eotdl.com/search"
+            },
+            {
+            "rel": "collections",
+            "type": "application/json",
+            "href": "https://api.eotdl.com/collections"
+            }
         ]
         }
 

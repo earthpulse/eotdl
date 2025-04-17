@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from api.main import app
+from api.api.main import app
 
 
 client = TestClient(app)
@@ -8,12 +8,21 @@ client = TestClient(app)
 
 def test_stac_core_conformation():
 
-    response = client.get("/")
-    assert "links" in response.keys()
-    assert "conformsTo" in response.keys()
+    response = client.get("stac/")
+    core = response.json()
+    assert response.status_code == 200
+    assert "links" in core.keys()
+    assert "conformsTo" in core.keys()
 
-# returns stac catalog
+    assert "type" in core.keys()
+    assert "stac_version" in core.keys()
+    assert "id" in core.keys()
+    assert "description" in core.keys()
 
-# has links attribute providing links to api endpoints
+    assert core["type"] == "Catalog"
 
-# has conformsTo attribute providing
+
+def test_stac_api_conformation():
+    response = client.get("stac/api")
+    assert response.status_code == 200
+    assert response.json()
