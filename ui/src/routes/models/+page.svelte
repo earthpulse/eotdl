@@ -1,6 +1,6 @@
 <script>
 	import { models } from "$stores/models";
-	import { user } from "$stores/auth";
+	import auth from "$stores/auth.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import { browser } from "$app/environment";
@@ -8,15 +8,14 @@
 	import Tags from "$components/Tags.svelte";
 	import Skeleton from "$components/Skeleton.svelte";
 	import ModelsLeaderboard from "../ModelsLeaderboard.svelte";
-	import QualitySelector from "$components/QualitySelector.svelte";
-	import Ingest from "./Ingest.svelte";
-	import { links, modelImagesOffset } from "$stores/images";
-	export let data;
+	// import Ingest from "./Ingest.svelte";
 
-	let loading = true;
-	let show_liked = false;
-	let selected_tags = [];
-	let selected_qualities = [];
+	let { data } = $props();
+
+	let loading = $state(true);
+	let show_liked = $state(false);
+	let selected_tags = $state([]);
+	let selected_qualities = $state([]);
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -26,38 +25,43 @@
 		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
 	};
 
-	$: if (browser) load();
+	$effect(() => {
+		load();
+	});
 
-	let filterName = "";
-	let filtered_models;
-	$: {
-		filtered_models = $models.data
-			?.filter((models) => {
-				if (selected_tags.length === 0) return true;
-				return selected_tags.every((tag) =>
-					models.tags.includes(tag.name),
-				);
-			})
-			.filter((models) => {
-				if (filterName.length === 0) return true;
-				return models.name
-					.toLowerCase()
-					.includes(filterName.toLowerCase());
-			});
-		if (show_liked) {
-			filtered_models = filtered_models.filter((models) =>
-				$user?.liked_models.includes(models.id),
+	let filterName = $state("");
+	let filtered_models = $state(null);
+	$effect(() => {
+		let base_models = $models.data || []; // Start with all datasets or an empty array
+
+		// Filter by tags
+		let models_after_tags = base_models.filter((model) => {
+			if (selected_tags.length === 0) return true;
+			return selected_tags.every((tag) => model.tags.includes(tag));
+		});
+
+		// Filter by name
+		let models_after_name = models_after_tags.filter((model) => {
+			if (filterName.length === 0) return true;
+			return model.name.toLowerCase().includes(filterName.toLowerCase());
+		});
+
+		// Filter by liked status if show_liked is true and user is logged in
+		let final_models;
+		if (show_liked && auth.user) {
+			final_models = models_after_name.filter((model) =>
+				auth.user.liked_models.includes(model.id),
 			);
+		} else {
+			final_models = models_after_name;
 		}
-		if (selected_qualities.length > 0) {
-			filtered_models = filtered_models?.filter((model) =>
-				selected_qualities?.includes(model.quality),
-			);
-		}
-	}
+
+		// Assign the final result
+		filtered_models = final_models;
+	});
 
 	const toggleLike = () => {
-		show_liked = $user && !show_liked;
+		show_liked = auth.user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
 	};
 
@@ -73,7 +77,7 @@
 	<div
 		class="px-3 py-10 mt-10 w-full max-w-6xl flex flex-col items-center h-full"
 	>
-		<div class="grid grid-cols-1 sm:grid-cols-[250px,auto] gap-8 w-full">
+		<div class="grid grid-cols-1 sm:grid-cols-[250px_auto] gap-8 w-full">
 			<div class="flex flex-col w-full">
 				<div class="flex flew-row justify-between text-3xl">
 					<h1 class="font-bold">Models</h1>
@@ -93,19 +97,19 @@
 					>
 						advanced filtering
 					</p> -->
-					<button on:click={toggleLike}
+					<button onclick={toggleLike}
 						><HeartOutline
+							class="cursor-pointer hover:scale-115 transition-all duration-200"
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
-					<QualitySelector bind:selected_qualities />
 				</span>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
 		</div>
-		<span class="flex flex-row w-full justify-between items-center">
+		<!-- <span class="flex flex-row w-full justify-between items-center">
 			<Ingest tags={data?.tags} />
-		</span>
+		</span> -->
 		{#if loading}
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each new Array(30) as _}
@@ -116,10 +120,9 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-3">
 				{#each filtered_models as model, i}
 					<Card
-						img={links[(i + modelImagesOffset) % links.length]}
 						data={model}
 						link="models"
-						liked={$user?.liked_models?.includes(model.id)}
+						liked={auth.user?.liked_models?.includes(model.id)}
 						tags={data.tags}
 					/>
 				{/each}

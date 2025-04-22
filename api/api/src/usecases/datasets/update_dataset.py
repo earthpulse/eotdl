@@ -4,13 +4,11 @@ from ...repos import DatasetsDBRepo
 from .retrieve_dataset import (
     retrieve_dataset,
     retrieve_dataset_by_name,
-    # retrieve_owned_dataset,
 )
-# from ..user import retrieve_user
+from ..user import retrieve_user
 from ...errors import (
     DatasetAlreadyExistsError,
     DatasetDoesNotExistError,
-#     InvalidTagError,
 )
 from ...models import Dataset, ChangeType, NotificationType
 from ..notifications import create_notification
@@ -41,14 +39,14 @@ def update_dataset(
     #         if tag not in all_tags:
     #             raise InvalidTagError()
 
-    # update dataset
-    repo = DatasetsDBRepo()
-    data = dataset.model_dump()
-    data.update(updatedAt=datetime.now())
-    updated_dataset = Dataset(**data)
+    # update dataset (only name and metadata)
+    _dataset.name = dataset.name
+    _dataset.metadata = dataset.metadata
+    _dataset.updatedAt = datetime.now()
     # update dataset in db
-    repo.update_dataset(dataset_id, updated_dataset.model_dump())
-    return updated_dataset
+    repo = DatasetsDBRepo()
+    repo.update_dataset(dataset_id, _dataset.model_dump())
+    return _dataset
 
 def propose_dataset_update(dataset_name, user, dataset):
     change = create_change(
@@ -67,12 +65,12 @@ def propose_dataset_update(dataset_name, user, dataset):
     return dataset
 
 
-# def toggle_like_dataset(dataset_id, user):
-#     repo = DatasetsDBRepo()
-#     dataset = retrieve_dataset(dataset_id)
-#     user = retrieve_user(user.uid)
-#     if dataset.id in user.liked_datasets:
-#         repo.unlike_dataset(dataset_id, user.uid)
-#     else:
-#         repo.like_dataset(dataset_id, user.uid)
-#     return "done"
+def toggle_like_dataset(dataset_id, user):
+    repo = DatasetsDBRepo()
+    dataset = retrieve_dataset(dataset_id)
+    user = retrieve_user(user.uid)
+    if dataset.id in user.liked_datasets:
+        repo.unlike_dataset(dataset_id, user.uid)
+    else:
+        repo.like_dataset(dataset_id, user.uid)
+    return "done"

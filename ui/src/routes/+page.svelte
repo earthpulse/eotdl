@@ -1,20 +1,19 @@
 <script>
-  import HeroBackground from "./HeroBackground.svelte";
   import Hero from "./Hero.svelte";
+  import HomeTutorials from "./HomeTutorials.svelte";
   import Consortium from "./Consortium.svelte";
+  import { tutorials } from "./tutorials/tutorials";
+  import Posts from "./Posts.svelte";
   import RecentDatasets from "./RecentDatasets.svelte";
   import PopularDatasets from "./PopularDatasets.svelte";
   import DatasetsLeaderboard from "./DatasetsLeaderboard.svelte";
   import RecentModels from "./RecentModels.svelte";
   import PopularModels from "./PopularModels.svelte";
   import ModelsLeaderboard from "./ModelsLeaderboard.svelte";
-  import Posts from "./Posts.svelte";
-  import { tutorials } from "./tutorials/tutorials";
-  import HomeTutorials from "./HomeTutorials.svelte";
-  import Events from "./Events.svelte";
   import { parseISO, format } from "date-fns";
+  import Events from "./Events.svelte";
 
-  export let data;
+  let { data } = $props();
 </script>
 
 <svelte:head>
@@ -26,7 +25,6 @@
 </svelte:head>
 
 <div class="w-full flex flex-col items-center">
-  <!-- <HeroBackground /> -->
   <Hero />
   <div
     class="bg-gradient-to-br from-white to-[#D6F1EB] w-full flex flex-col items center pt-12"

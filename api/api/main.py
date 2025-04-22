@@ -22,8 +22,6 @@ from .routers.datasets import (
     ingest_dataset,
     stage_dataset,
     update_dataset,
-    # upload_large_dataset_files,
-    # delete_dataset,
 )
 from .routers.notifications import notifications
 from .routers.changes import changes
@@ -34,11 +32,10 @@ from .routers.models import (
     ingest_model,
     stage_model,
     update_model,
-#     upload_large_model_files,
 )
 # from .routers import admin, migrate
 
-VERSION = "dev0327"
+VERSION = "2025.04.02"
 
 tags_metadata = [
     {
@@ -105,10 +102,6 @@ app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(stage_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
-# app.include_router(
-#     upload_large_dataset_files.router, prefix="/datasets", tags=["datasets"]
-# )
-# app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
 # models
 app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
 app.include_router(create_model.router, prefix="/models", tags=["models"])
@@ -121,16 +114,6 @@ app.include_router(notifications.router, prefix="/notifications", tags=["notific
 app.include_router(changes.router, prefix="/changes", tags=["changes"])
 # stac
 app.include_router(stac.router, prefix="/stac", tags=["stac"])
-# # files
-# # app.include_router(delete_dataset.router, prefix="/datasets", tags=["datasets"])
-# # models
-# app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
-# app.include_router(create_model.router, prefix="/models", tags=["models"])
-# app.include_router(ingest_model.router, prefix="/models", tags=["models"])
-# app.include_router(download_model.router, prefix="/models", tags=["models"])
-# app.include_router(upload_large_model_files.router, prefix="/models", tags=["models"])
-# app.include_router(update_model.router, prefix="/models", tags=["models"])
-# app.include_router(delete_model.router, prefix="/models", tags=["models"])
 # other
 # app.include_router(admin.router)
 # app.include_router(migrate.router)

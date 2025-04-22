@@ -1,12 +1,12 @@
 <script>
-	import { onMount } from "svelte";
 	import retrieveDatasets from "$lib/datasets/retrieveDatasets";
 	import Recent from "./Recent.svelte";
 
-	export let tags;
+	let { tags } = $props();
 
-	let data = null;
-	onMount(async () => {
+	let data = $state(null);
+
+	$effect(async () => {
 		data = await retrieveDatasets(fetch, 3);
 	});
 </script>

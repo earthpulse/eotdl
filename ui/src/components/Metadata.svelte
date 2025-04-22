@@ -1,5 +1,5 @@
 <script>
-	import Trash from "svelte-material-icons/TrashCan.svelte"
+	import Trash from "svelte-material-icons/TrashCan.svelte";
 	export let authors;
 	export let license;
 	export let source;
@@ -9,7 +9,9 @@
 {#if edit}
 	<p>Metadata:</p>
 	<div class="overflow-auto w-full">
-		<table class="table border-2 rounded-lg table-compact h-[100px] w-full">
+		<table
+			class="table border-1 border-gray-200 rounded-lg table-compact h-[100px] w-full"
+		>
 			<tbody>
 				<tr>
 					<th class="w-[20px] text-xs">Author(s)</th>
@@ -17,22 +19,25 @@
 						<div class="h-32 overflow-y-auto">
 							{#each authors as author, index}
 								<div class="flex items-center gap-2 mb-2 ml-2">
-									<input 
-										class="input input-bordered w-full h-fit" 
-										type="text" 
-										bind:value={authors[index]} 
+									<input
+										class="input input-bordered w-full h-fit"
+										type="text"
+										bind:value={authors[index]}
 									/>
-									<button 
+									<button
 										class=""
-										on:click={() => authors = authors.filter((_, i) => i !== index)}
+										on:click={() =>
+											(authors = authors.filter(
+												(_, i) => i !== index,
+											))}
 									>
-									<Trash class="size-4" />
+										<Trash class="size-4" />
 									</button>
 								</div>
 							{/each}
-							<button 
+							<button
 								class="hover:underline"
-								on:click={() => authors = [...authors, '']}
+								on:click={() => (authors = [...authors, ""])}
 							>
 								Añadir autor
 							</button>
@@ -41,16 +46,25 @@
 				</tr>
 				<tr>
 					<th class="text-xs">License</th>
-					<td class="text-xs"><input class="input input-bordered w-full" type="text" bind:value={license} /></td>
+					<td class="text-xs"
+						><input
+							class="input input-bordered w-full"
+							type="text"
+							bind:value={license}
+						/></td
+					>
 				</tr>
 				<tr>
 					<th class="text-xs">Source</th>
 					<td>
 						{#if source}
-							<p
-								class="text-green-200 hover:underline text-xs"
-								><input class="input input-bordered w-full" type="text" bind:value={source} /></p
-							>
+							<p class="text-green-200 hover:underline text-xs">
+								<input
+									class="input input-bordered w-full"
+									type="text"
+									bind:value={source}
+								/>
+							</p>
 						{:else}
 							-
 						{/if}
@@ -62,7 +76,9 @@
 {:else}
 	<p>Metadata:</p>
 	<div class="overflow-auto w-full">
-		<table class="table border-2 rounded-lg table-compact h-[100px] w-full">
+		<table
+			class="table border-1 border-gray-200 rounded-lg table-compact h-[100px] w-full"
+		>
 			<tbody>
 				<tr>
 					<th class="w-[20px] text-xs">Author(s)</th>
@@ -93,5 +109,4 @@
 			</tbody>
 		</table>
 	</div>
-
 {/if}

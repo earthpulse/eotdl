@@ -6,7 +6,7 @@ from ...errors import ModelAlreadyExistsError, ModelDoesNotExistError
 from ...models import Model, ChangeType, NotificationType
 from ..notifications import create_notification
 from ..changes import create_change
-
+from ..user import retrieve_user
 def update_model(
     model_id, user, model
 ):
@@ -33,13 +33,13 @@ def update_model(
     #             raise InvalidTagError()
 
     # update dataset
-    repo = ModelsDBRepo()
-    data = model.model_dump()
-    data.update(updatedAt=datetime.now())
-    updated_model = Model(**data)
+    _model.name = model.name
+    _model.metadata = model.metadata
+    _model.updatedAt = datetime.now()
     # update model in db
-    repo.update_model(model_id, updated_model.model_dump())
-    return updated_model
+    repo = ModelsDBRepo()
+    repo.update_model(model_id, _model.model_dump())
+    return _model
 
 def propose_model_update(model_name, user, model):
     change = create_change(
@@ -57,14 +57,14 @@ def propose_model_update(model_name, user, model):
     )
     return model
 
-# def toggle_like_model(model_id, user):
-#     repo = ModelsDBRepo()
-#     model = retrieve_model(model_id)
-#     user = retrieve_user(user.uid)
-#     if model.id in user.liked_models:
-#         repo.unlike_model(model_id, user.uid)
-#     else:
-#         repo.like_model(model_id, user.uid)
-#     return "done"
+def toggle_like_model(model_id, user):
+    repo = ModelsDBRepo()
+    model = retrieve_model(model_id)
+    user = retrieve_user(user.uid)
+    if model.id in user.liked_models:
+        repo.unlike_model(model_id, user.uid)
+    else:
+        repo.like_model(model_id, user.uid)
+    return "done"
 
 

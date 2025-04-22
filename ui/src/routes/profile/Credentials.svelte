@@ -1,9 +1,8 @@
 <script>
-	import { user, id_token } from "$stores/auth";
 	import Credential from "./Credential.svelte";
 
-	export let data;
-	$: ({ credentials } = data.user);
+	let { data } = $props();
+	let credentials = $derived(data.user.credentials);
 
 	const _credentials = [
 		"GEODB_API_SERVER_PORT",
@@ -33,7 +32,7 @@
 {#if credentials}
 	<button
 		class="btn btn-outline w-[100px]"
-		on:click={download}
+		onclick={download}
 		disabled={!credentials}>Download</button
 	>
 

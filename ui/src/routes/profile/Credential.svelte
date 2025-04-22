@@ -1,8 +1,8 @@
 <script>
-	export let value = "lkjansfo9pansws34nfqp80w383";
+	let { value = "lkjansfo9pansws34nfqp80w383" } = $props();
 	import { fade } from "svelte/transition";
 
-	let message = null;
+	let message = $state(null);
 
 	const copyToClipboard = (text) => {
 		navigator.clipboard.writeText(value);
@@ -19,7 +19,7 @@
 	};
 </script>
 
-<button on:click={copyToClipboard} class="hover:underline"
+<button onclick={copyToClipboard} class="hover:underline"
 	>{format(value)}</button
 >
 {#if message}
