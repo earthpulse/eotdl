@@ -15,8 +15,8 @@ class STACAPIRepo(APIRepo):
         response = requests.get(self.url + "stac/collections")
         return self.format_response(response)
 
-    def collection(self, collection_id):
-        response = requests.get(self.url + f"stac/collections/{collection_id}")
+    def collection(self, collection_name):
+        response = requests.get(self.url + f"stac/collections/{collection_name}")
         return self.format_response(response)
 
     def items(self, collection_id):

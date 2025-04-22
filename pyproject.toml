@@ -5,13 +5,22 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "geopandas>=1.0.1",
     "jupyter>=1.1.1",
     "matplotlib>=3.10.1",
     "minio>=7.2.15",
     "onnxruntime>=1.21.0",
+    "pydantic>=2.11.3",
+    "pyjwt>=2.10.1",
+    "pystac>=1.13.0",
     "python-dotenv>=1.1.0",
+    "python-frontmatter>=1.1.0",
     "pytorch-eo>=2025.4.3",
+    "requests>=2.32.3",
     "segmentation-models-pytorch>=0.4.0",
+    "stac-geoparquet>=0.6.0",
+    "tqdm>=4.67.1",
+    "typer>=0.15.2",
 ]
 
 [dependency-groups]

@@ -16,9 +16,9 @@ def retrieve_stac_collections():
         raise Exception(error)
     return data
 
-def retrieve_stac_collection(collection_id):
+def retrieve_stac_collection(collection_name):
     repo = STACAPIRepo()
-    data, error = repo.collection(collection_id)
+    data, error = repo.collection(collection_name)
     if error:
         raise Exception(error)
     return data
