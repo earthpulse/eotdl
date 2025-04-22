@@ -110,7 +110,7 @@ wheels = [
 
 [[package]]
 name = "eotdl"
-version = "2025.4.2.post4"
+version = "2025.4.22"
 source = { editable = "." }
 dependencies = [
     { name = "geopandas" },

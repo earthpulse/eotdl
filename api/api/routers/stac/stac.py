@@ -21,37 +21,37 @@ def collections():
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-@router.get("/collections/{collection_id}")
-def collection(collection_id: str):
+@router.get("/collections/{collection_name}")
+def collection(collection_name: str):
     try:
-        return retrieve_stac_collection(collection_id)
+        return retrieve_stac_collection(collection_name)
     except Exception as e:
         logger.exception("stac:collection")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/collections/{collection_id}/items")
-def items(collection_id: str, version: Optional[int] = 1):
+@router.get("/collections/{collection_nam}/items")
+def items(collection_nam: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_items(collection_id, version)
+        return retrieve_stac_items(collection_nam, version)
     except Exception as e:
         logger.exception("stac:items")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/collections/{collection_id}/items/{item_id}")
-def item(collection_id: str, item_id: str, version: Optional[int] = 1):
+@router.get("/collections/{collection_name}/items/{item_id}")
+def item(collection_name: str, item_id: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_item(collection_id, item_id, version)
+        return retrieve_stac_item(collection_name, item_id, version)
     except Exception as e:
         logger.exception("stac:item")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.get("/search")
-def search(collection_id: str):
+def search(collection: str):
     try:
-        return search_stac_columns(collection_id)
+        return search_stac_columns(collection)
     except Exception as e:
         logger.exception("stac:item")
         traceback.print_exc()

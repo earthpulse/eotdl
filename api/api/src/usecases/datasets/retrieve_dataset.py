@@ -1,5 +1,5 @@
 from ...models import Dataset
-from ...errors import DatasetDoesNotExistError, UserUnauthorizedError
+from ...errors import DatasetDoesNotExistError, UserUnauthorizedError, DatasetNotActiveError
 from ...repos import DatasetsDBRepo
 # from ..files import retrieve_files
 
@@ -7,6 +7,8 @@ from ...repos import DatasetsDBRepo
 def retrieve(data):
     if data is None:
         raise DatasetDoesNotExistError()
+    if 'active' in data and data['active'] is False:
+        raise DatasetNotActiveError()
     return Dataset(**data)
 
 

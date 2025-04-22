@@ -8,7 +8,7 @@ from api.src.errors import (
     UserUnauthorizedError,
     DatasetAlreadyExistsError,
 )
-from api.src.models import User, Dataset
+from api.src.models import User, Dataset, Metadata
 
 
 @pytest.fixture
@@ -33,6 +33,14 @@ def dataset():
         source="http://test@m.com",
         license="test",
         files="123",
+        active=True,
+        metadata=Metadata(
+            description="test 3",
+            authors=["test"],
+            source="http://test@m",
+            license="test",
+            files="123",
+            ),
     )
 
 

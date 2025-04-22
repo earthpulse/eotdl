@@ -1,3 +1,4 @@
+import traceback
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, status, Depends, Body
 import logging
@@ -47,4 +48,5 @@ def create(
         return dataset
     except Exception as e:
         logger.exception("datasets:create")
+        traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

@@ -1,49 +1,33 @@
+from copy import deepcopy
 import pytest
 from unittest.mock import patch
 
 
 from api.src.usecases.models import retrieve_models
-from api.src.models import Model
-
 
 @pytest.fixture
 def models():
-    return [
-        {
-            "uid": "123",
-            "id": "123",
-            "name": "test3",
-            "likes": 1,
-            "quality": 0,
+    base = {
+        "uid": "123",
+        "authors": ["test"],
+        "source": "http://test@m",
+        "license": "test",
+        "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test",
             "authors": ["test"],
             "source": "http://test@m",
             "license": "test",
             "files": "123",
         },
-        {
-            "uid": "123",
-            "id": "456",
-            "name": "test4",
-            "likes": 2,
-            "quality": 0,
-            "authors": ["test"],
-            "source": "http://test@m",
-            "license": "test",
-            "files": "123",
-        },
-        {
-            "uid": "123",
-            "id": "789",
-            "name": "test5",
-            "likes": 3,
-            "quality": 1,
-            "authors": ["test"],
-            "source": "http://test@m",
-            "license": "test",
-            "files": "123",
-        },
-    ]
+    }
 
+    return [
+        {**deepcopy(base), "id": "123", "name": "test3", "likes": 1, "quality": 0},
+        {**deepcopy(base), "id": "456", "name": "test4", "likes": 2, "quality": 0},
+        {**deepcopy(base), "id": "789", "name": "test5", "likes": 3, "quality": 1},
+    ]
 
 @patch("api.src.usecases.models.retrieve_models.ModelsDBRepo")
 def test_retrieve_all_models(mocked_repo, models):

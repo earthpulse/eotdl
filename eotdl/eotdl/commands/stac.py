@@ -24,9 +24,9 @@ def collections():
         raise typer.Abort()
     
 @app.command()
-def collection(collection_id: str):
+def collection(collection_name: str):
     try:
-        data = retrieve_stac_collection(collection_id)
+        data = retrieve_stac_collection(collection_name)
         typer.echo(data)
     except Exception as e:
         typer.echo(e)

@@ -1,17 +1,17 @@
 import duckdb
 
-from ..datasets.retrieve_dataset import retrieve_dataset
-from ..models.retrieve_model import retrieve_model
+from ..datasets.retrieve_dataset import retrieve_dataset_by_name
+from ..models.retrieve_model import retrieve_model_by_name
 from ...repos import OSRepo
 from ...errors import DatasetDoesNotExistError
 
 # TODO: versioning, spatial and temporal queries
 
-def search_stac_items(collection_id, query, version):
+def search_stac_items(collection_name, query, version=1):
     try:
-        data = retrieve_dataset(collection_id)
+        data = retrieve_dataset_by_name(collection_name)
     except DatasetDoesNotExistError:
-        data = retrieve_model(collection_id)
+        data = retrieve_model_by_name(collection_name)
     os_repo = OSRepo()
     catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
     
@@ -41,11 +41,11 @@ def search_stac_items(collection_id, query, version):
     return items
 
 
-def search_stac_columns(collection_id, version):
+def search_stac_columns(collection_name, version=1):
     try:
-        data = retrieve_dataset(collection_id)
+        data = retrieve_dataset_by_name(collection_name)
     except DatasetDoesNotExistError:
-        data = retrieve_model(collection_id)
+        data = retrieve_model_by_name(collection_name)
     os_repo = OSRepo()
     catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
     con = duckdb.connect(database=':memory:')

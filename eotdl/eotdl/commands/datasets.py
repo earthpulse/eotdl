@@ -5,6 +5,7 @@ from ..datasets import (
     retrieve_datasets,
     ingest_dataset,
     stage_dataset,
+    deactivate_dataset,
 )
 
 app = typer.Typer(help="Explore, ingest and download training datasets.")
@@ -140,6 +141,19 @@ def get(
     except Exception as e:
         typer.echo(e)
 
+
+@app.command()
+def delete(
+    dataset: str = typer.Argument(None, help="Name of the dataset to deactivate")
+):
+    """
+    Delete a dataset from the EOTDL.
+    """
+    try:
+        deactivate_dataset(dataset)
+        typer.echo(f"Dataset {dataset} deleted")
+    except Exception as e:
+        typer.echo(e)
 
 if __name__ == "__main__":
     app()

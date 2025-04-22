@@ -4,6 +4,7 @@
   import { models } from "$stores/models";
   import "$styles/dataset.css";
   import retrieveModel from "$lib/models/retrieveModel";
+  import deleteModel from "$lib/models/deleteModel";
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
   import { fade } from "svelte/transition";
@@ -96,6 +97,13 @@
       alert("Error declining change");
     }
   };
+
+  const deactivateModel = async () => {
+    if (confirm("Are you sure you want to deactivate this model?")) {
+      deleteModel(model.id, auth.id_token);
+      await goto(`/models`);
+    }
+  };
 </script>
 
 <svelte:head>
@@ -139,25 +147,34 @@
             />
           </span>
         </span>
-        {#if !change}
-          <span class="flex flex-row gap-2">
-            {#if auth.user}
-              {#if edit}
-                <button class="btn btn-outline" onclick={save}>Save</button>
-                <button class="btn btn-outline" onclick={close}>Close</button>
-              {:else}
-                <button class="btn btn-outline" onclick={() => (edit = !edit)}
-                  >Edit</button
-                >
+        <span class="flex flex-row gap-2">
+          {#if !change}
+            <span class="flex flex-row gap-2">
+              {#if auth.user}
+                {#if edit}
+                  <button class="btn btn-outline" onclick={save}>Save</button>
+                  <button class="btn btn-outline" onclick={close}>Close</button>
+                {:else}
+                  <button class="btn btn-outline" onclick={() => (edit = !edit)}
+                    >Edit</button
+                  >
+                {/if}
               {/if}
-            {/if}
-          </span>
-        {:else if model.uid == auth.user.uid && _change.status == "pending"}
-          <span>
-            <button class="btn btn-outline" onclick={accept}>Accept</button>
-            <button class="btn btn-outline" onclick={decline}>Decline</button>
-          </span>
-        {/if}
+            </span>
+          {:else if model.uid == auth.user.uid && _change.status == "pending"}
+            <span>
+              <button class="btn btn-outline" onclick={accept}>Accept</button>
+              <button class="btn btn-outline" onclick={decline}>Decline</button>
+            </span>
+          {/if}
+          {#if auth.user?.uid == model.uid}
+            <span>
+              <button class="btn btn-outline" onclick={deactivateModel}
+                >Delete</button
+              >
+            </span>
+          {/if}
+        </span>
       </div>
       <hr class="sm:hidden" />
       <div
@@ -192,7 +209,7 @@
               bind:source={model.metadata.source}
               {edit}
             />
-            <FileExplorer {version} collection={model.id} />
+            <FileExplorer {version} collection={model.name} />
           </div>
         </div>
       </div>

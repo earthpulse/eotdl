@@ -5,6 +5,7 @@ from ..models import (
     retrieve_models,
     ingest_model,
     stage_model,
+    deactivate_model
 )
 
 app = typer.Typer(help="Explore, ingest and download ML models.")
@@ -128,6 +129,20 @@ def get(
             model, version, path, typer.echo, assets, force, verbose
         )
         typer.echo(f"Data available at {dst_path}")
+    except Exception as e:
+        typer.echo(e)
+
+
+@app.command()
+def delete(
+    model_name: str = typer.Argument(None, help="Name of the model to delete")
+):
+    """
+    Delete a model from the EOTDL.
+    """
+    try:
+        deactivate_model(model_name)
+        typer.echo(f"Model {model_name} deleted")
     except Exception as e:
         typer.echo(e)
 

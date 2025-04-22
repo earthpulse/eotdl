@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..repos import ModelsAPIRepo
-from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual
+from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual, ingest_catalog
 
 def retrieve_model(metadata, user):
 	repo = ModelsAPIRepo()
@@ -40,3 +40,7 @@ def ingest_virtual_model( # could work for a list of paths with minimal changes.
 	user=None,
 ):
 	return ingest_virtual(path, links, ModelsAPIRepo(), retrieve_model, 'models', metadata, logger)
+
+def ingest_model_catalog(path, logger=None):
+	path = Path(path)
+	return ingest_catalog(path, ModelsAPIRepo(), retrieve_model, 'models')

@@ -56,7 +56,7 @@ class MongoRepo:
 
     def update(self, collection, id, data):
         return self.db[collection].update_one({"_id": ObjectId(id)}, {"$set": data})
-
+        
     def _update(self, collection, query, data):
         return self.db[collection].update_one(query, data)
 

@@ -1,15 +1,13 @@
 # all in one file to avoid problems with db
 
 import pytest
-import os
 
 from fastapi.testclient import TestClient
 from api.main import app
 
 from api.routers.auth import get_current_user, admin_key_auth
 from api.src.models import User
-from ..setup import users, db, s3, boto3
-
+from ..setup import users, db
 client = TestClient(app)
 
 # override token auth

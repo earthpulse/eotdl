@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ..repos import DatasetsAPIRepo
-from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual
+from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual, ingest_catalog
 
 def retrieve_dataset(metadata, user):
 	repo = DatasetsAPIRepo()
@@ -41,3 +41,7 @@ def ingest_virtual_dataset( # could work for a list of paths with minimal change
 	user=None,
 ):
 	return ingest_virtual(path, links, DatasetsAPIRepo(), retrieve_dataset, 'datasets', metadata, logger)
+
+def ingest_dataset_catalog(path, logger=None):
+	path = Path(path)
+	return ingest_catalog(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets')
