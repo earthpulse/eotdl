@@ -134,12 +134,15 @@ def get(
 
 
 @app.command()
-def deactivate(
-    model_id: str = typer.Argument(None, help="ID of the model to deactivate")
+def delete(
+    model_name: str = typer.Argument(None, help="Name of the model to delete")
 ):
+    """
+    Delete a model from the EOTDL.
+    """
     try:
-        deactivate_model(model_id)
-        typer.echo(f"Model {model_id} deactivated")
+        deactivate_model(model_name)
+        typer.echo(f"Model {model_name} deleted")
     except Exception as e:
         typer.echo(e)
 

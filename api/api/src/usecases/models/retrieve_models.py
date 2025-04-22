@@ -8,7 +8,7 @@ def retrieve_models(match=None, limit=None):
     data = repo.retrieve_models(match, limit)
     models = []
     for d in data:
-        if d.get("active"):
+        if not 'active' in d or d['active']:
             models.append(Model(**d))
     if not models:
         raise ModelNotActiveError()

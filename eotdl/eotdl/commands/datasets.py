@@ -143,12 +143,15 @@ def get(
 
 
 @app.command()
-def deactivate(
-    dataset_id: str = typer.Argument(None, help="ID of the dataset to deactivate")
+def delete(
+    dataset: str = typer.Argument(None, help="Name of the dataset to deactivate")
 ):
+    """
+    Delete a dataset from the EOTDL.
+    """
     try:
-        deactivate_dataset(dataset_id)
-        typer.echo(f"Dataset {dataset_id} deactivated")
+        deactivate_dataset(dataset)
+        typer.echo(f"Dataset {dataset} deleted")
     except Exception as e:
         typer.echo(e)
 

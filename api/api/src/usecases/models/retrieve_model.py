@@ -6,7 +6,7 @@ from ...repos import ModelsDBRepo
 def retrieve(data):
     if data is None:
         raise ModelDoesNotExistError()
-    if data.get("active") == False:
+    if 'active' in data and data['active'] is False:
         raise ModelNotActiveError()
     return Model(**data)
 

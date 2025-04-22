@@ -63,9 +63,10 @@ def update(
 @router.patch("/deactivate/{model_id}", include_in_schema=False)
 def deactivate(
     model_id: str,
+    user: User = Depends(get_current_user),
 ):
     try:
-        message = deactivate_model(model_id)
+        message = deactivate_model(model_id, user)
         return {"message": message}
     except Exception as e:
         logger.exception("models:deactivate")

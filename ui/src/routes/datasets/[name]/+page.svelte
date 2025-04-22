@@ -3,6 +3,7 @@
   import { browser } from "$app/environment";
   import { datasets } from "$stores/datasets";
   import "$styles/dataset.css";
+  import deleteDataset from "$lib/datasets/deleteDataset";
   import retrieveDataset from "$lib/datasets/retrieveDataset";
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
@@ -110,6 +111,13 @@
       alert("Error declining change");
     }
   };
+
+  const deactivateDataset = async () => {
+    if (confirm("Are you sure you want to deactivate this dataset?")) {
+      deleteDataset(dataset.id, auth.id_token);
+      await goto(`/datasets`);
+    }
+  };
 </script>
 
 <svelte:head>
@@ -153,25 +161,34 @@
             />
           </span>
         </span>
-        {#if !change}
-          <span class="flex flex-row gap-2">
-            {#if auth.user}
-              {#if edit}
-                <button class="btn btn-outline" onclick={save}>Save</button>
-                <button class="btn btn-outline" onclick={close}>Close</button>
-              {:else}
-                <button class="btn btn-outline" onclick={() => (edit = !edit)}
-                  >Edit</button
-                >
+        <span class="flex flex-row gap-2">
+          {#if !change}
+            <span class="flex flex-row gap-2">
+              {#if auth.user}
+                {#if edit}
+                  <button class="btn btn-outline" onclick={save}>Save</button>
+                  <button class="btn btn-outline" onclick={close}>Close</button>
+                {:else}
+                  <button class="btn btn-outline" onclick={() => (edit = !edit)}
+                    >Edit</button
+                  >
+                {/if}
               {/if}
-            {/if}
-          </span>
-        {:else if dataset.uid == auth.user.uid && _change.status == "pending"}
-          <span>
-            <button class="btn btn-outline" onclick={accept}>Accept</button>
-            <button class="btn btn-outline" onclick={decline}>Decline</button>
-          </span>
-        {/if}
+            </span>
+          {:else if dataset.uid == auth.user.uid && _change.status == "pending"}
+            <span>
+              <button class="btn btn-outline" onclick={accept}>Accept</button>
+              <button class="btn btn-outline" onclick={decline}>Decline</button>
+            </span>
+          {/if}
+          {#if auth.user?.uid == dataset.uid}
+            <span>
+              <button class="btn btn-outline" onclick={deactivateDataset}
+                >Delete</button
+              >
+            </span>
+          {/if}
+        </span>
       </div>
       <hr class="sm:hidden" />
       <div
@@ -206,7 +223,7 @@
               bind:source={dataset.metadata.source}
               {edit}
             />
-            <FileExplorer {version} collection={dataset.id} />
+            <FileExplorer {version} collection={dataset.name} />
           </div>
         </div>
       </div>

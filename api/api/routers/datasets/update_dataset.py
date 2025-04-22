@@ -47,12 +47,13 @@ def update(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("/deactivate/{dataset_id}", include_in_schema=False)
+@router.patch("/deactivate/{dataset_id}")
 def deactivate(
     dataset_id: str,
+    user: User = Depends(get_current_user),
 ):
     try:
-        message = deactivate_dataset(dataset_id)
+        message = deactivate_dataset(dataset_id, user)
         return {"message": message}
     except Exception as e:
         logger.exception("datasets:deactivate")
