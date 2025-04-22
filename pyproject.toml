@@ -13,3 +13,11 @@ dependencies = [
     "pytorch-eo>=2025.4.3",
     "segmentation-models-pytorch>=0.4.0",
 ]
+
+[dependency-groups]
+dev = [
+    "boto3>=1.37.20",
+    "pymongo>=4.11.3",
+    "pytest>=8.3.5",
+    "ruff>=0.11.2",
+]

@@ -1,3 +1,4 @@
+from pathlib import Path
 import requests
 import os
 
@@ -70,23 +71,47 @@ class FilesAPIRepo(APIRepo):
         user,
     ):
         if '/stage/' in url:  # asset is in EOTDL (can do better...)
-            file_name = url.split("/stage/")[-1] 
-            reponse = requests.get(url, headers=self.generate_headers(user))
-            data, error = self.format_response(reponse)
+            splitted = url.split("/stage/")
+            file_name = splitted[-1]
+            dataset_or_model_id = splitted[0].split("/")[-1]
+            response = requests.get(url, headers=self.generate_headers(user))  # fixed typo
+            #print(url)
+            data, error = self.format_response(response)
+            #print(data)
             if error:
                 raise Exception(error)
             presigned_url = data["presigned_url"]
         else:
-            file_name = url.split("//")[-1]
+            splitted = url.split("//")
+            file_name = splitted[-1]
+            dataset_or_model_id = splitted[0].split("/")[-1]
             presigned_url = url
+
         file_path = f"{path}/{file_name}"
         for i in range(1, len(file_path.split("/")) - 1):
             os.makedirs("/".join(file_path.split("/")[: i + 1]), exist_ok=True)
+
         try:
-            response = requests.get(presigned_url)
-            response.raise_for_status()  # This will raise an HTTPError for 4XX and 5XX status codes
-            with open(file_path, 'wb') as f:
-                f.write(response.content)
+            symbolic_link = False
+            cache_base_path = os.getenv("EOTDL_CACHE_PATH", "")
+            if cache_base_path:
+                cache_path = Path(f"{cache_base_path}/{dataset_or_model_id}/{file_name}")
+                #print(cache_path)
+                if cache_path.exists():
+                    symbolic_link = True
+                    #print(f"Using cache: {cache_path}")
+
+            if symbolic_link:
+                if os.path.exists(file_path):
+                    os.unlink(file_path)
+                os.symlink(cache_path, file_path)
+                #print(f"Symlinked {file_path} → {cache_path}")
+            else:
+                response = requests.get(presigned_url)
+                response.raise_for_status()  # This will raise an HTTPError for 4XX and 5XX status codes
+                with open(file_path, 'wb') as f:
+                    f.write(response.content)
+                #print(f"Downloaded to: {file_path}")
         except requests.exceptions.HTTPError as e:
             raise Exception(f"Failed to stage file: {str(e)}")
         except Exception as e:

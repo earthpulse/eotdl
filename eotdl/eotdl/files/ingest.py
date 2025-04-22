@@ -100,6 +100,9 @@ def ingest_virtual( # could work for a list of paths with minimal changes...
 	gdf.to_parquet(path / "catalog.parquet")
 	return ingest(path, repo, retrieve, mode)
 
+def ingest_catalog(path, repo, retrieve, mode):
+	return ingest(path, repo, retrieve, mode)
+
 @with_auth
 def ingest(path, repo, retrieve, mode, user):
 	try:
