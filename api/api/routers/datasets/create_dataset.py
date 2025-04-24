@@ -21,6 +21,7 @@ class CreateDatasetBody(BaseModel):
     license: str
     thumbnail: str
     description: str
+    private: bool = False
 
 @router.post("", summary="Create a new dataset", responses=create_dataset_responses)
 def create(
@@ -44,6 +45,7 @@ def create(
             body.license,
             body.thumbnail,
             body.description,
+            body.private
         )
         return dataset
     except Exception as e:

@@ -9,7 +9,7 @@ from .retrieve_model import retrieve_model_by_name
 from ..user import check_user_can_create_model
 
 
-def create_model(user, name, authors, source, license, thumbnail, description):
+def create_model(user, name, authors, source, license, thumbnail, description, private):
     repo = ModelsDBRepo()
     try:
         retrieve_model_by_name(name)
@@ -28,6 +28,7 @@ def create_model(user, name, authors, source, license, thumbnail, description):
                 thumbnail=thumbnail,
                 description=description,
             ),
+            allowedUsers=[user.uid] if private else [],
         )
         repo.persist_model(model.model_dump(), model.id)
         repo.increase_user_model_count(user.uid)

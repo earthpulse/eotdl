@@ -9,7 +9,7 @@ from .retrieve_dataset import retrieve_dataset_by_name
 from ..user import check_user_can_create_dataset
 
 
-def create_dataset(user, name, authors, source, license, thumbnail, description):
+def create_dataset(user, name, authors, source, license, thumbnail, description, private):
     repo = DatasetsDBRepo()
     try:
         retrieve_dataset_by_name(name)
@@ -28,7 +28,8 @@ def create_dataset(user, name, authors, source, license, thumbnail, description)
                 thumbnail=thumbnail,
                 description=description,
             ),
-            active=True
+            active=True,
+            allowedUsers=[user.uid] if private else [],
         )
         repo.persist_dataset(dataset.model_dump(), dataset.id)
         repo.increase_user_dataset_count(user.uid)

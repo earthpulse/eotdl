@@ -81,3 +81,6 @@ class MongoDatasetsRepo(MongoRepo):
 
     def delete_dataset(self, dataset_id):
         return self.delete("datasets", dataset_id)
+
+    def allow_user_to_dataset(self, dataset_id, uid):
+        return self.append_to_list("datasets", "_id", dataset_id, "allowed_users", uid)

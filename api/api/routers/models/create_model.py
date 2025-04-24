@@ -20,6 +20,7 @@ class CreateModelBody(BaseModel):
     license: str
     thumbnail: str
     description: str
+    private: bool = False
 
 
 @router.post("", summary="Create a new model", responses=create_model_responses)
@@ -36,7 +37,14 @@ def create(
     """
     try:
         model = create_model(
-            user, metadata.name, metadata.authors, metadata.source, metadata.license, metadata.thumbnail, metadata.description
+            user,
+            metadata.name,
+            metadata.authors,
+            metadata.source,
+            metadata.license,
+            metadata.thumbnail,
+            metadata.description,
+            metadata.private,
         )
         return model
     except Exception as e:

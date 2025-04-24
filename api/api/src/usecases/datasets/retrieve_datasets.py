@@ -8,8 +8,10 @@ def retrieve_datasets(match=None, limit=None):
     data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
-        if not 'active' in d or d['active']:
+        # only list active and public datasets
+        if not 'active' in d or d['active'] and not d['allowedUsers']:
             datasets.append(Dataset(**d))
+
     return datasets
 
 
@@ -27,5 +29,7 @@ def retrieve_popular_datasets(limit):
     data = repo.retrieve_popular_datasets(limit)
     datasets = []
     for d in data:
-        datasets.append(Dataset(**d))
+        # only list active and public datasets
+        if not 'active' in d or d['active'] and not d['allowedUsers']:
+            datasets.append(Dataset(**d))
     return datasets
