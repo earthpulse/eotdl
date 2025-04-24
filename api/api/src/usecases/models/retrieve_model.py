@@ -1,5 +1,5 @@
 from ...models import Model
-from ...errors import ModelDoesNotExistError, UserUnauthorizedError, ModelNotActiveError
+from ...errors import ModelDoesNotExistError, UserUnauthorizedError, ModelNotActiveError, NoAccessToPrivateError
 from ...repos import ModelsDBRepo
 
 
@@ -27,4 +27,6 @@ def retrieve_owned_model(model_id, uid):
     model = retrieve_model(model_id)
     if model.uid != uid:
         raise UserUnauthorizedError()
+    if model.allowedUsers and uid not in model.allowedUsers:
+        raise NoAccessToPrivateError()
     return model

@@ -1,5 +1,5 @@
 from ...models import Dataset
-from ...errors import DatasetDoesNotExistError, UserUnauthorizedError, DatasetNotActiveError
+from ...errors import DatasetDoesNotExistError, UserUnauthorizedError, DatasetNotActiveError, NoAccessToPrivateError
 from ...repos import DatasetsDBRepo
 # from ..files import retrieve_files
 
@@ -28,6 +28,8 @@ def retrieve_owned_dataset(dataset_id, uid):
     dataset = retrieve_dataset(dataset_id)
     if dataset.uid != uid:
         raise UserUnauthorizedError()
+    if dataset.allowedUsers and uid not in dataset.allowedUsers:
+        raise NoAccessToPrivateError()
     return dataset
 
 
