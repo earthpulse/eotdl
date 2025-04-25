@@ -8,7 +8,8 @@ def retrieve_models(match=None, limit=None):
     data = repo.retrieve_models(match, limit)
     models = []
     for d in data:
-        if not 'active' in d or d['active']:
+        # only list active and public models
+        if not 'active' in d or d['active'] and not d['allowed_users']:
             models.append(Model(**d))
     if not models:
         raise ModelNotActiveError()
@@ -30,5 +31,7 @@ def retrieve_popular_models(limit):
     data = repo.retrieve_popular_models(limit)
     models = []
     for d in data:
-        models.append(Model(**d))
+        # only list active and public models
+        if not 'active' in d or d['active'] and not d['allowed_users']:
+            models.append(Model(**d))
     return models

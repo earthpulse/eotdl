@@ -43,6 +43,15 @@ def update_dataset(
     _dataset.name = dataset.name
     _dataset.metadata = dataset.metadata
     _dataset.updatedAt = datetime.now()
+    
+    # make private
+    if not _dataset.allowed_users and dataset.private:
+        _dataset.allowed_users = [dataset.uid]
+
+    # make public
+    if _dataset.allowed_users and not dataset.private:
+        _dataset.allowed_users = []
+    
     # update dataset in db
     repo = DatasetsDBRepo()
     repo.update_dataset(dataset_id, _dataset.model_dump())

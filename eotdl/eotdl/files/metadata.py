@@ -10,6 +10,7 @@ class Metadata(BaseModel):
     name: str
     description: str
     thumbnail: Optional[str] = ""
+    private: Optional[bool] = False
 
     # validate source is a URL
     @validator("source")

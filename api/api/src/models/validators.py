@@ -13,6 +13,7 @@ def validate_name(
     min_length: int = 3,
 ) -> str:
     if re.findall(regex, name):
+        print(name)
         raise NameCharsValidationError()
     if len(name) > max_length or len(name) < min_length:
         raise NameLengthValidationError(max_length, min_length)
