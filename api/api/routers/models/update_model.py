@@ -7,7 +7,7 @@ import traceback
 
 from ..auth import get_current_user
 from ...src.models import User, Model
-from ...src.usecases.models import update_model, toggle_like_model, deactivate_model, private_models
+from ...src.usecases.models import update_model, toggle_like_model, deactivate_model, make_model_private, allow_user_to_private_model
 
 from .responses import update_model_responses
 
@@ -74,12 +74,12 @@ def deactivate(
 
 @router.patch("/{model_id}/allow-user/{user_id}")
 def allow_user(
-    dataset_id: str,
+    model_id: str,
     user_id: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        message = private_models.allow_user_to_private_model(dataset_id, user, user_id)
+        message = allow_user_to_private_model(model_id, user, user_id)
         return {"message": message}
     except Exception as e:
         logger.exception("models:allow_user")
@@ -88,11 +88,11 @@ def allow_user(
 
 @router.patch("/{model_id}/make-private")
 def make_private(
-    dataset_id: str,
+    model_id: str,
     user: User = Depends(get_current_user),
 ):
     try:
-        message = private_models.make_model_private(dataset_id, user)
+        message = make_model_private(model_id, user)
         return {"message": message}
     except Exception as e:
         logger.exception("models:make_private")

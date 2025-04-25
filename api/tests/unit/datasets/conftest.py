@@ -1,21 +1,15 @@
+import copy
 from unittest.mock import patch
 from bson import ObjectId
 import mongomock
 import pytest
 
 
+
 DATASET = {
-    "id": str(ObjectId()),
     "uid": "123",
+    "id": str(ObjectId()),
     "name": "test3",
-    "description": "test 3",
-    "likes": 1,
-    "quality": 0,
-    "authors": ["test"],
-    "source": "http://test@m",
-    "license": "test",
-    "files": "123",
-    "active": True,
     "metadata": {
         "description": "test",
         "authors": ["test"],
@@ -23,6 +17,15 @@ DATASET = {
         "license": "test",
         "files": "123",
     },
+    "versions": [],
+    "tags": [],
+    "createdAt": "2023-10-01T00:00:00Z",
+    "updatedAt": "2023-10-01T00:00:00Z",
+    "likes": 1,
+    "downloads": 0,
+    "quality": 0,
+    "active": True,
+    "allowedUsers": []
 }
 
 
@@ -39,8 +42,8 @@ def mock_mongo_datasets():
 
 
 @pytest.fixture
-def model():
-    return DATASET
+def dataset():
+    return copy.deepcopy(DATASET)
 
 
 @pytest.fixture

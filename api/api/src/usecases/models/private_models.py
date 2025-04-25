@@ -12,7 +12,7 @@ def make_model_private(model_id: str, user: User):
     if user.uid in model.allowedUsers:
         raise Exception("This model is already private")
     repo.allow_user_to_model(model_id, user.uid)
-    return {"message": f"Model {model.name} has been made private."}
+    return f"Model {model.name} has been made private."
 
 
 def allow_user_to_private_model(
@@ -28,4 +28,4 @@ def allow_user_to_private_model(
     if not user.uid in model.allowedUsers:
         raise Exception("This is not a private model")
     repo.allow_user_to_model(model_id, user_id)
-    return {"message": f"User {user_id} has been allowed to access the private model {model.name}."}
+    return f"User {user_id} has been allowed to access the private model {model.name}."
