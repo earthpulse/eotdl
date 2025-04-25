@@ -60,7 +60,7 @@ def update(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("{model_id}/deactivate", include_in_schema=False)
+@router.patch("/{model_id}/deactivate", include_in_schema=False)
 def deactivate(
     model_id: str,
     user: User = Depends(get_current_user),
@@ -72,7 +72,7 @@ def deactivate(
         logger.exception("models:deactivate")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-@router.patch("{model_id}/allow-user/{user_id}")
+@router.patch("/{model_id}/allow-user/{user_id}")
 def allow_user(
     dataset_id: str,
     user_id: str,
@@ -86,7 +86,7 @@ def allow_user(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("{model_id}/make-private")
+@router.patch("/{model_id}/make-private")
 def make_private(
     dataset_id: str,
     user: User = Depends(get_current_user),
