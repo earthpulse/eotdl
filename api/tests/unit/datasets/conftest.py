@@ -30,7 +30,7 @@ DATASET = {
 
 
 @pytest.fixture
-def mock_mongo_datasets():
+def mock_mongo_dataset():
     mock_db = mongomock.MongoClient().db
 
     mock_db.datasets.insert_one(DATASET)

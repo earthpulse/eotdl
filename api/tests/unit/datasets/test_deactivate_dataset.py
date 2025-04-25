@@ -1,11 +1,11 @@
-def test_deactivate_dataset_success(client, dataset, mock_mongo_datasets):
+def test_deactivate_dataset_success(client, dataset, mock_mongo_dataset):
     response = client.patch(f"/datasets/{dataset['id']}/deactivate", )
     assert response.status_code == 200
     assert response.json() == {
         "message": f"Dataset {dataset['name']} has been deactivated."
     }
 
-    datasets_collection = mock_mongo_datasets.datasets
+    datasets_collection = mock_mongo_dataset.datasets
     dataset = datasets_collection.find_one({"id": dataset["id"]})
     assert dataset["active"] == False
 
@@ -16,11 +16,11 @@ def test_deactivate_dataset_does_not_exist(client):
     assert response.json() == {"detail": "Dataset doesn't exist"}
 
 
-def test_deactivate_dataset_already_deactivated(client, dataset, mock_mongo_datasets):
+def test_deactivate_dataset_already_deactivated(client, dataset, mock_mongo_dataset):
     response = client.patch(f"/datasets/{dataset['id']}/deactivate")
     assert response.status_code == 200
 
-    datasets_collection = mock_mongo_datasets.datasets
+    datasets_collection = mock_mongo_dataset.datasets
     dataset = datasets_collection.find_one({"id": dataset["id"]})
     assert dataset["active"] == False
 
