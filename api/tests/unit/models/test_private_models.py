@@ -7,7 +7,7 @@ def test_make_private_model_success(client, model, mock_mongo_model):
 
     models_collection = mock_mongo_model.models
     model = models_collection.find_one({"id": model["id"]})
-    assert model["allowedUsers"] == ['123']
+    assert model["allowed_users"] == ['123']
 
 
 def test_make_private_model_already_private(client, model, mock_mongo_model):
@@ -21,7 +21,7 @@ def test_make_private_model_already_private(client, model, mock_mongo_model):
 
     models_collection = mock_mongo_model.models
     model = models_collection.find_one({"id": model["id"]})
-    assert model["allowedUsers"] == ['123']
+    assert model["allowed_users"] == ['123']
 
 
 def test_make_private_model_does_not_exist(client, model, mock_mongo_model):
@@ -47,13 +47,13 @@ def test_make_private_model_not_owner(client, model, mock_mongo_model):
 
     models_collection = mock_mongo_model.models
     model = models_collection.find_one({"id": model["id"]})
-    assert model["allowedUsers"] == []
+    assert model["allowed_users"] == []
 
 def test_allow_user_but_you_are_not_allowed(client, model, mock_mongo_model):
     models_collection = mock_mongo_model.models
     models_collection.update_one(
         {"id": model["id"]},
-        {"$set": {"allowedUsers": ["the_owner"]}}
+        {"$set": {"allowed_users": ["the_owner"]}}
     )
     response = client.patch(f"/models/{model['id']}/allow-user/456")
     assert response.status_code == 409
@@ -63,7 +63,7 @@ def test_allow_user_but_you_are_not_allowed(client, model, mock_mongo_model):
 
     models_collection = mock_mongo_model.models
     model = models_collection.find_one({"id": model["id"]})
-    assert model["allowedUsers"] == ['the_owner']
+    assert model["allowed_users"] == ['the_owner']
 
 
 def test_allow_user_to_private_model_success(client, model, mock_mongo_model):
@@ -77,4 +77,4 @@ def test_allow_user_to_private_model_success(client, model, mock_mongo_model):
 
     models_collection = mock_mongo_model.models
     model = models_collection.find_one({"id": model["id"]})
-    assert '456' in model["allowedUsers"]
+    assert '456' in model["allowed_users"]

@@ -81,5 +81,5 @@ class MongoModelsRepo(MongoRepo):
         return self.retrieve("tags")
 
     def allow_user_to_model(self, model_id, uid):
-        return self.append_to_list("models", "id", model_id, "allowedUsers", uid)
+        return self.append_to_list("models", "id", model_id, "allowed_users", uid)
     

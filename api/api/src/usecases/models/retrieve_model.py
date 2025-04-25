@@ -27,6 +27,6 @@ def retrieve_owned_model(model_id, uid):
     model = retrieve_model(model_id)
     if model.uid != uid:
         raise UserUnauthorizedError()
-    if model.allowedUsers and uid not in model.allowedUsers:
+    if model.allowed_users and uid not in model.allowed_users:
         raise NoAccessToPrivateError()
     return model

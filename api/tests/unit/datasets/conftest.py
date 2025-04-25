@@ -25,7 +25,7 @@ DATASET = {
     "downloads": 0,
     "quality": 0,
     "active": True,
-    "allowedUsers": []
+    "allowed_users": []
 }
 
 

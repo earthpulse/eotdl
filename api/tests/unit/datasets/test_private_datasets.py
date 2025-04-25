@@ -7,7 +7,7 @@ def test_make_private_dataset_success(client, dataset, mock_mongo_dataset):
 
     datasets_collection = mock_mongo_dataset.datasets
     dataset = datasets_collection.find_one({"id": dataset["id"]})
-    assert dataset["allowedUsers"] == ['123']
+    assert dataset["allowed_users"] == ['123']
 
 
 def test_make_private_dataset_already_private(client, dataset, mock_mongo_dataset):
@@ -21,7 +21,7 @@ def test_make_private_dataset_already_private(client, dataset, mock_mongo_datase
 
     datasets_collection = mock_mongo_dataset.datasets
     dataset = datasets_collection.find_one({"id": dataset["id"]})
-    assert dataset["allowedUsers"] == ['123']
+    assert dataset["allowed_users"] == ['123']
 
 
 def test_make_private_dataset_does_not_exist(client, dataset, mock_mongo_dataset):
@@ -46,14 +46,14 @@ def test_make_private_dataset_not_owner(client, dataset, mock_mongo_dataset):
     }
 
     dataset = datasets_collection.find_one({"id": dataset["id"]})
-    assert dataset["allowedUsers"] == []
+    assert dataset["allowed_users"] == []
 
 
 def test_allow_user_but_you_are_not_allowed(client, dataset, mock_mongo_dataset):
     datasets_collection = mock_mongo_dataset.datasets
     datasets_collection.update_one(
         {"id": dataset["id"]},
-        {"$set": {"allowedUsers": ["the_owner"]}}
+        {"$set": {"allowed_users": ["the_owner"]}}
     )
     response = client.patch(f"/datasets/{dataset['id']}/allow-user/456")
     assert response.status_code == 409
@@ -62,7 +62,7 @@ def test_allow_user_but_you_are_not_allowed(client, dataset, mock_mongo_dataset)
     }
 
     dataset = datasets_collection.find_one({"id": dataset["id"]})
-    assert dataset["allowedUsers"] == ['the_owner']
+    assert dataset["allowed_users"] == ['the_owner']
 
 
 def test_allow_user_to_private_dataset_success(client, dataset, mock_mongo_dataset):
@@ -76,4 +76,4 @@ def test_allow_user_to_private_dataset_success(client, dataset, mock_mongo_datas
 
     datasets_collection = mock_mongo_dataset.datasets
     dataset = datasets_collection.find_one({"id": dataset["id"]})
-    assert '456' in dataset["allowedUsers"]
+    assert '456' in dataset["allowed_users"]

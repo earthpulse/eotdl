@@ -9,7 +9,7 @@ def retrieve_datasets(match=None, limit=None):
     datasets = []
     for d in data:
         # only list active and public datasets
-        if not 'active' in d or d['active'] and not d['allowedUsers']:
+        if not 'active' in d or d['active'] and not d['allowed_users']:
             datasets.append(Dataset(**d))
 
     return datasets
@@ -30,6 +30,6 @@ def retrieve_popular_datasets(limit):
     datasets = []
     for d in data:
         # only list active and public datasets
-        if not 'active' in d or d['active'] and not d['allowedUsers']:
+        if not 'active' in d or d['active'] and not d['allowed_users']:
             datasets.append(Dataset(**d))
     return datasets

@@ -28,7 +28,7 @@ def retrieve_owned_dataset(dataset_id, uid):
     dataset = retrieve_dataset(dataset_id)
     if dataset.uid != uid:
         raise UserUnauthorizedError()
-    if dataset.allowedUsers and uid not in dataset.allowedUsers:
+    if dataset.allowed_users and uid not in dataset.allowed_users:
         raise NoAccessToPrivateError()
     return dataset
 
