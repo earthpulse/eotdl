@@ -28,7 +28,7 @@ def create_model(user, name, authors, source, license, thumbnail, description, p
                 thumbnail=thumbnail,
                 description=description,
             ),
-            allowed_users=[user.uid] if private else [],
+            allowed_users=[user.id] if private else [],
         )
         repo.persist_model(model.model_dump(), model.id)
         repo.increase_user_model_count(user.uid)

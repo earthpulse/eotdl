@@ -29,7 +29,7 @@ def create_dataset(user, name, authors, source, license, thumbnail, description,
                 description=description,
             ),
             active=True,
-            allowed_users=[user.uid] if private else [],
+            allowed_users=[user.id] if private else [],
         )
         repo.persist_dataset(dataset.model_dump(), dataset.id)
         repo.increase_user_dataset_count(user.uid)
