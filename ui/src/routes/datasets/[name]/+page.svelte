@@ -16,6 +16,7 @@
   import { goto } from "$app/navigation";
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
+  import Benchmark from "./Benchmark.svelte";
 
   let { data } = $props();
 
@@ -194,9 +195,14 @@
       <div
         class="sm:grid sm:grid-cols-[auto_350px] sm:gap-3 flex flex-col mt-5"
       >
-        <div class="w-full overflow-auto">
-          <EditableContent {edit} bind:value={dataset.metadata.description} />
-        </div>
+        <span>
+          {#if dataset.benchmark}
+            <Benchmark {dataset} />
+          {/if}
+          <div class="w-full overflow-auto">
+            <EditableContent {edit} bind:value={dataset.metadata.description} />
+          </div>
+        </span>
         <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
           <hr class="sm:hidden" />
           <p>Stage the dataset with the CLI:</p>
