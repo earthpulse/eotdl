@@ -16,6 +16,7 @@
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/vite": "^4.0.0",
 		"carta-md": "^4.9.0",
+		"chart.js": "^4.4.9",
 		"cookie": "^1.0.2",
 		"daisyui": "^5.0.12",
 		"date-fns": "^4.1.0",
