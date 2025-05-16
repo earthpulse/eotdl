@@ -1,6 +1,6 @@
 
-from temporal_utils import compute_temporal_extent
-from spatial_utils import  buffer_geometry
+from .temporal_utils import compute_temporal_extent
+from .spatial_utils import  buffer_geometry
 
 import os
 from typing import List
@@ -8,12 +8,13 @@ import geopandas as gpd
 
 import pandas as pd
 from typing import List, Dict, Any
-import geojson
 
+try:
+    import openeo_gfmap
+except ImportError:
+    print("openeo_gfmap is not installed, please install it with 'pip install openeo_gfmap'")
 
 from openeo_gfmap.manager.job_splitters import split_job_s2grid, append_h3_index
-
-
 
 def create_utm_patch(
     row: Any,
@@ -123,9 +124,9 @@ def process_geodataframe(
 
         # Return the processed data
         result =  {
-            # "fid": row.get("fid"),  # Include any relevant identifier
+            "fid": row.get("fid"),  # Include any relevant identifier
             "geometry": row.geometry,
-            # "crs": geodataframe.crs.to_string(),
+            "crs": geodataframe.crs.to_string(),
             "temporal_extent": temporal_extent,
         }  
         
@@ -135,11 +136,10 @@ def process_geodataframe(
     processed_gdf = gpd.GeoDataFrame(
         results, 
         geometry="geometry", 
-        # crs=result['crs']
+        crs=result['crs']
     )
     
     return processed_gdf
-
 
 def split_geodataframe_by_s2_grid(base_gdf: gpd.GeoDataFrame, max_points:int, grid_resolution:int = 3) -> List[gpd.GeoDataFrame]:
     """Append H3 index and split into smaller job dataframes."""
