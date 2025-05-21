@@ -42,6 +42,17 @@ class MongoModelsRepo(MongoRepo):
                 "$push": {"versions": version},
             },
         )
+    
+    def deactivate_model(self, model_id):
+        return self._update(
+            "models",
+            {"id": model_id},
+            {
+                "$set": {
+                    "active": False,
+                }
+            },
+        )
 
     def retrieve_models_leaderboard(self):
         return self.find_top("users", "models_count", 5)

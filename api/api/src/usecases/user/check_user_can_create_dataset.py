@@ -9,6 +9,8 @@ def check_user_can_create_dataset(user):
     repo = UserDBRepo()
     user = retrieve_user(user.uid)
     data = repo.retrieve_tier(user.tier)
+    if not data:
+        raise TierLimitError(f"User tier: {user.tier} not found")
     limits = Limits(**data["limits"])
     usage = repo.retrieve_dataset_ingestion_usage(user.uid)
     if len(usage) + 1 >= limits.datasets.upload:

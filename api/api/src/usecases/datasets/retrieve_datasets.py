@@ -1,3 +1,4 @@
+from ...errors.datasets import DatasetNotActiveError
 from ...repos import DatasetsDBRepo
 from ...models import Dataset
 
@@ -7,7 +8,8 @@ def retrieve_datasets(match=None, limit=None):
     data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
-        datasets.append(Dataset(**d))
+        if not 'active' in d or d['active']:
+            datasets.append(Dataset(**d))
     return datasets
 
 

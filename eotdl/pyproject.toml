@@ -1,6 +1,6 @@
 [project]
 name = "eotdl"
-version = "2025.04.02-4"
+version = "2025.04.22-3"
 description = "Earth Observation Training Data Lab"
 authors = [
     {name = "earthpulse", email = "it@earthpulse.es"},

@@ -5,22 +5,6 @@ from api.src.usecases.datasets import retrieve_dataset_by_name
 from api.src.errors import DatasetDoesNotExistError
 
 
-@pytest.fixture
-def dataset():
-    return {
-        "uid": "123",
-        "id": "123",
-        "name": "test3",
-        "description": "test 3",
-        "likes": 1,
-        "quality": 0,
-        "authors": ["test"],
-        "source": "http://test@m",
-        "license": "test",
-        "files": "123",
-    }
-
-
 @patch("api.src.usecases.datasets.retrieve_dataset.DatasetsDBRepo")
 def test_retrieve_dataset_by_name(mocked_repo, dataset):
     mocked_repo_instance = mocked_repo.return_value

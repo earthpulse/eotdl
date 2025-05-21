@@ -35,7 +35,7 @@ from .routers.models import (
 )
 # from .routers import admin, migrate
 
-VERSION = "2025.04.02"
+VERSION = "2025.05.04"
 
 tags_metadata = [
     {
@@ -102,6 +102,7 @@ app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(stage_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
+
 # models
 app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
 app.include_router(create_model.router, prefix="/models", tags=["models"])
@@ -146,3 +147,17 @@ async def root():
         "description": "Earth Observation Training Data Lab",
         "contact": "support@eotdl.com",
     }
+
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+import traceback
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print("UNHANDLED EXCEPTION:")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"{type(exc).__name__}: {str(exc)}"},
+    )

@@ -1,5 +1,6 @@
 from ...repos import ModelsDBRepo
 from ...models import Model
+from ...errors import ModelNotActiveError
 
 
 def retrieve_models(match=None, limit=None):
@@ -7,8 +8,12 @@ def retrieve_models(match=None, limit=None):
     data = repo.retrieve_models(match, limit)
     models = []
     for d in data:
-        models.append(Model(**d))
+        if not 'active' in d or d['active']:
+            models.append(Model(**d))
+    if not models:
+        raise ModelNotActiveError()
     return models
+    
 
 
 def retrieve_models_leaderboard():

@@ -1,0 +1,33 @@
+name: test-eotdl-api
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - xcube_geodb>=1.0.9
+  - pip:
+      - fastapi
+      - uvicorn
+      - pytest
+      - pytest-asyncio
+      - pytest-watch
+      - pytest-cov
+      - pytest-mock
+      - pydantic
+      - pymongo
+      - mongomock
+      - minio
+      - pyjwt
+      - requests
+      - auth0-python
+      - python-multipart
+      - httpx
+      - boto3
+      - pystac
+      - stac_validator
+      - geopandas
+      - pyarrow
+      - starlette_exporter
+      - geomet
+      - rasterio
+      - duckdb

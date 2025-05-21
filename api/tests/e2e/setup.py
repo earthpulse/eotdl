@@ -15,6 +15,14 @@ datasets = [
         "source": "http://test@m",
         "license": "test",
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test1",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
     {
         "uid": "123",
@@ -24,6 +32,14 @@ datasets = [
         "source": "http://test@m",
         "license": "test",
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test2",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
     {
         "uid": "123",
@@ -34,6 +50,14 @@ datasets = [
         "license": "test",
         "likes": 1,
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test3",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
     {
         "uid": "123",
@@ -44,6 +68,14 @@ datasets = [
         "license": "test",
         "likes": 2,
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test4",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
     {
         "uid": "123",
@@ -55,6 +87,14 @@ datasets = [
         "likes": 3,
         "tags": ["tag1", "tag2"],
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test5",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
     {
         "uid": "456",
@@ -64,6 +104,14 @@ datasets = [
         "license": "test",
         "quality": 0,
         "files": "123",
+        "active": True,
+        "metadata": {
+            "description": "test6",
+            "authors": ["test"],
+            "source": "http://test@m",
+            "license": "test",
+            "files": "123",
+        },
     },
 ]
 
