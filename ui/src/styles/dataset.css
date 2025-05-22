@@ -33,5 +33,9 @@
 }
 
 .content pre {
-    @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto;
+    @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto
+}
+
+.content code {
+    @apply hidden
 }
