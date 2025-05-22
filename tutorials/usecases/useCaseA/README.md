@@ -1,1 +1,1 @@
-# Use Case C - Multi-task Learning
+# Use Case A - Sentinel 1, Sentinel 2 and HR data for unsupervised pre-training.

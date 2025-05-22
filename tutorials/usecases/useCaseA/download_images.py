@@ -16,15 +16,52 @@ from eotdl.tools import bbox_from_centroid
 path = '/fastdata/Satellogic/data/'
 dst_path = '/fastdata/Satellogic/data/'
 
-CLOUD_COVER_THRESHOLD = 0.1 # %
+CLOUD_COVER_THRESHOLD = 0.1
 WIDTH = 38
 HEIGHT = 38
 NUM_CORES = multiprocessing.cpu_count()
 
+def get_closest_match(results, date):
+	# if no results
+	if len(results) <= 0:
+		return None
+
+	# if no results that fit cloud cover threshold
+	results_filtered = [r for r in results if r['properties']['eo:cloud_cover'] <= CLOUD_COVER_THRESHOLD]
+	if len(results_filtered) <= 0:
+		return None
+
+	# closest image by date
+	closest_match = min(results_filtered,
+						key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z', '')) - date))
+	return closest_match
+
+def download_sat_image(json_path, output_path):
+	# get path to metadata file
+	json_path = json_path.replace('data/', '/fastdata/Satellogic/data/')  #
+	with open(json_path, 'r') as f:
+		metadata = json.load(f)
+
+	# get download link from metadata
+	url = metadata['assets']['analytic']['href']
+
+	# make path where the sat (hr) image will be saved. download, and then write in chunks to that location.
+	output_path = Path(output_path) / url.split('/')[-1]
+	output_path.parent.mkdir(parents=True, exist_ok=True)
+	response = requests.get(url, stream=True)
+	response.raise_for_status()
+	with open(output_path, 'wb') as f:
+		for chunk in response.iter_content(chunk_size=8192):
+			f.write(chunk)
+
+	return output_path
 
 
 def download_images(json_path, centroid, date):
 	json_path = json_path.replace('data/', path)
+
+	print(json_path)
+
 	# satellogic
 	with open(json_path, 'r') as f:
 		metadata = json.load(f)
@@ -44,7 +81,8 @@ def download_images(json_path, centroid, date):
 		except IOError as e:
 			print(f"Error writing Satellogic imagery to file: {e}")
 			return None
-	# sentinel
+
+	# sentinel 2
 	name = json_path.split('/')[-1].replace('_metadata.json', '_S2L2A')
 	dst_path_sentinel = dst_path + "/tifs/sentinel2/" + name + '.tif'
 	custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
@@ -54,19 +92,18 @@ def download_images(json_path, centroid, date):
 	except Exception as e:
 		print(f"Error downloading sentinel imagery: {e}")
 		return None
+
 	return (dst_path_sentinel, output_path)
+
 
 def download_matches(args):
 	matches, date, json_path, centroid = args
-	if len(matches) > 0:
-		# filter by cloud cover
-		matches_filtered = [r for r in matches if r['properties']['eo:cloud_cover'] <= CLOUD_COVER_THRESHOLD]
-		if len(matches_filtered) > 0:
-			# Find closest match by date
-			closest_match = min(matches_filtered, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
-			return download_images(json_path, centroid, closest_match['properties']['datetime'])
+
+	closest_match = get_closest_match(matches, date)
+	if not closest_match:
 		return None
-	return None
+
+	return download_images(json_path, centroid, closest_match['properties']['datetime'])
 
 # def rate_limited_request(func, *args, **kwargs):
 # 	with request_lock:
