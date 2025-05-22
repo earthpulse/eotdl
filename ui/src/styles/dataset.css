@@ -13,7 +13,7 @@
 }
 
 .content a {
-    @apply text-green-200 underline;
+    @apply text-green-200 underline
 }
 
 .content h1 {
@@ -33,9 +33,9 @@
 }
 
 .content pre {
-    @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto
+    @apply bg-gray-800 text-white p-4 rounded-lg overflow-auto max-w-3xl
 }
 
-.content code {
+/* .content code {
     @apply hidden
-}
+} */
