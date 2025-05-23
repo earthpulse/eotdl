@@ -7,7 +7,7 @@ def make_dataset_private(dataset_id: str, user: User):
     """
     Make a dataset private.
     """
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
+    dataset = retrieve_owned_dataset(dataset_id, user)
     repo = DatasetsDBRepo()
     if user.uid in dataset.allowed_users:
         raise Exception("This dataset is already private")
@@ -23,7 +23,7 @@ def allow_user_to_private_dataset(
     """
     Allow a user to access a private dataset.
     """
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
+    dataset = retrieve_owned_dataset(dataset_id, user)
     repo = DatasetsDBRepo()
     if not user.uid in dataset.allowed_users:
         raise Exception("This is not a private dataset")

@@ -22,6 +22,7 @@ def ingest_openeo(
 	logger=print,
 	force_metadata_update=False,
 	sync_metadata=False,
+	private=False,
 ):
 	path = Path(path)
 	if not path.is_dir():
@@ -31,7 +32,7 @@ def ingest_openeo(
 	# else:
 	# 	prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
 	prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
-	return ingest(path, FEAPIRepo(), retrieve_pipeline, 'pipelines')
+	return ingest(path, FEAPIRepo(), retrieve_pipeline, 'pipelines', private)
 
 
 # def ingest_virtual_dataset( # could work for a list of paths with minimal changes...

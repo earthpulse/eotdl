@@ -16,6 +16,9 @@ class MongoDatasetsRepo(MongoRepo):
 
     def find_one_dataset_by_name(self, name):
         return self.find_one_by_name("datasets", name)
+    
+    def find_one_private_dataset_by_name(self, name, user):
+        return self.db['datasets'].find_one({"name": name, "allowed_users": {"$in": [user.id]}})
 
     def retrieve_dataset(self, dataset_id):
         return self.retrieve("datasets", dataset_id)
@@ -84,3 +87,6 @@ class MongoDatasetsRepo(MongoRepo):
 
     def allow_user_to_dataset(self, dataset_id, uid):
         return self.append_to_list("datasets", "id", dataset_id, "allowed_users", uid)
+    
+    def retrieve_private_datasets(self, user):
+        return self.db['datasets'].find({"allowed_users": {"$in": [user.id]}})

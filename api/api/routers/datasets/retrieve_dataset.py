@@ -5,12 +5,14 @@ import logging
 from typing import Union
 
 from ..auth import get_current_user
-from ...src.models import Dataset
+from ...src.models import User
 from ...src.usecases.datasets import (
     retrieve_datasets,
     retrieve_dataset_by_name,
+    retrieve_private_dataset_by_name,
     retrieve_datasets_leaderboard,
     retrieve_popular_datasets,
+    retrieve_private_datasets
 )
 from .responses import retrieve_datasets_responses, retrieve_files_responses
 
@@ -40,6 +42,23 @@ def retrieve(
         logger.exception("datasets:retrieve")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@router.get(
+    "/private", summary="Retrieve list of private datasets"
+)
+def retrieve_private(
+    name: str = Query(None, description="Name of the dataset"),
+    user: User = Depends(get_current_user),
+):
+    try:
+        if name is None:
+            return retrieve_private_datasets(user)
+        return retrieve_private_dataset_by_name(name, user)
+    except Exception as e:
+        logger.exception("datasets:retrieve")
+        traceback.print_exc()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
 
 @router.get("/leaderboard", include_in_schema=False)
 def leaderboard():

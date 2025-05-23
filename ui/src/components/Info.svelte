@@ -6,6 +6,7 @@
 	// import CheckDecagramOutline from "svelte-material-icons/CheckDecagramOutline.svelte";
 	import auth from "$stores/auth.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+	import LockOutline from "svelte-material-icons/LockOutline.svelte";
 
 	export let data;
 	export let version;
@@ -55,6 +56,11 @@
 		<CheckDecagramOutline color="gray" size={20} />
 		<p>Q{quality}</p>
 	</span> -->
+	{#if data.visibility === "private"}
+		<span class="flex flex-row items-center gap-1">
+			<LockOutline color="gray" size={20} />
+		</span>
+	{/if}
 </span>
 {#if version}
 	<span class="flex flex-row gap-3">

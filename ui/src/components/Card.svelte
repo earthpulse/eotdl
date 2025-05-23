@@ -1,6 +1,7 @@
 <script>
   import { parseISO, formatDistanceToNow } from "date-fns";
   import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+  import LockOutline from "svelte-material-icons/LockOutline.svelte";
   import Sd from "svelte-material-icons/Sd.svelte";
   import formatFileSize from "$lib/datasets/formatFileSize.js";
 
@@ -36,7 +37,9 @@
         </p>
       {/each}
     </div>
-    <span class="flex flex-col w-full text-gray-400 text-xs mt-1">
+    <span
+      class="flex flex-row w-full text-gray-400 text-xs mt-1 justify-between"
+    >
       <span class="flex flex-row gap-2 items-center">
         <span class="flex flex-row items-center gap-1">
           <HeartOutline color={liked ? "red" : "gray"} />
@@ -53,6 +56,11 @@
           </p>
         </span>
       </span>
+      {#if data.visibility === "private"}
+        <span class="flex flex-row items-center gap-1">
+          <LockOutline color="purple" size={14} />
+        </span>
+      {/if}
     </span>
   </span>
 </a>

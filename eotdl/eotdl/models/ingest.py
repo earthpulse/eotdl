@@ -22,6 +22,7 @@ def ingest_model(
 	logger=print,
 	force_metadata_update=False,
 	sync_metadata=False,
+	private=False,
 ):
 	path = Path(path)
 	if not path.is_dir():
@@ -30,7 +31,7 @@ def ingest_model(
 		prep_ingest_stac(path, logger)
 	else:
 		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
-	return ingest(path, ModelsAPIRepo(), retrieve_model, 'models')
+	return ingest(path, ModelsAPIRepo(), retrieve_model, 'models', private)
 
 def ingest_virtual_model( # could work for a list of paths with minimal changes...
 	path,

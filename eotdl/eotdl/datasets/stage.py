@@ -20,7 +20,7 @@ def stage_dataset(
     user=None,
     file=None,
 ):
-    dataset = retrieve_dataset(dataset_name)
+    dataset = retrieve_dataset(dataset_name, user)
     if version is None:
         version = sorted([v['version_id'] for v in dataset["versions"]])[-1]
     else:

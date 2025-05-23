@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, Depends, Body, File, Form, UploadFile, Pa
 import logging
 from pydantic import BaseModel
 from typing import Optional, List
+import traceback
 
 from ..auth import get_current_user
 from ...src.models import User
@@ -48,6 +49,7 @@ async def ingest_files(
         }
     except Exception as e:
         logger.exception("datasets:ingest")
+        traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 class CompleteIngestionBody(BaseModel):
@@ -71,4 +73,5 @@ def complete_ingestion(
         }
     except Exception as e:
         logger.exception("datasets:ingest")
+        traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

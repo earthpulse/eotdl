@@ -4,6 +4,7 @@ import ingestFile from "$lib/datasets/ingestFile";
 import updateDataset from "$lib/datasets/updateDataset";
 import retrieveDataset from "$lib/datasets/retrieveDataset";
 import retrieveDatasets from "$lib/datasets/retrieveDatasets";
+import retrievePrivateDatasets from "$lib/datasets/retrievePrivateDatasets";
 import downloadDataset from "$lib/datasets/downloadDataset";
 import likeDataset from "$lib/datasets/likeDataset";
 import retrieveDatasetFiles from "$lib/datasets/retrieveDatasetFiles";
@@ -47,10 +48,15 @@ const createDatasets = () => {
       }));
       return data;
     },
-    retrieve: async (fetch, limit = null) => {
+    retrieve: async (fetch, id_token = null, limit = null) => {
       set({ loading: true });
       try {
         const data = await retrieveDatasets(fetch, limit);
+        if (id_token) {
+          const private_data = await retrievePrivateDatasets(id_token);
+          console.log(private_data);
+          data.push(...private_data);
+        }
         set({ loading: false, data });
       } catch (e) {
         set({ loading: false, error: e.message });

@@ -3,6 +3,7 @@
 	import auth from "$stores/auth.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+	import LockOutline from "svelte-material-icons/LockOutline.svelte";
 	// import Ingest from "./Ingest.svelte";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
@@ -16,10 +17,11 @@
 
 	let loading = $state(true);
 	let show_liked = $state(false);
+	let show_private = $state(false);
 	let selected_tags = $state([]);
 
 	const load = async () => {
-		await datasets.retrieve(fetch);
+		await datasets.retrieve(fetch, auth.id_token);
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
 		const tagsFromURL = $page.url.searchParams.get("tags");
@@ -37,7 +39,7 @@
 	let filterName = $state("");
 	let filtered_datasets = $state();
 	$effect(() => {
-		let base_datasets = $datasets.data || []; // Start with all datasets or an empty array
+		let base_datasets = $datasets.data || [];
 
 		// Filter by tags
 		let datasets_after_tags = base_datasets.filter((dataset) => {
@@ -68,8 +70,24 @@
 	});
 
 	const toggleLike = () => {
+		if (show_private) togglePrivate();
 		show_liked = auth.user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
+	};
+
+	let _filtered_datasets = $state();
+	const togglePrivate = () => {
+		if (show_liked) toggleLike();
+		show_private = auth.user && !show_private;
+		localStorage.setItem("show_private", show_private);
+		if (show_private) {
+			_filtered_datasets = filtered_datasets;
+			filtered_datasets = filtered_datasets.filter(
+				(dataset) => dataset.visibility === "private",
+			);
+		} else {
+			filtered_datasets = _filtered_datasets;
+		}
 	};
 
 	const onToggleTag = (tags) => {
@@ -105,12 +123,19 @@
 					placeholder="Filter by name"
 					bind:value={filterName}
 				/>
-				<span class="flex flew-row justify-between mt-1 mb-3">
+				<span class="flex flew-row mt-1 mb-3 gap-1">
 					<button
 						onclick={toggleLike}
 						class="cursor-pointer hover:scale-115 transition-all duration-200"
 						><HeartOutline
 							color={show_liked ? "red" : "gray"}
+						/></button
+					>
+					<button
+						onclick={togglePrivate}
+						class="cursor-pointer hover:scale-115 transition-all duration-200"
+						><LockOutline
+							color={show_private ? "purple" : "gray"}
 						/></button
 					>
 				</span>

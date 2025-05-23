@@ -6,6 +6,7 @@ from ..datasets import (
     ingest_dataset,
     stage_dataset,
     deactivate_dataset,
+    retrieve_private_datasets
 )
 
 app = typer.Typer(help="Explore, ingest and download training datasets.")
@@ -72,6 +73,9 @@ def list(
     limit: int = typer.Option(
         None, "--limit", "-l", help="Limit the number of returned results"
     ),
+    private: bool = typer.Option(
+        False, "--private", "-p", help="Show private datasets"
+    ),
 ):
     """
     Retrieve a list with all the datasets in the EOTDL.
@@ -85,7 +89,10 @@ def list(
     $ eotdl datasets list --name YourModel --limit 5
     """
     try:
-        datasets = retrieve_datasets(name, limit)
+        if private:
+            datasets = retrieve_private_datasets()
+        else:
+            datasets = retrieve_datasets(name, limit)
         typer.echo(datasets)
     except Exception as e:
         typer.echo(e)

@@ -18,15 +18,26 @@ class DatasetsAPIRepo(APIRepo):
         response = requests.get(url)
         return self.format_response(response)
     
+    def retrieve_private_datasets(self, user):
+        url = self.url + "datasets/private"
+        response = requests.get(url, headers=self.generate_headers(user))
+        return self.format_response(response)
+    
     def retrieve_dataset(self, name):
         response = requests.get(self.url + "datasets?name=" + name)
+        return self.format_response(response)
+    
+    def retrieve_private_dataset(self, name, user):
+        response = requests.get(self.url + "datasets/private?name=" + name, headers=self.generate_headers(user))
         return self.format_response(response)
     
     def get_dataset_by_id(self, dataset_id):
         response = requests.get(self.url + "datasets/" + dataset_id)
         return self.format_response(response)
     
-    def create_dataset(self, metadata, user):
+    def create_dataset(self, metadata, user, private=False):
+        if private:
+            metadata["visibility"] = "private"
         response = requests.post(
             self.url + "datasets",
             json=metadata,

@@ -4,7 +4,7 @@ from .retrieve_dataset import retrieve_dataset, retrieve_owned_dataset
 
 def complete_dataset_ingestion(dataset_id, user, version, size):
     dataset_repo = DatasetsDBRepo()
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
+    dataset = retrieve_owned_dataset(dataset_id, user)
     if version == 1:
         dataset.versions[0].size = size
         return dataset_repo.update_dataset(dataset.id, dataset.model_dump())

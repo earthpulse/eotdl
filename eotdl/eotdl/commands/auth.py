@@ -28,7 +28,9 @@ def login():
 
 
 @app.command()
-def logout():
+def logout(
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation")
+):
     """
     Logout from the EOTDL.
 
@@ -37,7 +39,8 @@ def logout():
     user = is_logged()
     if user:
         typer.echo(f"You are logged in as {user['email']}")
-        typer.confirm("Are you sure you want to logout?", abort=True)
+        if not yes:
+            typer.confirm("Are you sure you want to logout?", abort=True)
         logout_url = logout_user()
         typer.echo("You are logged out.")
         typer.echo(

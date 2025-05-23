@@ -4,12 +4,15 @@ from ...repos import DatasetsDBRepo
 from .retrieve_dataset import (
     retrieve_dataset,
     retrieve_dataset_by_name,
+    retrieve_private_dataset_by_name,
 )
 from ..user import retrieve_user
 from ...errors import (
     DatasetAlreadyExistsError,
     DatasetDoesNotExistError,
+    NoAccessToPrivateError
 )
+
 from ...models import Dataset, ChangeType, NotificationType
 from ..notifications import create_notification
 from ..changes import create_change
@@ -30,6 +33,13 @@ def update_dataset(
                 raise DatasetAlreadyExistsError()
         except DatasetDoesNotExistError:
             pass
+        except NoAccessToPrivateError:
+            try:
+                __dataset = retrieve_private_dataset_by_name(dataset.name, user)
+                if __dataset.id != dataset_id:
+                    raise DatasetAlreadyExistsError()
+            except DatasetDoesNotExistError:
+                pass
 
     # # validate tags
     # if tags:
@@ -44,13 +54,13 @@ def update_dataset(
     _dataset.metadata = dataset.metadata
     _dataset.updatedAt = datetime.now()
     
-    # make private
-    if not _dataset.allowed_users and dataset.private:
-        _dataset.allowed_users = [dataset.uid]
+    # # make private
+    # if not _dataset.allowed_users and dataset.private:
+    #     _dataset.allowed_users = [dataset.uid]
 
-    # make public
-    if _dataset.allowed_users and not dataset.private:
-        _dataset.allowed_users = []
+    # # make public
+    # if _dataset.allowed_users and not dataset.private:
+    #     _dataset.allowed_users = []
     
     # update dataset in db
     repo = DatasetsDBRepo()

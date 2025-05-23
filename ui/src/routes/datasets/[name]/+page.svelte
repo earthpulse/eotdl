@@ -20,6 +20,7 @@
 
   let { data } = $props();
 
+  let loading = $state(true);
   $effect(() => {
     load();
     loadDatasets();
@@ -47,9 +48,14 @@
         alert("Error retrieving change");
       }
     } else {
-      dataset = await retrieveDataset(data.name);
-      dataset0 = { ...dataset, metadata: { ...dataset.metadata } };
+      try {
+        dataset = await retrieveDataset(data.name, auth.id_token);
+      } catch (error) {
+        alert(error.message);
+      }
+      dataset0 = { ...dataset, metadata: { ...dataset?.metadata } };
     }
+    loading = false;
   };
 
   const loadDatasets = async () => {
@@ -234,5 +240,9 @@
         </div>
       </div>
     </div>
+  </div>
+{:else if !loading}
+  <div class="w-full flex flex-col items-center mt-24">
+    <h1 class="text-xl italic text-gray-400">Dataset not found</h1>
   </div>
 {/if}

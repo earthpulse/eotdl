@@ -104,7 +104,7 @@ def ingest_catalog(path, repo, retrieve, mode):
 	return ingest(path, repo, retrieve, mode)
 
 @with_auth
-def ingest(path, repo, retrieve, mode, user):
+def ingest(path, repo, retrieve, mode, private, user):
 	try:
 		readme = frontmatter.load(path.joinpath("README.md"))
 		metadata_dict = readme.metadata
@@ -115,7 +115,7 @@ def ingest(path, repo, retrieve, mode, user):
 		print(str(e))
 		raise Exception("Error loading metadata")
 	# retrieve dataset (create if doesn't exist)
-	dataset_or_model = retrieve(metadata, user)
+	dataset_or_model = retrieve(metadata, user, private)
 	current_version = sorted([v['version_id'] for v in dataset_or_model["versions"]])[-1]
 	# TODO: update README if metadata changed in UI (db)
 	# update_metadata = True

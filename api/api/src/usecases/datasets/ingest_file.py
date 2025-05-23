@@ -17,7 +17,7 @@ from ...repos import DatasetsDBRepo, OSRepo#, GeoDBRepo
 
 
 async def ingest_dataset_file(file_name, dataset_id, user):
-    dataset = retrieve_owned_dataset(dataset_id, user.uid)
+    dataset = retrieve_owned_dataset(dataset_id, user)
     os_repo = OSRepo()
     presigned_url = os_repo.generate_presigned_put_url(dataset_id, file_name)
     return presigned_url

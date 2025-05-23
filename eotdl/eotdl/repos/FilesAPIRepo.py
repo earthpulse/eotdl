@@ -16,7 +16,6 @@ class FilesAPIRepo(APIRepo):
         if version is not None:
             url += "?version=" + str(version)
         # get a presigned url to upload the file directly to the bucket
-        print(file_name)
         reponse = requests.post(
             url,
             json={

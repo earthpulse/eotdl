@@ -3,16 +3,26 @@ from pathlib import Path
 from ..repos import DatasetsAPIRepo
 from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual, ingest_catalog
 
-def retrieve_dataset(metadata, user):
+def retrieve_dataset(metadata, user, private):
 	repo = DatasetsAPIRepo()
 	data, error = repo.retrieve_dataset(metadata.name)
 	if data and data["uid"] != user["uid"]:
 		raise Exception("Dataset already exists.")
-	if error and error == "Dataset doesn't exist":
-		# create dataset
-		data, error = repo.create_dataset(metadata.dict(), user)
-		# print(data, error)
-		if error:
+	if error:
+		if error == "Dataset doesn't exist":
+			# create dataset
+			data, error = repo.create_dataset(metadata.dict(), user, private)
+			# print(data, error)
+			if error:
+				raise Exception(error)
+		elif error == "NoAccessToPrivateError":
+			data, error = repo.retrieve_private_dataset(metadata.name, user)
+			if error:
+				if error == "NoAccessToPrivateError":
+					raise Exception("Dataset already exists.")
+				else:	
+					raise Exception(error)
+		else:
 			raise Exception(error)
 	return data
 
@@ -22,6 +32,7 @@ def ingest_dataset(
 	logger=print,
 	force_metadata_update=False,
 	sync_metadata=False,
+	private=False,
 ):
 	path = Path(path)
 	if not path.is_dir():
@@ -30,7 +41,7 @@ def ingest_dataset(
 		prep_ingest_stac(path, logger)
 	else:
 		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
-	return ingest(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets')
+	return ingest(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets', private)
 
 
 def ingest_virtual_dataset( # could work for a list of paths with minimal changes...

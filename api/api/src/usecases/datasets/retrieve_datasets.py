@@ -3,15 +3,14 @@ from ...repos import DatasetsDBRepo
 from ...models import Dataset
 
 
-def retrieve_datasets(match=None, limit=None):
+def retrieve_datasets(match=None, limit=None, private=False):
     repo = DatasetsDBRepo()
     data = repo.retrieve_datasets(match, limit)
     datasets = []
     for d in data:
         # only list active and public datasets
-        if not 'active' in d or d['active'] and not d['allowed_users']:
+        if (not 'active' in d or d['active']) and (not 'visibility' in d or d['visibility'] == 'public'):
             datasets.append(Dataset(**d))
-
     return datasets
 
 
@@ -30,6 +29,12 @@ def retrieve_popular_datasets(limit):
     datasets = []
     for d in data:
         # only list active and public datasets
-        if not 'active' in d or d['active'] and not d['allowed_users']:
+        if (not 'active' in d or d['active']) and (not 'visibility' in d or d['visibility'] == 'public'):
             datasets.append(Dataset(**d))
     return datasets
+
+
+def retrieve_private_datasets(user):
+    repo = DatasetsDBRepo()
+    data = repo.retrieve_private_datasets(user)
+    return [Dataset(**d) for d in data]

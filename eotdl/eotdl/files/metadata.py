@@ -10,7 +10,6 @@ class Metadata(BaseModel):
     name: str
     description: str
     thumbnail: Optional[str] = ""
-    private: Optional[bool] = False
 
     # validate source is a URL
     @validator("source")
@@ -36,7 +35,8 @@ class Metadata(BaseModel):
             f.write(f"name: {self.name}\n")
             f.write(f"license: {self.license}\n") 
             f.write(f"source: {self.source}\n")
-            f.write(f"thumbnail: {self.thumbnail}\n")
+            if self.thumbnail:
+                f.write(f"thumbnail: {self.thumbnail}\n")
             f.write(f"authors:\n")
             for author in self.authors:
                 f.write(f"  - {author}\n")

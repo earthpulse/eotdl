@@ -5,7 +5,7 @@ class UserUnauthorizedError(Exception):
         super().__init__(self.message)
 
 class NoAccessToPrivateError(Exception):
-    message = "You do not have access to this private dataset/model"
+    message = "NoAccessToPrivateError"
 
     def __init__(self):
         super().__init__(self.message)
