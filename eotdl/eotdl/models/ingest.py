@@ -3,7 +3,7 @@ from pathlib import Path
 from ..repos import ModelsAPIRepo
 from ..files.ingest import prep_ingest_stac, prep_ingest_folder, ingest, ingest_virtual, ingest_catalog
 
-def retrieve_model(metadata, user):
+def retrieve_model(metadata, user, private=False):
 	repo = ModelsAPIRepo()
 	data, error = repo.retrieve_model(metadata.name)
 	# print(data, error)
