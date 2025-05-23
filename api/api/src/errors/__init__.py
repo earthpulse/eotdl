@@ -11,7 +11,7 @@ from .datasets import (
     ChecksumMismatch,
     DatasetVersionDoesNotExistError,
 	DatasetShouldBeSTAC,
-    DatasetNotActiveError
+    DatasetNotActiveError,
 )
 from .models import (
     ModelDoesNotExistError,
@@ -25,6 +25,7 @@ from .user import (
     UserDoesNotExistError,
     UserAlreadyExistsError,
     InvalidApiKey,
+    NoAccessToPrivateError
 )
 from .tags import InvalidTagError
 from .pipelines import (

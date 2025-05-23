@@ -4,6 +4,11 @@ class UserUnauthorizedError(Exception):
     def __init__(self):
         super().__init__(self.message)
 
+class NoAccessToPrivateError(Exception):
+    message = "You do not have access to this private dataset/model"
+
+    def __init__(self):
+        super().__init__(self.message)
 
 class TierLimitError(Exception):
     def __init__(self, message):

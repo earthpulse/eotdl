@@ -5,7 +5,7 @@ import logging
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.models import Dataset
-from ...src.usecases.datasets import update_dataset, toggle_like_dataset, deactivate_dataset
+from ...src.usecases.datasets import update_dataset, toggle_like_dataset, deactivate_dataset, make_dataset_private, allow_user_to_private_dataset
 
 from .responses import update_dataset_responses
 
@@ -47,7 +47,7 @@ def update(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("/deactivate/{dataset_id}")
+@router.patch("/{dataset_id}/deactivate")
 def deactivate(
     dataset_id: str,
     user: User = Depends(get_current_user),
@@ -58,3 +58,31 @@ def deactivate(
     except Exception as e:
         logger.exception("datasets:deactivate")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/{dataset_id}/allow-user/{user_id}")
+def allow_user(
+    dataset_id: str,
+    user_id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        message = allow_user_to_private_dataset(dataset_id, user, user_id)
+        return {"message": message}
+    except Exception as e:
+        logger.exception("datasets:allow_user")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/{dataset_id}/make-private")
+def make_private(
+    dataset_id: str,
+    user: User = Depends(get_current_user),
+):
+    try:
+        message = make_dataset_private(dataset_id, user)
+        return {"message": message}
+    except Exception as e:
+        logger.exception("datasets:make_private")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)
+)

@@ -36,6 +36,15 @@ def update_model(
     _model.name = model.name
     _model.metadata = model.metadata
     _model.updatedAt = datetime.now()
+
+    # make private
+    if not _model.allowed_users and model.private:
+        _model.allowed_users = [user.uid]
+
+    # make public
+    if _model.allowed_users and not model.private:
+        _model.allowed_users = []
+
     # update model in db
     repo = ModelsDBRepo()
     repo.update_model(model_id, _model.model_dump())

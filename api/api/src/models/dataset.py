@@ -19,6 +19,7 @@ class Dataset(BaseModel):
     downloads: int = 0
     quality: int = 0
     active: bool = True
+    allowed_users: List[str] = []
     benchmark: Optional[dict] = None
 
     @field_validator("name")
