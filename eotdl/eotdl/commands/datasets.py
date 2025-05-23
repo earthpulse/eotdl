@@ -96,9 +96,6 @@ def get(
     path: str = typer.Option(
         None, "--path", "-p", help="Download the dataset to a specific output path"
     ),
-    file: str = typer.Option(
-        None, "--file", "-f", help="Download a specific file from the dataset"
-    ),
     version: int = typer.Option(None, "--version", "-v", help="Dataset version"),
     assets: bool = typer.Option(
         False, "--assets", "-a", help="Download STAC assets from the dataset"
@@ -116,7 +113,6 @@ def get(
     Download a dataset from the EOTDL.
     \n\n
     If using --path, it will download the dataset to the specified path. If no path is provided, it will download to ~/.eotdl/datasets.\n
-    If using --file, it will download the specified file. If no file is provided, it will download the entire dataset.\n
     If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
     If using --assets when the dataset is STAC, it will also download the STAC assets of the dataset. If not provided, it will only download the STAC metadata.\n
     If using --force, it will download the dataset even if the file already exists.\n
@@ -125,7 +121,7 @@ def get(
     Examples\n
     --------\n
     $ eotdl dataset get YourDataset\n
-    $ eotdl dataset get YourDataset --path /path/to/download --file dataset.zip --version 1 --assets True --force True --verbose True
+    $ eotdl dataset get YourDataset --path /path/to/download --version 1 --assets True --force True --verbose True
     """
     try:
         dst_path = stage_dataset(

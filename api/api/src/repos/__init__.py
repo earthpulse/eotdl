@@ -11,3 +11,4 @@ from .EOXRepo import EOXRepo
 from .geodb import GeoDBRepo
 from .mongo import MongoChangesRepo as ChangesDBRepo
 from .mongo import MongoNotificationsRepo as NotificationsDBRepo
+from .mongo import MongoPipelinesRepo as PipelinesDBRepo

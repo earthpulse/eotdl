@@ -6,6 +6,7 @@ from .retrieve_credentials import retrieve_user_credentials
 from .check_user_can_create_dataset import check_user_can_create_dataset
 from .check_user_can_download_dataset import check_user_can_download_dataset
 from .check_user_can_create_model import check_user_can_create_model
+from .check_user_can_create_pipeline import check_user_can_create_pipeline
 from .retrieve_user_by_key import retrieve_user_by_key
 from .retrieve_api_keys import retrieve_api_keys
 from .create_api_key import create_api_key

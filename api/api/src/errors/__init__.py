@@ -27,3 +27,9 @@ from .user import (
     InvalidApiKey,
 )
 from .tags import InvalidTagError
+from .pipelines import (
+    PipelineDoesNotExistError,
+    PipelineAlreadyExistsError,
+    PipelineVersionDoesNotExistError,
+    PipelineNotActiveError
+)

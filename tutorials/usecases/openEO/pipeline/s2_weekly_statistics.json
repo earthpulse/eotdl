@@ -1,0 +1,288 @@
+{
+    "process_graph": {
+        "loadcollection1": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "B02",
+                    "B03",
+                    "B04",
+                    "B05",
+                    "B06",
+                    "B07",
+                    "B08",
+                    "B8A",
+                    "B11",
+                    "B12"
+                ],
+                "id": "SENTINEL2_L2A",
+                "properties": {
+                    "eo:cloud_cover": {
+                        "process_graph": {
+                            "lte1": {
+                                "process_id": "lte",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": 75.0
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": null,
+                "temporal_extent": {
+                    "from_parameter": "temporal_extent"
+                }
+            }
+        },
+        "loadcollection2": {
+            "process_id": "load_collection",
+            "arguments": {
+                "bands": [
+                    "SCL"
+                ],
+                "id": "SENTINEL2_L2A",
+                "properties": {
+                    "eo:cloud_cover": {
+                        "process_graph": {
+                            "lte2": {
+                                "process_id": "lte",
+                                "arguments": {
+                                    "x": {
+                                        "from_parameter": "value"
+                                    },
+                                    "y": 75.0
+                                },
+                                "result": true
+                            }
+                        }
+                    }
+                },
+                "spatial_extent": {
+                    "from_parameter": "spatial_extent"
+                },
+                "temporal_extent": {
+                    "from_parameter": "temporal_extent"
+                }
+            }
+        },
+        "toscldilationmask1": {
+            "process_id": "to_scl_dilation_mask",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection2"
+                }
+            }
+        },
+        "mask1": {
+            "process_id": "mask",
+            "arguments": {
+                "data": {
+                    "from_node": "loadcollection1"
+                },
+                "mask": {
+                    "from_node": "toscldilationmask1"
+                }
+            }
+        },
+        "aggregatetemporalperiod1": {
+            "process_id": "aggregate_temporal_period",
+            "arguments": {
+                "data": {
+                    "from_node": "mask1"
+                },
+                "period": "week",
+                "reducer": {
+                    "process_graph": {
+                        "mean1": {
+                            "process_id": "mean",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                }
+                            },
+                            "result": true
+                        }
+                    }
+                }
+            }
+        },
+        "applydimension1": {
+            "process_id": "apply_dimension",
+            "arguments": {
+                "data": {
+                    "from_node": "aggregatetemporalperiod1"
+                },
+                "dimension": "t",
+                "process": {
+                    "process_graph": {
+                        "quantiles1": {
+                            "process_id": "quantiles",
+                            "arguments": {
+                                "data": {
+                                    "from_parameter": "data"
+                                },
+                                "probabilities": [
+                                    0.1,
+                                    0.25,
+                                    0.5,
+                                    0.75,
+                                    0.9
+                                ]
+                            },
+                            "result": true
+                        }
+                    }
+                },
+                "target_dimension": "bands"
+            }
+        },
+        "renamelabels1": {
+            "process_id": "rename_labels",
+            "arguments": {
+                "data": {
+                    "from_node": "applydimension1"
+                },
+                "dimension": "bands",
+                "target": [
+                    "B02_P10",
+                    "B02_P25",
+                    "B02_P50",
+                    "B02_P75",
+                    "B02_P90",
+                    "B03_P10",
+                    "B03_P25",
+                    "B03_P50",
+                    "B03_P75",
+                    "B03_P90",
+                    "B04_P10",
+                    "B04_P25",
+                    "B04_P50",
+                    "B04_P75",
+                    "B04_P90",
+                    "B05_P10",
+                    "B05_P25",
+                    "B05_P50",
+                    "B05_P75",
+                    "B05_P90",
+                    "B06_P10",
+                    "B06_P25",
+                    "B06_P50",
+                    "B06_P75",
+                    "B06_P90",
+                    "B07_P10",
+                    "B07_P25",
+                    "B07_P50",
+                    "B07_P75",
+                    "B07_P90",
+                    "B08_P10",
+                    "B08_P25",
+                    "B08_P50",
+                    "B08_P75",
+                    "B08_P90",
+                    "B8A_P10",
+                    "B8A_P25",
+                    "B8A_P50",
+                    "B8A_P75",
+                    "B8A_P90",
+                    "B11_P10",
+                    "B11_P25",
+                    "B11_P50",
+                    "B11_P75",
+                    "B11_P90",
+                    "B12_P10",
+                    "B12_P25",
+                    "B12_P50",
+                    "B12_P75",
+                    "B12_P90"
+                ]
+            },
+            "result": true
+        }
+    },
+    "id": "s2_weekly_statistics",
+    "parameters": [
+        {
+            "name": "temporal_extent",
+            "description": "Temporal extent specified as two-element array with start and end date/date-time.",
+            "schema": {
+                "type": "array",
+                "subtype": "temporal-interval",
+                "uniqueItems": true,
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "subtype": "date-time",
+                            "format": "date-time"
+                        },
+                        {
+                            "type": "string",
+                            "subtype": "date",
+                            "format": "date"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "spatial_extent",
+            "description": "Spatial extent specified as a bounding box with 'west', 'south', 'east' and 'north' fields.",
+            "schema": {
+                "type": "object",
+                "subtype": "bounding-box",
+                "required": [
+                    "west",
+                    "south",
+                    "east",
+                    "north"
+                ],
+                "properties": {
+                    "west": {
+                        "type": "number",
+                        "description": "West (lower left corner, coordinate axis 1)."
+                    },
+                    "south": {
+                        "type": "number",
+                        "description": "South (lower left corner, coordinate axis 2)."
+                    },
+                    "east": {
+                        "type": "number",
+                        "description": "East (upper right corner, coordinate axis 1)."
+                    },
+                    "north": {
+                        "type": "number",
+                        "description": "North (upper right corner, coordinate axis 2)."
+                    },
+                    "crs": {
+                        "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/) or [WKT2 CRS string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "subtype": "epsg-code",
+                                "title": "EPSG Code",
+                                "minimum": 1000
+                            },
+                            {
+                                "type": "string",
+                                "subtype": "wkt2-definition",
+                                "title": "WKT2 definition"
+                            }
+                        ],
+                        "default": 4326
+                    }
+                }
+            },
+            "optional": true,
+            "default": null
+        }
+    ]
+}

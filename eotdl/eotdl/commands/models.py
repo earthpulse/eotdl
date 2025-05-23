@@ -93,9 +93,6 @@ def get(
     path: str = typer.Option(
         None, "--path", "-p", help="Download the model to a specific output path"
     ),
-    file: str = typer.Option(
-        None, "--file", "-f", help="Download a specific file from the model"
-    ),
     version: int = typer.Option(None, "--version", "-v", help="Model version"),
     assets: bool = typer.Option(
         False, "--assets", "-a", help="Download STAC assets from the model"
@@ -113,7 +110,6 @@ def get(
     Download a model from the EOTDL.
     \n\n
     If using --path, it will download the model to the specified path. If no path is provided, it will download to ~/.eotdl/models.\n
-    If using --file, it will download the specified file. If no file is provided, it will download the entire model.\n
     If using --version, it will download the specified version. If no version is provided, it will download the latest version.\n
     If using --assets when the model is STAC, it will also download the STAC assets of the model. If not provided, it will only download the STAC metadata.\n
     If using --force, it will download the model even if the file already exists.\n
@@ -122,7 +118,7 @@ def get(
     Examples\n
     --------\n
     $ eotdl models get YourModel\n
-    $ eotdl models get YourModel --path /path/to/download --file model.zip --version 1 --assets True --force True --verbose True
+    $ eotdl models get YourModel --path /path/to/download --version 1 --assets True --force True --verbose True
     """
     try:
         dst_path = stage_model(

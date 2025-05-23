@@ -8,6 +8,7 @@ from .model import Model
 class ChangeType(str, Enum):
     DATASET_UPDATE = "dataset_update"
     MODEL_UPDATE = "model_update"
+    PIPELINE_UPDATE = "pipeline_update"
 
 class ChangeStatus(str, Enum):
     PENDING = "pending"
