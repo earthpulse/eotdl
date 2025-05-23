@@ -45,7 +45,7 @@
     <div class="flex justify-center">
         <div
             on:change={renderHtml}
-            class="w-[62rem] flex flex-col items-center justify-center p-2 rounded-xl"
+            class="w-full flex flex-col items-center justify-center p-2 rounded-xl"
         >
             <MarkdownEditor {carta} bind:value />
         </div>

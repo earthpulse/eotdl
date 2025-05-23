@@ -25,6 +25,7 @@ class User(BaseModel):
     updatedAt: datetime = Field(default_factory=datetime.now)
     dataset_count: int = 0
     models_count: int = 0
+    pipelines_count: int = 0
     tier: Tier = Tier.FREE
     liked_datasets: list = []
     liked_models: list = []

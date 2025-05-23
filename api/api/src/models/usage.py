@@ -28,7 +28,12 @@ class ModelLimits(BaseModel):
     download: int
     count: int
 
+class PipelineLimits(BaseModel):
+    upload: int
+    download: int
+    count: int
 
 class Limits(BaseModel):
     datasets: DatasetLimits
     models: ModelLimits
+    pipelines: PipelineLimits

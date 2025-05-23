@@ -34,6 +34,9 @@ class MongoUserRepo(MongoRepo):
 
     def retrieve_model_ingestion_usage(self, uid):
         return self.find_in_time_range("usage", uid, "model_ingested", "type")
+    
+    def retrieve_pipeline_ingestion_usage(self, uid):
+        return self.find_in_time_range("usage", uid, "pipeline_ingested", "type")
 
     def retrieve_keys(self, uid):
         return self.retrieve("keys", match={"uid": uid})

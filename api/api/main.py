@@ -33,9 +33,16 @@ from .routers.models import (
     stage_model,
     update_model,
 )
+from .routers.pipelines import (
+    ingest_pipeline,
+    retrieve_pipelines,
+    create_pipeline,
+    stage_pipeline,
+    update_pipeline
+)
 # from .routers import admin, migrate
 
-VERSION = "2025.04.23"
+VERSION = "2025.05.23"
 
 tags_metadata = [
     {
@@ -102,13 +109,19 @@ app.include_router(retrieve_dataset.router, prefix="/datasets", tags=["datasets"
 app.include_router(ingest_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(stage_dataset.router, prefix="/datasets", tags=["datasets"])
 app.include_router(update_dataset.router, prefix="/datasets", tags=["datasets"])
-
 # models
 app.include_router(retrieve_models.router, prefix="/models", tags=["models"])
 app.include_router(create_model.router, prefix="/models", tags=["models"])
 app.include_router(ingest_model.router, prefix="/models", tags=["models"])
 app.include_router(stage_model.router, prefix="/models", tags=["models"])
 app.include_router(update_model.router, prefix="/models", tags=["models"])
+# pipelines
+app.include_router(ingest_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+app.include_router(retrieve_pipelines.router, prefix="/pipelines", tags=["pipelines"])
+app.include_router(create_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+app.include_router(stage_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+app.include_router(update_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+
 # notifications
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # changes

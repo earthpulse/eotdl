@@ -16,6 +16,7 @@
         { href: "/", label: "Home", icon: HomeOutline },
         { href: "/datasets", label: "Datasets", icon: DatabaseOutline },
         { href: "/models", label: "Models", icon: ChartBoxPlusOutline },
+        { href: "/pipelines", label: "Pipelines", icon: ChartBoxPlusOutline },
         {
             href: "https://hub.api.eotdl.com/",
             label: "Workspace",

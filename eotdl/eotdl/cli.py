@@ -1,7 +1,7 @@
 import typer
 import os
 
-from .commands import auth, datasets, models, stac
+from .commands import auth, datasets, models, stac, pipelines
 from .repos import APIRepo
 from . import __version__
 
@@ -11,6 +11,7 @@ app.add_typer(auth.app, name="auth")
 app.add_typer(datasets.app, name="datasets")
 app.add_typer(models.app, name="models")
 app.add_typer(stac.app, name="stac")
+app.add_typer(pipelines.app, name="pipelines")
 
 @app.command()
 def version():

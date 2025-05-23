@@ -28,3 +28,9 @@ from .user import (
     NoAccessToPrivateError
 )
 from .tags import InvalidTagError
+from .pipelines import (
+    PipelineDoesNotExistError,
+    PipelineAlreadyExistsError,
+    PipelineVersionDoesNotExistError,
+    PipelineNotActiveError
+)

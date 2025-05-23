@@ -39,6 +39,17 @@
                                     class="text-blue-500 hover:underline"
                                     >See changes</a
                                 >
+                            {:else if notification.type == "pipeline_update"}
+                                <h2 class="card-title text-lg">
+                                    Pipeline Update Request
+                                </h2>
+                                <a
+                                    href="/pipelines/{notification.payload
+                                        .pipeline_name}?change={notification
+                                        .payload.change_id}"
+                                    class="text-blue-500 hover:underline"
+                                    >See changes</a
+                                >
                             {:else if notification.type == "dataset_update_request_declined"}
                                 <h2 class="card-title text-lg">
                                     Dataset Update Request Declined
@@ -53,6 +64,13 @@
                                 <p>
                                     {notification.payload.message}
                                 </p>
+                            {:else if notification.type == "pipeline_update_request_declined"}
+                                <h2 class="card-title text-lg">
+                                    Pipeline Update Request Declined
+                                </h2>
+                                <p>
+                                    {notification.payload.message}
+                                </p>
                             {:else if notification.type == "dataset_update_request_accepted"}
                                 <h2 class="card-title text-lg">
                                     Dataset Update Request Accepted
@@ -63,6 +81,13 @@
                             {:else if notification.type == "model_update_request_accepted"}
                                 <h2 class="card-title text-lg">
                                     Model Update Request Accepted
+                                </h2>
+                                <p>
+                                    {notification.payload.message}
+                                </p>
+                            {:else if notification.type == "pipeline_update_request_accepted"}
+                                <h2 class="card-title text-lg">
+                                    Pipeline Update Request Accepted
                                 </h2>
                                 <p>
                                     {notification.payload.message}

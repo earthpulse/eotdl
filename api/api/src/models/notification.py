@@ -5,10 +5,14 @@ from datetime import datetime
 class NotificationType(str, Enum):
     DATASET_UPDATE = "dataset_update"
     MODEL_UPDATE = "model_update"
+    PIPELINE_UPDATE = "pipeline_update"
     DATASET_UPDATE_REQUEST_DECLINED = "dataset_update_request_declined"
     DATASET_UPDATE_REQUEST_ACCEPTED = "dataset_update_request_accepted"
     MODEL_UPDATE_REQUEST_DECLINED = "model_update_request_declined"
     MODEL_UPDATE_REQUEST_ACCEPTED = "model_update_request_accepted"
+    PIPELINE_UPDATE_REQUEST_DECLINED = "pipeline_update_request_declined"
+    PIPELINE_UPDATE_REQUEST_ACCEPTED = "pipeline_update_request_accepted"
+
 
 class NotificationStatus(str, Enum):
     UNREAD = "unread"

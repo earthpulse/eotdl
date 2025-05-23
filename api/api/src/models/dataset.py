@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator, Field
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from .verison import Version
 from .metadata import Metadata
@@ -20,6 +20,7 @@ class Dataset(BaseModel):
     quality: int = 0
     active: bool = True
     allowed_users: List[str] = []
+    benchmark: Optional[dict] = None
 
     @field_validator("name")
     def check_name_is_valid(cls, name):
