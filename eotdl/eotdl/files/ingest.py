@@ -98,10 +98,10 @@ def ingest_virtual( # could work for a list of paths with minimal changes...
 	data.append(create_stac_item('README.md', str(path / "README.md")))
 	gdf = gpd.GeoDataFrame(data, geometry='geometry')
 	gdf.to_parquet(path / "catalog.parquet")
-	return ingest(path, repo, retrieve, mode)
+	return ingest(path, repo, retrieve, mode, private=False)
 
 def ingest_catalog(path, repo, retrieve, mode):
-	return ingest(path, repo, retrieve, mode)
+	return ingest(path, repo, retrieve, mode, private=False)
 
 @with_auth
 def ingest(path, repo, retrieve, mode, private, user):
