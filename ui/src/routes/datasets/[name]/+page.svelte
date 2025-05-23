@@ -193,7 +193,7 @@
       </div>
       <hr class="sm:hidden" />
       <div
-        class="sm:grid sm:grid-cols-[auto_350px] sm:gap-3 flex flex-col mt-5"
+        class="lg:grid lg:grid-cols-[auto_350px] lg:gap-3 flex flex-col mt-5"
       >
         <span>
           {#if dataset.benchmark}
@@ -203,7 +203,7 @@
             <EditableContent {edit} bind:value={dataset.metadata.description} />
           </div>
         </span>
-        <div class="flex flex-col gap-3 text-xs sm:mt-0 mt-16">
+        <div class="flex flex-col gap-3 text-xs lg:mt-0 mt-6">
           <hr class="sm:hidden" />
           <p>Stage the dataset with the CLI:</p>
           <div class="relative">

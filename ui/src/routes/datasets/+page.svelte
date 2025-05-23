@@ -9,6 +9,8 @@
 	import Skeleton from "$components/Skeleton.svelte";
 	import DatasetsLeaderboard from "../DatasetsLeaderboard.svelte";
 	// import QualitySelector from "$components/QualitySelector.svelte";
+	import { page } from "$app/stores";
+	import { goto } from "$app/navigation";
 
 	let { data } = $props();
 
@@ -20,10 +22,12 @@
 		await datasets.retrieve(fetch);
 		loading = false;
 		show_liked = localStorage.getItem("show_liked") === "true";
-		filtered_datasets = JSON.parse(
-			localStorage.getItem("filtered_datasets"),
-		);
-		selected_tags = JSON.parse(localStorage.getItem("selected_tags")) || [];
+		const tagsFromURL = $page.url.searchParams.get("tags");
+		if (tagsFromURL) {
+			selected_tags = tagsFromURL.split(",");
+		} else {
+			selected_tags = [];
+		}
 	};
 
 	$effect(() => {
@@ -68,8 +72,15 @@
 		localStorage.setItem("show_liked", show_liked);
 	};
 
-	const onToggleTag = (tags) =>
-		localStorage.setItem("selected_tags", JSON.stringify(tags));
+	const onToggleTag = (tags) => {
+		const newURL = new URL($page.url);
+		if (tags.length > 0) {
+			newURL.searchParams.set("tags", tags.join(","));
+		} else {
+			newURL.searchParams.delete("tags");
+		}
+		goto(newURL, { keepFocus: true, noScroll: true });
+	};
 </script>
 
 <svelte:head>
