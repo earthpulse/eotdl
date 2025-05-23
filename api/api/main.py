@@ -38,6 +38,7 @@ from .routers.pipelines import (
     retrieve_pipelines,
     create_pipeline,
     stage_pipeline,
+    update_pipeline
 )
 # from .routers import admin, migrate
 
@@ -119,6 +120,8 @@ app.include_router(ingest_pipeline.router, prefix="/pipelines", tags=["pipelines
 app.include_router(retrieve_pipelines.router, prefix="/pipelines", tags=["pipelines"])
 app.include_router(create_pipeline.router, prefix="/pipelines", tags=["pipelines"])
 app.include_router(stage_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+app.include_router(update_pipeline.router, prefix="/pipelines", tags=["pipelines"])
+
 # notifications
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 # changes

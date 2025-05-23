@@ -4,6 +4,7 @@ from datetime import datetime
 
 from .dataset import Dataset
 from .model import Model
+from .pipeline import Pipeline
 
 class ChangeType(str, Enum):
     DATASET_UPDATE = "dataset_update"
@@ -19,7 +20,7 @@ class Change(BaseModel):
     uid: str
     id: str
     type: ChangeType
-    payload: dict | Dataset | Model
+    payload: dict | Dataset | Model | Pipeline
     status: ChangeStatus = ChangeStatus.PENDING
     createdAt: datetime = Field(default_factory=datetime.now)
     updatedAt: datetime = Field(default_factory=datetime.now)
