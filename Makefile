@@ -14,7 +14,7 @@ push:
 	docker push eotdl/api:${v}
 
 cli:
-	rm -rf dist
+	rm -rf eotdl/dist
 	# linux
 	# sed -i 's/^version = .*/version = "$(v)"/' eotdl/pyproject.toml
 	# sed -i 's/__version__ = '.*'/__version__ = "${v}"/' eotdl/eotdl/__init__.py
@@ -24,7 +24,7 @@ cli:
 	cd eotdl && uv build
 
 publish:
-	uv publish --username "__token__" --password "$(token)"
+	cd eotdl && uv publish --username "__token__" --password "$(token)"
 	# export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 
 test:

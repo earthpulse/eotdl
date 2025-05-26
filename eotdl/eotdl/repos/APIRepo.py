@@ -4,8 +4,8 @@ import requests
 
 class APIRepo:
     def __init__(self, url=None):
-        # default_url = "https://api.eotdl.com/"
-        default_url = "http://localhost:8000/"
+        default_url = "https://api.eotdl.com/"
+        # default_url = "http://localhost:8000/"
         self.url = url if url else os.getenv("EOTDL_API_URL", default_url)
 
     def format_response(self, response):
