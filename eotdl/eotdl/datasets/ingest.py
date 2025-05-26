@@ -34,6 +34,7 @@ def ingest_dataset(
 	sync_metadata=False,
 	private=False,
 ):
+	if private: print("Ingesting private dataset")
 	path = Path(path)
 	if not path.is_dir():
 		raise Exception("Path must be a folder")

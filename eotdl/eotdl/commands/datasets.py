@@ -34,6 +34,12 @@ def ingest(
         "-s",
         help="Sync local metadata with the EOTDL. Will overwrite the local metadata",
     ),
+    private: bool = typer.Option(
+        False,
+        '--private',
+        '-pr',
+        help="Make dataset private"
+    )
 ):
     """
     Ingest a dataset to the EOTDL.asdf
@@ -61,7 +67,7 @@ def ingest(
     $ eotdl dataset ingest --path /path/to/folder-with-dataset --verbose True
     """
     try:
-        ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata)
+        ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata, private)
     except Exception as e:
         typer.echo(e)
         
