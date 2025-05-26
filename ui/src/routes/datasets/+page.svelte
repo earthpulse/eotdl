@@ -38,6 +38,7 @@
 
 	let filterName = $state("");
 	let filtered_datasets = $state();
+	let all_filtered_datasets = $state();
 	$effect(() => {
 		let base_datasets = $datasets.data || [];
 
@@ -54,6 +55,7 @@
 				.toLowerCase()
 				.includes(filterName.toLowerCase());
 		});
+		all_filtered_datasets = datasets_after_name;
 
 		// Filter by liked status if show_liked is true and user is logged in
 		let final_datasets;
@@ -73,20 +75,25 @@
 		if (show_private) togglePrivate();
 		show_liked = auth.user && !show_liked;
 		localStorage.setItem("show_liked", show_liked);
+		if (!auth.user) {
+			alert("Please login to view liked datasets");
+		}
 	};
 
-	let _filtered_datasets = $state();
 	const togglePrivate = () => {
 		if (show_liked) toggleLike();
 		show_private = auth.user && !show_private;
 		localStorage.setItem("show_private", show_private);
-		if (show_private) {
-			_filtered_datasets = filtered_datasets;
-			filtered_datasets = filtered_datasets.filter(
-				(dataset) => dataset.visibility === "private",
-			);
+		if (auth.user) {
+			if (show_private) {
+				filtered_datasets = all_filtered_datasets.filter(
+					(dataset) => dataset.visibility === "private",
+				);
+			} else {
+				filtered_datasets = all_filtered_datasets;
+			}
 		} else {
-			filtered_datasets = _filtered_datasets;
+			alert("Please login to view private datasets");
 		}
 	};
 
