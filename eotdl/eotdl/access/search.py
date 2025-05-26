@@ -18,7 +18,7 @@ def search_sentinel_imagery(
     time_interval: Union[str, datetime, List[Union[str, datetime]]],
     bounding_box: List[Union[int, float]],
     collection_id: str,
-) -> None:
+):
     """
     Search Sentinel imagery
     """
@@ -34,7 +34,7 @@ def advanced_imagery_search(
     time_interval: Union[str, datetime, List[Union[str, datetime]]],
     bounding_box: List[Union[int, float]],
     parameters: SHParameters,
-) -> None:
+):
     """
     Advanced imagery search
     """
