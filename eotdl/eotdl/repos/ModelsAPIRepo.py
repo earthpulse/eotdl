@@ -38,9 +38,9 @@ class ModelsAPIRepo(APIRepo):
         )
         return self.format_response(response)
 
-    def deactivate_model(self, model_name, user):
+    def deactivate_model(self, model_id, user):
         response = requests.patch(
-            self.url + "models/deactivate/" + model_name,
+            self.url + "models/" + model_id + "/deactivate",
             headers=self.generate_headers(user),
         )
         return self.format_response(response)

@@ -53,9 +53,9 @@ class DatasetsAPIRepo(APIRepo):
         )
         return self.format_response(response)
     
-    def deactivate_dataset(self, dataset_name, user):
+    def deactivate_dataset(self, dataset_id, user):
         response = requests.patch(
-            self.url + "datasets/deactivate/" + dataset_name,
+            self.url + "datasets/" + dataset_id + "/deactivate",
             headers=self.generate_headers(user),
         )
         return self.format_response(response)

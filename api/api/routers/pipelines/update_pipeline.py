@@ -58,7 +58,7 @@ def update(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.patch("/deactivate/{pipeline_id}", include_in_schema=False)
+@router.patch("/{pipeline_id}/deactivate", include_in_schema=False)
 def deactivate(
     pipeline_id: str,
     user: User = Depends(get_current_user),

@@ -37,4 +37,8 @@ def retrieve_popular_datasets(limit):
 def retrieve_private_datasets(user):
     repo = DatasetsDBRepo()
     data = repo.retrieve_private_datasets(user)
-    return [Dataset(**d) for d in data]
+    datasets = []
+    for d in data:
+        if not 'active' in d or d['active']:
+            datasets.append(Dataset(**d))
+    return datasets

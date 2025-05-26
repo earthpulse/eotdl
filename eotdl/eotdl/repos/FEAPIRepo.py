@@ -44,7 +44,7 @@ class FEAPIRepo(APIRepo):
     
     def deactivate_pipeline(self, pipeline_id, user):
         response = requests.patch(
-            self.url + "pipelines/deactivate/" + pipeline_id,
+            self.url + "pipelines/" + pipeline_id + "/deactivate",
             headers=self.generate_headers(user),
         )
         return self.format_response(response)
