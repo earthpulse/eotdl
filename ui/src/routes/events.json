@@ -1,102 +1,108 @@
 [
   {
-  "title": "SmallSat Europe",
-  "description": "Join 1,200+ space pioneers for two days of groundbreaking insights, innovation, and collaboration at SmallSat Europe, Europe’s leading technical and business small satellite conference. SmallSat Europe is a two-day conference which combines a technical conference (on three smaller simultaneous stages) with a large business conference focused on the latest industry trends. We are also planning on building the world’s largest SmallSat focused exhibition floor.",
-  "date": "2025-05-27",
-  "dateTo": "2025-05-28",
-  "link": "https://2025.smallsateurope.com/"
-},
-  {
-  "title": "44th EARSeL Symposium",
-  "description": "Held in Prague, this years edition consists of three key workshops: 8th Workshop on EO in the Global South; 3rd Workshop on Forestry; 3rd EARSeL Workshop on Agriculture",
-  "date": "2025-05-26",
-  "dateTo": "2025-05-29",
-  "link": "https://symposium.earsel.org/44th-symposium-Prague/"
-},
-  {
-  "title": "Latitude 59",
-  "description": "Latitude 59 is not just another tech conference. It’s a hub for entrepreneurs, investors, and innovators from around the world to connect, share ideas, and shape the future. Whether you’re a startup founder, a seasoned investor, or a tech enthusiast, Latitude 59 offers the perfect environment to grow your network and uncover groundbreaking opportunities. This year’s theme, “Innovating for a Better Tomorrow,” focuses on cutting-edge advancements in sustainability, AI, and digital transformation. Expect engaging keynotes, insightful panel discussions, and hands-on workshops led by global thought leaders.",
-  "date": "2025-05-21",
-  "dateTo": "2025-05-23",
-  "link": "https://latitude59.ee/"
-},
-  {
-  "title": "Space Operations Summit",
-  "description": "Space Operations Summit 2025 (21 – 22 May, 2025 in Copthorne Tara Hotel, London UK) is the only conference to look at space both as an independent operational domain, and as an enabler for joint all-domain operations. The conference brings together space professionals and senior military leaders who depend on space to deliver results in the air, on land, and at sea by providing a platform for stakeholders to simultaneously engage with launch service providers, defence space leaders, and end-user customers. Unlike other conferences on space, the conference agenda adopts a multifaceted approach which looks to solve challenges in space through the active participation of policy makers, militaries and industries.",
-  "date": "2025-05-21",
-  "dateTo": "2025-05-22",
-  "link": "https://www.defenceiq.com/events-spaceoperations"
-},
-  {
-  "title": "Early Career Symposium",
-  "description": "The Early Careers Symposium will provide early career professionals a venue to present novel research to peers and gaining presentation experience; Opportunities to discuss research findings in depth; Encouraging collaboration by sharing ideas and emerging technologies with peers. This is an official post-conference event of the Luxembourg Space Resources Week 2025 which is hosted from 19-21 May 2025.",
-  "date": "2025-05-22",
-  "dateTo": "2025-05-22",
-  "link": "https://www.spaceresourcesweek.lu/early-career-symposium-2025"
-},
-  {
-  "title": "IRENE Workshop",
-  "description": "Workshop to discuss advances in the International Radiation Environment Near-Earth modelling initiative.",
-  "date": "2025-05-20",
-  "dateTo": "2025-05-22",
-  "link": "https://indico.esa.int/event/527/overview"
-},
-  {
-  "title": "Luxembourg Space Resources Week 2025",
-  "description": "We bring together space agencies, business leaders, researchers and early-stage ventures. The event, like the subject, is truly multidisciplinary, addressing the science, technology, economic, legal and regulatory aspects of space resources. We are united by a shared vision: Towards the sustainable and responsible use of space resources for our future in space and on Earth. How we get there remains an open discussion. In this edition of Space Resources Week, we are interested in actions for the next 5 years and near-term priorities that will enable the realization of space resource utilization. In the coming years, we need to map resources, plan future architectures for and with space resources and develop roadmaps for translating ground-based research into space technology.",
-  "date": "2025-05-19",
-  "dateTo": "2025-05-21",
-  "link": "https://www.spaceresourcesweek.lu/"
-},
-  {
-  "title": "Toulouse Space Festival",
-  "description": "Discover the world of space as you’ve never seen it before. Let us take you on an unforgettable journey! The Toulouse Space Festival is coming back for a 2nd edition at the MEETT Exhibition Center and will bring together space enthusiasts, experts, and future leaders of the space industry. Whether you’re a student, a professional or simply curious about space, this event is for you!",
-  "date": "2025-05-15",
-  "dateTo": "2025-05-18",
-  "link": "https://toulousespacefestival.com/"
-},
-  {
-  "title": "Vilnius Space Days 2025",
-  "description": "Vilnius Space Days is an event designed to showcase the Lithuanian space ecosystem and its potential. Take part and discover exceptional opportunities in the space industry, discuss key space economy topics, and meet your potential partners. Discover the shortcut to space – one of the world’s fastest-growing sectors! On 6 May, at Vilnius Space Days we will present the opportunities in the space sector for business and science and prove that they are within our reach!",
-  "date": "2025-05-06",
-  "dateTo": "2025-05-06",
-  "link": "https://lithuania.lt/events/solutions/vilnius-space-days-2025/"
-},
-{
-  "title": "Space Optics Instrument Design & Technology SOIDT 2025",
-  "description": "The European Space Agency took in 2015 the initiative to organize a course for professionals operating in the sector of optical engineering for  Space. Two types of courses are organized: one dedicated to space optics instrument design and the other space optics instrument technology. The two courses are organised alternatively, one per year. The SOIDT 2025 course is targeted at space optics instrument design. The team of lecturers consists of professionals with a long-standing experience in the sector. Their accessibility during the course, gives the participants a unique opportunity to deepen their knowledge with one-to-one meetings aside from the planned lectures. The venue hosting students and lecturers gives plenty of opportunities to develop a professional network. Sharing problems and discussing solutions together is the way to build a community of space optical engineers enabling and fostering growth in the space sector as a whole.",
-  "date": "2025-05-11",
-  "dateTo": "2025-05-16",
-  "link": "https://atpi.eventsair.com/soidt2025"
+    "title": "Living Planet Symposium 2025",
+    "description": "Held in Vienna (Austria), The Living Planet Symposium is a major event in the Earth Observation community, bringing together researchers, industry professionals, and policymakers to discuss the latest developments in the field. In this year's edition, taking place in Vienna on June 23-27, EOTDL will be present with the following activities:",
+    "date": "2025-06-23",
+    "dateTo": "2025-06-27",
+    "link": "https://lps25.esa.int/"
   },
   {
-  "title": "GEO Global Forum",
-  "description": "The inaugural GEO Global Forum in 2025 will be a premier global event to inspire all elements of our society – from global leaders to citizens – to harness Earth Intelligence to empower informed and ambitious actions to ensure food security, restore ecosystems, prevent disasters, and confront the triple planetary crisis, transforming the Sustainable Development Goals into an achievable reality.",
-  "date": "2025-05-05",
-  "dateTo": "2025-05-09",
-  "link": "https://earthobservations.org/about-us/events/geo-global-forum-2025"
- },
- {
-  "title": "ESA – NASA International Workshop on AI Foundation Model for EO",
-  "description": "This workshop on Foundation Model for Earth Observation and Earth Sciences aims to address these challenges by bringing together experts from AI, geospatial science, climate, weather and Earth observation communities. The goal is to foster interdisciplinary collaboration, share the latest research and technological advancements, and discuss practical solutions for effectively integrating FMs into the Earth Observation and Earth Sciences ecosystems. Topics to be covered include data curation, advancements in the AI architecture, fine-tuning, model evaluation, and challenges of integrating AI with geospatial digital twins, upstream and downstream applications. Additionally, the workshop will explore how Foundation Models can be leveraged in the context of commercial Earth Observation products and services, driving innovation in the private sector. Through this workshop, we aim to pave the way for the responsible and impactful use of AI in advancing our understanding of Earth’s systems and enhancing global environmental monitoring and response efforts.",
-  "date": "2025-05-05",
-  "dateTo": "2025-05-07",
-  "link": "https://nikal.eventsair.com/cmspreview/nasa-esa-international-workshop-on-geospatial-ai-foundation-model-for-earth-observation-and-earth-sciences/"
- },
-  
+    "title": "SmallSat Europe",
+    "description": "Join 1,200+ space pioneers for two days of groundbreaking insights, innovation, and collaboration at SmallSat Europe, Europe’s leading technical and business small satellite conference. SmallSat Europe is a two-day conference which combines a technical conference (on three smaller simultaneous stages) with a large business conference focused on the latest industry trends. We are also planning on building the world’s largest SmallSat focused exhibition floor.",
+    "date": "2025-05-27",
+    "dateTo": "2025-05-28",
+    "link": "https://2025.smallsateurope.com/"
+  },
   {
-  "title": "Rymdforum 2025",
-  "description": "Rymdforum – The Swedish Space Conference 2025 is an international conference organized by the non-profit organization Rymdforum. The association´s aims and endeavors is to spread knowledge about Swedish and international space activities. Rymdforum 2025 is hosted by the City of Trollhättan and GKN Aerospace, in cooperation with University West and Innovatum Science Park. The conference will take place in Trollhättan, an hour away from Gothenburg. The proposed theme, ’Sweden – A New Space Era,’ aligns well with our industry and enables many exciting presentations conveying messages that resonate with Rymdforum’s objectives.",
-  "date": "2025-05-04",
-  "dateTo": "2025-05-06",
-  "link": "https://www.rymdforum2025.se"
- },
+    "title": "44th EARSeL Symposium",
+    "description": "Held in Prague, this years edition consists of three key workshops: 8th Workshop on EO in the Global South; 3rd Workshop on Forestry; 3rd EARSeL Workshop on Agriculture",
+    "date": "2025-05-26",
+    "dateTo": "2025-05-29",
+    "link": "https://symposium.earsel.org/44th-symposium-Prague/"
+  },
   {
-  "title": "SSEO15, 15th IAA Symposium on Small Satellites in Earth System Observation",
-  "description": "The 15th IAA Symposium on Small Satellites for Earth System Observation offers a beneficial opportunity for scientists, engineers, and managers to share insights on current and upcoming programs and missions. The symposium will feature discussions on innovative mission objectives, as well as technological, management and programmatic aspects related to small satellites for Earth and Moon observation.",
-  "date": "2025-05-04",
-  "dateTo": "2025-05-08",
-  "link": "https://iaa2025.welcome-manager.de/"
+    "title": "Latitude 59",
+    "description": "Latitude 59 is not just another tech conference. It’s a hub for entrepreneurs, investors, and innovators from around the world to connect, share ideas, and shape the future. Whether you’re a startup founder, a seasoned investor, or a tech enthusiast, Latitude 59 offers the perfect environment to grow your network and uncover groundbreaking opportunities. This year’s theme, “Innovating for a Better Tomorrow,” focuses on cutting-edge advancements in sustainability, AI, and digital transformation. Expect engaging keynotes, insightful panel discussions, and hands-on workshops led by global thought leaders.",
+    "date": "2025-05-21",
+    "dateTo": "2025-05-23",
+    "link": "https://latitude59.ee/"
+  },
+  {
+    "title": "Space Operations Summit",
+    "description": "Space Operations Summit 2025 (21 – 22 May, 2025 in Copthorne Tara Hotel, London UK) is the only conference to look at space both as an independent operational domain, and as an enabler for joint all-domain operations. The conference brings together space professionals and senior military leaders who depend on space to deliver results in the air, on land, and at sea by providing a platform for stakeholders to simultaneously engage with launch service providers, defence space leaders, and end-user customers. Unlike other conferences on space, the conference agenda adopts a multifaceted approach which looks to solve challenges in space through the active participation of policy makers, militaries and industries.",
+    "date": "2025-05-21",
+    "dateTo": "2025-05-22",
+    "link": "https://www.defenceiq.com/events-spaceoperations"
+  },
+  {
+    "title": "Early Career Symposium",
+    "description": "The Early Careers Symposium will provide early career professionals a venue to present novel research to peers and gaining presentation experience; Opportunities to discuss research findings in depth; Encouraging collaboration by sharing ideas and emerging technologies with peers. This is an official post-conference event of the Luxembourg Space Resources Week 2025 which is hosted from 19-21 May 2025.",
+    "date": "2025-05-22",
+    "dateTo": "2025-05-22",
+    "link": "https://www.spaceresourcesweek.lu/early-career-symposium-2025"
+  },
+  {
+    "title": "IRENE Workshop",
+    "description": "Workshop to discuss advances in the International Radiation Environment Near-Earth modelling initiative.",
+    "date": "2025-05-20",
+    "dateTo": "2025-05-22",
+    "link": "https://indico.esa.int/event/527/overview"
+  },
+  {
+    "title": "Luxembourg Space Resources Week 2025",
+    "description": "We bring together space agencies, business leaders, researchers and early-stage ventures. The event, like the subject, is truly multidisciplinary, addressing the science, technology, economic, legal and regulatory aspects of space resources. We are united by a shared vision: Towards the sustainable and responsible use of space resources for our future in space and on Earth. How we get there remains an open discussion. In this edition of Space Resources Week, we are interested in actions for the next 5 years and near-term priorities that will enable the realization of space resource utilization. In the coming years, we need to map resources, plan future architectures for and with space resources and develop roadmaps for translating ground-based research into space technology.",
+    "date": "2025-05-19",
+    "dateTo": "2025-05-21",
+    "link": "https://www.spaceresourcesweek.lu/"
+  },
+  {
+    "title": "Toulouse Space Festival",
+    "description": "Discover the world of space as you’ve never seen it before. Let us take you on an unforgettable journey! The Toulouse Space Festival is coming back for a 2nd edition at the MEETT Exhibition Center and will bring together space enthusiasts, experts, and future leaders of the space industry. Whether you’re a student, a professional or simply curious about space, this event is for you!",
+    "date": "2025-05-15",
+    "dateTo": "2025-05-18",
+    "link": "https://toulousespacefestival.com/"
+  },
+  {
+    "title": "Vilnius Space Days 2025",
+    "description": "Vilnius Space Days is an event designed to showcase the Lithuanian space ecosystem and its potential. Take part and discover exceptional opportunities in the space industry, discuss key space economy topics, and meet your potential partners. Discover the shortcut to space – one of the world’s fastest-growing sectors! On 6 May, at Vilnius Space Days we will present the opportunities in the space sector for business and science and prove that they are within our reach!",
+    "date": "2025-05-06",
+    "dateTo": "2025-05-06",
+    "link": "https://lithuania.lt/events/solutions/vilnius-space-days-2025/"
+  },
+  {
+    "title": "Space Optics Instrument Design & Technology SOIDT 2025",
+    "description": "The European Space Agency took in 2015 the initiative to organize a course for professionals operating in the sector of optical engineering for  Space. Two types of courses are organized: one dedicated to space optics instrument design and the other space optics instrument technology. The two courses are organised alternatively, one per year. The SOIDT 2025 course is targeted at space optics instrument design. The team of lecturers consists of professionals with a long-standing experience in the sector. Their accessibility during the course, gives the participants a unique opportunity to deepen their knowledge with one-to-one meetings aside from the planned lectures. The venue hosting students and lecturers gives plenty of opportunities to develop a professional network. Sharing problems and discussing solutions together is the way to build a community of space optical engineers enabling and fostering growth in the space sector as a whole.",
+    "date": "2025-05-11",
+    "dateTo": "2025-05-16",
+    "link": "https://atpi.eventsair.com/soidt2025"
+  },
+  {
+    "title": "GEO Global Forum",
+    "description": "The inaugural GEO Global Forum in 2025 will be a premier global event to inspire all elements of our society – from global leaders to citizens – to harness Earth Intelligence to empower informed and ambitious actions to ensure food security, restore ecosystems, prevent disasters, and confront the triple planetary crisis, transforming the Sustainable Development Goals into an achievable reality.",
+    "date": "2025-05-05",
+    "dateTo": "2025-05-09",
+    "link": "https://earthobservations.org/about-us/events/geo-global-forum-2025"
+  },
+  {
+    "title": "ESA – NASA International Workshop on AI Foundation Model for EO",
+    "description": "This workshop on Foundation Model for Earth Observation and Earth Sciences aims to address these challenges by bringing together experts from AI, geospatial science, climate, weather and Earth observation communities. The goal is to foster interdisciplinary collaboration, share the latest research and technological advancements, and discuss practical solutions for effectively integrating FMs into the Earth Observation and Earth Sciences ecosystems. Topics to be covered include data curation, advancements in the AI architecture, fine-tuning, model evaluation, and challenges of integrating AI with geospatial digital twins, upstream and downstream applications. Additionally, the workshop will explore how Foundation Models can be leveraged in the context of commercial Earth Observation products and services, driving innovation in the private sector. Through this workshop, we aim to pave the way for the responsible and impactful use of AI in advancing our understanding of Earth’s systems and enhancing global environmental monitoring and response efforts.",
+    "date": "2025-05-05",
+    "dateTo": "2025-05-07",
+    "link": "https://nikal.eventsair.com/cmspreview/nasa-esa-international-workshop-on-geospatial-ai-foundation-model-for-earth-observation-and-earth-sciences/"
+  },
+  {
+    "title": "Rymdforum 2025",
+    "description": "Rymdforum – The Swedish Space Conference 2025 is an international conference organized by the non-profit organization Rymdforum. The association´s aims and endeavors is to spread knowledge about Swedish and international space activities. Rymdforum 2025 is hosted by the City of Trollhättan and GKN Aerospace, in cooperation with University West and Innovatum Science Park. The conference will take place in Trollhättan, an hour away from Gothenburg. The proposed theme, ’Sweden – A New Space Era,’ aligns well with our industry and enables many exciting presentations conveying messages that resonate with Rymdforum’s objectives.",
+    "date": "2025-05-04",
+    "dateTo": "2025-05-06",
+    "link": "https://www.rymdforum2025.se"
+  },
+  {
+    "title": "SSEO15, 15th IAA Symposium on Small Satellites in Earth System Observation",
+    "description": "The 15th IAA Symposium on Small Satellites for Earth System Observation offers a beneficial opportunity for scientists, engineers, and managers to share insights on current and upcoming programs and missions. The symposium will feature discussions on innovative mission objectives, as well as technological, management and programmatic aspects related to small satellites for Earth and Moon observation.",
+    "date": "2025-05-04",
+    "dateTo": "2025-05-08",
+    "link": "https://iaa2025.welcome-manager.de/"
   },
   {
     "title": "ISPRS Geospatial Week 2025",
