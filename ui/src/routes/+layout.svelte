@@ -5,6 +5,7 @@
   import Footer from "./Footer.svelte";
   import auth from "$stores/auth.svelte";
   import notifications from "$stores/notifications.svelte";
+  import Banner from "./Banner.svelte";
 
   let { data, children } = $props();
   let loading = $derived(!data?.user);
@@ -75,6 +76,7 @@
 
 <main class="min-h-screen flex flex-col items-center justify-between">
   <div class="w-full h-full grow flex flex-col">
+    <Banner />
     <Nav />
     <div class="relative grow flex flex-col">
       {@render children()}

@@ -3,7 +3,7 @@ title: PANGAEA Benchmark now available in EOTDL
 date: '2025-05-07T01:00:00.000Z'
 description: We present the PANGAEA Benchmark, a new set of datasets for benchmarking the performance of Earth Observation Foundation Models.
 tags: benchmark, datasets, models, pangaea
-link: https://github.com/VMarsocci/pangaea-bench
+link: https://github.com/earthpulse/eotdl/blob/main/ui/src/routes/blog/pangaea.md
 ---
 
 # PANGAEA Benchmark now available in EOTDL
