@@ -1,7 +1,6 @@
 # script to prepare the dataset (download Satellogic + S1/S2 images)
 #  SH API rate limit: 1200 requests/minute
 import os.path
-
 import geopandas as gpd
 import json
 from pathlib import Path
@@ -14,10 +13,10 @@ from datetime import datetime
 from eotdl.tools import bbox_from_centroid
 from dotenv import load_dotenv
 
-path = '/fastdata/Satellogic/data/'
-dst_path = '/fastdata/Satellogic/data/'
-# path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
-# dst_path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
+# path = '/fastdata/Satellogic/data/'
+# dst_path = '/fastdata/Satellogic/data/'
+path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
+dst_path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
 
 # for sentinel hub credentials
 load_dotenv(dotenv_path="./.env")
@@ -26,7 +25,8 @@ CLOUD_COVER_THRESHOLD = 0.0  # %
 WIDTH = 38
 HEIGHT = 38
 NUM_CORES = multiprocessing.cpu_count()
-REQUEST_LIMIT = 1200
+NUM_SAMPLES = 10
+
 
 # dir is the location in fastdata/tifs. Suffix is the tail of the filename of the sentinel tif file.
 collection_data = {
@@ -82,8 +82,7 @@ def download_sat_image(json_path, output_path):
     return output_path
 
 
-def download_sentinel_closest_match(matches, satellogic_date, json_path, custom_bbox, collection_id):
-
+def download_sentinel_closest_match(closest_match, json_path, custom_bbox, collection_id):
     sentinel = collection_data.get(collection_id)
     if not sentinel:
         print(f"Invalid collection_id: {collection_id}")
@@ -91,11 +90,6 @@ def download_sentinel_closest_match(matches, satellogic_date, json_path, custom_
 
     name = json_path.split("/")[-1].replace("_metadata.json", sentinel["suffix"])
     sentinel_dst_path = f"{dst_path}/tifs/{sentinel['dir']}/{name}.tif"
-    closest_match = closest_date(matches, satellogic_date)
-
-    if closest_match is None:
-        print(f"No valid {collection_id} match for {json_path}")
-        return None
 
     # download sentinel image only if it isn't already dwownloaded into fastdata
     if not Path(sentinel_dst_path).exists():
@@ -119,19 +113,45 @@ def download_images_to_fastdata(args):
     s1_matches, s2_matches, date, json_path, centroid = args
 
     json_path = json_path.replace('data/', path)
-    print(json_path)
 
     # satellogic (hr) download. only downloads if path doesn't already exist.
     dst_path_sat = download_sat_image(json_path=json_path, output_path=dst_path + "tifs/satellogic")
 
     custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
 
-    # filter sentinel matches by cloud cover BEFORE download
-    # s1_matches = filter_clouds(s1_matches) or [] <- S1 doesn't have a cloud cover property
+    ### FILTERING SECTION ###
+
+    # filter sentinel matches by cloud cover BEFORE download (s1 doesn't have cloud cover)
     s2_matches = filter_clouds(s2_matches) or []
 
-    s1_closest_match_path = download_sentinel_closest_match(s1_matches, date, json_path, custom_bbox, collection_id="sentinel-1-grd")
-    s2_closest_match_path = download_sentinel_closest_match(s2_matches, date, json_path, custom_bbox, collection_id="sentinel-2-l2a")
+    if len(s1_matches) <= 0 or len(s2_matches) <= 0:
+        print("❌data triplets not possible after filtering❌")
+        return None, None, None
+
+    print("s1_matches:", [match["id"] for match in s1_matches])
+    print("s2_matches:", [match["id"] for match in s2_matches])
+
+    # filter by closest date to hr image
+    s1_closest_match = closest_date(s1_matches, date)
+    s2_closest_match = closest_date(s2_matches, date)
+
+    # should never be true
+    if not s1_closest_match or not s2_closest_match:
+        print(f"⚠️ No S1 or S2 match for: {json_path}")
+
+    print("Downloading S1 and S2 images...")
+    # download sentinel images to fastdata
+    s1_closest_match_path = download_sentinel_closest_match(closest_match=s1_closest_match,
+                                                            json_path=json_path,
+                                                            custom_bbox=custom_bbox,
+                                                            collection_id="sentinel-1-grd")
+
+    s2_closest_match_path = download_sentinel_closest_match(closest_match=s2_closest_match,
+                                                            json_path=json_path,
+                                                            custom_bbox=custom_bbox,
+                                                            collection_id="sentinel-2-l2a")
+    print("Downloaded!")
+    print("-------------------------")
 
     # # download all sentinel matches. set their file name to their id.
     #
@@ -168,30 +188,16 @@ def download_images_to_fastdata(args):
     return s1_closest_match_path, s2_closest_match_path, dst_path_sat
 
 
-# def rate_limited_request(func, *args, **kwargs):
-# 	with request_lock:
-# 		current_time = time.time()
-# 		# Remove requests older than 1 minute
-# 		while request_times and request_times[0] < current_time - 60:
-# 			request_times.pop(0)
-# 		# Wait if we've hit the limit
-# 		if len(request_times) >= REQUEST_LIMIT:
-# 			sleep_time = request_times[0] - (current_time - 60)
-# 			if sleep_time > 0:
-# 				time.sleep(sleep_time)
-# 		# Make the request
-# 		result = func(*args, **kwargs)
-# 		request_times.append(time.time())
-# 		return result
-
-
 if __name__ == "__main__":
     print("Reading Satellogic Earthview items... ", end="", flush=True)
     gdf = gpd.read_parquet(path + 'satellogic-earthview-items-with-matches.parquet')
-    print("Done")
+    print("Done\n")
+
+    print(f"Collecting {NUM_SAMPLES} samples...", end="", flush=True)
+    gdf = gdf.sample(NUM_SAMPLES).reset_index(drop=True)
+    print("Done\n")
 
     zones = sorted(gdf['zone'].unique())
-
     for z, zone in enumerate(zones):
         zone_gdf = gdf[gdf['zone'] == zone]
         print("Zone:", zone, f"({z + 1}/{len(zones)})", f"({len(zone_gdf)} samples)")
@@ -201,23 +207,39 @@ if __name__ == "__main__":
             for _, item in zone_gdf.iterrows()
         ]
 
-        with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
-            with tqdm(total=len(args)) as progress:
-                futures = []
-                for arg in args:
-                    future = pool.submit(download_images_to_fastdata, arg)
-                    future.add_done_callback(lambda p: progress.update())
-                    futures.append(future)
+        results = []
 
-                results = [future.result() for future in futures]
+        for i, arg in enumerate(args):
+            print(f"\n------- SAMPLE {i} -------")
+            result = download_images_to_fastdata(args=arg)
+            results.append(result)
+            print("-----------------------------")
 
+        # Count how many images were actually downloaded
         hr_count = sum(1 for r in results if r and r[2])
         s1_count = sum(1 for r in results if r and r[0])
         s2_count = sum(1 for r in results if r and r[1])
-        triplet_count = sum(1 for r in results if r and all(r))
+        triplet_count = sum(1 for r in results if r and all(x is not None for x in r))
 
-        print(f"Total downloaded:")
+        # Print summary
+        print(f"\nTotal downloaded:")
         print(f"  HR images:        {hr_count}")
         print(f"  S1 matches:       {s1_count}")
         print(f"  S2 matches:       {s2_count}")
-        print(f"  Full triplets:    {triplet_count}")
+        print(f"  Full triplets:    {triplet_count}\n")
+
+
+        # with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
+        #     with tqdm(total=len(args)) as progress:
+        #         futures = []
+        #
+        #         # iterate through each sample in the zone
+        #         nSample = 0
+        #         for arg in args:
+        #             print(f"------- SAMPLE {nSample} -------")
+        #             future = pool.submit(download_images_to_fastdata, arg)
+        #             future.add_done_callback(lambda p: progress.update())
+        #             futures.append(future)
+        #             nSample += 1
+        #
+        #         results = [future.result() for future in futures]

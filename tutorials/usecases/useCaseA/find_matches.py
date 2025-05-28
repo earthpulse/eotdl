@@ -5,26 +5,29 @@ from tqdm import tqdm
 from eotdl.access import search_sentinel_imagery
 from dotenv import load_dotenv
 from datetime import timedelta
+from eotdl.tools import bbox_from_centroid
 
-path = '/fastdata/Satellogic/data/'
-# path = "~/Desktop/EarthPulse_Local_Data/data/"
+# path = '/fastdata/Satellogic/data/'
+path = "~/Desktop/EarthPulse_Local_Data/data/"
 
-CLOUD_COVER_THRESHOLD = 0.0  # %
-NUM_SAMPLES = 10
 TIME_BUFFER = 6  # days
 NUM_CORES = multiprocessing.cpu_count()
 REQUEST_LIMIT = 1200
+WIDTH = 38
+HEIGHT = 38
 
 # for sentinel hub credentials
 load_dotenv(dotenv_path="./.env")
 
 
 def search_matches_by_sentinel(args, collection_id):
-    row, date, bb = args
+    row, date, centroid = args
     dates = [(date - timedelta(days=TIME_BUFFER/2)).strftime('%Y-%m-%d'),
              (date + timedelta(days=TIME_BUFFER/2)).strftime('%Y-%m-%d')]
 
-    sentinel_matches = list(search_sentinel_imagery(dates, bb, collection_id))
+    custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
+
+    sentinel_matches = list(search_sentinel_imagery(dates, custom_bbox, collection_id))
 
     return row, sentinel_matches
 
@@ -32,10 +35,9 @@ def search_matches_by_sentinel(args, collection_id):
 if __name__ == "__main__":
     print("Reading Satellogic Earthview items... ", end="", flush=True)
     gdf = gpd.read_parquet(path + 'satellogic-earthview-items.parquet')
-    gdf = gdf.sample(NUM_SAMPLES, random_state=2025).reset_index(drop=True)
     print("Done")
 
-    args = [(row, item.date, item.geometry.bounds) for row, item in gdf.iterrows()]
+    args = [(row, item.date, item.geometry.centroid) for row, item in gdf.iterrows()]
 
     print("Searching for Sentinel-1 matches...", flush=True)
     with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
