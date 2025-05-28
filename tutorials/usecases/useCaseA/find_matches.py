@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from eotdl.tools import bbox_from_centroid
 
-# path = '/fastdata/Satellogic/data/'
-path = "~/Desktop/EarthPulse_Local_Data/data/"
+path = '/fastdata/Satellogic/data/'
+# path = "~/Desktop/EarthPulse_Local_Data/data/"
 
 TIME_BUFFER = 6  # days
 NUM_CORES = multiprocessing.cpu_count()
