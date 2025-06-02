@@ -3,7 +3,7 @@ from pathlib import Path
 from ..repos import FEAPIRepo
 from ..files.ingest import prep_ingest_folder, ingest
 
-def retrieve_pipeline(metadata, user):
+def retrieve_pipeline(metadata, user, private=False):
 	repo = FEAPIRepo()
 	data, error = repo.retrieve_pipeline(metadata.name)
 	if data and data["uid"] != user["uid"]:

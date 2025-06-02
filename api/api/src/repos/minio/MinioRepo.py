@@ -46,3 +46,8 @@ class MinioRepo:
         return self.client.presigned_get_object(
             self.bucket, self.get_object(dataset_id, file_name)
         )
+    
+    def read_file(self, dataset_id, file_name):
+        return self.client.get_object(
+            self.bucket, self.get_object(dataset_id, file_name)
+        )

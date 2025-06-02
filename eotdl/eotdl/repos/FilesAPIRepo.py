@@ -125,3 +125,7 @@ class FilesAPIRepo(APIRepo):
             # print("ERROR generate_presigned_url", error)
             return None
         return data["presigned_url"]
+    
+    def generate_file_content_url(self, filename, dataset_or_model_id, user, endpoint="datasets"):
+        url = f"{self.url}{endpoint}/{dataset_or_model_id}/raw/{filename}"
+        return url
