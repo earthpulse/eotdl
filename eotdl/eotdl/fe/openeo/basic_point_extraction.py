@@ -10,12 +10,12 @@ def start_job(row: pd.Series, connection: openeo.Connection) -> openeo.BatchJob:
         #run the s1 and s2 udp
         s1 = connection.datacube_from_process(
                 "s1_weekly_statistics", # depends on the json, so must be also a parameter
-                namespace=s1_weekly_statistics_url,
+                namespace=row["s1_weekly_statistics_url"],
                 temporal_extent=temporal_extent,
         )
         s2 = connection.datacube_from_process(
                 "s2_weekly_statistics",
-                namespace=s2_weekly_statistics_url,
+                namespace=row["s2_weekly_statistics_url"],
                 temporal_extent=temporal_extent,
         )
         #merge both cubes and filter across the feature collection
@@ -27,10 +27,8 @@ def start_job(row: pd.Series, connection: openeo.Connection) -> openeo.BatchJob:
         )
         return job
 
-def point_extraction(
+def eurocrops_point_extraction(
         gdf,
-        s1_weekly_statistics_url,
-        s2_weekly_statistics_url,
         start_date,
         nb_months,
         extra_cols=[],
@@ -85,4 +83,3 @@ def point_extraction(
                 df = manager._normalize_df(job_df)
                 job_db.persist(df)
         manager.run_jobs(start_job=start_job, job_db=job_db)
-        # manager.run_jobs(start_job=start_job, job_db=job_db, s1_weekly_statistics_url=s1_weekly_statistics_url, s2_weekly_statistics_url=s2_weekly_statistics_url)

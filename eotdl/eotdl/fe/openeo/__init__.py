@@ -1,2 +1,2 @@
-from .basic_point_extraction import point_extraction
+from .basic_point_extraction import eurocrops_point_extraction
 # from .advanced_patch_extraction import patch_extraction
