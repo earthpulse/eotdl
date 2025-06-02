@@ -110,7 +110,7 @@ def download_sentinel_closest_match(closest_match, json_path, custom_bbox, colle
     return sentinel_dst_path
 
 
-def download_triplet_images(args, output_dir=DEFAULT_OUTPUT_DIR):
+def download_triplet_images(args, output_dir=data_path + "tifs"):
     s1_matches, s2_matches, date, json_path, centroid = args
 
     custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
