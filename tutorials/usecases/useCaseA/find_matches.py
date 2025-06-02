@@ -17,7 +17,7 @@ WIDTH = 38
 HEIGHT = 38
 
 # for sentinel hub credentials
-load_dotenv(dotenv_path="./.env")
+load_dotenv(dotenv_path="../.env")
 
 
 def search_matches_by_sentinel(args, collection_id):
@@ -36,6 +36,11 @@ if __name__ == "__main__":
     print("Reading Satellogic Earthview items... ", end="", flush=True)
     gdf = gpd.read_parquet(path + 'satellogic-earthview-items.parquet')
     print("Done")
+
+    # NUM_SAMPLES = 100
+    # print(f"Collecting {NUM_SAMPLES} samples...", end="", flush=True)
+    # gdf = gdf.sample(NUM_SAMPLES).reset_index(drop=True)
+    # print("Done\n")
 
     args = [(row, item.date, item.geometry.centroid) for row, item in gdf.iterrows()]
 

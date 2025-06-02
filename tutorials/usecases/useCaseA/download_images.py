@@ -13,13 +13,12 @@ from datetime import datetime
 from eotdl.tools import bbox_from_centroid
 from dotenv import load_dotenv
 
-# path = '/fastdata/Satellogic/data/'
-# dst_path = '/fastdata/Satellogic/data/'
-path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
-dst_path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
+data_path = '/fastdata/Satellogic/data/'
+# data_path = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/")
+# DEFAULT_OUTPUT_DIR = os.path.expanduser("~/Desktop/EarthPulse_Local_Data/data/tifs")
 
 # for sentinel hub credentials
-load_dotenv(dotenv_path="./.env")
+load_dotenv(dotenv_path="../.env")
 
 CLOUD_COVER_THRESHOLD = 0.0  # %
 WIDTH = 38
@@ -63,6 +62,8 @@ def download_sat_image(json_path, output_path):
 
     output_path = Path(output_path) / url.split('/')[-1]
 
+    print(f"Saving HR image to: {output_path}")
+
     # make path where the sat (hr) image will be saved. download, and then write in chunks to that location.
     if not output_path.exists():
         try:
@@ -82,20 +83,20 @@ def download_sat_image(json_path, output_path):
     return output_path
 
 
-def download_sentinel_closest_match(closest_match, json_path, custom_bbox, collection_id):
+def download_sentinel_closest_match(closest_match, json_path, custom_bbox, collection_id, output_dir):
     sentinel = collection_data.get(collection_id)
     if not sentinel:
         print(f"Invalid collection_id: {collection_id}")
         return None
 
     name = json_path.split("/")[-1].replace("_metadata.json", sentinel["suffix"])
-    sentinel_dst_path = f"{dst_path}/tifs/{sentinel['dir']}/{name}.tif"
+    sentinel_dst_path = f"{output_dir}/{sentinel['dir']}/{name}.tif"
 
     # download sentinel image only if it isn't already dwownloaded into fastdata
     if not Path(sentinel_dst_path).exists():
         try:
             download_sentinel_imagery(
-                output=f"{dst_path}/tifs/{sentinel['dir']}",
+                output=f"{output_dir}/{sentinel['dir']}",
                 time_interval=closest_match["properties"]["datetime"],
                 bounding_box=custom_bbox,
                 collection_id=collection_id,
@@ -109,21 +110,17 @@ def download_sentinel_closest_match(closest_match, json_path, custom_bbox, colle
     return sentinel_dst_path
 
 
-def download_images_to_fastdata(args):
+def download_triplet_images(args, output_dir=DEFAULT_OUTPUT_DIR):
     s1_matches, s2_matches, date, json_path, centroid = args
-
-    json_path = json_path.replace('data/', path)
-
-    # satellogic (hr) download. only downloads if path doesn't already exist.
-    dst_path_sat = download_sat_image(json_path=json_path, output_path=dst_path + "tifs/satellogic")
 
     custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
 
-    ### FILTERING SECTION ###
+    ### FILTERING IMAGES SECTION ###
 
     # filter sentinel matches by cloud cover BEFORE download (s1 doesn't have cloud cover)
     s2_matches = filter_clouds(s2_matches) or []
 
+    # if there is not a data triplet, it does not download anything.
     if len(s1_matches) <= 0 or len(s2_matches) <= 0:
         print("❌data triplets not possible after filtering❌")
         return None, None, None
@@ -139,17 +136,26 @@ def download_images_to_fastdata(args):
     if not s1_closest_match or not s2_closest_match:
         print(f"⚠️ No S1 or S2 match for: {json_path}")
 
+    json_path = json_path.replace('data/', data_path)
+
+    ### DOWNLOAD IMAGES ###
+
+    # satellogic (hr) download. only downloads if path doesn't already exist.
+    dst_path_sat = download_sat_image(json_path=json_path, output_path=f"{output_dir}/satellogic")
+
     print("Downloading S1 and S2 images...")
     # download sentinel images to fastdata
     s1_closest_match_path = download_sentinel_closest_match(closest_match=s1_closest_match,
                                                             json_path=json_path,
                                                             custom_bbox=custom_bbox,
-                                                            collection_id="sentinel-1-grd")
+                                                            collection_id="sentinel-1-grd",
+                                                            output_dir=output_dir)
 
     s2_closest_match_path = download_sentinel_closest_match(closest_match=s2_closest_match,
                                                             json_path=json_path,
                                                             custom_bbox=custom_bbox,
-                                                            collection_id="sentinel-2-l2a")
+                                                            collection_id="sentinel-2-l2a",
+                                                            output_dir=output_dir)
     print("Downloaded!")
     print("-------------------------")
 
@@ -190,7 +196,7 @@ def download_images_to_fastdata(args):
 
 if __name__ == "__main__":
     print("Reading Satellogic Earthview items... ", end="", flush=True)
-    gdf = gpd.read_parquet(path + 'satellogic-earthview-items-with-matches.parquet')
+    gdf = gpd.read_parquet(data_path + 'satellogic-earthview-items-with-matches.parquet')
     print("Done\n")
 
     print(f"Collecting {NUM_SAMPLES} samples...", end="", flush=True)
@@ -211,7 +217,7 @@ if __name__ == "__main__":
 
         for i, arg in enumerate(args):
             print(f"\n------- SAMPLE {i} -------")
-            result = download_images_to_fastdata(args=arg)
+            result = download_triplet_images(args=arg, output_dir="sample")
             results.append(result)
             print("-----------------------------")
 
