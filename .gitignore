@@ -42,8 +42,5 @@ datasets.csv
 files_map.csv
 models.csv
 esawaai.csv
-<<<<<<< HEAD
-job_j*
-=======
 job_j-*
->>>>>>> develop
+outputs
