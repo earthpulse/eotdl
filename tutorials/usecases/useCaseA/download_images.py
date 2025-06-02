@@ -1,13 +1,10 @@
 # script to prepare the dataset (download Satellogic + S1/S2 images)
 #  SH API rate limit: 1200 requests/minute
-import os.path
 import geopandas as gpd
 import json
 from pathlib import Path
 import requests
 import multiprocessing
-from concurrent.futures import ProcessPoolExecutor
-from tqdm import tqdm
 from eotdl.access import download_sentinel_imagery
 from datetime import datetime
 from eotdl.tools import bbox_from_centroid
