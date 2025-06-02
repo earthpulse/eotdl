@@ -56,3 +56,7 @@
 .post a {
     @apply text-green-200;
 }
+
+.post iframe {
+    @apply w-full;
+}

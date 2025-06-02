@@ -2,13 +2,14 @@ from .dataframe_utils import *
 import openeo
 from openeo.extra.job_management import MultiBackendJobManager, CsvJobDatabase
 
-def start_job(row: pd.Series, connection: openeo.Connection, s1_weekly_statistics_url: str, s2_weekly_statistics_url: str, **kwargs) -> openeo.BatchJob:
+# pass arguments in the row
+def start_job(row: pd.Series, connection: openeo.Connection) -> openeo.BatchJob:
         temporal_extent = row["temporal_extent"]
         # set up load url in order to allow non-latlon feature collections for spatial filtering
         geometry = row["geometry"]
         #run the s1 and s2 udp
         s1 = connection.datacube_from_process(
-                "s1_weekly_statistics",
+                "s1_weekly_statistics", # depends on the json, so must be also a parameter
                 namespace=s1_weekly_statistics_url,
                 temporal_extent=temporal_extent,
         )
@@ -83,4 +84,5 @@ def point_extraction(
         if not job_db.exists():
                 df = manager._normalize_df(job_df)
                 job_db.persist(df)
-        manager.run_jobs(start_job=start_job, job_db=job_db, s1_weekly_statistics_url=s1_weekly_statistics_url, s2_weekly_statistics_url=s2_weekly_statistics_url)
+        manager.run_jobs(start_job=start_job, job_db=job_db)
+        # manager.run_jobs(start_job=start_job, job_db=job_db, s1_weekly_statistics_url=s1_weekly_statistics_url, s2_weekly_statistics_url=s2_weekly_statistics_url)

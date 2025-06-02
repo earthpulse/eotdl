@@ -33,3 +33,5 @@ See the session details [here](https://lps25.esa.int/programme/programme-session
 ## Full programme
 
 You can check the entire programme [here](https://lps25.esa.int/programme/).
+<!-- 
+<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3g0T_1Cv8IEz9XTEYmK41gJr7wgDnX-2iKQNakuNRH9EbH3qCYUjHqnsjdoj9Az3HIgb6T46TqGh8/pubhtml?widget=true&amp;headers=false" ></iframe> -->
