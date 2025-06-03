@@ -5,12 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "albumentations>=2.0.5",
     "geojson>=3.2.0",
     "geopandas>=1.0.1",
     "jupyter>=1.1.1",
     "matplotlib>=3.10.1",
     "minio>=7.2.15",
+    "onnx>=1.18.0",
     "onnxruntime>=1.21.0",
     "openeo-gfmap>=0.4.5",
     "pydantic>=2.11.3",

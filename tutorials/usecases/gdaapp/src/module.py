@@ -1,5 +1,5 @@
 import lightning as L
-import pytorch_segmentation_models as smp
+import segmentation_models_pytorch as smp
 import torch
 
 def iou(pr, gt, th=0.5, eps=1e-7):
@@ -11,7 +11,7 @@ def iou(pr, gt, th=0.5, eps=1e-7):
     ious = (intersection + eps) / union
     return torch.mean(ious)
 
-class LightningModule(L.LightningModule):
+class Module(L.LightningModule):
     def __init__(self, in_channels=3, encoder="resnet34", pretrained=True, lr=1e-3):
         super().__init__()
         self.save_hyperparameters()
@@ -21,7 +21,7 @@ class LightningModule(L.LightningModule):
             in_channels=in_channels,
             classes=1,
         )
-        self.loss_fn = torch.nn.BCELoss()
+        self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def forward(self, x):
         return self.model(x)
@@ -29,8 +29,8 @@ class LightningModule(L.LightningModule):
     def predict(self, x, threshold=0.5):
         self.eval()
         with torch.no_grad():
-            y_hat = self(x)
-        return torch.sigmoid(y_hat) > threshold
+            y_hat = self(x.to(self.device))
+        return (torch.sigmoid(y_hat) > threshold).float()
     
     def shared_step(self, batch, batch_idx):
         x, y = batch
@@ -42,18 +42,18 @@ class LightningModule(L.LightningModule):
     def training_step(self, batch, batch_idx):
         loss, metric = self.shared_step(batch, batch_idx)
         self.log('train_loss', loss, prog_bar=True)
-        self.log('train_metric', metric, prog_bar=True)
+        self.log('train_iou', metric, prog_bar=True)
         return loss
     
     def validation_step(self, batch, batch_idx):
         loss, metric = self.shared_step(batch, batch_idx)
         self.log('val_loss', loss, prog_bar=True)
-        self.log('val_metric', metric, prog_bar=True)
+        self.log('val_iou', metric, prog_bar=True)
     
     def test_step(self, batch, batch_idx):
         loss, metric = self.shared_step(batch, batch_idx)
         self.log('test_loss', loss, prog_bar=True)
-        self.log('test_metric', metric, prog_bar=True)
+        self.log('test_iou', metric, prog_bar=True)
     
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)

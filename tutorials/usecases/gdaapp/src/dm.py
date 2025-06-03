@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from .ds import Dataset
 
 class DataModule(L.LightningDataModule):
-    def __init__(self, root, batch_size=16, num_workers=4, pin_memory=True, train_trans=None, val_trans=None, test_trans=None, bands=(4,3,2), norm_value=4000):
+    def __init__(self, root, batch_size=5, num_workers=4, pin_memory=True, train_trans=None, val_trans=None, test_trans=None, bands=(4,3,2), norm_value=4000):
         super().__init__()
         self.root = root
         self.batch_size = batch_size

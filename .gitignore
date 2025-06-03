@@ -44,3 +44,5 @@ models.csv
 esawaai.csv
 job_j-*
 outputs
+logs
+checkpoints
