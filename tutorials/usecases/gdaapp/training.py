@@ -25,6 +25,7 @@ trainer = L.Trainer(
     max_epochs=100,
     accelerator='gpu',
     devices=1,
+    precision = "bf16-mixed",
     logger=CSVLogger('logs', name='gdaapp'),
     callbacks=[
         ModelCheckpoint(

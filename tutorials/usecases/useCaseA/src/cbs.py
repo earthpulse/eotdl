@@ -25,6 +25,7 @@ class SSLOnlineEvaluator(Callback):
         self,
         path: str,
         bands: tuple = (4, 3, 2, 8),
+        label_ratio: float = 0.01,
         eval_period: int = 10,
         head_epochs: int = 10,
         num_classes: int = 10,
@@ -35,9 +36,10 @@ class SSLOnlineEvaluator(Callback):
         self.head_epochs = head_epochs
         self.num_classes = num_classes
         self.lr = lr
+        self.label_ratio = label_ratio
 
         # Our EuroSAT DataModule (for the "linear eval" part)
-        self.dm = EuroSATDataModule(path=path, bands=bands)
+        self.dm = EuroSATDataModule(path=path, bands=bands, label_ratio=self.label_ratio)
 
         # placeholders; set in on_train_start
         self.head: torch.nn.Module = None

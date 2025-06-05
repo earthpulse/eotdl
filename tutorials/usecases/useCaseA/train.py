@@ -66,6 +66,7 @@ if DATASET == 'sentinel2':
         SSLOnlineEvaluator(
             config['eurosat']['path'], 
             bands=config['eurosat']['hparams']['bands'], 
+            label_ratio=0.01,
             head_epochs=HEAD_EPOCHS, 
             eval_period=EVAL_PERIOD
         )
@@ -75,6 +76,7 @@ trainer=L.Trainer(
     max_epochs=MAX_EPOCHS,
     accelerator='gpu',
     devices=1,
+    precision = "bf16-mixed",
     logger=CSVLogger('logs', name='usecaseA'),
     callbacks=callbacks,
 )

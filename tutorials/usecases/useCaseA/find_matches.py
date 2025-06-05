@@ -2,7 +2,7 @@ from tqdm import tqdm
 import utils
 import geopandas as gpd
 
-NUM_SAMPLES = 100000
+NUM_SAMPLES = 1_000_000
 NUM_CORES = 20
 path = 'outputs/'
 
@@ -10,10 +10,13 @@ print("Reading Satellogic items... ", end="", flush=True)
 gdf = gpd.read_parquet(path + 'satellogic-earthview-items.parquet')
 print("Done")
 
-print(f"Sampling {NUM_SAMPLES} items... ", end="", flush=True)
-gdf_sampled = gdf.sample(NUM_SAMPLES, random_state=2025)
-gdf_sampled = gdf_sampled.reset_index(drop=True)
-print("Done")
+if NUM_SAMPLES > 0:
+    print(f"Sampling {NUM_SAMPLES} items... ", end="", flush=True)
+    gdf_sampled = gdf.sample(NUM_SAMPLES, random_state=2025)
+    gdf_sampled = gdf_sampled.reset_index(drop=True)
+    print("Done")
+else:
+    gdf_sampled = gdf
 
 def find_matches_parallel(gdf, time_buffer=30, width=384, height=384, collection_id="sentinel-2-l2a"):
     from concurrent.futures import ProcessPoolExecutor

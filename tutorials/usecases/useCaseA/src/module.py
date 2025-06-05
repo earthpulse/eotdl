@@ -72,7 +72,7 @@ class EuroSATModule(L.LightningModule):
             torch.nn.AdaptiveAvgPool2d(output_size=(1, 1)),
             torch.nn.Flatten(),
             torch.nn.Linear(
-                self.backbone.feature_info.channels(-1), self.hparams.num_classes)
+                self.backbone.feature_info[-1]['num_chs'], self.hparams.num_classes)
         )
         self.criterion = torch.nn.CrossEntropyLoss()
 
