@@ -2,7 +2,9 @@ from tqdm import tqdm
 import utils
 import geopandas as gpd
 
-NUM_SAMPLES = 1_000_000
+# for more than 100k items, use find_matches_chunks.py
+
+NUM_SAMPLES = 100_000
 NUM_CORES = 20
 path = 'outputs/'
 
