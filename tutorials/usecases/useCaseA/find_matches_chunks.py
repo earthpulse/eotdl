@@ -12,7 +12,7 @@ import numpy as np
 CHUNK_SIZE = 10_000
 NUM_CHUNKS = 100 # set to -1 to process the entire table
 NUM_CORES = 20
-SHUFFLE = True
+SHUFFLE = True # so we have samples from all regions even if we don't process all the rows
 SEED = 2025
 
 path = 'outputs/'
@@ -49,7 +49,7 @@ if NUM_CHUNKS < 0:
     NUM_CHUNKS = len(table) // CHUNK_SIZE + 1
 
 for i in range(NUM_CHUNKS):
-    if os.path.exists(path + f'chunks/chunk-{CHUNK_SIZE}-{i+1}.parquet'):
+    if os.path.exists(path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet'):
         print(f"Chunk {i+1}/{NUM_CHUNKS} already exists, skipping...")
         continue
     
@@ -75,7 +75,7 @@ for i in range(NUM_CHUNKS):
     gdf_sampled['s1_matches'] = s1_matches
 
     print("Saving results... ", end="", flush=True)
-    gdf_sampled.to_parquet(path + f'chunks/chunk-{CHUNK_SIZE}-{i+1}.parquet')
+    gdf_sampled.to_parquet(path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet')
     print("Done")
 
 
