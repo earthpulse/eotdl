@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import gc
 
-CHUNK_SIZE = 100
-NUM_CHUNKS = 3 # set to -1 to process the entire table
+CHUNK_SIZE = 10_000
+NUM_CHUNKS = 100 # set to -1 to process the entire table
 NUM_CORES = 20
 SHUFFLE = True # so we have samples from all regions even if we don't process all the rows
 SEED = 2025
