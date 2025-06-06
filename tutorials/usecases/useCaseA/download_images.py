@@ -52,31 +52,32 @@ def download_images(json_path0, centroid, s2_date, s1_date):
 		except IOError as e:
 			print(f"Error writing Satellogic imagery to file: {e}")
 			return None
-	# sentinel 2
-	dst_path_sentinel2 = None
-	if s2_date is not None:
-		name = str(json_path).split('/')[-1].replace('_metadata.json', '_S2L2A')
-		dst_path_sentinel2 = dst_path + "/tifs/sentinel2/" + name + '.tif'
-		custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
-		try:
-			download_sentinel_imagery(dst_path + "/tifs/sentinel2", s2_date, custom_bbox, "sentinel-2-l2a", name=name)
-			Path(str(dst_path_sentinel2).replace('.tif', '.json')).unlink(missing_ok=True)
-		except Exception as e:
-			print(f"Error downloading sentinel imagery: {e}")
-			return None
-	# sentinel 1
-	dst_path_sentinel1 = None
-	if s1_date is not None:
-		name = str(json_path).split('/')[-1].replace('_metadata.json', '_S1GRD')
-		dst_path_sentinel1 = dst_path + "/tifs/sentinel1/" + name + '.tif'
-		custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
-		try:
-			download_sentinel_imagery(dst_path + "/tifs/sentinel1", s1_date, custom_bbox, "sentinel-1-grd", name=name)
-			Path(str(dst_path_sentinel1).replace('.tif', '.json')).unlink(missing_ok=True)
-		except Exception as e:
-			print(f"Error downloading sentinel imagery: {e}")
-			return None
+		# sentinel 2
+		dst_path_sentinel2 = None
+		if s2_date is not None:
+			name = str(json_path).split('/')[-1].replace('_metadata.json', '_S2L2A')
+			dst_path_sentinel2 = dst_path + "/tifs/sentinel2/" + name + '.tif'
+			custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
+			try:
+				download_sentinel_imagery(dst_path + "/tifs/sentinel2", s2_date, custom_bbox, "sentinel-2-l2a", name=name)
+				Path(str(dst_path_sentinel2).replace('.tif', '.json')).unlink(missing_ok=True)
+			except Exception as e:
+				print(f"Error downloading sentinel imagery: {e}")
+				return None
+		# sentinel 1
+		dst_path_sentinel1 = None
+		if s1_date is not None:
+			name = str(json_path).split('/')[-1].replace('_metadata.json', '_S1GRD')
+			dst_path_sentinel1 = dst_path + "/tifs/sentinel1/" + name + '.tif'
+			custom_bbox = bbox_from_centroid(x=centroid.y, y=centroid.x, pixel_size=10, width=WIDTH, height=HEIGHT)
+			try:
+				download_sentinel_imagery(dst_path + "/tifs/sentinel1", s1_date, custom_bbox, "sentinel-1-grd", name=name)
+				Path(str(dst_path_sentinel1).replace('.tif', '.json')).unlink(missing_ok=True)
+			except Exception as e:
+				print(f"Error downloading sentinel imagery: {e}")
+				return None
 		return (dst_path_sentinel2, dst_path_sentinel1, output_path)
+	# print(f"{output_path} found, skipping...")
 
 def download_matches(args):
 	s2_matches, s1_matches, date, json_path, centroid = args
