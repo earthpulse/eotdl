@@ -9,9 +9,10 @@ from shapely import wkb
 import shutil
 import numpy as np
 import pandas as pd
+import gc
 
-CHUNK_SIZE = 10_000
-NUM_CHUNKS = 100 # set to -1 to process the entire table
+CHUNK_SIZE = 100
+NUM_CHUNKS = 3 # set to -1 to process the entire table
 NUM_CORES = 20
 SHUFFLE = True # so we have samples from all regions even if we don't process all the rows
 SEED = 2025
@@ -22,16 +23,7 @@ def find_matches_parallel(gdf, time_buffer=20, width=384, height=384, collection
     from concurrent.futures import ProcessPoolExecutor
     with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
         args = [(ix, row.geometry.centroid, row.date, time_buffer, width, height, collection_id) for ix, row in gdf.iterrows()]
-        with tqdm(total=len(args), desc=f"{collection_id}") as progress:
-            futures = []
-            for arg in args:
-                future = pool.submit(utils._find_matches, arg) # enviamos la tupla de argumentos
-                future.add_done_callback(lambda p: progress.update())
-                futures.append(future)
-            results = []
-            for future in futures:
-                result = future.result()
-                results.append(result)
+        results = list(tqdm(pool.map(utils._find_matches, args), total=len(args), desc=f"{collection_id}"))
     return results
 
 # shutil.rmtree(path + 'chunks', ignore_errors=True)
@@ -77,12 +69,24 @@ for i in range(NUM_CHUNKS):
     gdf_sampled.to_parquet(path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet')
     print("Done")
 
+    del chunk, df, gdf_sampled, results, s2_matches_df, s1_matches_df
+    gc.collect()
+
 
 print("Merging chunks... ", end="", flush=True)
 # chunk_files = sorted(glob(f"{path}/chunks/chunk-{CHUNK_SIZE}-{SEED}-*.parquet"))
 chunk_files = [path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet' for i in range(NUM_CHUNKS)]
-tables = [pq.read_table(f) for f in chunk_files]
-merged_table = pa.concat_tables(tables)
-pq.write_table(merged_table, path + 'satellogic-earthview-items-with-matches.parquet')
+writer = None
+try:
+    for chunk_file in chunk_files:
+        if not os.path.exists(chunk_file):
+            continue
+        table = pq.read_table(chunk_file)
+        if writer is None:
+            writer = pq.ParquetWriter(path + 'satellogic-earthview-items-with-matches.parquet', table.schema)
+        writer.write_table(table)
+finally:
+    if writer is not None:
+        writer.close()
 # shutil.rmtree(path + 'chunks', ignore_errors=True)
 print("Done")
