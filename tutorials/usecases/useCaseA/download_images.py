@@ -17,7 +17,7 @@ import os
 path = '/fastdata/Satellogic/'
 dst_path = '/fastdata/Satellogic/data/'
 
-CLOUD_COVER_THRESHOLD = 0.1 # %
+CLOUD_COVER_THRESHOLD = 5 # %
 WIDTH = 384
 HEIGHT = 384
 NUM_CORES = multiprocessing.cpu_count()
