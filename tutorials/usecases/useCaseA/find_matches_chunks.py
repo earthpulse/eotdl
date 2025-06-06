@@ -8,6 +8,7 @@ from glob import glob
 from shapely import wkb
 import shutil
 import numpy as np
+import pandas as pd
 
 CHUNK_SIZE = 10_000
 NUM_CHUNKS = 100 # set to -1 to process the entire table
@@ -17,7 +18,7 @@ SEED = 2025
 
 path = 'outputs/'
 
-def find_matches_parallel(gdf, time_buffer=30, width=384, height=384, collection_id="sentinel-2-l2a"):
+def find_matches_parallel(gdf, time_buffer=20, width=384, height=384, collection_id="sentinel-2-l2a"):
     from concurrent.futures import ProcessPoolExecutor
     with ProcessPoolExecutor(max_workers=NUM_CORES) as pool:
         args = [(ix, row.geometry.centroid, row.date, time_buffer, width, height, collection_id) for ix, row in gdf.iterrows()]
@@ -46,7 +47,7 @@ if SHUFFLE:
 print("Done")
 
 if NUM_CHUNKS < 0:
-    NUM_CHUNKS = len(table) // CHUNK_SIZE + 1
+    NUM_CHUNKS = (len(table) + CHUNK_SIZE - 1) // CHUNK_SIZE
 
 for i in range(NUM_CHUNKS):
     if os.path.exists(path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet'):
@@ -54,7 +55,7 @@ for i in range(NUM_CHUNKS):
         continue
     
     start_idx = i * CHUNK_SIZE
-    end_idx = start_idx + CHUNK_SIZE if i < NUM_CHUNKS - 1 else len(table)
+    end_idx = min(start_idx + CHUNK_SIZE, len(table))
 
     print(f"Processing chunk {i+1}/{NUM_CHUNKS}... ")
     chunk = table.slice(start_idx, end_idx - start_idx)
@@ -64,15 +65,13 @@ for i in range(NUM_CHUNKS):
 
     # Sentinel 2
     results = find_matches_parallel(gdf_sampled)
-    sorted_results = sorted(results, key=lambda x: x[0])
-    s2_matches = [r[1] for r in sorted_results]
-    gdf_sampled['s2_matches'] = s2_matches
+    s2_matches_df = pd.DataFrame(results, columns=['index', 's2_matches']).set_index('index')
+    gdf_sampled['s2_matches'] = s2_matches_df['s2_matches']
 
     # Sentinel 1
     results = find_matches_parallel(gdf_sampled, collection_id="sentinel-1-grd")
-    sorted_results = sorted(results, key=lambda x: x[0])
-    s1_matches = [r[1] for r in sorted_results]
-    gdf_sampled['s1_matches'] = s1_matches
+    s1_matches_df = pd.DataFrame(results, columns=['index', 's1_matches']).set_index('index')
+    gdf_sampled['s1_matches'] = s1_matches_df['s1_matches']
 
     print("Saving results... ", end="", flush=True)
     gdf_sampled.to_parquet(path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet')
@@ -80,9 +79,10 @@ for i in range(NUM_CHUNKS):
 
 
 print("Merging chunks... ", end="", flush=True)
-chunk_files = sorted(glob(f"{path}/chunks/chunk-*.parquet"))
+# chunk_files = sorted(glob(f"{path}/chunks/chunk-{CHUNK_SIZE}-{SEED}-*.parquet"))
+chunk_files = [path + f'chunks/chunk-{CHUNK_SIZE}-{SEED}-{i+1}.parquet' for i in range(NUM_CHUNKS)]
 tables = [pq.read_table(f) for f in chunk_files]
 merged_table = pa.concat_tables(tables)
-pq.write_table(merged_table, path + 'satellogic-earthview-items-merged.parquet')
+pq.write_table(merged_table, path + 'satellogic-earthview-items-with-matches.parquet')
 # shutil.rmtree(path + 'chunks', ignore_errors=True)
 print("Done")

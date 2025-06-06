@@ -90,8 +90,8 @@ def download_matches(args):
 			s2_date = closest_match['properties']['datetime']
 	if len(s1_matches) > 0:
 		# Find closest match by date
-		closest_match = min(s1_matches, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
-		s1_date = closest_match['properties']['datetime']
+		# closest_match = min(s1_matches, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
+		s1_date = None # closest_match['properties']['datetime']
 	return download_images(json_path, centroid, s2_date, s1_date)
 
 if __name__ == "__main__":
