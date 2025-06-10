@@ -3,7 +3,7 @@ import openeo
 from openeo.extra.job_management import MultiBackendJobManager, CsvJobDatabase
 
 # pass arguments in the row
-def start_job(row: pd.Series, connection: openeo.Connection) -> openeo.BatchJob:
+def start_job(row: pd.Series, connection: openeo.Connection, **kwargs) -> openeo.BatchJob:
         temporal_extent = row["temporal_extent"]
         # set up load url in order to allow non-latlon feature collections for spatial filtering
         geometry = row["geometry"]

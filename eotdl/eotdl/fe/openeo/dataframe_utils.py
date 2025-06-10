@@ -129,6 +129,8 @@ def process_geodataframe(
             "geometry": row.geometry,
             "crs": geodataframe.crs.to_string(),
             "temporal_extent": temporal_extent,
+            "s1_weekly_statistics_url": row.get("s1_weekly_statistics_url"),
+            "s2_weekly_statistics_url": row.get("s2_weekly_statistics_url"),
             **{col: row[col] for col in extra_cols}
         }  
         
