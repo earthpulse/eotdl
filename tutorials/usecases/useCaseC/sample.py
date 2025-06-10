@@ -9,8 +9,7 @@ import os
 data_path = '/fastdata/Satellogic/data/tifs/satellogic/'
 
 
-def copy_hr(args, output_dir=data_path + "tifs"):
-    date, json_path, centroid = args
+def copy_hr(output_dir=data_path + "tifs"):
 
     # download sentinel images to fastdata
     hr_path = ""
@@ -30,4 +29,4 @@ if __name__ == "__main__":
 
     # Print sampled file names
     for file in sampled_files:
-        print(file)
+        print(data_path + "/" + file)
