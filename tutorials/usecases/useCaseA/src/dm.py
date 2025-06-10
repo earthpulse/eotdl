@@ -10,37 +10,15 @@ import pandas as pd
 from .ds import Dataset, EuroSATDataset
 
 class ToGray(A.ImageOnlyTransform):
-    """Convert multi-channel image to grayscale by averaging channels.
-    
-    This transform converts a multi-channel image to grayscale by averaging all channels
-    and replicating the grayscale value across all channels. This preserves the original
-    number of channels while converting to grayscale.
-    
-    Args:
-        p (float): probability of applying the transform. Default: 1.0
-    """
-    
     def __init__(self, p=0.5):
         super().__init__(p=p)
         
     def apply(self, img, **params):
-        """Convert image to grayscale by averaging all channels.
-        
-        Args:
-            img (np.ndarray): Input image with shape (H, W, C)
-            
-        Returns:
-            np.ndarray: Grayscale image with shape (H, W, C) where all channels have same value
-        """
-        # Average all channels
         gray = np.mean(img[:,:,:3], axis=2, keepdims=True)
-        # Replicate grayscale value across all channels
         return np.repeat(gray, img.shape[2], axis=2).astype(img.dtype)
 
-
 class DataModule(L.LightningDataModule):
-
-    def __init__(self, path, bands=(1,2,3,4), batch_size=256, num_workers=10, pin_memory=True, trans=None, norm_value=4000):
+    def __init__(self, path, bands=(1,2,3,4), batch_size=256, num_workers=20, pin_memory=True, trans=None, norm_value=4000):
         super().__init__()
         self.path = path
         self.batch_size = batch_size
@@ -67,7 +45,6 @@ class DataModule(L.LightningDataModule):
                 # A.ToGray(), # expects RGB images
                 ToGray(),
                 A.GaussianBlur(p=0.3),
-                # A.Solarize(threshold=0.2), # expects RGB images
             ]),
             self.bands,
             self.norm_value
@@ -83,7 +60,6 @@ class DataModule(L.LightningDataModule):
         )
 
 class EuroSATDataModule(L.LightningDataModule):
-
     def __init__(self, path, bands=(4,3,2,8), norm_value=4000, batch_size=32, num_workers=10, label_ratio=1., pin_memory=True):
         super().__init__()
         self.path = path

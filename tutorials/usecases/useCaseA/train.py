@@ -79,7 +79,7 @@ torch.set_float32_matmul_precision('medium')
 trainer=L.Trainer(
     max_epochs=MAX_EPOCHS,
     accelerator='gpu',
-    devices=2,
+    devices=1,
     precision="bf16-mixed",
     logger=CSVLogger('logs', name='usecaseA'),
     callbacks=callbacks,
