@@ -1,10 +1,7 @@
 #  SH API rate limit: 1200 requests/minute
-import geopandas as gpd
 import random
-import multiprocessing
-from eotdl.tools import bbox_from_centroid
-from dotenv import load_dotenv
 import os
+import shutil
 
 data_path = '/fastdata/Satellogic/data/tifs/satellogic/'
 
@@ -29,4 +26,7 @@ if __name__ == "__main__":
 
     # Print sampled file names
     for file in sampled_files:
-        print(data_path + "/" + file)
+        path = data_path + file
+        print(f"copying {file}...")
+        shutil.copy2(path, "./samples/")
+
