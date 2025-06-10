@@ -6,16 +6,6 @@ import shutil
 data_path = '/fastdata/Satellogic/data/tifs/satellogic/'
 
 
-def copy_hr(output_dir=data_path + "tifs"):
-
-    # download sentinel images to fastdata
-    hr_path = ""
-    print("Copied!")
-    print("-------------------------")
-
-    return hr_path
-
-
 if __name__ == "__main__":
     # Get all files in the directory
     all_files = [f for f in os.listdir(data_path) if os.path.isfile(os.path.join(data_path, f))]
