@@ -115,4 +115,4 @@ if __name__ == "__main__":
 				for future in futures:
 					result = future.result()
 					results.append(result)
-		print("Downloaded", sum(1 for r in results if r is not None), "matches")
+		# print("Downloaded", sum(1 for r in results if r is not None), "matches")

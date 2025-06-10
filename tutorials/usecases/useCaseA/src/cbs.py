@@ -113,30 +113,54 @@ class SSLOnlineEvaluator(Callback):
         backbone = pl_module.backbone
         device = pl_module.device
 
-        # Re-initialize head and optimizer here to train from scratch
-        self.head = torch.nn.Sequential(
-            torch.nn.AdaptiveAvgPool2d((1, 1)),
-            torch.nn.Flatten(),
-            torch.nn.Linear(self.feat_dim, self.num_classes),
-        ).to(device)
-        self.optimizer = torch.optim.Adam(self.head.parameters(), lr=self.lr)
-
         # ─── 1) freeze backbone ───────────────────────────────────────
         backbone.eval()
         for p in backbone.parameters():
             p.requires_grad = False
 
-        # ─── 2) train the head for head_epochs, showing a tqdm bar ────
-        self.head.train()
-        # print(f"Training head for {self.head_epochs} epochs...", end="", flush=True)
-        for head_epoch in range(self.head_epochs):
-            # loop = tqdm(
-            #     self.dm.train_dataloader(),
-            #     desc=f"[Head {head_epoch+1}/{self.head_epochs}]",
-            #     leave=False,
-            # )
-            # for inputs, targets in loop:
-            for inputs, targets in self.dm.train_dataloader():
+        if trainer.is_global_zero:
+            # Re-initialize head and optimizer here to train from scratch
+            self.head = torch.nn.Sequential(
+                torch.nn.AdaptiveAvgPool2d((1, 1)),
+                torch.nn.Flatten(),
+                torch.nn.Linear(self.feat_dim, self.num_classes),
+            ).to(device)
+            self.optimizer = torch.optim.Adam(self.head.parameters(), lr=self.lr)
+
+            # ─── 2) train the head for head_epochs, showing a tqdm bar ────
+            self.head.train()
+            # print(f"Training head for {self.head_epochs} epochs...", end="", flush=True)
+            for head_epoch in range(self.head_epochs):
+                # loop = tqdm(
+                #     self.dm.train_dataloader(),
+                #     desc=f"[Head {head_epoch+1}/{self.head_epochs}]",
+                #     leave=False,
+                # )
+                # for inputs, targets in loop:
+                for inputs, targets in self.dm.train_dataloader():
+                    inputs = inputs.to(pl_module.device)
+                    targets = targets.to(pl_module.device)
+
+                    with torch.no_grad():
+                        feats = backbone(inputs)
+                        if isinstance(feats, (list, tuple)):
+                            feats = feats[-1]
+                    feats = feats.detach()
+
+                    logits = self.head(feats)
+                    loss = self.criterion(logits, targets)
+
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    self.optimizer.step()
+
+                    # loop.set_postfix(loss=loss.item())
+
+            # ─── 3) evaluate the head on EuroSAT validation ───────────────
+            self.head.eval()
+            correct = 0
+            total = 0
+            for inputs, targets in self.dm.val_dataloader():
                 inputs = inputs.to(pl_module.device)
                 targets = targets.to(pl_module.device)
 
@@ -145,47 +169,28 @@ class SSLOnlineEvaluator(Callback):
                     if isinstance(feats, (list, tuple)):
                         feats = feats[-1]
                 feats = feats.detach()
-
                 logits = self.head(feats)
-                loss = self.criterion(logits, targets)
+                preds = torch.argmax(logits, dim=1)
 
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+                correct += (preds == targets).sum().item()
+                total += targets.size(0)
 
-                # loop.set_postfix(loss=loss.item())
+            val_acc = correct / total
 
-        # ─── 3) evaluate the head on EuroSAT validation ───────────────
-        self.head.eval()
-        correct = 0
-        total = 0
-        for inputs, targets in self.dm.val_dataloader():
-            inputs = inputs.to(pl_module.device)
-            targets = targets.to(pl_module.device)
+            # ─── 4) log accuracy to Lightning's logger & progress bar ────
+            #   - on_epoch=True ensures it shows up in the epoch-level metrics
+            #   - prog_bar=True makes it appear in the tqdm bar
+            pl_module.log(
+                "eurosat_val_acc",
+                val_acc,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=True,
+                sync_dist=True,
+            )
 
-            with torch.no_grad():
-                feats = backbone(inputs)
-                if isinstance(feats, (list, tuple)):
-                    feats = feats[-1]
-            feats = feats.detach()
-            logits = self.head(feats)
-            preds = torch.argmax(logits, dim=1)
-
-            correct += (preds == targets).sum().item()
-            total += targets.size(0)
-
-        val_acc = correct / total
-
-        # ─── 4) log accuracy to Lightning's logger & progress bar ────
-        #   - on_epoch=True ensures it shows up in the epoch-level metrics
-        #   - prog_bar=True makes it appear in the tqdm bar
-        pl_module.log(
-            "eurosat_val_acc",
-            val_acc,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-        )
+        if trainer.world_size > 1:
+            torch.distributed.barrier()
 
         # ─── 5) unfreeze backbone ─────────────────────────────────────
         backbone.train()

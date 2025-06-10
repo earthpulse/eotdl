@@ -9,6 +9,35 @@ import pandas as pd
 
 from .ds import Dataset, EuroSATDataset
 
+class ToGray(A.ImageOnlyTransform):
+    """Convert multi-channel image to grayscale by averaging channels.
+    
+    This transform converts a multi-channel image to grayscale by averaging all channels
+    and replicating the grayscale value across all channels. This preserves the original
+    number of channels while converting to grayscale.
+    
+    Args:
+        p (float): probability of applying the transform. Default: 1.0
+    """
+    
+    def __init__(self, p=0.5):
+        super().__init__(p=p)
+        
+    def apply(self, img, **params):
+        """Convert image to grayscale by averaging all channels.
+        
+        Args:
+            img (np.ndarray): Input image with shape (H, W, C)
+            
+        Returns:
+            np.ndarray: Grayscale image with shape (H, W, C) where all channels have same value
+        """
+        # Average all channels
+        gray = np.mean(img[:,:,:3], axis=2, keepdims=True)
+        # Replicate grayscale value across all channels
+        return np.repeat(gray, img.shape[2], axis=2).astype(img.dtype)
+
+
 class DataModule(L.LightningDataModule):
 
     def __init__(self, path, bands=(1,2,3,4), batch_size=256, num_workers=10, pin_memory=True, trans=None, norm_value=4000):
@@ -29,15 +58,16 @@ class DataModule(L.LightningDataModule):
         self.ds = Dataset(
             images,
             A.Compose([
-                A.RandomCrop(height=256, width=256),
+                A.RandomResizedCrop(size=(224, 224), scale=(0.5, 1.0)),
                 A.HorizontalFlip(),
                 A.VerticalFlip(),
-                A.RandomRotate90(),
+                A.Rotate(),
                 A.Transpose(),
-                # A.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
-                # A.ToGray(),
-                # A.GaussianBlur(sigma_limit=(0.1, 2.0)),
-                # A.Solarize(threshold=0.2),
+                # A.ColorJitter(), # expects RGB images
+                # A.ToGray(), # expects RGB images
+                ToGray(),
+                A.GaussianBlur(p=0.3),
+                # A.Solarize(threshold=0.2), # expects RGB images
             ]),
             self.bands,
             self.norm_value

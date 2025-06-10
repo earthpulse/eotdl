@@ -4,10 +4,11 @@ from src.cbs import SSLOnlineEvaluator
 from src.module import Module
 from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
+import torch
 
 DATASET = 'sentinel2'
 BATCH_SIZE = 256
-MAX_EPOCHS = 100
+MAX_EPOCHS = 200
 BACKBONE = 'resnet18'
 MLP_DIM = 2048
 HEAD_EPOCHS = 10
@@ -72,11 +73,14 @@ if DATASET == 'sentinel2':
         )
     )
 
+
+torch.set_float32_matmul_precision('medium')
+                                   
 trainer=L.Trainer(
     max_epochs=MAX_EPOCHS,
     accelerator='gpu',
-    devices=1,
-    precision = "bf16-mixed",
+    devices=2,
+    precision="bf16-mixed",
     logger=CSVLogger('logs', name='usecaseA'),
     callbacks=callbacks,
 )

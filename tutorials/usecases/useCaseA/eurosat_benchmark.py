@@ -4,9 +4,9 @@ import timm
 import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 
-BACKBONE = 'resnet18'
+BACKBONE = 'resnet34'
 BANDS = (4,3,2,8)
-CKPT = 'checkpoints/last-v2.ckpt'
+CKPT = 'checkpoints/epoch=64-loss=142.12485.ckpt'
 MAX_EPOCHS = 20
 LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
@@ -50,6 +50,7 @@ for experiment in experiments:
             max_epochs=MAX_EPOCHS,
             accelerator='gpu',
             devices=1,
+            precision='bf16-mixed',
             enable_checkpointing=False,
             logger=CSVLogger(
                 save_dir='logs',
