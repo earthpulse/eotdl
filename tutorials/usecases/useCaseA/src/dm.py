@@ -18,7 +18,7 @@ class ToGray(A.ImageOnlyTransform):
         return np.repeat(gray, img.shape[2], axis=2).astype(img.dtype)
 
 class DataModule(L.LightningDataModule):
-    def __init__(self, path, bands=(1,2,3,4), batch_size=256, num_workers=20, pin_memory=True, trans=None, norm_value=4000):
+    def __init__(self, path, bands=(1,2,3,4), batch_size=256, num_workers=10, pin_memory=True, trans=None, norm_value=4000):
         super().__init__()
         self.path = path
         self.batch_size = batch_size

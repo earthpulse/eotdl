@@ -74,7 +74,7 @@ if DATASET == 'sentinel2':
     )
 
 
-torch.set_float32_matmul_precision('medium')
+# torch.set_float32_matmul_precision('medium')
                                    
 trainer=L.Trainer(
     max_epochs=MAX_EPOCHS,

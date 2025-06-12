@@ -4,11 +4,12 @@ import timm
 import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 
-BACKBONE = 'resnet34'
+BACKBONE = 'resnet18'
 BANDS = (4,3,2,8)
-CKPT = 'checkpoints/epoch=64-loss=142.12485.ckpt'
+CKPT = 'checkpoints/epoch=120-loss=257.15637.ckpt'
 MAX_EPOCHS = 20
-LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+LABEL_RATIOS = [0.01, 0.05, 0.5]
+# LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
 experiments = [
     ('scratch', False, False),
@@ -49,7 +50,7 @@ for experiment in experiments:
         trainer = L.Trainer(
             max_epochs=MAX_EPOCHS,
             accelerator='gpu',
-            devices=1,
+            devices=[1],
             precision='bf16-mixed',
             enable_checkpointing=False,
             logger=CSVLogger(
