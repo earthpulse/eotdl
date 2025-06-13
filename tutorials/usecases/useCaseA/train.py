@@ -9,7 +9,7 @@ import torch
 DATASET = 'sentinel2'
 BATCH_SIZE = 256
 MAX_EPOCHS = 200
-BACKBONE = 'resnet18'
+BACKBONE = 'resnet50'
 MLP_DIM = 2048
 HEAD_EPOCHS = 10
 EVAL_PERIOD = 10
@@ -59,7 +59,7 @@ callbacks = [
         mode='min',
         save_top_k=1,
         save_last=True,
-        filename='{epoch}-{loss:.5f}'
+        filename='{BACKBONE}-{DATASET}-{epoch}-{loss:.5f}'
     )
 ]
 if DATASET == 'sentinel2':

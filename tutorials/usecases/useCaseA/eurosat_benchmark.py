@@ -6,9 +6,9 @@ from lightning.pytorch.loggers import CSVLogger
 
 BACKBONE = 'resnet18'
 BANDS = (4,3,2,8)
-CKPT = 'checkpoints/epoch=120-loss=257.15637.ckpt'
-MAX_EPOCHS = 20
-LABEL_RATIOS = [0.01, 0.05, 0.5]
+CKPT = 'checkpoints/last-v2.ckpt'
+MAX_EPOCHS = 10
+LABEL_RATIOS = [0.01, 0.05]
 # LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
 experiments = [
