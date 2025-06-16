@@ -34,7 +34,7 @@ def inference(model, image):
 def load_image(image, bands=(1,2,3), norm_values=4000):
 	with rio.open(io.BytesIO(image.file.read())) as src:
 		image = src.read(bands)
-	return (image / norm_values).clip(0, 1).astype(np.float32)
+	return np.expand_dims((image / norm_values).clip(0, 1).astype(np.float32), axis=0)
 
 @app.post("/{model}")
 async def classification(
