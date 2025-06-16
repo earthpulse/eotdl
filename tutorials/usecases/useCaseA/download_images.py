@@ -21,6 +21,7 @@ CLOUD_COVER_THRESHOLD = 5 # %
 WIDTH = 384
 HEIGHT = 384
 NUM_CORES = multiprocessing.cpu_count()
+DOWNLOAD_SENTINEL1 = False # set to True to download Sentinel 1 images as well as Sentinel 2
 
 def download_images(json_path0, centroid, s2_date, s1_date):
 	json_path = Path(json_path0.replace('data/', path + 'data/'))
@@ -91,8 +92,8 @@ def download_matches(args):
 			s2_date = closest_match['properties']['datetime']
 	if len(s1_matches) > 0:
 		# Find closest match by date
-		# closest_match = min(s1_matches, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
-		s1_date = None # closest_match['properties']['datetime']
+		closest_match = min(s1_matches, key=lambda x: abs(datetime.fromisoformat(x['properties']['datetime'].replace('Z','')) - date))
+		s1_date = closest_match['properties']['datetime'] if DOWNLOAD_SENTINEL1 else None
 	return download_images(json_path, centroid, s2_date, s1_date)
 
 if __name__ == "__main__":

@@ -39,11 +39,11 @@ class DataModule(L.LightningDataModule):
                 A.RandomResizedCrop(size=(224, 224), scale=(0.5, 1.0)),
                 A.HorizontalFlip(),
                 A.VerticalFlip(),
-                A.Rotate(),
                 A.Transpose(),
-                # A.ColorJitter(), # expects RGB images
-                # A.ToGray(), # expects RGB images
-                ToGray(),
+                A.Rotate(),
+                A.ColorJitter(), # expects RGB images
+                A.ToGray(), # expects RGB images
+                # ToGray(),
                 A.GaussianBlur(p=0.3),
             ]),
             self.bands,

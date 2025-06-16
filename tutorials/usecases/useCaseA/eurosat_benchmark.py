@@ -4,12 +4,12 @@ import timm
 import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 
-BACKBONE = 'resnet18'
+BACKBONE = 'resnet50'
 BANDS = (4,3,2,8)
-CKPT = 'checkpoints/last-v2.ckpt'
-MAX_EPOCHS = 10
-LABEL_RATIOS = [0.01, 0.05]
-# LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+CKPT = 'checkpoints/last-v3.ckpt'
+MAX_EPOCHS = 20
+# LABEL_RATIOS = [0.01, 0.05]
+LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
 experiments = [
     ('scratch', False, False),

@@ -9,7 +9,7 @@ import torch
 DATASET = 'sentinel2'
 BATCH_SIZE = 256
 MAX_EPOCHS = 200
-BACKBONE = 'resnet50'
+BACKBONE = 'resnet18'
 MLP_DIM = 2048
 HEAD_EPOCHS = 10
 EVAL_PERIOD = 10
@@ -18,22 +18,22 @@ config = {
     'satellogic': {
         'path': '/fastdata/Satellogic/data/tifs/satellogic',
         'hparams': {
-            'in_chans': 4,
-            'bands': (1,2,3,4)
+            'in_chans': 3,
+            'bands': (1,2,3)#,4)
         }
     },
     'sentinel2': {
         'path': '/fastdata/Satellogic/data/tifs/sentinel2',
         'hparams': {
-            'in_chans': 4,
-            'bands': (4,3,2,8)
+            'in_chans': 3,
+            'bands': (4,3,2)#,8)
         }
     },
     'eurosat': {
         'path': '/fastdata/EuroSAT/ds/images/remote_sensing/otherDatasets/sentinel_2/tif',
         'hparams': {
             'freeze': 'True',
-            'bands': (4,3,2,8)
+            'bands': (4,3,2)#,8)
         }
     }
 }
@@ -59,7 +59,7 @@ callbacks = [
         mode='min',
         save_top_k=1,
         save_last=True,
-        filename='{BACKBONE}-{DATASET}-{epoch}-{loss:.5f}'
+        filename='{epoch}-{loss:.5f}'
     )
 ]
 if DATASET == 'sentinel2':
@@ -74,7 +74,7 @@ if DATASET == 'sentinel2':
     )
 
 
-# torch.set_float32_matmul_precision('medium')
+torch.set_float32_matmul_precision('medium')
                                    
 trainer=L.Trainer(
     max_epochs=MAX_EPOCHS,
