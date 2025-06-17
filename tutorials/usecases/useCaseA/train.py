@@ -72,6 +72,16 @@ if DATASET == 'sentinel2':
             eval_period=EVAL_PERIOD
         )
     )
+    callbacks.append(
+        ModelCheckpoint(
+            dirpath='checkpoints',
+            monitor='eurosat_val_acc',
+            mode='max',
+            save_top_k=1,
+            save_last=True,
+            filename='eurosat-{epoch}-{eurosat_val_acc:.5f}'
+        )
+    )
 
 
 torch.set_float32_matmul_precision('medium')
