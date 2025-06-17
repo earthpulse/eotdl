@@ -4,19 +4,19 @@ import timm
 import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 
-BACKBONE = 'resnet50'
-BANDS = (4,3,2,8)
-CKPT = 'checkpoints/last-v3.ckpt'
+BACKBONE = 'resnet18'
+BANDS = (4,3,2)
+CKPT = 'checkpoints/last.ckpt'
 MAX_EPOCHS = 20
-# LABEL_RATIOS = [0.01, 0.05]
-LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+LABEL_RATIOS = [0.01, 0.05]
+# LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
 experiments = [
-    ('scratch', False, False),
+    # ('scratch', False, False),
     ('imagenet-ft', True, False),
-    ('imagenet-tl', True, True),
+    # ('imagenet-tl', True, True),
     ('ssl-ft', False, False),
-    ('ssl-tl', False, True),
+    # ('ssl-tl', False, True),
 ]
 
 for experiment in experiments:
@@ -29,6 +29,7 @@ for experiment in experiments:
             num_workers=10,
             pin_memory=True,
             label_ratio=label_ratio,
+            bands=BANDS,
         )
         if 'ssl' in name:
             module = Module.load_from_checkpoint(CKPT)
