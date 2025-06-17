@@ -32,9 +32,9 @@ def inference(model, image):
 	return ort_outs[0]
 
 def load_image(image, bands=(1,2,3), norm_values=4000):
-	with rio.open(io.BytesIO(image.file.read())) as src:
-		image = src.read(bands)
-	return np.expand_dims((image / norm_values).clip(0, 1).astype(np.float32), axis=0)
+	ds = rio.open(io.BytesIO(image.file.read())) 
+	image = ds.read(bands)
+	return ds, np.expand_dims((image / norm_values).clip(0, 1).astype(np.float32), axis=0)
 
 @app.post("/classification/{model}")
 async def classification(
@@ -42,9 +42,9 @@ async def classification(
 	model: str, 
 	image: UploadFile = File(...), 
 ):
-	image = load_image(image)
+	_, image = load_image(image)
 	outputs = inference(model, image)
-	return outputs.tolist()
+	return outputs[0].tolist()
 
 
 @app.post("/segmentation/{model}")
@@ -53,11 +53,19 @@ async def segmentation(
 	model: str, 
 	image: UploadFile = File(...), 
 ):
-	image = load_image(image)
+	ds, image = load_image(image)
 	outputs = inference(model, image)
-	outputs = np.argmax(outputs[0], axis=0) + 1
-	img = Image.fromarray(outputs.astype(np.uint16))  # Use uint16 to preserve integer values
+	# outputs = np.argmax(outputs[0], axis=0) + 1
+	meta = ds.meta
+	meta.update(count=outputs[0].shape[0], dtype=outputs[0].dtype)
+	
+	# Create a BytesIO buffer to write the TIFF
 	buf = io.BytesIO()
-	img.save(buf, "tiff")
+	with rio.open(buf, 'w', **meta) as dst:
+		dst.write(outputs[0])
+	
+	# Reset buffer position to start
 	buf.seek(0)
+	
+	# Return the buffer contents as a streaming response
 	return StreamingResponse(buf, media_type="image/tiff")
