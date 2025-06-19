@@ -13,7 +13,8 @@ class Dataset(torch.utils.data.Dataset):
 			upscale = 2, 
 			trans = None,
 			hr_bands=(0, 1, 2, 3), 	# R G B Nir satellogic
-			lr_bands=(3, 2, 1, 7) 	# R G B Nir Sentinel 2
+			lr_bands=(3, 2, 1, 7),
+			resize = True
 		):
 		self.hr_paths = hr_paths
 		self.lr_paths = lr_paths
@@ -21,7 +22,8 @@ class Dataset(torch.utils.data.Dataset):
 		self.trans = trans
 		self.hr_bands = hr_bands
 		self.lr_bands = lr_bands
-		
+		self.resize = resize
+
 	def __len__(self):
 		return len(self.hr_paths)
 	
@@ -53,7 +55,8 @@ class Dataset(torch.utils.data.Dataset):
 		# make sure 380 is divisible by the upscale factor
 		# if 380 % self.upscale != 0:
 		# 	raise ValueError(f"Target size {target_size} is not divisible by the upscale factor {self.upscale}")
-		hr = resize(hr, (target_size, target_size), order=3, anti_aliasing=False)
+		if self.resize:
+			hr = resize(hr, (target_size, target_size), order=3, anti_aliasing=False)
 		# channels first
 		hr = rearrange(hr, "h w c -> c h w")
 		lr = rearrange(lr, "h w c -> c h w")

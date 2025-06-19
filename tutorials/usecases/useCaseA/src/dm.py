@@ -41,7 +41,7 @@ class DataModule(L.LightningDataModule):
                 A.VerticalFlip(),
                 A.Transpose(),
                 A.Rotate(),
-                A.ColorJitter(), # expects RGB images
+                A.ColorJitter(), # expects RGB images # VERY IMPORTANT, WITHOUT THIS WILL NOT WORK (is there a version for RGBNir?)
                 A.ToGray(), # expects RGB images
                 # ToGray(),
                 A.GaussianBlur(p=0.3),

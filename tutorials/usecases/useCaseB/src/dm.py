@@ -51,14 +51,15 @@ IGONRE_ZONES = [ # después de insepcción visual, estas zonas creo que no aport
 class ESRTDatamodule(L.LightningDataModule):
 	def __init__(
 			self, 
-			path = "/fastdata/Satellogic/data/tifs", 
+			path = "/fastdata/superres", 
 			upscale = 2,
 			batch_size = 16, 
 			val_size = 0.2,
 			seed = 2025,
 			num_workers = 20,
 			pin_memory = True,
-			train_samples = None
+			train_samples = None,
+			resize = True,
 		):
 		super().__init__()
 		self.path = path
@@ -70,6 +71,7 @@ class ESRTDatamodule(L.LightningDataModule):
 		self.pin_memory = pin_memory
 		self.upscale = upscale
 		self.train_samples = train_samples
+		self.resize = resize
 
 	def setup(self, stage = None):
 		np.random.seed(self.seed)
@@ -101,8 +103,8 @@ class ESRTDatamodule(L.LightningDataModule):
 			A.Transpose(),
 			A.RandomRotate90(),
 		], additional_targets={"image2": "image"}, is_check_shapes=False)
-		self.train_ds = Dataset(hr_train_paths, lr_train_paths, self.upscale, trans)
-		self.val_ds = Dataset(hr_val_paths, lr_val_paths, self.upscale)
+		self.train_ds = Dataset(hr_train_paths, lr_train_paths, self.upscale, trans, resize=self.resize)
+		self.val_ds = Dataset(hr_val_paths, lr_val_paths, self.upscale, resize=self.resize)
 		
 	def generate_lr_paths(self, hr_paths):
 		return [

@@ -6,17 +6,17 @@ from lightning.pytorch.loggers import CSVLogger
 
 BACKBONE = 'resnet18'
 BANDS = (4,3,2)
-CKPT = 'checkpoints/last.ckpt'
+CKPT = 'checkpoints/epoch=194-loss=259.17169.ckpt'
 MAX_EPOCHS = 20
-LABEL_RATIOS = [0.01, 0.05]
-# LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
+# LABEL_RATIOS = [0.01, 0.05]
+LABEL_RATIOS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 
 experiments = [
-    # ('scratch', False, False),
+    ('scratch', False, False),
     ('imagenet-ft', True, False),
-    # ('imagenet-tl', True, True),
+    ('imagenet-tl', True, True),
     ('ssl-ft', False, False),
-    # ('ssl-tl', False, True),
+    ('ssl-tl', False, True),
 ]
 
 for experiment in experiments:
