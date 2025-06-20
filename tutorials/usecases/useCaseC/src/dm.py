@@ -34,7 +34,8 @@ def get_classification_labels(images, labels, classes):
 class ClassificationDataModule(L.LightningDataModule):
     def __init__(self, 
             path='data', 
-            classes=['industrial', 'agricultural', 'forest', 'water', 'urban', 'bare soil'], 
+            # classes=['industrial', 'agricultural', 'forest', 'water', 'urban', 'bare soil'], 
+            classes=['water', 'no water'], 
             batch_size=16, 
             num_workers=4, 
             pin_memory=True, 
