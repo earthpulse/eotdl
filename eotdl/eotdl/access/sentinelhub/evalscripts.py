@@ -93,6 +93,42 @@ class EvalScripts:
                 }
                 """
 
+    SENTINEL2_L1C_STATISTICS = """
+        //VERSION=3
+
+        function setup() {
+        return {
+            input: [
+            {
+                bands: [
+                "B02",
+                "B03",
+                "B04",
+                "dataMask"
+                ]
+            }
+            ],
+            output: [
+            {
+                id: "rgb",
+                bands: ["R", "G", "B"]
+            },
+            {
+                id: "dataMask",
+                bands: 1
+            }
+            ]
+        }
+        }
+
+        function evaluatePixel(samples) {
+            return {
+            rgb: [samples.B04, samples.B03, samples.B02],
+            dataMask: [samples.dataMask]
+            };
+        }
+        """
+
     SENTINEL_2_L2A = """
                 //VERSION=3
                 function setup() {
@@ -396,3 +432,228 @@ class EvalScripts:
         return bRatio > 1 || (bRatio > 0 && NGDR > 0);
         }
         """
+
+    LANDSAT_OT_L1_TRUE_COLOR = """
+    //VERSION=3
+
+    function setup() {
+        return {
+            input: ["B02", "B03", "B04"],
+            output: {
+            bands: 3,
+            sampleType: "AUTO" // default value - scales the output values from [0,1] to [0,255].
+            }
+        }
+    }
+
+    function evaluatePixel(sample) {
+        return [2.5 * sample.B04, 2.5 * sample.B03, 2.5 * sample.B02]
+    }
+    """
+
+    LANDSAT_OT_L1_NDVI = """
+    //VERSION=3
+    function setup() {
+        return {
+            input: [{
+                bands:["B04", "B05"],
+            }],
+            output: {
+            id: "default",
+            bands: 3,
+            }
+        }
+    }       
+
+    function evaluatePixel(sample) {
+        let ndvi = (sample.B05 - sample.B04) / (sample.B05 + sample.B04)
+
+        if (ndvi<-0.5) return [0.05,0.05,0.05]
+        else if (ndvi<-0.2) return [0.75,0.75,0.75]
+        else if (ndvi<-0.1) return [0.86,0.86,0.86]
+        else if (ndvi<0) return [0.92,0.92,0.92]
+        else if (ndvi<0.025) return [1,0.98,0.8]
+        else if (ndvi<0.05) return [0.93,0.91,0.71]
+        else if (ndvi<0.075) return [0.87,0.85,0.61]
+        else if (ndvi<0.1) return [0.8,0.78,0.51]
+        else if (ndvi<0.125) return [0.74,0.72,0.42]
+        else if (ndvi<0.15) return [0.69,0.76,0.38]
+        else if (ndvi<0.175) return [0.64,0.8,0.35]
+        else if (ndvi<0.2) return [0.57,0.75,0.32]
+        else if (ndvi<0.25) return [0.5,0.7,0.28]
+        else if (ndvi<0.3) return [0.44,0.64,0.25]
+        else if (ndvi<0.35) return [0.38,0.59,0.21]
+        else if (ndvi<0.4) return [0.31,0.54,0.18]
+        else if (ndvi<0.45) return [0.25,0.49,0.14]
+        else if (ndvi<0.5) return [0.19,0.43,0.11]
+        else if (ndvi<0.55) return [0.13,0.38,0.07]
+        else if (ndvi<0.6) return [0.06,0.33,0.04]
+        else return [0,0.27,0]
+    }
+    """
+    LANDSTAT_TM_L1_TRUE_COLOR = """
+    //VERSION=3
+
+    let minVal = 0.0;
+    let maxVal = 0.4;
+
+    let viz = new HighlightCompressVisualizer(minVal, maxVal);
+
+    function evaluatePixel(samples) {
+        let val = [samples.B03, samples.B02, samples.B01];
+        val = viz.processList(val);
+        val.push(samples.dataMask);
+        return val;
+    }
+
+    function setup() {
+    return {
+        input: [{
+        bands: [
+            "B01",
+            "B02",
+            "B03",
+            "dataMask"
+        ]
+        }],
+        output: {
+        bands: 4
+        }
+    }
+    }
+    """
+
+    LANDSTAT_TM_L1_NDVI = """
+    //VERSION=3
+    function setup() {
+    return {
+        input: ["B03", "B04", "dataMask"],
+        output: [
+        { id: "default", bands: 4 },
+        { id: "index", bands: 1, sampleType: "FLOAT32" },
+        { id: "eobrowserStats", bands: 1 },
+        { id: "dataMask", bands: 1 },
+        ],
+    };
+    }
+
+    function evaluatePixel(samples) {
+    let val = index(samples.B04, samples.B03);
+    let imgVals = null;
+    // The library for tiffs works well only if there is only one channel returned.
+    // So we encode the "no data" as NaN here and ignore NaNs on frontend.
+    const indexVal = samples.dataMask === 1 && val >= -1 && val <= 1 ? val : NaN;
+
+    if (val < -1.1) imgVals = [0, 0, 0, samples.dataMask];
+    else if (val < -0.2) imgVals = [0.75, 0.75, 0.75, samples.dataMask];
+    else if (val < -0.1) imgVals = [0.86, 0.86, 0.86, samples.dataMask];
+    else if (val < 0) imgVals = [1, 1, 0.88, samples.dataMask];
+    else if (val < 0.025) imgVals = [1, 0.98, 0.8, samples.dataMask];
+    else if (val < 0.05) imgVals = [0.93, 0.91, 0.71, samples.dataMask];
+    else if (val < 0.075) imgVals = [0.87, 0.85, 0.61, samples.dataMask];
+    else if (val < 0.1) imgVals = [0.8, 0.78, 0.51, samples.dataMask];
+    else if (val < 0.125) imgVals = [0.74, 0.72, 0.42, samples.dataMask];
+    else if (val < 0.15) imgVals = [0.69, 0.76, 0.38, samples.dataMask];
+    else if (val < 0.175) imgVals = [0.64, 0.8, 0.35, samples.dataMask];
+    else if (val < 0.2) imgVals = [0.57, 0.75, 0.32, samples.dataMask];
+    else if (val < 0.25) imgVals = [0.5, 0.7, 0.28, samples.dataMask];
+    else if (val < 0.3) imgVals = [0.44, 0.64, 0.25, samples.dataMask];
+    else if (val < 0.35) imgVals = [0.38, 0.59, 0.21, samples.dataMask];
+    else if (val < 0.4) imgVals = [0.31, 0.54, 0.18, samples.dataMask];
+    else if (val < 0.45) imgVals = [0.25, 0.49, 0.14, samples.dataMask];
+    else if (val < 0.5) imgVals = [0.19, 0.43, 0.11, samples.dataMask];
+    else if (val < 0.55) imgVals = [0.13, 0.38, 0.07, samples.dataMask];
+    else if (val < 0.6) imgVals = [0.06, 0.33, 0.04, samples.dataMask];
+    else imgVals = [0, 0.27, 0, samples.dataMask];
+
+    return {
+        default: imgVals,
+        index: [indexVal],
+        eobrowserStats: [val],
+        dataMask: [samples.dataMask],
+    };
+    }
+    """
+    LANDSTAT_TM_L2_TRUE_COLOR = """
+    //VERSION=3
+
+    let minVal = 0.0;
+    let maxVal = 0.4;
+
+    let viz = new HighlightCompressVisualizer(minVal, maxVal);
+
+    function evaluatePixel(samples) {
+        let val = [samples.B03, samples.B02, samples.B01];
+        val = viz.processList(val);
+        val.push(samples.dataMask);
+        return val;
+    }
+
+    function setup() {
+    return {
+        input: [{
+        bands: [
+            "B01",
+            "B02",
+            "B03",
+            "dataMask"
+        ]
+        }],
+        output: {
+        bands: 4
+        }
+    }
+    }
+    """
+
+    LANDSTAT_TM_L2_NDVI = """
+    //VERSION=3
+    function setup() {
+    return {
+        input: ["B03", "B04", "dataMask"],
+        output: [
+        { id: "default", bands: 4 },
+        { id: "index", bands: 1, sampleType: "FLOAT32" },
+        { id: "eobrowserStats", bands: 1 },
+        { id: "dataMask", bands: 1 },
+        ],
+    };
+    }
+
+    function evaluatePixel(samples) {
+    let val = index(samples.B04, samples.B03);
+    let imgVals = null;
+    // The library for tiffs works well only if there is only one channel returned.
+    // So we encode the "no data" as NaN here and ignore NaNs on frontend.
+    const indexVal = samples.dataMask === 1 && val >= -1 && val <= 1 ? val : NaN;
+
+    if (val < -1.1) imgVals = [0, 0, 0, samples.dataMask];
+    else if (val < -0.2) imgVals = [0.75, 0.75, 0.75, samples.dataMask];
+    else if (val < -0.1) imgVals = [0.86, 0.86, 0.86, samples.dataMask];
+    else if (val < 0) imgVals = [1, 1, 0.88, samples.dataMask];
+    else if (val < 0.025) imgVals = [1, 0.98, 0.8, samples.dataMask];
+    else if (val < 0.05) imgVals = [0.93, 0.91, 0.71, samples.dataMask];
+    else if (val < 0.075) imgVals = [0.87, 0.85, 0.61, samples.dataMask];
+    else if (val < 0.1) imgVals = [0.8, 0.78, 0.51, samples.dataMask];
+    else if (val < 0.125) imgVals = [0.74, 0.72, 0.42, samples.dataMask];
+    else if (val < 0.15) imgVals = [0.69, 0.76, 0.38, samples.dataMask];
+    else if (val < 0.175) imgVals = [0.64, 0.8, 0.35, samples.dataMask];
+    else if (val < 0.2) imgVals = [0.57, 0.75, 0.32, samples.dataMask];
+    else if (val < 0.25) imgVals = [0.5, 0.7, 0.28, samples.dataMask];
+    else if (val < 0.3) imgVals = [0.44, 0.64, 0.25, samples.dataMask];
+    else if (val < 0.35) imgVals = [0.38, 0.59, 0.21, samples.dataMask];
+    else if (val < 0.4) imgVals = [0.31, 0.54, 0.18, samples.dataMask];
+    else if (val < 0.45) imgVals = [0.25, 0.49, 0.14, samples.dataMask];
+    else if (val < 0.5) imgVals = [0.19, 0.43, 0.11, samples.dataMask];
+    else if (val < 0.55) imgVals = [0.13, 0.38, 0.07, samples.dataMask];
+    else if (val < 0.6) imgVals = [0.06, 0.33, 0.04, samples.dataMask];
+    else imgVals = [0, 0.27, 0, samples.dataMask];
+
+    return {
+        default: imgVals,
+        index: [indexVal],
+        eobrowserStats: [val],
+        dataMask: [samples.dataMask],
+    };
+    }
+    """
