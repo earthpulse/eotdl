@@ -1,7 +1,7 @@
 const workshops = [
     {
         name: "LPS 2025",
-        thumbnail: "/tutorials/philab.png",
+        thumbnail: "/tutorials/lps25.png",
         description: "Workshop conducted at LPS premises on June 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/lps25/README.md",
     },
