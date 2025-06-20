@@ -1,8 +1,14 @@
 const workshops = [
     {
+        name: "LPS 2025",
+        thumbnail: "/tutorials/philab.png",
+        description: "Workshop conducted at LPS premises on June 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
+        link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/lps25/README.md",
+    },
+    {
         name: "PhiLab 2024",
         thumbnail: "/tutorials/philab.png",
-        description: "Workshop conducted at PhiLab premises on May 2024. Lear how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project.",
+        description: "Workshop conducted at PhiLab premises on May 2024. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset with STAC metadata and get involved in the project.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/philab24/README.md",
     },
     {
