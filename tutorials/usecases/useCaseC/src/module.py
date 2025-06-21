@@ -6,10 +6,10 @@ from torchmetrics.classification import MultilabelAccuracy
 from .model import ClassificationModel, SegmentationModel, MultiTaskModel
 
 class ClassificationModule(L.LightningModule):
-    def __init__(self, num_classes=6, encoder='resnet18', in_channels=3, pretrained=True, lr=1e-3):
+    def __init__(self, num_classes=4, encoder='resnet18', in_channels=3, pretrained=True, lr=1e-3, ssl=None):
         super().__init__()
         self.save_hyperparameters()
-        self.model = ClassificationModel(num_classes, encoder, in_channels, pretrained)
+        self.model = ClassificationModel(num_classes, encoder, in_channels, pretrained, ssl)
         self.loss = nn.BCEWithLogitsLoss()
         self.train_acc = MultilabelAccuracy(num_labels=num_classes)
         self.val_acc = MultilabelAccuracy(num_labels=num_classes)
@@ -91,7 +91,7 @@ class SegmentationModule(L.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
     
 class MultiTaskModule(L.LightningModule):
-    def __init__(self, num_seg_classes=6, num_cls_classes=6, encoder='resnet18', in_channels=3, pretrained=True, lr=1e-3):
+    def __init__(self, num_seg_classes=4, num_cls_classes=4, encoder='resnet18', in_channels=3, pretrained=True, lr=1e-3):
         super().__init__()
         self.save_hyperparameters()
         self.model = MultiTaskModel(num_seg_classes, num_cls_classes, encoder, in_channels, pretrained)

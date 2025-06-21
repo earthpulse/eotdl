@@ -4,6 +4,7 @@ import geopandas as gpd
 from torch.utils.data import DataLoader
 import json
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 from .ds import ClassificationDataset, SegmentationDataset, MultiTaskDataset
 
@@ -34,8 +35,7 @@ def get_classification_labels(images, labels, classes):
 class ClassificationDataModule(L.LightningDataModule):
     def __init__(self, 
             path='data', 
-            # classes=['industrial', 'agricultural', 'forest', 'water', 'urban', 'bare soil'], 
-            classes=['water', 'no water'], 
+            classes=['bare soil', 'urban', 'vegetation', 'water'], 
             batch_size=16, 
             num_workers=4, 
             pin_memory=True, 
@@ -52,16 +52,13 @@ class ClassificationDataModule(L.LightningDataModule):
         self.val_trans = val_trans
         self.val_split = val_split
         self.classes = classes
+        self.num_classes = len(classes)
 
     def setup(self, stage=None):
-        images = sorted(glob(f'{self.path}/*_TOA.tif'))
-        labels = [i.replace('tif', 'geojson') for i in images]
+        labels = sorted(glob(f'{self.path}/*.geojson'))
+        images = [i.replace('geojson', 'tif') for i in labels]
         images, classification_labels = get_classification_labels(images, labels, self.classes)
-        val_size = int(len(images) * self.val_split)
-        train_image = images[:-val_size]
-        val_image = images[-val_size:]
-        train_label = classification_labels[:-val_size]
-        val_label = classification_labels[-val_size:]
+        train_image, val_image, train_label, val_label = train_test_split(images, classification_labels, test_size=self.val_split, random_state=42, stratify=classification_labels)
         print("Training on", len(train_image), "images")
         print("Validating on", len(val_image), "images")
         self.train_ds = ClassificationDataset(train_image, train_label, trans=self.train_trans)
@@ -91,7 +88,7 @@ class SegmentationDataModule(ClassificationDataModule):
             batch_size=16, 
             num_workers=4, 
             pin_memory=True, 
-            val_split=0.2, 
+            val_split=0.3, 
             train_trans=None, 
             val_trans=None
         ):
@@ -111,8 +108,8 @@ class SegmentationDataModule(ClassificationDataModule):
         self.colors = {label['name']: label['color'] for label in self.spai_labels['labels']}
 
     def setup(self, stage=None):
-        images = sorted(glob(f'{self.path}/*_TOA.tif'))
-        masks = [i.replace('.tif', '_mask.tif') for i in images]
+        masks = sorted(glob(f'{self.path}/*_mask.tif'))
+        images = [i.replace('_mask.tif', '.tif') for i in masks]
         val_size = int(len(images) * self.val_split)
         train_image = images[:-val_size]
         val_image = images[-val_size:]
@@ -126,8 +123,8 @@ class SegmentationDataModule(ClassificationDataModule):
 class MultiTaskDataModule(ClassificationDataModule):
     def __init__(self, 
             path='data', 
-            classes=['industrial', 'agricultural', 'forest', 'water', 'urban', 'bare soil'], 
             batch_size=16, 
+            classes=['bare soil', 'urban', 'vegetation', 'water'], 
             num_workers=4, 
             pin_memory=True, 
             val_split=0.2, 
@@ -152,17 +149,13 @@ class MultiTaskDataModule(ClassificationDataModule):
         self.colors = {label['name']: label['color'] for label in self.spai_labels['labels']}
 
     def setup(self, stage=None):
-        images = sorted(glob(f'{self.path}/*_TOA.tif'))
+        masks = sorted(glob(f'{self.path}/*_mask.tif'))
+        images = [i.replace('_mask.tif', '.tif') for i in masks]
         labels = [i.replace('tif', 'geojson') for i in images]
         images, classification_labels = get_classification_labels(images, labels, self.classification_classes)
-        masks = [i.replace('.tif', '_mask.tif') for i in images]
-        val_size = int(len(images) * self.val_split)
-        train_image = images[:-val_size]
-        val_image = images[-val_size:]
-        train_mask = masks[:-val_size]
-        val_mask = masks[-val_size:]
-        train_label = classification_labels[:-val_size]
-        val_label = classification_labels[-val_size:]
+        train_image, val_image, train_label, val_label = train_test_split(images, classification_labels, test_size=self.val_split, random_state=42)
+        train_mask = [i.replace('.tif', '_mask.tif') for i in train_image]
+        val_mask = [i.replace('.tif', '_mask.tif') for i in val_image]
         print("Training on", len(train_image), "images")
         print("Validating on", len(val_image), "images")
         self.train_ds = MultiTaskDataset(train_image, train_mask, train_label, trans=self.train_trans, num_classes=self.num_seg_classes)
