@@ -3127,11 +3127,11 @@ wheels = [
 
 [[package]]
 name = "pygments"
-version = "2.19.1"
+version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7c/2d/c3338d48ea6cc0feb8446d8e6937e1408088a72a39937982cc6111d17f84/pygments-2.19.1.tar.gz", hash = "sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f", size = 4968581 }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/0b/9fcc47d19c48b59121088dd6da2488a49d5f72dacf8262e2790a1d2c7d15/pygments-2.19.1-py3-none-any.whl", hash = "sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c", size = 1225293 },
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217 },
 ]
 
 [[package]]
@@ -3744,7 +3744,7 @@ wheels = [
 
 [[package]]
 name = "scaneo"
-version = "2025.6.21"
+version = "2025.6.21.post3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cachetools" },
@@ -3760,9 +3760,9 @@ dependencies = [
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2e/5e/2f594c678443ae43621be44d988424618ccd8dbc0fab6a973f3994e11254/scaneo-2025.6.21.tar.gz", hash = "sha256:bf4ec416a7602c1abcb1113874307196adc7e4747d7f636c9eca575b7778d44e", size = 19068912 }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/9d/f36c6582b1546f6608df8f0006d74f8989dc39a6cca55032f93e09ca6386/scaneo-2025.6.21.post3.tar.gz", hash = "sha256:8b96eaa26e693573fee40cd2efefef528b2a4fd9e892f1ff99027a26baba3725", size = 19085000 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/1e/8f254b9fdaeb71410370b9b5f45c6e8f114038e634509c4d71b8e38b3a41/scaneo-2025.6.21-py3-none-any.whl", hash = "sha256:b57a5b45e07515a4e3c48ba2995af7274697469d4488cc8d1f5dfe8c5fccc5be", size = 6680789 },
+    { url = "https://files.pythonhosted.org/packages/df/cb/ec222044319fc81f3015e8a068fc155b5f6c8ef5e618cdd536f4184766ca/scaneo-2025.6.21.post3-py3-none-any.whl", hash = "sha256:c14d6ecbc0243db4388a06fbf805acc7039c12d995ba5a884edf529f26585a7f", size = 6705781 },
 ]
 
 [[package]]
