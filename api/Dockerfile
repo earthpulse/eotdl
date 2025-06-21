@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.12
 # FROM continuumio/miniconda3
 
 ENV PROMETHEUS_MULTIPROC_DIR /var/tmp/prometheus_multiproc_dir
@@ -51,5 +51,6 @@ RUN pip install starlette_exporter
 RUN pip install geomet
 RUN pip install rasterio
 RUN pip install duckdb
+RUN pip install pandas>=2.3.0
 
 COPY ./api /api
