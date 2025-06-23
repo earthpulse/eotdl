@@ -1,7 +1,7 @@
 <div
     id="feedback"
     class="w-full flex flex-col items-center py-24"
-    style="background: url('backgrounds/Group-1190.png') center center/cover;"
+    style="background: url('backgrounds/EOTDL_1920x1080_SURVEY_02.png') center center/cover;"
 >
     <div
         class="gap-12 text-white flex flex-col md:flex-row items-center px-4 justify-center h-full max-w-3xl mx-auto"
