@@ -88,7 +88,7 @@ class SegmentationDataModule(ClassificationDataModule):
             batch_size=16, 
             num_workers=4, 
             pin_memory=True, 
-            val_split=0.3, 
+            val_split=0.2, 
             train_trans=None, 
             val_trans=None
         ):
