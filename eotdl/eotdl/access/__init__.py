@@ -16,3 +16,4 @@ from .sentinelhub.parameters import (
 )
 from .sentinelhub.evalscripts import EvalScripts
 from .matches import find_sentinel_matches_by_bb, find_sentinel_matches_by_centroid
+from .statistics import get_statistics
