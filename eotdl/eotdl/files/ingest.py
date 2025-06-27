@@ -237,7 +237,6 @@ def ingest(path, repo, retrieve, mode, private, user):
 						continue
 					else: # file is different, so ingest new version but with a different name
 						file_name = file_name + f"-{random.randint(1, 1000000)}"
-				print(file_name)
 				updated = True
 				new_version = True
 				num_changes += 1
