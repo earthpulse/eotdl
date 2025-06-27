@@ -33,14 +33,17 @@ def ingest_dataset(
 	force_metadata_update=False,
 	sync_metadata=False,
 	private=False,
+	ignore_stac=False,
 ):
 	if private: print("Ingesting private dataset")
 	path = Path(path)
 	if not path.is_dir():
 		raise Exception("Path must be a folder")
-	if "catalog.json" in [f.name for f in path.iterdir()]:
+	if "catalog.json" in [f.name for f in path.iterdir()] and not ignore_stac:
+		print("Ingesting STAC catalog")
 		prep_ingest_stac(path, logger)
 	else:
+		print("Ingesting folder")
 		prep_ingest_folder(path, verbose, logger, force_metadata_update, sync_metadata)
 	return ingest(path, DatasetsAPIRepo(), retrieve_dataset, 'datasets', private)
 

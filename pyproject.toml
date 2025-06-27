@@ -17,6 +17,7 @@ dependencies = [
     "onnx>=1.18.0",
     "onnxruntime>=1.21.0",
     "openeo-gfmap>=0.4.5",
+    "pandas>=2.3.0",
     "pydantic>=2.11.3",
     "pyjwt>=2.10.1",
     "pystac>=1.13.0",

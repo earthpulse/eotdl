@@ -39,6 +39,12 @@ def ingest(
         '--private',
         '-pr',
         help="Make dataset private"
+    ),
+    ignore_stac: bool = typer.Option(
+        False,
+        "--ignore-stac",
+        "-is",
+        help="Ignore STAC catalog.json (if found) for geneating metadata."
     )
 ):
     """
@@ -67,7 +73,7 @@ def ingest(
     $ eotdl dataset ingest --path /path/to/folder-with-dataset --verbose True
     """
     try:
-        ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata, private)
+        ingest_dataset(path, verbose, typer.echo, foce_metadata_update, sync_metadata, private, ignore_stac)
     except Exception as e:
         typer.echo(e)
         
