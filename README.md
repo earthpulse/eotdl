@@ -58,7 +58,7 @@ Is is recommended to upgrade the package regularly to get the latest changes.
 pip install eotdl --upgrade
 ```
 
-> The library and CLI require Python >= 3.8.
+> The library and CLI require Python >= 3.12.
 
 ## Usage examples and tutorials
 
