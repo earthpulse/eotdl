@@ -8,9 +8,6 @@ from ...src.usecases.stac import retrieve_stac_collections, retrieve_stac_collec
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-@router.get("")
-def stac():
-    return {"message": "Welcome to the STAC API"}
     
 @router.get("/collections")
 def collections():
