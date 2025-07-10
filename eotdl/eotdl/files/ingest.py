@@ -16,6 +16,23 @@ from ..files.metadata import Metadata
 from ..repos import FilesAPIRepo
 from ..shared import calculate_checksum
 
+def fix_timestamp(item, field='created'):
+	if 'properties' in item.to_dict() and field in item.to_dict()['properties']:
+		created = item.to_dict()['properties'][field]
+		if isinstance(created, str):
+			# Parse and reformat the timestamp to ensure it's compatible with parquet
+			try:
+				# Parse the timestamp string
+				dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
+				# Reformat to ISO format without microseconds if they cause issues
+				formatted_created = dt.strftime('%Y-%m-%dT%H:%M:%S+00:00')
+				item.properties[field] = formatted_created
+			except Exception as e:
+				print(f"Warning: Could not parse timestamp {created}: {e}")
+				# Remove problematic timestamp if parsing fails
+				item.properties.pop(field, None)
+	return item
+
 def prep_ingest_folder(
 	folder,
 	verbose=False,
@@ -31,7 +48,7 @@ def prep_ingest_folder(
 	# ingest geometry from files (if tifs) or additional list of geometries
 	# https://stac-utils.github.io/stac-geoparquet/latest/spec/stac-geoparquet-spec/#use-cases
 	data = []
-	for file in files:
+	for file in tqdm(files, total=len(files), desc="Preparing files"):
 		file_path = Path(file)
 		if file_path.is_file():
 			relative_path = os.path.relpath(file_path, catalog_path.parent)
@@ -47,14 +64,18 @@ def prep_ingest_folder(
 def prep_ingest_stac(path, logger=None): # in theory should work with a remote catalog (given URL)
 	# read stac catalog
 	stac_catalog = path / "catalog.json"
+	print("Reading STAC catalog...", end="", flush=True)
 	catalog = pystac.Catalog.from_file(stac_catalog)
+	print("done")
 	# make all items paths hredf in assets absolute
 	catalog.make_all_asset_hrefs_absolute() 
 	# generate list of items for all collections
+	print(f"Found {len(list(catalog.get_collections()))} collections")
 	items = []
 	for collection in catalog.get_collections():
+		print(f"Preparing items from collection {collection.id}", flush=True)
 		# iterate over items
-		for item in tqdm(collection.get_items(), desc=f"Ingesting items from collection {collection.id}"):
+		for item in tqdm(collection.get_items(), total=len(list(collection.get_items()))):
 			assert isinstance(item, pystac.Item)
 			# Process each asset in the item
 			for asset in item.assets.values():
@@ -65,12 +86,22 @@ def prep_ingest_stac(path, logger=None): # in theory should work with a remote c
 					asset.extra_fields['size'] = file_path.stat().st_size
 					# Calculate and add checksum
 					asset.extra_fields['checksum'] = calculate_checksum(str(file_path))
+					# print(asset.to_dict())
+			# Fix timestamp format in properties.created (did this to solve errors with charter challenge... but I guess people should fix their STAC metadata)
+			item = fix_timestamp(item, 'created')
+			item = fix_timestamp(item, 'updated')
 			items.append(item)
 	# save parquet file
-	record_batch_reader = stac_geoparquet.arrow.parse_stac_items_to_arrow(items)
-	output_path = stac_catalog.parent / "catalog.parquet"
-	stac_geoparquet.arrow.to_parquet(record_batch_reader, output_path)
-	return output_path
+	print("Saving parquet file...", end="", flush=True)
+	try:
+		record_batch_reader = stac_geoparquet.arrow.parse_stac_items_to_arrow(items)
+		output_path = stac_catalog.parent / "catalog.parquet"
+		stac_geoparquet.arrow.to_parquet(record_batch_reader, output_path)
+		print("done")
+		return output_path
+	except Exception as e:
+		print(f"\nError saving parquet file: {e}")
+		raise e
 
 def ingest_virtual( # could work for a list of paths with minimal changes...
 	path,
@@ -138,12 +169,20 @@ def ingest(path, repo, retrieve, mode, private, user):
 		total_size = 0
 		for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
 			try:
+				assets_count = len(row[1]["assets"])
 				for k, v in row[1]["assets"].items():
+					if not v: continue # skip empty assets
 					if v["href"].startswith("http"): continue
 					item_id = row[1]["id"]
+					# Determine file name based on number of assets
+					if assets_count == 1:
+						file_name = item_id
+					else:
+						file_name = f"{item_id}_{k}"
+					# print(f"Ingesting file {v['href']} with id {file_name}")
 					data, error = files_repo.ingest_file(
 						v["href"],
-						item_id, 
+						file_name, 
 						# Path(v["href"]).stat().st_size,
 						dataset_or_model['id'],
 						user,
@@ -151,7 +190,7 @@ def ingest(path, repo, retrieve, mode, private, user):
 					)
 					if error:
 						raise Exception(error)
-					file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
+					file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{file_name}"
 					gdf.loc[row[0], "assets"][k]["href"] = file_url
 					total_size += v["size"]
 			except Exception as e:
@@ -172,30 +211,39 @@ def ingest(path, repo, retrieve, mode, private, user):
 	total_size = 0
 	for row in tqdm(gdf.iterrows(), total=len(gdf), desc="Ingesting files"):
 		try:
+			item_id = row[1]["id"]
+			# check if item exists in previous versions
+			df = pd.read_parquet(
+				path=catalog_url,
+				filters=[('id', '=', item_id)]
+			)
+			exists = len(df) > 0
+			updated = False
+			assets_count = len(row[1]["assets"])
 			for k, v in row[1]["assets"].items():
+				if not v: continue # skip empty assets
 				if v["href"].startswith("http"): continue
-				item_id = row[1]["id"]
-				# check if file exists in previous versions
-				df = pd.read_parquet(
-					path=catalog_url,
-					filters=[('id', '=', item_id)]
-				)
-				if len(df) > 0: # file exists in previous versions
+				if assets_count == 1:
+					file_name = item_id
+				else:
+					file_name = f"{item_id}_{k}"
+				if exists:
 					if df.iloc[0]['assets'][k]["checksum"] == v["checksum"]: # file is the same
 						# still need to update the required fields
-						file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
+						# file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{file_name}"
+						file_url = df.iloc[0]['assets'][k]["href"] # keep previous file url to avoid overwriting
 						gdf.loc[row[0], "assets"][k]["href"] = file_url
 						total_size += v["size"]
 						continue
-					else: # file is different, so ingest new version but with a different id
-						item_id = item_id + f"-{random.randint(1, 1000000)}"
-						gdf.loc[row[0], "id"] = item_id
+					else: # file is different, so ingest new version but with a different name
+						file_name = file_name + f"-{random.randint(1, 1000000)}"
+				updated = True
 				new_version = True
 				num_changes += 1
 				# ingest new files
 				data, error = files_repo.ingest_file(
 					v["href"],
-					item_id, # item id, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
+					file_name, # file_name, will be path in local or given id in STAC. if not unique, will overwrite previous file in storage
 					# Path(v["href"]).stat().st_size,
 					dataset_or_model['id'],
 					user,
@@ -205,12 +253,28 @@ def ingest(path, repo, retrieve, mode, private, user):
 				)
 				if error:
 					raise Exception(error)
-				file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{item_id}"
+				file_url = f"{repo.url}{mode}/{dataset_or_model['id']}/stage/{file_name}"
 				gdf.loc[row[0], "assets"][k]["href"] = file_url
 				total_size += v["size"]
+			# if exists and updated:
+			# 	if assets_count == 1:
+			# 		item_id = file_name
+			# 	else:
+			# 		item_id = item_id + f"-{random.randint(1, 1000000)}"
+			# 	gdf.loc[row[0], "id"] = item_id
 		except Exception as e:
 			print(f"Error uploading asset {row[0]}: {e}")
 			break
+	
+	# check for deleted files
+	df = pd.read_parquet(catalog_url)
+	rows_to_remove = df[~df['id'].isin(gdf['id'])]
+	if len(rows_to_remove) > 0:
+		ids_to_remove = rows_to_remove['id'].values
+		gdf = gdf[~gdf['id'].isin(ids_to_remove)]
+		new_version = True
+		num_changes += len(ids_to_remove)
+	
 	if not new_version:
 		print("No new version was created, your dataset has not changed.")
 	else:
@@ -219,7 +283,6 @@ def ingest(path, repo, retrieve, mode, private, user):
 		print(f"Num changes: {num_changes}")
 		gdf.to_parquet(catalog_path)
 		files_repo.ingest_file(str(catalog_path), f'catalog.v{new_version}.parquet', dataset_or_model['id'], user, mode)
-		# TODO: ingest README.md
 		data, error = repo.complete_ingestion(dataset_or_model['id'], new_version, total_size, user)
 		if error:
 			raise Exception(error)

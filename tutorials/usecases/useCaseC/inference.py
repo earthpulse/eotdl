@@ -55,14 +55,14 @@ async def segmentation(
 ):
 	ds, image = load_image(image)
 	outputs = inference(model, image)
-	# outputs = np.argmax(outputs[0], axis=0) + 1
+	outputs = np.argmax(outputs[0], axis=0) + 1
 	meta = ds.meta
-	meta.update(count=outputs[0].shape[0], dtype=outputs[0].dtype)
+	meta.update(count=1, dtype=np.uint8)
 	
 	# Create a BytesIO buffer to write the TIFF
 	buf = io.BytesIO()
 	with rio.open(buf, 'w', **meta) as dst:
-		dst.write(outputs[0])
+		dst.write(outputs[np.newaxis, ...])
 	
 	# Reset buffer position to start
 	buf.seek(0)

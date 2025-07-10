@@ -6,9 +6,9 @@ from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
 
-DATASET = 'sentinel2'
+DATASET = 'satellogic'
 BATCH_SIZE = 256
-MAX_EPOCHS = 200
+MAX_EPOCHS = 100
 BACKBONE = 'resnet18'
 MLP_DIM = 2048
 HEAD_EPOCHS = 10
@@ -93,6 +93,7 @@ trainer=L.Trainer(
     precision="bf16-mixed",
     logger=CSVLogger('logs', name='usecaseA'),
     callbacks=callbacks,
+    limit_train_batches=1000
 )
 
 trainer.fit(module, dm)

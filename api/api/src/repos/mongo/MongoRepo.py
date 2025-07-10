@@ -104,8 +104,8 @@ class MongoRepo:
             )
         )
 
-    def find_top(self, collection, field, n=None):
-        query = self.db[collection].find().sort(field, -1)
+    def find_top(self, collection, field, n=None, match={}):
+        query = self.db[collection].find(match).sort(field, -1)
         if n is not None:
             return list(query.limit(n))
         return list(query)

@@ -11,6 +11,10 @@ class MongoModelsRepo(MongoRepo):
         match = {}
         if name is not None:
             match = {"name": {"$regex": name, "$options": "i"}}
+        # uncomment if we implement private models
+        # if limit is not None:
+        #     match['active'] = True
+        #     match['visibility'] = 'public'
         return self.retrieve(
             "models", limit=limit, match=match, sort="createdAt", order=-1
         )
@@ -61,7 +65,11 @@ class MongoModelsRepo(MongoRepo):
         return self.update("models", model_id, model)
 
     def retrieve_popular_models(self, limit):
-        return self.find_top("models", "likes", limit)
+        match = {}  
+        # uncomment if we implement private models
+        # if limit is not None:
+        #     match ={'active': True, 'visibility': 'public'}
+        return self.find_top("models", "likes", limit, match=match)
 
     def like_model(self, model_id, uid):
         self.increase_counter("models", "_id", model_id, "likes", 1)

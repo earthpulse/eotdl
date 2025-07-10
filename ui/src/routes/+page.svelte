@@ -12,6 +12,7 @@
   import ModelsLeaderboard from "./ModelsLeaderboard.svelte";
   import { parseISO, format } from "date-fns";
   import Events from "./Events.svelte";
+  import Feedback from "./Feedback.svelte";
 
   let { data } = $props();
 </script>
@@ -85,5 +86,6 @@
     </div>
   </div>
   <Posts posts={data.posts} />
+  <Feedback />
   <Consortium />
 </div>

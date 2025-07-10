@@ -1,5 +1,5 @@
 <div
-  class="w-full flex flex-col items-center relative min-h-[800px] sm:min-h-0"
+  class="w-full flex flex-col items-center relative min-h-[900px] sm:min-h-0"
   style="background: url('backgrounds/Group-1190.png') center center/cover; height: calc(100vh - 60px);"
 >
   <div
@@ -13,7 +13,7 @@
       Learning applications with our open source tools.
     </p>
     <!-- <img src="backgrounds/eodtl_teaser.gif" alt="EOTDL Teaser" /> -->
-    <span class="flex flex-row gap-3">
+    <span class="flex flex-col md:flex-row gap-3">
       <a
         href="https://github.com/earthpulse/eotdl"
         target="_blank"
@@ -43,8 +43,14 @@
         class="btn btn-lg bg-blue-500 text-white capitalize border-none transition-all duration-200 hover:scale-105"
       >
         Tutorials</a
-      ></span
-    >
+      >
+      <a
+        href="#feedback"
+        class="btn btn-lg btn-ghost text-white capitalize border-none transition-all duration-200 hover:scale-105 hover:bg-transparent"
+      >
+        Got feedback?
+      </a>
+    </span>
   </div>
   <div class="absolute bottom-12 animate-bounce">
     <svg

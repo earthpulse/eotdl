@@ -10,6 +10,9 @@ class MongoDatasetsRepo(MongoRepo):
         match = {}
         if name is not None:
             match = {"name": {"$regex": name, "$options": "i"}}
+        if limit is not None:
+            match['active'] = True
+            match['visibility'] = 'public'
         return self.retrieve(
             "datasets", limit=limit, match=match, sort="createdAt", order=-1
         )
@@ -69,7 +72,10 @@ class MongoDatasetsRepo(MongoRepo):
         return self.find_top("users", "dataset_count", 5)
 
     def retrieve_popular_datasets(self, limit):
-        return self.find_top("datasets", "likes", limit)
+        match = {}
+        if limit is not None:
+            match ={'active': True, 'visibility': 'public'}
+        return self.find_top("datasets", "likes", limit, match=match)
 
     def like_dataset(self, dataset_id, uid):
         self.increase_counter("datasets", "_id", dataset_id, "likes", 1)

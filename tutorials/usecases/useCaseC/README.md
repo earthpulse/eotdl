@@ -14,4 +14,4 @@ From there, we first sample 100 random images from the dataset and label them us
 
 After filtering and downloading the images, we can train the models and ingest them into EOTDL. The overall workflow is descirbed in the [`training.ipynb`](training.ipynb) notebook.
 
-An inference API can be started with [`inference.py`](inference.py) to use SCANEO assisted labeling capabilities. You can start it with `uv run uvicorn inference:app`.
+An inference API can be started with [`inference.py`](inference.py) to use SCANEO assisted labeling capabilities. You can start it with `uv run uvicorn inference:app --port 8001`.

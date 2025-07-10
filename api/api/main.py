@@ -43,7 +43,7 @@ from .routers.pipelines import (
 )
 # from .routers import admin, migrate
 
-VERSION = "2025.06.02"
+VERSION = "2025.06.21"
 
 tags_metadata = [
     {
