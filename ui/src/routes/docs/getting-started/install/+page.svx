@@ -21,5 +21,5 @@ To upgrade the library and CLI to the latest version, you can run the following 
 
 <CLI><Code>pip install eotdl --upgrade</Code></CLI> 
 
-> The library and CLI require Python >= 3.8.
+> The library and CLI require Python >= 3.12.
 
