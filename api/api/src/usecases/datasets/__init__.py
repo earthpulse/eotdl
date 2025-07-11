@@ -11,4 +11,4 @@ from .complete_dataset_ingestion import complete_dataset_ingestion
 from .stage_dataset import stage_dataset_file
 from .update_dataset import update_dataset, toggle_like_dataset
 from .deactivate_dataset import deactivate_dataset
-from .private_datasets import make_dataset_private, allow_user_to_private_dataset
+from .private_datasets import make_dataset_private, allow_user_to_private_dataset, remove_user_from_private_dataset
