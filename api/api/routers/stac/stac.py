@@ -16,9 +16,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 conforms_to = [
-    "https://api.stacspec.org/v1.0.0/core",
-    "https://api.stacspec.org/v1.0.0/collections",
-    "https://api.stacspec.org/v1.0.0/item-search"
+    "https://api.stacspec.org/v1.0.0/core"
 ]
 
 
