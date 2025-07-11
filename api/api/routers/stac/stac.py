@@ -15,6 +15,12 @@ from ...config import VERSION
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+conforms_to = [
+    "https://api.stacspec.org/v1.0.0/core",
+    "https://api.stacspec.org/v1.0.0/collections",
+    "https://api.stacspec.org/v1.0.0/item-search"
+]
+
 
 @router.get("")
 def stac_landing_page(request: Request):
@@ -25,63 +31,75 @@ def stac_landing_page(request: Request):
         "title": "EOTDL STAC API",
         "description": "EOTDSL STAC API Landing Page",
         "type": "Catalog",
-        "conformsTo": [
-            "https://api.stacspec.org/v1.0.0/core",
-            "https://api.stacspec.org/v1.0.0/collections",
-            "https://api.stacspec.org/v1.0.0/item-search"
-        ],
+        "conformsTo": conforms_to,
         "links": [
             {
-            "rel": "self",
-            "type": "application/json",
-            "href": base_url + "stac"
+                "rel": "self",
+                "type": "application/json",
+                "href": base_url + "stac"
             },
             {
-            "rel": "root",
-            "type": "application/json",
-            "href": base_url + "stac"
+                "rel": "root",
+                "type": "application/json",
+                "href": base_url + "stac"
             },
             {
-            "rel": "service-desc",
-            "type": "application/vnd.oai.openapi+json;version=3.0",
-            "href": base_url + "stac/api"
+                "rel": "conformance",
+                "type": "application/json",
+                "href": base_url + "stac/conformance"
             },
             {
-            "rel": "service-doc",
-            "type": "text/html",
-            "href": base_url + "stac/api.html"
+                "rel": "service-desc",
+                "type": "application/vnd.oai.openapi+json;version=3.0",
+                "href": base_url + "stac/api"
             },
             {
-            "rel": "search",
-            "type": "application/json",
-            "href": base_url + "stac/search"
+                "rel": "service-doc",
+                "type": "text/html",
+                "href": base_url + "stac/api.html"
             },
             {
-            "rel": "collections",
-            "type": "application/json",
-            "href": base_url + "stac/collections"
+                "rel": "search",
+                "type": "application/json",
+                "href": base_url + "stac/search",
+                "method": "GET"
+            },
+            {
+                "rel": "search",
+                "type": "application/geo+json",
+                "href": base_url + "stac/search",
+                "method": "POST"
+            },
+            {
+                "rel": "collections",
+                "type": "application/json",
+                "href": base_url + "stac/collections"
             }
         ]
         }
 
     return core_response
 
+@router.get("/conformance")
+def conformance():
+    return {
+        "conformsTo": conforms_to
+    }
 
 @router.get("/api", include_in_schema=False)
-def api():
+def api(request: Request):
     openapi_schema = get_openapi(
         title="EOTDL STAC API",
         version=VERSION,
-        routes=router.routes,
+        routes=request.app.routes,
         description="STAC-compliant OpenAPI schema"
     )
     return JSONResponse(content=openapi_schema, media_type="application/vnd.oai.openapi+json;version=3.0")
 
-
 @router.get("/api.html", include_in_schema=False)
-def api_html():
+def api_html(request: Request):
     return get_swagger_ui_html(
-        openapi_url="/stac/api",  # This is your OpenAPI JSON route
+        openapi_url=str(request.base_url) + "stac/api",
         title="EOTDL STAC API"
     )
     
