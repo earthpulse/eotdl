@@ -1,11 +1,14 @@
 from fastapi.exceptions import HTTPException
+from pydantic import BaseModel
 from fastapi import APIRouter, status, Depends, Path, Body
 import logging
+from typing import List, Optional
+import traceback
 
 from ..auth import get_current_user
 from ...src.models import User
 from ...src.models import Dataset
-from ...src.usecases.datasets import update_dataset, toggle_like_dataset, deactivate_dataset, make_dataset_private, allow_user_to_private_dataset
+from ...src.usecases.datasets import update_dataset, toggle_like_dataset, deactivate_dataset, make_dataset_private, allow_user_to_private_dataset, remove_user_from_private_dataset
 
 from .responses import update_dataset_responses
 
@@ -59,21 +62,38 @@ def deactivate(
         logger.exception("datasets:deactivate")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+class AllowUserRequest(BaseModel):
+    email: Optional[str] = None
+    user_id: Optional[str] = None
 
-@router.patch("/{dataset_id}/allow-user/{user_id}")
+@router.patch("/{dataset_id}/allow-user")
 def allow_user(
     dataset_id: str,
-    user_id: str,
+    body: AllowUserRequest,
     user: User = Depends(get_current_user),
 ):
     try:
-        message = allow_user_to_private_dataset(dataset_id, user, user_id)
+        message = allow_user_to_private_dataset(dataset_id, user, body.email, body.user_id)
         return {"message": message}
     except Exception as e:
+        traceback.print_exc()
         logger.exception("datasets:allow_user")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
+@router.patch("/{dataset_id}/remove-user")
+def remove_user(
+    dataset_id: str,
+    body: AllowUserRequest,
+    user: User = Depends(get_current_user),
+):
+    try:
+        message = remove_user_from_private_dataset(dataset_id, user, body.email, body.user_id)
+        return {"message": message}
+    except Exception as e:
+        traceback.print_exc()
+        logger.exception("datasets:remove_user")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
 @router.patch("/{dataset_id}/make-private")
 def make_private(
     dataset_id: str,
