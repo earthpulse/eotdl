@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
+
 import logging
 
 import prometheus_client.multiprocess
 from prometheus_client import CollectorRegistry, make_asgi_app
+
+from .config import VERSION
 
 from .routers.auth import (
     login,
@@ -43,7 +45,6 @@ from .routers.pipelines import (
 )
 # from .routers import admin, migrate
 
-VERSION = "2025.06.21"
 
 tags_metadata = [
     {
@@ -152,55 +153,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
-@app.get("")
-def stac_landing_page():
-
-    core_response = {
-        "stac_version": VERSION,
-        "id": "eotdl-stac-api",
-        "title": "EOTDL STAC API",
-        "description": "EOTDSL STAC API Landing Page",
-        "type": "Catalog",
-        "conformsTo": [
-            "https://api.stacspec.org/v1.0.0/core",
-        ],
-        "links": [
-            {
-            "rel": "self",
-            "type": "application/json",
-            "href": "https://api.eotdl.com"
-            },
-            {
-            "rel": "root",
-            "type": "application/json",
-            "href": "https://api.eotdl.com"
-            },
-            {
-            "rel": "service-desc",
-            "type": "application/vnd.oai.openapi+json;version=3.0",
-            "href": "https://api.eotdl.com/api"
-            },
-            {
-            "rel": "service-doc",
-            "type": "text/html",
-            "href": "https://api.eotdl.com/api.html"
-            },
-            {
-            "rel": "search",
-            "type": "application/json",
-            "href": "https://api.eotdl.com/search"
-            },
-            {
-            "rel": "collections",
-            "type": "application/json",
-            "href": "https://api.eotdl.com/collections"
-            }
-        ]
-        }
-
-
-    return core_response
-
 
 @app.get("/info", name="home", include_in_schema=False)
 async def root():
@@ -210,17 +162,6 @@ async def root():
         "description": "Earth Observation Training Data Lab",
         "contact": "support@eotdl.com",
     }
-
-
-@app.get("/api", include_in_schema=False)
-def api():
-    openapi_schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        routes=app.routes,
-        description="STAC-compliant OpenAPI schema"
-    )
-    return JSONResponse(content=openapi_schema, media_type="application/vnd.oai.openapi+json;version=3.0")
 
 
 from fastapi import Request
