@@ -8,6 +8,7 @@
   import Info from "$components/Info.svelte";
   import Metadata from "$components/Metadata.svelte";
   import { fade } from "svelte/transition";
+  import Train from "./Train.svelte";
   import EditableTitle from "$components/EditableTitle.svelte";
   import { page } from "$app/stores";
   import retrieveChange from "$lib/changes/retrieveChange";
@@ -17,7 +18,6 @@
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
   import Benchmark from "./Benchmark.svelte";
-
   let { data } = $props();
 
   let loading = $state(true);
@@ -176,6 +176,7 @@
                   <button class="btn btn-outline" onclick={save}>Save</button>
                   <button class="btn btn-outline" onclick={close}>Close</button>
                 {:else}
+                  <Train {dataset} />
                   <button class="btn btn-outline" onclick={() => (edit = !edit)}
                     >Edit</button
                   >
