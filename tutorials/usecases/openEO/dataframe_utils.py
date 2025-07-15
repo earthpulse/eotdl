@@ -1,27 +1,29 @@
 import pandas as pd
 import geopandas as gpd
 import s2sphere
-from typing import List
+from typing import List, Optional
 from geojson import Feature, FeatureCollection
 
 
 def combine_to_featurecollections(
     split_jobs: list[gpd.GeoDataFrame],
     id_field: str = "s2sphere_cell_id",
-    target_crs: str = "EPSG:4326"
+    target_crs: str = "EPSG:4326",
+    property_fields: Optional[list[str]] = None
 ) -> pd.DataFrame:
     """
     Convert a list of GeoDataFrame chunks into a DataFrame of job-ready rows.
     Each row has:
       - the chunk's S2 ID & level
       - feature_count
-      - all original feature attributes (as a list of dicts)
+      - all or selected feature attributes (as a list of dicts)
       - a geojson.FeatureCollection of the chunk, in WGS84 (lat/lon) coordinates
 
     Parameters:
     - split_jobs: list of GeoDataFrames to combine
     - id_field: column name to use as the unique cell identifier
     - target_crs: CRS to which all chunks will be reprojected (default EPSG:4326)
+    - property_fields: optional list of column names to keep in properties; default is all non-geometry columns
 
     Returns:
     - A pandas DataFrame where each row represents one input chunk
@@ -30,36 +32,35 @@ def combine_to_featurecollections(
 
     for job in split_jobs:
         # Reproject to target CRS if needed
-        if job.crs and job.crs.to_string() != target_crs:
-            job_wgs = job.to_crs(target_crs)
-        else:
-            job_wgs = job.copy()
+        job_wgs = job.to_crs(target_crs) if job.crs and job.crs.to_string() != target_crs else job.copy()
 
         # grab id metadata and feature count
-        cell_id    = job_wgs[id_field].iloc[0]
+        cell_id = job_wgs[id_field].iloc[0]
         feat_count = len(job_wgs)
 
-        # build properties list (all columns except geometry)
-        props = job_wgs[["fid", "EC_hcat_n"]].to_dict(orient="records")
+        # build properties list
+        if property_fields is None:
+            # keep all non-geometry columns
+            props = job_wgs.drop(columns=[job_wgs.geometry.name]).to_dict(orient="records")
+        else:
+            # keep only specified fields
+            props = job_wgs[property_fields].to_dict(orient="records")
 
         # build FeatureCollection with valid GeoJSON lat/lon geometries
-        features = []
-        for geom, prop in zip(job_wgs.geometry, props):
-            features.append(
-                Feature(geometry=geom.__geo_interface__, properties=prop)
-            )
+        features = [
+            Feature(geometry=geom.__geo_interface__, properties=prop)
+            for geom, prop in zip(job_wgs.geometry, props)
+        ]
         fc = FeatureCollection(features)
 
         records.append({
-            id_field:       cell_id,
+            id_field:        cell_id,
             "feature_count": feat_count,
-            "properties":     props,
-            # embed a proper GeoJSON FeatureCollection
-            "geometry":       fc
+            "properties":    props,
+            "geometry":      fc
         })
 
-    df = pd.DataFrame(records)
-    return df
+    return pd.DataFrame(records)
 
 
 def split_s2sphere(
