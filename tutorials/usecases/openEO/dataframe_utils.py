@@ -87,19 +87,17 @@ def build_feature_collections(
     target_crs = 'EPSG:4326' # gejson requires WGS84
 
     for gdf in groups:
-        gdf = gdf.copy()
 
         # Step 1: Ensure we're in a projected CRS
         if gdf.crs.is_geographic:
-            # Reproject to a metric CRS — use Web Mercator or something local
-            gdf = gdf.to_crs(epsg=3857)  # Use a custom UTM if high precision is needed
+            # Reproject to a metric CRS
+            gdf = gdf.to_crs(epsg=3857)  
 
         # Step 2: Apply buffer in meters
         gdf.geometry = gdf.geometry.buffer(resolution / 2)
 
-        # Step 3: Reproject to target CRS (likely EPSG:4326)
-        if gdf.crs.to_string() != target_crs:
-            gdf = gdf.to_crs(target_crs)
+        # Step 3: Reproject to latlon CRS 
+        gdf = gdf.to_crs(target_crs)
 
         #Step 4. Determine the first non-geometry column to always include
         cols = list(gdf.columns)
