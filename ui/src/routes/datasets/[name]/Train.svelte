@@ -4,13 +4,27 @@
 	// training parameters
 	let batch_size = $state(16);
 	let epochs = $state(10);
+	let jobs = $state(1);
 
 	let hyper_params = $state({
-		batch_size: [["16-32", "64-128", "256-512"], ["8-16", "16-32", "32-64"]],
-		epochs: [["10-20", "30-40", "50-60"], ["10-20", "30-40", "50-60"]],
+		batch_size: "8,16,32",
+		epochs: "10,20,30"
 	});
-
-	console.log(dataset);
+	function validateHyperParams() {
+		if (hyper_params.batch_size.split(",").length <= 0 || hyper_params.batch_size.includes(" ")) {
+			console.log("Batch size is not a comma separated list of numbers");
+			return false;
+		}
+		if (hyper_params.epochs.split(",").length <= 0 || hyper_params.epochs.includes(" ")) {
+			console.log("Epochs is not a comma separated list of numbers");
+			return false;
+		}
+		if (jobs <= 0 || !Number.isInteger(jobs)) {
+			console.log("Jobs is not a positive integer");
+			return false;
+		}
+		return true;
+	}
 </script>
 
 <label for="trainining-template" class="btn btn-ghost btn-outline">Train</label>
@@ -31,7 +45,7 @@
 			>
 			<p>or execute a headless training job:</p>
 			<div class="tabs tabs-border">
-				<input type="radio" name="my_tabs_2" class="tab" aria-label="Parameters" />
+				<input type="radio" name="my_tabs_2" class="tab" aria-label="Single run" />
 				<div class="tab-content border-base-300 bg-base-100 p-10">
 					<div class="flex flex-col gap-2 ">
 						<h2 class="font-bold" for="parameters">Parameters:</h2>
@@ -57,10 +71,15 @@
 								class="input input-bordered input-xs w-24"
 							/>
 						</div>
+						<a
+							class="btn btn-outline mt-10"
+							href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/07_training_template.ipynb`}
+							target="_blank">Submit Job</a
+						>
 					</div>
 				</div>
 			  
-				<input type="radio" name="my_tabs_2" class="tab" aria-label="Hyperparameters" checked="checked" />
+				<input type="radio" name="my_tabs_2" class="tab" aria-label="Hyperparameter optimization" checked="checked" />
 				<div class="tab-content border-base-300 bg-base-100 p-10">
 					<div class="flex flex-col gap-2 ">
 						<h2 class="font-bold" for="parameters">Parameters:</h2>
@@ -70,30 +89,43 @@
 						</div>
 						<div class="flex justify-between items-center">
 							<label for="batch_size">Batch size:</label>
-							<select class="select select-bordered select-xs w-24">
-								{#each hyper_params.batch_size as batch_size}
-									<option value={batch_size}>{batch_size}</option>
-								{/each}
-							</select>
+							<input
+								tooltip="Comma separated list of batch sizes"
+								type="text"
+								id="batch_size"
+								bind:value={hyper_params.batch_size}
+								class="input input-bordered input-xs w-24"
+							/>
 						</div>
 						<div class="flex justify-between items-center">
 							<label for="epochs">Epochs:</label>
-							<select class="select select-bordered select-xs w-24">
-								{#each hyper_params.epochs as epoch}
-									<option value={epoch}>{epoch}</option>
-								{/each}
-							</select>
+							<input
+								tooltip="Comma separated list of epochs"
+								type="text"
+								id="epochs"
+								bind:value={hyper_params.epochs}
+								class="input input-bordered input-xs w-24"
+							/>
 						</div>
+						<div class="flex justify-between items-center">
+							<label for="epochs">Number of jobs:</label>
+							<input
+								type="number"
+								id="jobs"
+								bind:value={jobs}
+								class="input input-bordered input-xs w-24"
+							/>
+						</div>
+						<a
+							onclick={() => validateHyperParams()}
+							class="btn btn-outline mt-10"
+							href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/07_training_template.ipynb`}
+							target="_blank">Submit Jobs</a
+						>
 					</div>
 				</div>
-
 			</div>
 			
-			<a
-				class="btn btn-outline"
-				href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/07_training_template.ipynb`}
-				target="_blank">Submit Job</a
-			>
 			<p>
 				You can track your training jobs <a
 					class="underline"
