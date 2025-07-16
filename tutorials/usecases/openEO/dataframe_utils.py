@@ -1,156 +1,153 @@
 import pandas as pd
 import geopandas as gpd
 import s2sphere
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from geojson import Feature, FeatureCollection
 
 
-def combine_to_featurecollections(
-    split_jobs: list[gpd.GeoDataFrame],
-    id_field: str = "s2sphere_cell_id",
-    target_crs: str = "EPSG:4326",
-    property_fields: Optional[list[str]] = None
+def split_geodataframe_by_s2(
+    gdf: gpd.GeoDataFrame,
+    max_points: int = 500,
+    start_level: int = 8
+) -> List[gpd.GeoDataFrame]:
+    """
+    Splits a GeoDataFrame into smaller GeoDataFrames based on S2 cell IDs.
+
+    Each resulting GeoDataFrame contains at most `max_points` geometries,
+    and includes columns for S2 cell ID and level.
+
+    :param gdf: Input GeoDataFrame with point geometries and a defined CRS.
+    :param max_points: Maximum number of points per output group.
+    :param start_level: S2 cell level to start splitting.
+    :return: List of GeoDataFrames partitioned by S2 cells.
+    """
+    if 'geometry' not in gdf:
+        raise ValueError("GeoDataFrame must have a 'geometry' column.")
+    if gdf.crs is None:
+        raise ValueError("GeoDataFrame must have a defined CRS.")
+
+    original_crs = gdf.crs
+    # Convert to metric for accurate centroid calculation
+    gdf_metric = gdf.to_crs(epsg=3857)
+    gdf_metric['centroid'] = gdf_metric.geometry.centroid
+
+    # Ensure centroids are in WGS84 for S2
+    centroids_wgs84 = gdf_metric.set_geometry('centroid').to_crs(epsg=4326)
+
+    # Assign initial S2 cell IDs
+    cell_groups: Dict[int, List[pd.Series]] = {}
+    for record in centroids_wgs84.itertuples(index=False):
+        cell_id = _compute_s2_cell_id(record.centroid, level=start_level)
+        cell_groups.setdefault(cell_id, []).append(record)
+
+    partitions: List[gpd.GeoDataFrame] = []
+
+    def _recurse_split(cell_id: int, records: List[pd.Series], level: int) -> None:
+        if len(records) <= max_points:
+            df = pd.DataFrame(records)
+            df.drop(columns=['centroid'], inplace=True)
+            df['s2_cell_id'] = cell_id
+            df['s2_cell_level'] = level
+            partitions.append(gpd.GeoDataFrame(df, crs=original_crs, geometry='geometry'))
+            return
+
+        children = s2sphere.CellId(cell_id).children()
+        child_groups: Dict[int, List[pd.Series]] = {child.id(): [] for child in children}
+        for rec in records:
+            child_id = _compute_s2_cell_id(rec.centroid, level=level + 1)
+            child_groups.setdefault(child_id, []).append(rec)
+        for cid, recs in child_groups.items():
+            if recs:
+                _recurse_split(cid, recs, level + 1)
+
+    for cid, recs in cell_groups.items():
+        _recurse_split(cid, recs, start_level)
+
+    return partitions
+
+
+def build_feature_collections(
+    groups: List[gpd.GeoDataFrame],
+    id_field: str = 's2_cell_id',
+    resolution: int = 10,
+    property_fields: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
-    Convert a list of GeoDataFrame chunks into a DataFrame of job-ready rows.
-    Each row has:
-      - the chunk's S2 ID & level
-      - feature_count
-      - all or selected feature attributes (as a list of dicts)
-      - a geojson.FeatureCollection of the chunk, in WGS84 (lat/lon) coordinates
+    Converts groups of GeoDataFrames into a pandas DataFrame with GeoJSON FeatureCollections.
 
-    Parameters:
-    - split_jobs: list of GeoDataFrames to combine
-    - id_field: column name to use as the unique cell identifier
-    - target_crs: CRS to which all chunks will be reprojected (default EPSG:4326)
-    - property_fields: optional list of column names to keep in properties; default is all non-geometry columns
+    Each row includes the cell ID, feature count, properties list, and the GeoJSON geometry.
 
-    Returns:
-    - A pandas DataFrame where each row represents one input chunk
+    :param groups: List of GeoDataFrames with a cell ID column.
+    :param id_field: Column name for unique cell identifiers.
+    :param target_crs: CRS for output geometries (default WGS84).
+    :param property_fields: Specific additional columns to include in properties; the first non-geometry column is always included.
+    :return: DataFrame with columns [id_field, feature_count, properties, geometry].
     """
-    records = []
+    records: List[Dict[str, Any]] = []
+    target_crs = 'EPSG:4326' # gejson requires WGS84
 
-    for job in split_jobs:
-        # Reproject to target CRS if needed
-        job_wgs = job.to_crs(target_crs) if job.crs and job.crs.to_string() != target_crs else job.copy()
+    for gdf in groups:
+        gdf = gdf.copy()
 
-        # grab id metadata and feature count
-        cell_id = job_wgs[id_field].iloc[0]
-        feat_count = len(job_wgs)
+        # Step 1: Ensure we're in a projected CRS
+        if gdf.crs.is_geographic:
+            # Reproject to a metric CRS — use Web Mercator or something local
+            gdf = gdf.to_crs(epsg=3857)  # Use a custom UTM if high precision is needed
 
-        # build properties list
+        # Step 2: Apply buffer in meters
+        gdf.geometry = gdf.geometry.buffer(resolution / 2)
+
+        # Step 3: Reproject to target CRS (likely EPSG:4326)
+        if gdf.crs.to_string() != target_crs:
+            gdf = gdf.to_crs(target_crs)
+
+        #Step 4. Determine the first non-geometry column to always include
+        cols = list(gdf.columns)
+        geom_col = gdf.geometry.name
+        first_field = next(col for col in cols if col != geom_col)
+
+        # Build property DataFrame
         if property_fields is None:
-            # keep all non-geometry columns
-            props = job_wgs.drop(columns=[job_wgs.geometry.name]).to_dict(orient="records")
+            props_df = gdf.drop(columns=[geom_col])
         else:
-            # keep only specified fields
-            props = job_wgs[property_fields].to_dict(orient="records")
+            # Always include first_field plus any additional property_fields
+            fields = [first_field] + [f for f in property_fields if f != first_field]
+            props_df = gdf[fields]
 
-        # build FeatureCollection with valid GeoJSON lat/lon geometries
+        properties = props_df.to_dict(orient='records')
+        cell_id = int(gdf[id_field].iat[0])
+        count = len(gdf)
+
+        # Build GeoJSON features
         features = [
             Feature(geometry=geom.__geo_interface__, properties=prop)
-            for geom, prop in zip(job_wgs.geometry, props)
+            for geom, prop in zip(gdf.geometry, properties)
         ]
-        fc = FeatureCollection(features)
+        collection = FeatureCollection(features)
 
         records.append({
-            id_field:        cell_id,
-            "feature_count": feat_count,
-            "properties":    props,
-            "geometry":      fc
+            id_field: cell_id,
+            'feature_count': count,
+            'properties': properties,
+            'geometry': collection
         })
 
     return pd.DataFrame(records)
 
 
-def split_s2sphere(
-    gdf: gpd.GeoDataFrame, max_points=500, start_level=8
-) -> List[gpd.GeoDataFrame]:
+def _compute_s2_cell_id(
+    point: Any,
+    level: int
+) -> int:
     """
-    EXPERIMENTAL
-    Split a GeoDataFrame into multiple groups based on the S2geometry cell ID of each geometry.
+    Computes the S2 cell ID for a shapely Point in WGS84.
 
-    S2geometry is a library that provides a way to index and query spatial data. This function splits
-    the GeoDataFrame into groups based on the S2 cell ID of each geometry, based on it's centroid.
-
-    If a cell contains more points than max_points, it will be recursively split into
-    smaller cells until each cell contains at most max_points points.
-
-    More information on S2geometry can be found at https://s2geometry.io/
-    An overview of the S2 cell hierarchy can be found at https://s2geometry.io/resources/s2cell_statistics.html
-
-    :param gdf: GeoDataFrame containing points to split
-    :param max_points: Maximum number of points per group
-    :param start_level: Starting S2 cell level
-    :return: List of GeoDataFrames containing the split groups
+    :param point: Shapely Point geometry with .x/.y in degrees.
+    :param level: S2 cell level.
+    :return: Integer S2 cell ID.
     """
-
-    if "geometry" not in gdf.columns:
-        raise ValueError("The GeoDataFrame must contain a 'geometry' column.")
-
-    if gdf.crs is None:
-        raise ValueError("The GeoDataFrame must contain a CRS")
-
-    # Store the original CRS of the GeoDataFrame and reproject to EPSG:3857
-    original_crs = gdf.crs
-    gdf = gdf.to_crs(epsg=3857)
-
-    # Add a centroid column to the GeoDataFrame and convert it to EPSG:4326
-    gdf["centroid"] = gdf.geometry.centroid
-
-    # Reproject the GeoDataFrame to its orginial CRS
-    gdf = gdf.to_crs(original_crs)
-
-    # Set the GeoDataFrame's geometry to the centroid column and reproject to EPSG:4326
-    gdf = gdf.set_geometry("centroid")
-    gdf = gdf.to_crs(epsg=4326)
-
-    # Create a dictionary to store points by their S2 cell ID
-    cell_dict = {}
-
-    # Iterate over each point in the GeoDataFrame
-    for _, row in gdf.iterrows():
-        # Get the S2 cell ID for the point at a given level
-        cell_id = _get_s2cell_id(row.centroid, start_level)
-
-        if cell_id not in cell_dict:
-            cell_dict[cell_id] = []
-
-        cell_dict[cell_id].append(row)
-
-    result_groups = []
-
-    # Function to recursively split cells if they contain more points than max_points
-    def _split_s2cell(cell_id, points, current_level=start_level):
-        if len(points) <= max_points:
-            if len(points) > 0:
-                points = gpd.GeoDataFrame(
-                    points, crs=original_crs, geometry="geometry"
-                ).drop(columns=["centroid"])
-                points["s2sphere_cell_id"] = cell_id
-                points["s2sphere_cell_level"] = current_level
-                result_groups.append(gpd.GeoDataFrame(points))
-        else:
-            children = s2sphere.CellId(cell_id).children()
-            child_cells = {child.id(): [] for child in children}
-
-            for point in points:
-                child_cell_id = _get_s2cell_id(point.centroid, current_level + 1)
-                child_cells[child_cell_id].append(point)
-
-            for child_cell_id, child_points in child_cells.items():
-                _split_s2cell(child_cell_id, child_points, current_level + 1)
-
-    # Split cells that contain more points than max_points
-    for cell_id, points in cell_dict.items():
-        _split_s2cell(cell_id, points)
-
-    return result_groups
-
-
-def _get_s2cell_id(point, level):
     lat, lon = point.y, point.x
-    cell_id = s2sphere.CellId.from_lat_lng(
+    cell = s2sphere.CellId.from_lat_lng(
         s2sphere.LatLng.from_degrees(lat, lon)
     ).parent(level)
-    return cell_id.id()
+    return cell.id()
