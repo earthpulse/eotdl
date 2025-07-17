@@ -5,6 +5,8 @@ import logging
 import prometheus_client.multiprocess
 from prometheus_client import CollectorRegistry, make_asgi_app
 
+from .config import VERSION
+
 from .routers.auth import (
     login,
     logout,
@@ -41,8 +43,6 @@ from .routers.pipelines import (
     update_pipeline
 )
 # from .routers import admin, migrate
-
-VERSION = "2025.07.14"
 
 tags_metadata = [
     {
