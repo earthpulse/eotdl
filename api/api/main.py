@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 import logging
 
 import prometheus_client.multiprocess
@@ -44,7 +43,6 @@ from .routers.pipelines import (
     update_pipeline
 )
 # from .routers import admin, migrate
-
 
 tags_metadata = [
     {
@@ -154,7 +152,7 @@ logging.basicConfig(
 )
 
 
-@app.get("/info", name="home", include_in_schema=False)
+@app.get("/", name="home", include_in_schema=False)
 async def root():
     return {
         "name": "eotdl",

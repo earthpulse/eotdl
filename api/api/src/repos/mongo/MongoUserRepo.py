@@ -19,6 +19,9 @@ class MongoUserRepo(MongoRepo):
 
     def find_one_user_by_name(self, name):
         return self.find_one_by_name("users", name)
+    
+    def find_one_user_by_email(self, email):
+        return self.find_one_by_field("users", "email", email, None)
 
     def check_user_exists(self, uid):
         return self.exists("users", uid, "uid")
