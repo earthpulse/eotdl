@@ -1,151 +1,175 @@
 import pandas as pd
 import geopandas as gpd
 import s2sphere
+import pyproj
+import logging
+from shapely.errors import TopologicalError, GEOSException
+from shapely.geometry.base import BaseGeometry
 from typing import List, Optional, Dict, Any
 from geojson import Feature, FeatureCollection
 
 
-def split_geodataframe_by_s2(
-    gdf: gpd.GeoDataFrame,
-    max_points: int = 500,
-    start_level: int = 8
-) -> List[gpd.GeoDataFrame]:
+class FeatureCollectionBuilder:
     """
-    Splits a GeoDataFrame into smaller GeoDataFrames based on S2 cell IDs.
-
-    Each resulting GeoDataFrame contains at most `max_points` geometries,
-    and includes columns for S2 cell ID and level.
-
-    :param gdf: Input GeoDataFrame with point geometries and a defined CRS.
-    :param max_points: Maximum number of points per output group.
-    :param start_level: S2 cell level to start splitting.
-    :return: List of GeoDataFrames partitioned by S2 cells.
+    Build GeoJSON FeatureCollections from GeoDataFrame groups,
+    applying S2 splitting, buffering, and property extraction.
     """
-    if 'geometry' not in gdf:
-        raise ValueError("GeoDataFrame must have a 'geometry' column.")
-    if gdf.crs is None:
-        raise ValueError("GeoDataFrame must have a defined CRS.")
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.StreamHandler())
+    logger.setLevel(logging.INFO)
 
-    original_crs = gdf.crs
-    # Convert to metric for accurate centroid calculation
-    gdf_metric = gdf.to_crs(epsg=3857)
-    gdf_metric['centroid'] = gdf_metric.geometry.centroid
+    def __init__(
+        self,
+        id_field: str = 's2_cell_id',
+        target_crs: str = 'EPSG:4326',
+        resolution: float = 10,
+        property_fields: Optional[List[str]] = None,
+        max_points: int = 500,
+        start_level: int = 8
+    ):
+        self.id_field = id_field
+        self.target_crs = target_crs
+        self.half_res = resolution / 2
+        self.property_fields = property_fields
+        self.max_points = max_points
+        self.start_level = start_level
 
-    # Ensure centroids are in WGS84 for S2
-    centroids_wgs84 = gdf_metric.set_geometry('centroid').to_crs(epsg=4326)
+    @staticmethod
+    def repair_geometry(geom: BaseGeometry) -> BaseGeometry:
+        try:
+            return geom.buffer(0)
+        except (ValueError, TopologicalError, GEOSException):
+            return geom
 
-    # Assign initial S2 cell IDs
-    cell_groups: Dict[int, List[pd.Series]] = {}
-    for record in centroids_wgs84.itertuples(index=False):
-        cell_id = _compute_s2_cell_id(record.centroid, level=start_level)
-        cell_groups.setdefault(cell_id, []).append(record)
+    @staticmethod
+    def determine_metric_crs(gdf: gpd.GeoDataFrame) -> pyproj.CRS:
+        try:
+            return gdf.estimate_utm_crs()
+        except (RuntimeError, ValueError):
+            return pyproj.CRS.from_epsg(3857)
 
-    partitions: List[gpd.GeoDataFrame] = []
+    @staticmethod
+    def reproject(gdf: gpd.GeoDataFrame, crs: Any) -> gpd.GeoDataFrame:
+        if gdf.crs and gdf.crs.to_string() != str(crs):
+            return gdf.to_crs(crs)
+        return gdf
 
-    def _recurse_split(cell_id: int, records: List[pd.Series], level: int) -> None:
-        if len(records) <= max_points:
-            df = pd.DataFrame(records)
-            df.drop(columns=['centroid'], inplace=True)
-            df['s2_cell_id'] = cell_id
-            df['s2_cell_level'] = level
-            partitions.append(gpd.GeoDataFrame(df, crs=original_crs, geometry='geometry'))
-            return
+    @classmethod
+    def safe_buffer(cls, geom: BaseGeometry, dist: float, **buffer_kwargs) -> Optional[BaseGeometry]:
+        clean = cls.repair_geometry(geom)
+        try:
+            buf = clean.buffer(dist, **buffer_kwargs)
+            if buf and not buf.is_empty:
+                return buf
+        except GEOSException:
+            return None
+        return clean
 
-        children = s2sphere.CellId(cell_id).children()
-        child_groups: Dict[int, List[pd.Series]] = {child.id(): [] for child in children}
-        for rec in records:
-            child_id = _compute_s2_cell_id(rec.centroid, level=level + 1)
-            child_groups.setdefault(child_id, []).append(rec)
-        for cid, recs in child_groups.items():
-            if recs:
-                _recurse_split(cid, recs, level + 1)
+    @staticmethod
+    def compute_s2_cell_id(point: BaseGeometry, level: int) -> int:
+        lat, lon = point.y, point.x
+        cell = s2sphere.CellId.from_lat_lng(
+            s2sphere.LatLng.from_degrees(lat, lon)
+        ).parent(level)
+        return cell.id()
 
-    for cid, recs in cell_groups.items():
-        _recurse_split(cid, recs, start_level)
+    def split_geodataframe_by_s2(
+        self,
+        gdf: gpd.GeoDataFrame
+    ) -> List[gpd.GeoDataFrame]:
+        if 'geometry' not in gdf or gdf.crs is None:
+            raise ValueError("GeoDataFrame must have 'geometry' and CRS defined.")
+        original_crs = gdf.crs
+        centroids = (
+            gdf.to_crs(epsg=3857)
+               .assign(centroid=lambda df: df.geometry.centroid)
+               .set_geometry('centroid')
+               .to_crs(epsg=4326)
+        )
+        groups: Dict[int, List[pd.Series]] = {}
+        for rec in centroids.itertuples(index=False):
+            cid = self.compute_s2_cell_id(rec.centroid, self.start_level)
+            groups.setdefault(cid, []).append(rec)
+        partitions: List[gpd.GeoDataFrame] = []
+        def subdivide(cell_id: int, records: List[pd.Series], level: int):
+            if len(records) <= self.max_points:
+                df = pd.DataFrame(records).drop(columns=['centroid'])
+                df[self.id_field] = cell_id
+                df['s2_cell_level'] = level
+                partitions.append(
+                    gpd.GeoDataFrame(df, crs=original_crs, geometry='geometry')
+                )
+            else:
+                children = s2sphere.CellId(cell_id).children()
+                child_map: Dict[int, List[pd.Series]] = {c.id(): [] for c in children}
+                for rec in records:
+                    cid2 = self.compute_s2_cell_id(rec.centroid, level + 1)
+                    child_map.setdefault(cid2, []).append(rec)
+                for cid2, recs in child_map.items():
+                    if recs:
+                        subdivide(cid2, recs, level + 1)
+        for cid, recs in groups.items():
+            subdivide(cid, recs, self.start_level)
+        return partitions
 
-    return partitions
-
-
-def build_feature_collections(
-    groups: List[gpd.GeoDataFrame],
-    id_field: str = 's2_cell_id',
-    resolution: int = 10,
-    property_fields: Optional[List[str]] = None
-) -> pd.DataFrame:
-    """
-    Converts groups of GeoDataFrames into a pandas DataFrame with GeoJSON FeatureCollections.
-
-    Each row includes the cell ID, feature count, properties list, and the GeoJSON geometry.
-
-    :param groups: List of GeoDataFrames with a cell ID column.
-    :param id_field: Column name for unique cell identifiers.
-    :param target_crs: CRS for output geometries (default WGS84).
-    :param property_fields: Specific additional columns to include in properties; the first non-geometry column is always included.
-    :return: DataFrame with columns [id_field, feature_count, properties, geometry].
-    """
-    records: List[Dict[str, Any]] = []
-    target_crs = 'EPSG:4326' # gejson requires WGS84
-
-    for gdf in groups:
-
-        # Step 1: Ensure we're in a projected CRS
-        if gdf.crs.is_geographic:
-            # Reproject to a metric CRS
-            gdf = gdf.to_crs(epsg=3857)  
-
-        # Step 2: Apply buffer in meters
-        gdf.geometry = gdf.geometry.buffer(resolution / 2)
-
-        # Step 3: Reproject to latlon CRS 
-        gdf = gdf.to_crs(target_crs)
-
-        #Step 4. Determine the first non-geometry column to always include
-        cols = list(gdf.columns)
-        geom_col = gdf.geometry.name
-        first_field = next(col for col in cols if col != geom_col)
-
-        # Build property DataFrame
-        if property_fields is None:
-            props_df = gdf.drop(columns=[geom_col])
-        else:
-            # Always include first_field plus any additional property_fields
-            fields = [first_field] + [f for f in property_fields if f != first_field]
-            props_df = gdf[fields]
-
-        properties = props_df.to_dict(orient='records')
-        cell_id = int(gdf[id_field].iat[0])
-        count = len(gdf)
-
-        # Build GeoJSON features
+    def _process_group(self, gdf: gpd.GeoDataFrame) -> Optional[Dict[str, Any]]:
+        # Repair and drop invalid
+        gdf = gdf.copy()
+        gdf['geometry'] = gdf.geometry.map(self.repair_geometry)
+        gdf = gdf[gdf.geometry.is_valid & ~gdf.geometry.is_empty & gdf.geometry.notna()]
+        if gdf.empty:
+            return None
+        # Buffer
+        metric_crs = self.determine_metric_crs(gdf)
+        gdf = self.reproject(gdf, metric_crs)
+        gdf['geometry'] = gdf.geometry.map(lambda geom: self.safe_buffer(geom, self.half_res))
+        gdf = gdf[gdf.geometry.notna() & gdf.geometry.is_valid & ~gdf.geometry.is_empty]
+        if gdf.empty:
+            return None
+        # Reproject back
+        gdf = self.reproject(gdf, self.target_crs)
+        gdf['geometry'] = gdf.geometry.map(self.repair_geometry)
+        gdf = gdf[gdf.geometry.is_valid & ~gdf.geometry.is_empty & gdf.geometry.notna()]
+        if gdf.empty:
+            return None
+        # Properties
+        non_geom = [c for c in gdf.columns if c != gdf.geometry.name]
+        first = non_geom[0]
+        fields = [first] + [f for f in (self.property_fields or []) if f != first]
+        props = gdf[fields].to_dict(orient='records')
+        # Features
         features = [
             Feature(geometry=geom.__geo_interface__, properties=prop)
-            for geom, prop in zip(gdf.geometry, properties)
+            for geom, prop in zip(gdf.geometry, props)
         ]
-        collection = FeatureCollection(features)
+        return {
+            self.id_field: int(gdf[self.id_field].iat[0]),
+            'feature_count': len(gdf),
+            'properties': props,
+            'geometry': FeatureCollection(features)
+        }
 
-        records.append({
-            id_field: cell_id,
-            'feature_count': count,
-            'properties': properties,
-            'geometry': collection
-        })
-
-    return pd.DataFrame(records)
-
-
-def _compute_s2_cell_id(
-    point: Any,
-    level: int
-) -> int:
-    """
-    Computes the S2 cell ID for a shapely Point in WGS84.
-
-    :param point: Shapely Point geometry with .x/.y in degrees.
-    :param level: S2 cell level.
-    :return: Integer S2 cell ID.
-    """
-    lat, lon = point.y, point.x
-    cell = s2sphere.CellId.from_lat_lng(
-        s2sphere.LatLng.from_degrees(lat, lon)
-    ).parent(level)
-    return cell.id()
+    def build(self, gdf_list: List[gpd.GeoDataFrame]) -> pd.DataFrame:
+        total = sum(len(gdf) for gdf in gdf_list)
+        all_parts: List[gpd.GeoDataFrame] = []
+        for i, gdf in enumerate(gdf_list, 1):
+            parts = self.split_geodataframe_by_s2(gdf)
+            kept = [p for p in parts if not p.empty]
+            self.logger.info(f"Input #{i}: split into {len(parts)} parts, kept {len(kept)}")
+            all_parts.extend(kept)
+        self.logger.info(f"Total partitions: {len(all_parts)}")
+        records: List[Dict[str, Any]] = []
+        skipped = 0
+        for part in all_parts:
+            rec = self._process_group(part)
+            if rec is None:
+                skipped += 1
+            else:
+                records.append(rec)
+        self.logger.info(f"Generated {len(records)} records, skipped {skipped}")
+        if not records:
+            self.logger.warning("No valid records; returning empty DataFrame")
+            return pd.DataFrame(columns=[self.id_field, 'feature_count', 'properties', 'geometry'])
+        df = pd.DataFrame(records)
+        self.logger.info(f"Final DataFrame: {len(df)} rows from {total} input features")
+        return df
