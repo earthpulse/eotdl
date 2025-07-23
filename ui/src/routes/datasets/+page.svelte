@@ -43,7 +43,8 @@
 		none: (a, b) => 0,
 		likes: (a, b) => (b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
 		downloads: (a, b) => (b.downloads - a.downloads) * (current_order_direction === "desc" ? 1 : -1),
-		created_at: (a, b) => (new Date(b.created_at) - new Date(a.created_at)) * (current_order_direction === "desc" ? 1 : -1),
+		created_at: (a, b) => (new Date(b.createdAt) - new Date(a.createdAt)) * (current_order_direction === "desc" ? 1 : -1),
+		size: (a, b) => (b.versions[b.versions.length - 1].size - a.versions[a.versions.length - 1].size) * (current_order_direction === "desc" ? 1 : -1),
 	});
 
 	const load = async () => {
