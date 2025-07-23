@@ -4,6 +4,8 @@
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
 	import LockOutline from "svelte-material-icons/LockOutline.svelte";
+	import ChevronDown from "svelte-material-icons/ChevronDown.svelte";
+	import ChevronUp from "svelte-material-icons/ChevronUp.svelte";
 	// import Ingest from "./Ingest.svelte";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
@@ -19,6 +21,30 @@
 	let show_liked = $state(false);
 	let show_private = $state(false);
 	let selected_tags = $state([]);
+	let current_order_by = $state("created_at");
+	let current_order_direction = $state("desc");
+	let filterFunctions = $state({
+		byName: (dataset) => {
+			if (filterName.length === 0) return true;
+			return dataset.name
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		},
+		byDescription: (dataset) => {
+			if (filterName.length === 0) return true;
+			return dataset.metadata.description
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		},
+	});
+
+	// the value of the key should be the sort function
+	let orderBy = $state({
+		none: (a, b) => 0,
+		likes: (a, b) => (b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
+		downloads: (a, b) => (b.downloads - a.downloads) * (current_order_direction === "desc" ? 1 : -1),
+		created_at: (a, b) => (new Date(b.created_at) - new Date(a.created_at)) * (current_order_direction === "desc" ? 1 : -1),
+	});
 
 	const load = async () => {
 		await datasets.retrieve(fetch, auth.id_token);
@@ -41,7 +67,6 @@
 	let all_filtered_datasets = $state();
 	$effect(() => {
 		let base_datasets = $datasets.data || [];
-
 		// Filter by tags
 		let datasets_after_tags = base_datasets.filter((dataset) => {
 			if (selected_tags.length === 0) return true;
@@ -49,26 +74,39 @@
 		});
 
 		// Filter by name
-		let datasets_after_name = datasets_after_tags.filter((dataset) => {
-			if (filterName.length === 0) return true;
-			return dataset.name
-				.toLowerCase()
-				.includes(filterName.toLowerCase());
-		});
+		let datasets_after_name = datasets_after_tags.filter(
+			filterFunctions.byName,
+		);
 		all_filtered_datasets = datasets_after_name;
 
+		let datasets_after_description = datasets_after_tags.filter(
+			filterFunctions.byDescription,
+		);
+		all_filtered_datasets = datasets_after_description;
 		// Filter by liked status if show_liked is true and user is logged in
 		let final_datasets;
 		if (show_liked && auth.user) {
 			final_datasets = datasets_after_name.filter((dataset) =>
 				auth.user.liked_datasets.includes(dataset.id),
 			);
+			final_datasets?.push(
+				...datasets_after_description.filter((dataset) =>
+					auth.user.liked_datasets.includes(dataset.id),
+				),
+			);
+			// Remove duplicated datasets (If the searched text is in the name and description)
+			final_datasets = [...new Set(final_datasets)];
 		} else {
-			final_datasets = datasets_after_name;
+			// Add datasets by description and name
+			final_datasets = datasets_after_name.concat(
+				datasets_after_description,
+			);
+			// Remove duplicated datasets (If the searched text is in the name and description)
+			final_datasets = [...new Set(final_datasets)];
 		}
 
 		// Assign the final result
-		filtered_datasets = final_datasets;
+		filtered_datasets = final_datasets.sort(orderBy[current_order_by]);
 	});
 
 	const toggleLike = () => {
@@ -130,21 +168,47 @@
 					placeholder="Filter by name"
 					bind:value={filterName}
 				/>
-				<span class="flex flew-row mt-1 mb-3 gap-1">
-					<button
-						onclick={toggleLike}
-						class="cursor-pointer hover:scale-115 transition-all duration-200"
-						><HeartOutline
-							color={show_liked ? "red" : "gray"}
-						/></button
-					>
-					<button
-						onclick={togglePrivate}
-						class="cursor-pointer hover:scale-115 transition-all duration-200"
-						><LockOutline
-							color={show_private ? "purple" : "gray"}
-						/></button
-					>
+				<span class="flex flew-row mt-1 mb-3 gap-1 w-full justify-between">
+					<div class="flex flex-row gap-1 w-fit items-center">
+						<button
+							onclick={toggleLike}
+							class="cursor-pointer hover:scale-115 transition-all duration-200"
+							><HeartOutline
+								color={show_liked ? "red" : "gray"}
+							/></button
+						>
+						<button
+							onclick={togglePrivate}
+							class="cursor-pointer hover:scale-115 transition-all duration-200"
+							><LockOutline
+								color={show_private ? "purple" : "gray"}
+								/></button
+						>
+					</div>
+					<div class="flex flex-row gap-1 w-fit items-center">
+						<p class="text-gray-400 text-sm ml-2 whitespace-nowrap">Order by:</p>
+						<select
+							class="select select-bordered select-xs"
+							bind:value={current_order_by}
+						>
+							{#each Object.keys(orderBy) as key}
+								<option value={key}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " ")}</option>
+							{/each}
+						</select>
+                        {#if current_order_direction === "desc"}
+							<button onclick={() => {
+								current_order_direction = "asc";
+							}}>
+								<ChevronDown class="cursor-pointer"/>
+							</button>
+						{:else}
+							<button onclick={() => {
+								current_order_direction = "desc";
+							}}>
+								<ChevronUp class="cursor-pointer"/>
+							</button>
+						{/if}
+					</div>
 				</span>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
@@ -172,5 +236,5 @@
 			<p class="text-gray-400 text-center">No datasets found</p>
 		{/if}
 	</div>
-	<DatasetsLeaderboard />
+	<!-- <DatasetsLeaderboard /> -->
 </div>
