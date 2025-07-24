@@ -102,9 +102,9 @@ def api_html(request: Request):
     )
     
 @router.get("/collections")
-def collections():
+def collections(request: Request):
     try:
-        return retrieve_stac_collections()
+        return retrieve_stac_collections(request)
     except Exception as e:
         logger.exception("stac:collections")
         traceback.print_exc()
