@@ -2,4 +2,4 @@ from .retrieve_stac_collections import retrieve_stac_collections
 from .retrieve_stac_collection import retrieve_stac_collection
 from .retrieve_stac_items import retrieve_stac_items
 from .retrieve_stac_item import retrieve_stac_item
-from .search_stac_items import search_stac_items, search_stac_columns
+from .search_stac_items import search_stac_items
