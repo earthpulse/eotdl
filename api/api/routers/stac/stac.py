@@ -119,10 +119,11 @@ def collection(collection_name: str):
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/collections/{collection_nam}/items")
-def items(collection_nam: str, version: Optional[int] = 1):
+
+@router.get("/collections/{collection_name}/items")
+def items(collection_name: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_items(collection_nam, version)
+        return retrieve_stac_items(collection_name, version)
     except Exception as e:
         logger.exception("stac:items")
         traceback.print_exc()

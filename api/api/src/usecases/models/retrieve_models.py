@@ -6,7 +6,6 @@ from ...errors import ModelNotActiveError
 def retrieve_models(match=None, limit=None):
     repo = ModelsDBRepo()
     data = repo.retrieve_models(match, limit)
-    print(data)
     models = []
     for d in data:
         # only list active and public models
