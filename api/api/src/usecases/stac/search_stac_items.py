@@ -1,6 +1,4 @@
-from typing import Any, Dict, List, Optional
 import duckdb
-from pydantic import BaseModel
 
 from ..datasets.retrieve_dataset import retrieve_dataset_by_name
 from ..models.retrieve_model import retrieve_model_by_name
@@ -10,24 +8,7 @@ from ...errors import DatasetDoesNotExistError, ModelDoesNotExistError
 
 # TODO: versioning, spatial and temporal queries
 
-
-class QueryFilter(BaseModel):
-    eq: Optional[Any] = None
-    gt: Optional[Any] = None
-    lt: Optional[Any] = None
-    # Extend as needed
-
-class SearchRequest(BaseModel):
-    collections: List[str]
-    bbox: Optional[List[float]] = None
-    datetime: Optional[str] = None
-    query: Optional[Dict[str, QueryFilter]] = None
-    limit: Optional[int] = 10
-    
-
-# TODO: versioning, spatial and temporal queries
-def search_stac_items(search_request: SearchRequest, version=1):
-    collection_name = search_request.collections[0]  # You can support multi later
+def search_stac_items(collection_name, query, version=1):
     try:
         data = retrieve_dataset_by_name(collection_name)
     except DatasetDoesNotExistError:
@@ -35,49 +16,51 @@ def search_stac_items(search_request: SearchRequest, version=1):
             data = retrieve_model_by_name(collection_name)
         except ModelDoesNotExistError:
             data = retrieve_pipeline_by_name(collection_name)
-
     os_repo = OSRepo()
-    catalog_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
-
-    con = duckdb.connect(database=":memory:")
+    catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
+    
+    # Create a DuckDB connection and load required extensions
+    con = duckdb.connect(database=':memory:')
     con.execute("INSTALL httpfs; LOAD httpfs;")
     con.execute("INSTALL spatial; LOAD spatial;")
+    
+    # Set request parameters for S3 presigned URL
     con.execute("SET s3_url_style='path';")
-
-    where_clauses = []
-
-    if search_request.query:
-        for field, conditions in search_request.query.items():
-            if conditions.eq is not None:
-                where_clauses.append(f"{field} = '{conditions.eq}'")
-            if conditions.gt is not None:
-                where_clauses.append(f"{field} > '{conditions.gt}'")
-            if conditions.lt is not None:
-                where_clauses.append(f"{field} < '{conditions.lt}'")
-
-    if search_request.datetime:
-        start, end = search_request.datetime.split("/")
-        where_clauses.append(f"datetime >= '{start}' AND datetime <= '{end}'")
-
-    if search_request.bbox:
-        minx, miny, maxx, maxy = search_request.bbox
-        where_clauses.append(
-            f"ST_Within(geometry, ST_MakeEnvelope({minx}, {miny}, {maxx}, {maxy}))"
-        )
-
-    where_clause = " AND ".join(where_clauses) if where_clauses else "TRUE"
-
+    
+    # Read parquet file directly with DuckDB and execute query
     sql = f"""
     SELECT *
-    FROM read_parquet('{catalog_url}')
-    WHERE {where_clause}
-    LIMIT {search_request.limit}
+    FROM read_parquet('{catalog_presigned_url}')
+    WHERE {query}
     """
 
+    # Execute query and fetch results
     result = con.execute(sql).fetchdf()
+    
+    # Close the connection
     con.close()
+    
+    # Convert results to JSON
+    items = result.to_json(orient='records')
+    return items
 
-    return {
-        "type": "FeatureCollection",
-        "features": result.to_dict(orient="records")
-    }
+
+def search_stac_columns(collection_name, version=1):
+    try:
+        data = retrieve_dataset_by_name(collection_name)
+    except DatasetDoesNotExistError:
+        try:
+            data = retrieve_model_by_name(collection_name)
+        except ModelDoesNotExistError:
+            data = retrieve_pipeline_by_name(collection_name)
+    os_repo = OSRepo()
+    catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
+    con = duckdb.connect(database=':memory:')
+    con.execute("INSTALL httpfs; LOAD httpfs;")
+    con.execute("SET s3_url_style='path';")
+    # Get schema information from parquet file
+    result = con.execute(f"SELECT * FROM parquet_schema('{catalog_presigned_url}')").fetchdf()
+    # Create dict with column name as key and type as value
+    columns = {name: type_ for name, type_ in zip(result['name'], result['type'])}
+    con.close()
+    return columns

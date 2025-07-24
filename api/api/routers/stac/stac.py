@@ -1,15 +1,14 @@
 import logging
 import traceback
 
-from fastapi import APIRouter, HTTPException, Query, status, Request
+from fastapi import APIRouter, HTTPException, status, Request
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
-from typing import Dict, List, Optional
+from typing import Optional
+from pydantic import BaseModel
 
-
-from ...src.usecases.stac import retrieve_stac_collections, retrieve_stac_collection, retrieve_stac_items, retrieve_stac_item, search_stac_items
-from ...src.usecases.stac.search_stac_items import SearchRequest, QueryFilter
+from ...src.usecases.stac import retrieve_stac_collections, retrieve_stac_collection, retrieve_stac_items, retrieve_stac_item, search_stac_columns, search_stac_items
 from ...config import VERSION
 
 router = APIRouter()
@@ -138,51 +137,24 @@ def item(collection_name: str, item_id: str, version: Optional[int] = 1):
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-
 @router.get("/search")
-def search_get(
-    request: Request,
-    collections: List[str] = Query(...),
-    bbox: Optional[List[float]] = Query(None),
-    datetime: Optional[str] = None,
-    limit: int = 10
-):
+def search(collection: str):
     try:
-        # Parse nested query filters manually
-        raw_query_params = request.query_params
-
-        parsed_query: Dict[str, QueryFilter] = {}
-        for key, value in raw_query_params.items():
-            if key.startswith("query[") and key.endswith("]"):
-                # e.g., key = query[cloud_cover][lt]
-                parts = key.split("[")
-                if len(parts) == 3:
-                    field = parts[1][:-1]  # cloud_cover
-                    op = parts[2][:-1]     # lt
-                    if field not in parsed_query:
-                        parsed_query[field] = QueryFilter()
-                    setattr(parsed_query[field], op, value)
-
-        search_request = SearchRequest(
-            collections=collections,
-            bbox=bbox,
-            datetime=datetime,
-            query=parsed_query,
-            limit=limit
-        )
-
-        return search_stac_items(search_request)
+        return search_stac_columns(collection)
     except Exception as e:
-        logger.exception("stac:search_get")
+        logger.exception("stac:item")
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
+class SearchRequest(BaseModel): 
+    collection_id: str
+    query: str
 
 @router.post("/search")
 def search(search_request: SearchRequest):
     try:
-        return search_stac_items(search_request)
+        return search_stac_items(search_request.collection_id, search_request.query)
     except Exception as e:
-        logger.exception("stac:search")
+        logger.exception("stac:item")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
