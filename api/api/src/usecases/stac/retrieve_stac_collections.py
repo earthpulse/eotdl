@@ -24,17 +24,9 @@ def retrieve_stac_collections(request: Request):
             "title": obj.name,
             "description": f"{obj.name} collection",
             "license": "proprietary",
-            "extent": {
-                "spatial": {
-                    "bbox": [obj.metadata.spatial_bbox]
-                },
-                "temporal": {
-                    "interval": [obj.metadata.temporal_interval]
-                }
-            },
             "links": [
                 {
-                    "href": f"{base_url}/{obj.id}/items",
+                    "href": f"{base_url}/{obj.name}/items",
                     "rel": "items",
                     "type": "application/geo+json"
                 }
@@ -43,7 +35,7 @@ def retrieve_stac_collections(request: Request):
 
     def build_link(obj):
         return {
-            "href": f"{base_url}/{obj.id}",
+            "href": f"{base_url}/{obj.name}",
             "rel": "collection",
             "type": "application/json",
             "title": obj.name,

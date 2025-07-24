@@ -100,7 +100,7 @@ def api_html(request: Request):
         openapi_url=str(request.base_url) + "stac/api",
         title="EOTDL STAC API"
     )
-    
+
 @router.get("/collections")
 def collections(request: Request):
     try:

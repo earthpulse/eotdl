@@ -34,8 +34,6 @@ class Metadata(BaseModel):
     source: str
     description: str
     thumbnail: Optional[str] = ""
-    spatial_bbox: List[float] = [0, 0, 1, 1]
-    temporal_interval: List[str] = ["2020-01-01T00:00:00Z", "2020-01-02T00:00:00Z"]
 
     # validate source is a URL
     @validator("source")
