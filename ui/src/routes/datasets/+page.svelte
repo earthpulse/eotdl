@@ -237,5 +237,5 @@
 			<p class="text-gray-400 text-center">No datasets found</p>
 		{/if}
 	</div>
-	<!-- <DatasetsLeaderboard /> -->
+	<DatasetsLeaderboard />
 </div>
