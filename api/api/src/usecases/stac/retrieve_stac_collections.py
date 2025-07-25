@@ -1,12 +1,52 @@
+from fastapi import Request
+
+from api.config import VERSION
+
 from ..datasets import retrieve_datasets
 from ..models import retrieve_models
 from ..pipelines import retrieve_pipelines
 
-def retrieve_stac_collections():
+
+def retrieve_stac_collections(request: Request):
     datasets = retrieve_datasets()
-    data = [{'name': d.name, 'id': d.id} for d in datasets]
     models = retrieve_models()
-    data.extend([{'name': m.name, 'id': m.id} for m in models])
     pipelines = retrieve_pipelines()
-    data.extend([{'name': p.name, 'id': p.id} for p in pipelines])
-    return data
+
+    base_url = str(request.base_url).rstrip("/") + "/stac/collections"
+    collections = []
+    links = []
+
+    def build_collection(obj):
+        return {
+            "stac_version": VERSION,
+            "type": "Collection",
+            "id": obj.id,
+            "title": obj.name,
+            "description": f"{obj.name} collection",
+            "license": "proprietary",
+            "links": [
+                {
+                    "href": f"{base_url}/{obj.name}/items",
+                    "rel": "items",
+                    "type": "application/geo+json"
+                }
+            ]
+        }
+
+    def build_link(obj):
+        return {
+            "href": f"{base_url}/{obj.name}",
+            "rel": "collection",
+            "type": "application/json",
+            "title": obj.name,
+            "method": "GET"
+        }
+
+    for obj in datasets + models + pipelines:
+        collections.append(build_collection(obj))
+        links.append(build_link(obj))
+
+    return {
+        "links": links,
+        "collections": collections
+    }

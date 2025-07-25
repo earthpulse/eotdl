@@ -5,11 +5,10 @@ from fastapi import APIRouter, HTTPException, status, Request
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 from typing import Optional
+from pydantic import BaseModel
 
-
-from ...src.usecases.stac import retrieve_stac_collections, retrieve_stac_collection, retrieve_stac_items, search_stac_columns, retrieve_stac_item, search_stac_items
+from ...src.usecases.stac import retrieve_stac_collections, retrieve_stac_collection, retrieve_stac_items, retrieve_stac_item, search_stac_columns, search_stac_items
 from ...config import VERSION
 
 router = APIRouter()
@@ -100,11 +99,11 @@ def api_html(request: Request):
         openapi_url=str(request.base_url) + "stac/api",
         title="EOTDL STAC API"
     )
-    
+
 @router.get("/collections")
-def collections():
+def collections(request: Request):
     try:
-        return retrieve_stac_collections()
+        return retrieve_stac_collections(request)
     except Exception as e:
         logger.exception("stac:collections")
         traceback.print_exc()
@@ -119,10 +118,11 @@ def collection(collection_name: str):
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/collections/{collection_nam}/items")
-def items(collection_nam: str, version: Optional[int] = 1):
+
+@router.get("/collections/{collection_name}/items")
+def items(collection_name: str, version: Optional[int] = 1):
     try:
-        return retrieve_stac_items(collection_nam, version)
+        return retrieve_stac_items(collection_name, version)
     except Exception as e:
         logger.exception("stac:items")
         traceback.print_exc()
@@ -136,7 +136,7 @@ def item(collection_name: str, item_id: str, version: Optional[int] = 1):
         logger.exception("stac:item")
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
+
 @router.get("/search")
 def search(collection: str):
     try:
