@@ -13,7 +13,9 @@ from sentinelhub import (
     bbox_to_dimensions,
     CRS,
     SentinelHubRequest,
+    SentinelHubStatistical,
     SentinelHubDownloadClient,
+    SentinelHubStatisticalDownloadClient,
 )
 import uuid
 
@@ -92,6 +94,7 @@ class SHClient:
                     data_collection=parameters.DATA_COLLECTION,
                     time_interval=time_interval,
                     mosaicking_order=parameters.MOSAICKING_ORDER,
+                    other_args=parameters.OTHER_ARGUMENTS,
                 )
             ],
             responses=[
@@ -107,6 +110,38 @@ class SHClient:
         Download data from Sentinel Hub
         """
         download_client = SentinelHubDownloadClient(config=self.config)
+        if not isinstance(requests, list):
+            requests = [requests]
+        download_requests = [request.download_list[0] for request in requests]
+        data = download_client.download(download_requests)
+        return data
+
+    def requestStatistics(
+        self, time_interval: datetime, bounding_box: list, parameters: SHParameters
+    ) -> list:
+        """
+        Request data from Sentinel Hub Statistical API
+        """
+        bounding_box, _ = compute_image_size(bounding_box, parameters)
+
+        return SentinelHubStatistical(
+            aggregation=SentinelHubStatistical.aggregation(
+                evalscript=parameters.EVALSCRIPT,
+                time_interval=time_interval,
+                aggregation_interval=parameters.AGGREGATION_INTERVAL,
+                size=bbox_to_dimensions(bounding_box, parameters.RESOLUTION),
+            ),
+            input_data=[
+                SentinelHubStatistical.input_data(
+                    parameters.DATA_COLLECTION, maxcc=parameters.MAX_CLOUD_COVERAGE
+                )
+            ],
+            bbox=bounding_box,
+            config=self.config,
+        )
+
+    def download_statistical_data(self, requests: list) -> list:
+        download_client = SentinelHubStatisticalDownloadClient(config=self.config)
         if not isinstance(requests, list):
             requests = [requests]
         download_requests = [request.download_list[0] for request in requests]
