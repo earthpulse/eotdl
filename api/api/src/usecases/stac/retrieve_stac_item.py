@@ -21,7 +21,21 @@ def retrieve_stac_item(collection_name, item_id, version):
     # this read the entire catalog into memory, which is not ideal
     df = pd.read_parquet(catalog_presigned_url)
     # find items
-    item = df[df["id"] == item_id]
-    if item.empty:
+    item_df = df[df["id"] == item_id]
+    if item_df.empty:
         raise Exception(f"Item {item_id} not found in collection {collection_name}")
-    return item.to_dict('records')[0] # should use stac-geoparquet to encode geometry correctly
+    
+    row = item_df.iloc[0]
+
+    return {
+        "type": "Feature",
+        "stac_version": "1.0.0",
+        "stac_extensions": [],
+        "id": row["id"],
+        "bbox": row.get("bbox", []),
+        "geometry": row.get("geometry", {}),
+        "properties": row.get("properties", {}),
+        "collection": collection_name,
+        "links": [],
+        "assets": row.get("assets", {})
+    }
