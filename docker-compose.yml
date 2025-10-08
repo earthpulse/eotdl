@@ -1,4 +1,4 @@
-version: "3"
+# version: "3"
 
 services:
   eotdl-mongo:
@@ -29,7 +29,7 @@ services:
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
-      - S3_ENDPOINT=192.168.0.14:9000 # use host ip to generate presigned urls (allow minio port on firewal!)
+      - S3_ENDPOINT=192.168.0.139:9000 # use host ip to generate presigned urls (allow minio port on firewal!)
       - ACCESS_KEY_ID=eotdl
       - SECRET_ACCESS_KEY=12345678
       - S3_BUCKET=dev
