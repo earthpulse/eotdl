@@ -9,10 +9,12 @@ from datetime import datetime, timedelta
 from typing import Union, Optional, Iterable, List
 from glob import glob
 from shutil import copyfile, rmtree
+import pandas as pd
 
 from .parameters import SUPPORTED_COLLECTION_IDS, SHParameters, OUTPUT_FORMAT
-from ...tools.geo_utils import is_bounding_box, get_image_bbox
+from ...tools.geo_utils import is_bounding_box
 from ...tools.time_utils import is_time_interval, get_day_between
+from sentinelhub import parse_time
 
 
 def evaluate_sentinel_parameters(
@@ -142,3 +144,36 @@ def filter_times(
             filtered_timestamps.append(current_timestamp)
 
     return filtered_timestamps
+
+
+def stats_to_df(stats_data):
+    """Transform Statistical API response into a pandas.DataFrame"""
+    df_data = []
+
+    for single_data in stats_data["data"]:
+        df_entry = {}
+        is_valid_entry = True
+
+        df_entry["interval_from"] = parse_time(single_data["interval"]["from"]).date()
+        df_entry["interval_to"] = parse_time(single_data["interval"]["to"]).date()
+
+        for output_name, output_data in single_data["outputs"].items():
+            for band_name, band_values in output_data["bands"].items():
+                band_stats = band_values["stats"]
+                if band_stats["sampleCount"] == band_stats["noDataCount"]:
+                    is_valid_entry = False
+                    break
+
+                for stat_name, value in band_stats.items():
+                    col_name = f"{output_name}_{band_name}_{stat_name}"
+                    if stat_name == "percentiles":
+                        for perc, perc_val in value.items():
+                            perc_col_name = f"{col_name}_{perc}"
+                            df_entry[perc_col_name] = perc_val
+                    else:
+                        df_entry[col_name] = value
+
+        if is_valid_entry:
+            df_data.append(df_entry)
+
+    return pd.DataFrame(df_data)
