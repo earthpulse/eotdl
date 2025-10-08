@@ -13,8 +13,6 @@
 		"GEODB_AUTH_DOMAIN",
 		"SH_CLIENT_ID",
 		"SH_CLIENT_SECRET",
-		"SH_INSTANCE_ID",
-		"SH_OWNER_ID",
 	];
 
 	const download = () => {
