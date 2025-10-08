@@ -138,7 +138,7 @@ def item(collection_name: str, item_id: str, version: Optional[int] = 1):
         traceback.print_exc()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
-@router.get("/search")
+@router.get("/search", include_in_schema=False)
 def search(collection: str):
     try:
         return search_stac_columns(collection)
@@ -151,7 +151,7 @@ class SearchRequest(BaseModel):
     catalog_id: str
     query: str
 
-@router.post("/search")
+@router.post("/search", include_in_schema=False)
 def search(search_request: SearchRequest):
     try:
         return search_stac_items(search_request.collection_id, search_request.query)
