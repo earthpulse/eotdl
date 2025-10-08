@@ -1,4 +1,8 @@
 import pandas as pd
+import stac_geoparquet
+import pyarrow.parquet as pq
+from tqdm import tqdm
+import pystac
 
 from ..datasets.retrieve_dataset import retrieve_dataset_by_name
 from ..models.retrieve_model import retrieve_model_by_name
@@ -16,12 +20,9 @@ def retrieve_stac_items(collection_name, version):
             data = retrieve_pipeline_by_name(collection_name)
     os_repo = OSRepo()
     catalog_presigned_url = os_repo.get_presigned_url(data.id, f"catalog.v{version}.parquet")
-    # this read the entire catalog into memory, which is not ideal
-    df = pd.read_parquet(catalog_presigned_url)
-    return [
-        {
-            "id": row["id"],
-            "assets": row["assets"],
-        }
-        for _, row in df.iterrows()
-    ]
+    table = pq.read_table(catalog_presigned_url)
+    items = []
+    for item in tqdm(stac_geoparquet.arrow.stac_table_to_items(table), total=len(table)):
+        item = pystac.Item.from_dict(item)
+        items.append(item)
+    return items

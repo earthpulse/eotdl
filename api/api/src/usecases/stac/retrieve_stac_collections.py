@@ -18,13 +18,26 @@ def retrieve_stac_collections(request: Request):
 
     def build_collection(obj):
         return {
-            "stac_version": VERSION,
+            "stac_version": "1.0.0",
             "type": "Collection",
             "id": obj.id,
             "title": obj.name,
             "description": f"{obj.name} collection",
             "license": "proprietary",
+            # "extent": {
+            #     "spatial": {
+            #         "bbox": [[-180, -90, 180, 90]]
+            #     },
+            #     "temporal": {
+            #         "interval": [["2020-01-01T00:00:00Z", None]]
+            #     }
+            # },
             "links": [
+                {
+                    "href": f"{base_url}/{obj.name}",
+                    "rel": "self",
+                    "type": "application/json"
+                },
                 {
                     "href": f"{base_url}/{obj.name}/items",
                     "rel": "items",
@@ -33,20 +46,23 @@ def retrieve_stac_collections(request: Request):
             ]
         }
 
-    def build_link(obj):
-        return {
-            "href": f"{base_url}/{obj.name}",
-            "rel": "collection",
-            "type": "application/json",
-            "title": obj.name,
-            "method": "GET"
-        }
-
     for obj in datasets + models + pipelines:
         collections.append(build_collection(obj))
-        links.append(build_link(obj))
+        links.append({
+            "href": f"{base_url}/{obj.name}",
+            "rel": "child",
+            "type": "application/json",
+            "title": obj.name
+        })
+
+    # Add self link to the root response
+    links.append({
+        "href": base_url,
+        "rel": "self",
+        "type": "application/json"
+    })
 
     return {
-        "links": links,
-        "collections": collections
+        "collections": collections,
+        "links": links
     }

@@ -24,10 +24,10 @@ conforms_to = [
 def stac_landing_page(request: Request):
     base_url = str(request.base_url)
     core_response = {
-        "stac_version": VERSION,
+        "stac_version": "1.0.0",
         "id": "eotdl-stac-api",
         "title": "EOTDL STAC API",
-        "description": "EOTDSL STAC API Landing Page",
+        "description": "EOTDL is a repository of Training Datasets (TDS) and Machine Learning (ML) models for Earth Observation (EO) applications. Learn more at https://www.eotdl.com",
         "type": "Catalog",
         "conformsTo": conforms_to,
         "links": [
@@ -89,8 +89,8 @@ def api(request: Request):
     openapi_schema = get_openapi(
         title="EOTDL STAC API",
         version=VERSION,
-        routes=request.app.routes,
-        description="STAC-compliant OpenAPI schema"
+        routes=router.routes,
+        description="STAC-compliant OpenAPI schema",
     )
     return JSONResponse(content=openapi_schema, media_type="application/vnd.oai.openapi+json;version=3.0")
 
@@ -111,9 +111,9 @@ def collections(request: Request):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @router.get("/collections/{collection_name}")
-def collection(collection_name: str):
+def collection(collection_name: str, request: Request):
     try:
-        return retrieve_stac_collection(collection_name)
+        return retrieve_stac_collection(collection_name, request)
     except Exception as e:
         logger.exception("stac:collection")
         traceback.print_exc()
@@ -148,7 +148,7 @@ def search(collection: str):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 class SearchRequest(BaseModel): 
-    collection_id: str
+    catalog_id: str
     query: str
 
 @router.post("/search")
