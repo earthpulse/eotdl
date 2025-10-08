@@ -3,6 +3,8 @@
 	import auth from "$stores/auth.svelte";
 	import Card from "$components/Card.svelte";
 	import HeartOutline from "svelte-material-icons/HeartOutline.svelte";
+	import ChevronDown from "svelte-material-icons/ChevronDown.svelte";
+	import ChevronUp from "svelte-material-icons/ChevronUp.svelte";
 	import { browser } from "$app/environment";
 	import Pagination from "$components/Pagination.svelte";
 	import Tags from "$components/Tags.svelte";
@@ -18,6 +20,31 @@
 	let show_liked = $state(false);
 	let selected_tags = $state([]);
 	let selected_qualities = $state([]);
+	let current_order_by = $state("created_at");
+	let current_order_direction = $state("desc");
+	let filterFunctions = $state({
+		byName: (model) => {
+			if (filterName.length === 0) return true;
+			return model.name
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		},
+		byDescription: (model) => {
+			if (filterName.length === 0) return true;
+			return model.metadata.description
+				.toLowerCase()
+				.includes(filterName.toLowerCase());
+		},
+	});
+
+	// the value of the key should be the sort function
+	let orderBy = $state({
+		none: (a, b) => 0,
+		likes: (a, b) => (b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
+		downloads: (a, b) => (b.downloads - a.downloads) * (current_order_direction === "desc" ? 1 : -1),
+		created_at: (a, b) => (new Date(b.createdAt) - new Date(a.createdAt)) * (current_order_direction === "desc" ? 1 : -1),
+		size: (a, b) => (b.versions[b.versions.length - 1].size - a.versions[a.versions.length - 1].size) * (current_order_direction === "desc" ? 1 : -1),
+	});
 
 	const load = async () => {
 		await models.retrieve(fetch);
@@ -37,9 +64,9 @@
 
 	let filterName = $state("");
 	let filtered_models = $state(null);
+	let all_filtered_models = $state();
 	$effect(() => {
-		let base_models = $models.data || []; // Start with all datasets or an empty array
-
+		let base_models = $models.data || [];
 		// Filter by tags
 		let models_after_tags = base_models.filter((model) => {
 			if (selected_tags.length === 0) return true;
@@ -47,23 +74,38 @@
 		});
 
 		// Filter by name
-		let models_after_name = models_after_tags.filter((model) => {
-			if (filterName.length === 0) return true;
-			return model.name.toLowerCase().includes(filterName.toLowerCase());
-		});
+		let models_after_name = models_after_tags.filter(
+			filterFunctions.byName,
+		);
+		all_filtered_models = models_after_name;
 
+		let models_after_description = models_after_tags.filter(
+			filterFunctions.byDescription,
+		);
+		all_filtered_models = models_after_description;
 		// Filter by liked status if show_liked is true and user is logged in
 		let final_models;
 		if (show_liked && auth.user) {
 			final_models = models_after_name.filter((model) =>
 				auth.user.liked_models.includes(model.id),
 			);
+			final_datasets?.push(
+				...models_after_description.filter((model) =>
+					auth.user.liked_models.includes(model.id),
+				),
+			);
+			// Remove duplicated datasets (If the searched text is in the name and description)
+			final_models = [...new Set(final_models)];
 		} else {
-			final_models = models_after_name;
+			// Add datasets by description and name
+			final_models = models_after_name.concat(
+				models_after_description,
+			);
+			// Remove duplicated datasets (If the searched text is in the name and description)
+			final_models = [...new Set(final_models)];
 		}
-
+		filtered_models = final_models.sort(orderBy[current_order_by]);
 		// Assign the final result
-		filtered_models = final_models;
 	});
 
 	const toggleLike = () => {
@@ -105,17 +147,39 @@
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
-					<!-- <p
-						class="text-gray-400 hover:underline cursor-pointer text-sm"
-					>
-						advanced filtering
-					</p> -->
-					<button onclick={toggleLike}
-						><HeartOutline
+					<div class="flex flex-row gap-1 w-fit items-center">
+						<button
+							onclick={toggleLike}
 							class="cursor-pointer hover:scale-115 transition-all duration-200"
-							color={show_liked ? "red" : "gray"}
-						/></button
-					>
+							><HeartOutline
+								color={show_liked ? "red" : "gray"}
+							/></button
+						>
+					</div>
+					<div class="flex flex-row gap-1 w-fit items-center">
+						<p class="text-gray-400 text-sm ml-2 whitespace-nowrap">Order by:</p>
+						<select
+							class="select select-bordered select-xs"
+							bind:value={current_order_by}
+						>
+							{#each Object.keys(orderBy) as key}
+								<option value={key}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " ")}</option>
+							{/each}
+						</select>
+                        {#if current_order_direction === "desc"}
+							<button onclick={() => {
+								current_order_direction = "asc";
+							}}>
+								<ChevronDown class="cursor-pointer"/>
+							</button>
+						{:else}
+							<button onclick={() => {
+								current_order_direction = "desc";
+							}}>
+								<ChevronUp class="cursor-pointer"/>
+							</button>
+						{/if}
+					</div>
 				</span>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
