@@ -21,7 +21,8 @@ def retrieve_stac_collection(collection_name: str, request: Request = None):
     collection = {
         "stac_version": "1.0.0",
         "type": "Collection",
-        "id": obj.id,
+        # "id": obj.id,
+        "id": obj.name, # if we use id the items will not be found
         "title": obj.name,
         "description": obj.metadata.description,
         "license": obj.metadata.license,
@@ -52,19 +53,19 @@ def retrieve_stac_collection(collection_name: str, request: Request = None):
         ]
     }
     
-    # Add collection-specific metadata
-    if hasattr(obj, 'metadata') and obj.metadata:
-        if hasattr(obj.metadata, 'description') and obj.metadata.description:
-            collection["description"] = obj.metadata.description
-        if hasattr(obj.metadata, 'license') and obj.metadata.license:
-            collection["license"] = obj.metadata.license
+    # # Add collection-specific metadata
+    # if hasattr(obj, 'metadata') and obj.metadata:
+    #     if hasattr(obj.metadata, 'description') and obj.metadata.description:
+    #         collection["description"] = obj.metadata.description
+    #     if hasattr(obj.metadata, 'license') and obj.metadata.license:
+    #         collection["license"] = obj.metadata.license
     
-    # Add keywords/tags if available
-    if hasattr(obj, 'tags') and obj.tags:
-        collection["keywords"] = obj.tags
+    # # Add keywords/tags if available
+    # if hasattr(obj, 'tags') and obj.tags:
+    #     collection["keywords"] = obj.tags
     
-    # Add version information if available
-    if hasattr(obj, 'versions') and obj.versions:
-        collection["version"] = str(obj.versions[0].version_id) if obj.versions else "1"
+    # # Add version information if available
+    # if hasattr(obj, 'versions') and obj.versions:
+    #     collection["version"] = str(obj.versions[0].version_id) if obj.versions else "1"
     
     return collection

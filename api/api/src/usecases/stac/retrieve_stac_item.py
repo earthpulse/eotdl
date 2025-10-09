@@ -47,10 +47,44 @@ def retrieve_stac_item(collection_name: str, item_id: str, version: int = 1, req
                 # stac_geoparquet expects a table, so we can use stac_table_to_items on the filtered table
                 items = list(stac_geoparquet.arrow.stac_table_to_items(filtered_table))
                 if items:
+                    item = items[0]
+                    
+                    # Add STAC item links
+                    if "links" not in item:
+                        item["links"] = []
+                    
+                    # Add self link
+                    item["links"].append({
+                        "rel": "self",
+                        "type": "application/geo+json",
+                        "href": f"/stac/collections/{collection_name}/items/{item_id}"
+                    })
+                    
+                    # Add parent link (collection)
+                    item["links"].append({
+                        "rel": "parent",
+                        "type": "application/json",
+                        "href": f"/stac/collections/{collection_name}"
+                    })
+                    
+                    # Add collection link
+                    item["links"].append({
+                        "rel": "collection",
+                        "type": "application/json",
+                        "href": f"/stac/collections/{collection_name}"
+                    })
+                    
+                    # Add root link
+                    item["links"].append({
+                        "rel": "root",
+                        "type": "application/json",
+                        "href": "/stac"
+                    })
+                    
                     # Clean up the temporary file
                     if os.path.exists(temp_file.name):
                         os.unlink(temp_file.name)
-                        return items[0]
+                    return item
             
         finally:
             # Clean up the temporary file

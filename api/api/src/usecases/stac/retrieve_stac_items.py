@@ -36,9 +36,32 @@ def retrieve_stac_items(collection_name, version):
             table = pq.read_table(temp_file.name)
             items = []
             for item in tqdm(stac_geoparquet.arrow.stac_table_to_items(table), total=len(table)):
-                # Return raw dict data to avoid circular references in JSON serialization
                 items.append(item)
-            return items
+            
+            # Return as FeatureCollection according to STAC API specification
+            return {
+                "type": "FeatureCollection",
+                "features": items,
+                "links": [
+                    {
+                        "rel": "self",
+                        "type": "application/geo+json",
+                        "href": f"/stac/collections/{collection_name}/items"
+                    },
+                    {
+                        "rel": "parent",
+                        "type": "application/json",
+                        "href": f"/stac/collections/{collection_name}"
+                    },
+                    {
+                        "rel": "root",
+                        "type": "application/json",
+                        "href": "/stac"
+                    }
+                ],
+                "numberMatched": len(items),
+                "numberReturned": len(items)
+            }
         finally:
             # Clean up the temporary file
             if os.path.exists(temp_file.name):
