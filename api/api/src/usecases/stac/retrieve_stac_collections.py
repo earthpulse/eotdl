@@ -24,7 +24,8 @@ def retrieve_stac_collections(request: Request):
         return {
             "stac_version": "1.0.0",
             "type": "Collection",
-            "id": obj.id,
+            # "id": obj.id,
+            "id": obj.name, # if we use id the items will not be found
             "title": obj.name,
             "description": f"{obj.name} collection",
             "license": "proprietary",

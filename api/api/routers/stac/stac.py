@@ -16,7 +16,9 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 conforms_to = [
-    "https://api.stacspec.org/v1.0.0/core"
+    "https://api.stacspec.org/v1.0.0/core",
+    "https://api.stacspec.org/v1.0.0/collections",
+    # "https://api.stacspec.org/v1.0.0/item-search",
 ]
 
 
@@ -61,22 +63,22 @@ def stac_landing_page(request: Request):
                 "href": base_url + "stac/api.html"
             },
             {
-                "rel": "search",
-                "type": "application/json",
-                "href": base_url + "stac/search",
-                "method": "GET"
-            },
-            {
-                "rel": "search",
-                "type": "application/geo+json",
-                "href": base_url + "stac/search",
-                "method": "POST"
-            },
-            {
-                "rel": "collections",
+                "rel": "data",
                 "type": "application/json",
                 "href": base_url + "stac/collections"
-            }
+            },
+            # {
+            #     "rel": "search",
+            #     "type": "application/json",
+            #     "href": base_url + "stac/search",
+            #     "method": "GET"
+            # },
+            # {
+            #     "rel": "search",
+            #     "type": "application/geo+json",
+            #     "href": base_url + "stac/search",
+            #     "method": "POST"
+            # },
         ]
         }
 
