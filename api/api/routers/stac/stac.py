@@ -22,7 +22,11 @@ conforms_to = [
 
 @router.get("")
 def stac_landing_page(request: Request):
-    base_url = str(request.base_url)
+    # Handle HTTPS in production behind reverse proxy
+    if request.headers.get("x-forwarded-proto") == "https":
+        base_url = str(request.base_url).replace("http://", "https://")
+    else:
+        base_url = str(request.base_url)
     core_response = {
         "stac_version": "1.0.0",
         "id": "eotdl-stac-api",
@@ -96,8 +100,13 @@ def api(request: Request):
 
 @router.get("/api.html", include_in_schema=False)
 def api_html(request: Request):
+    # Handle HTTPS in production behind reverse proxy
+    if request.headers.get("x-forwarded-proto") == "https":
+        base_url = str(request.base_url).replace("http://", "https://")
+    else:
+        base_url = str(request.base_url)
     return get_swagger_ui_html(
-        openapi_url=str(request.base_url) + "stac/api",
+        openapi_url=base_url + "stac/api",
         title="EOTDL STAC API"
     )
 

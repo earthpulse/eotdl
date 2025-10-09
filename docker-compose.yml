@@ -12,8 +12,8 @@ services:
     image: minio/minio
     container_name: eotdl-minio
     ports:
-      - 9000:9000
-      - 9001:9001
+      - 9010:9000
+      - 9011:9001
     volumes:
       - ./data/minio:/data
     environment:
@@ -24,6 +24,7 @@ services:
 
   eotdl-api:
     build: ./api
+    # image: eotdl/api:2025.10.9
     container_name: eotdl-api
     platform: linux/amd64
     environment:

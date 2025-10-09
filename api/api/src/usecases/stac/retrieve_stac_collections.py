@@ -12,7 +12,11 @@ def retrieve_stac_collections(request: Request):
     models = retrieve_models()
     pipelines = retrieve_pipelines()
 
-    base_url = str(request.base_url).rstrip("/") + "/stac/collections"
+    # Handle HTTPS in production behind reverse proxy
+    if request.headers.get("x-forwarded-proto") == "https":
+        base_url = str(request.base_url).replace("http://", "https://").rstrip("/") + "/stac/collections"
+    else:
+        base_url = str(request.base_url).rstrip("/") + "/stac/collections"
     collections = []
     links = []
 

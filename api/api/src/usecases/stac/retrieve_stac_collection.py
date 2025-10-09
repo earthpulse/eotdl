@@ -13,7 +13,11 @@ def retrieve_stac_collection(collection_name: str, request: Request = None):
         except ModelDoesNotExistError:
             obj = retrieve_pipeline_by_name(collection_name)
     
-    base_url = str(request.base_url).rstrip("/") + "/stac/collections"
+    # Handle HTTPS in production behind reverse proxy
+    if request.headers.get("x-forwarded-proto") == "https":
+        base_url = str(request.base_url).replace("http://", "https://").rstrip("/") + "/stac/collections"
+    else:
+        base_url = str(request.base_url).rstrip("/") + "/stac/collections"
     collection = {
         "stac_version": "1.0.0",
         "type": "Collection",
