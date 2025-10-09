@@ -31,6 +31,8 @@ class User(BaseModel):
     liked_models: list = []
     terms: TermsAndConditions = TermsAndConditions()
     verified: bool = False
+    pseudocredits: int = 0
+    credits: int = 0
 
     # class Config:
     #     use_enum_values = True

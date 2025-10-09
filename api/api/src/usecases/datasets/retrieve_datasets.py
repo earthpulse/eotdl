@@ -4,7 +4,6 @@ from ...models import Dataset
 
 
 def retrieve_datasets(match=None, limit=None, private=False):
-    print("hola", limit)
     repo = DatasetsDBRepo()
     data = repo.retrieve_datasets(match, limit)
     datasets = []

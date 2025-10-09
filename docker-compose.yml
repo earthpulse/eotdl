@@ -1,4 +1,4 @@
-version: "3"
+# version: "3"
 
 services:
   eotdl-mongo:
@@ -12,8 +12,8 @@ services:
     image: minio/minio
     container_name: eotdl-minio
     ports:
-      - 9000:9000
-      - 9001:9001
+      - 9010:9000
+      - 9011:9001
     volumes:
       - ./data/minio:/data
     environment:
@@ -24,12 +24,13 @@ services:
 
   eotdl-api:
     build: ./api
+    # image: eotdl/api:2025.10.9
     container_name: eotdl-api
     platform: linux/amd64
     environment:
       - MONGO_URL=mongodb://eotdl-mongo:27017
       - MONGO_DB_NAME=eotdl
-      - S3_ENDPOINT=192.168.0.145:9000 # use host ip to generate presigned urls (allow minio port on firewal!)
+      - S3_ENDPOINT=192.168.0.139:9000 # use host ip to generate presigned urls (allow minio port on firewal!)
       - ACCESS_KEY_ID=eotdl
       - SECRET_ACCESS_KEY=12345678
       - S3_BUCKET=dev
