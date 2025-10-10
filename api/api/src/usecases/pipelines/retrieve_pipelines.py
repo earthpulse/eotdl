@@ -10,8 +10,6 @@ def retrieve_pipelines(match=None, limit=None):
     for d in data:
         if not 'active' in d or d['active']:
             models.append(Pipeline(**d))
-    if not models:
-        raise PipelineNotActiveError()
     return models
     
 

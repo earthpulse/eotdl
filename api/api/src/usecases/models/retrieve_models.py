@@ -11,8 +11,6 @@ def retrieve_models(match=None, limit=None):
         # only list active and public models
         if not 'active' in d or d['active'] and not d['allowed_users']:
             models.append(Model(**d))
-    if not models:
-        raise ModelNotActiveError()
     return models
     
 
