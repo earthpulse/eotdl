@@ -54,7 +54,6 @@ const createDatasets = () => {
         const data = await retrieveDatasets(fetch, limit);
         if (id_token) {
           const private_data = await retrievePrivateDatasets(id_token);
-          console.log(private_data);
           data.push(...private_data);
         }
         set({ loading: false, data });

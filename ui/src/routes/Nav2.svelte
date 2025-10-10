@@ -44,7 +44,7 @@
 
 <div class="grid place-items-center w-full">
     <ul
-    class="flex flex-row gap-6 w-full justify-end max-w-7xl p-3 text-blue-500 items-center uppercase"
+        class="flex flex-row gap-6 w-full justify-end max-w-7xl p-3 text-blue-500 items-center uppercase"
     >
         {#each links as link}
             <li class="hidden lg:block text-slate-500 gap-2 text-sm">
@@ -85,7 +85,7 @@
                 <div
                     class={auth.user ? "tooltip tooltip-bottom" : ""}
                     data-tip={auth.user ? "Profile" : "Profile"}
-                > 
+                >
                     <div class="avatar indicator">
                         {#if notificationCount > 0}
                             <span class="indicator-item badge badge-secondary"
@@ -102,7 +102,7 @@
                 </div>
             </a>
         </li>
-        {#if auth.user}
+        <!-- {#if auth.user}
             <li class="flex-row gap-2 items-center flex {$page.url.pathname == '/'
                             ? 'text-slate-300 hover:text-white'
                             : 'text-slate-600 hover:text-slate-800'}">
@@ -111,7 +111,7 @@
                 <img src="/gamification/silver_coin_pile.png" alt="logo" class="h-8" />
                 <p>{auth.user.pseudocredits}</p>
             </li>
-        {/if}
+        {/if} -->
         <button tabindex="0" class="dropdown dropdown-end cursor-pointer">
             <div>
                 <svg
