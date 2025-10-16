@@ -81,7 +81,7 @@
 			return selected_tags.every((tag) => dataset.tags.includes(tag));
 		});
 
-		// Filter by name
+		// Filter by name, description, tags, ...
 		let datasets_after_name = datasets_after_tags.filter(
 			filterFunctions.byName,
 		);
@@ -173,7 +173,7 @@
 				<input
 					class="input input-bordered max-w-full input-xs"
 					type="text"
-					placeholder="Filter by name"
+					placeholder="Filter by name, description, tags, ..."
 					bind:value={filterName}
 				/>
 				<span

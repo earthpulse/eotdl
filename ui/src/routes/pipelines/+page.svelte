@@ -45,7 +45,7 @@
 			return selected_tags.every((tag) => model.tags.includes(tag));
 		});
 
-		// Filter by name
+		// Filter by name, description, tags, ...
 		let pipelines_after_name = pipelines_after_tags.filter((model) => {
 			if (filterName.length === 0) return true;
 			return model.name.toLowerCase().includes(filterName.toLowerCase());
@@ -100,7 +100,7 @@
 				<input
 					class="input input-bordered max-w-full input-xs"
 					type="text"
-					placeholder="Filter by name"
+					placeholder="Filter by name, description, tags, ..."
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
