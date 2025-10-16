@@ -175,8 +175,9 @@
                 {#if edit}
                   <button class="btn btn-outline" onclick={save}>Save</button>
                   <button class="btn btn-outline" onclick={close}>Close</button>
-                {:else}
+                {:else if dataset.training_template}
                   <Train {dataset} />
+                {:else}
                   <button class="btn btn-outline" onclick={() => (edit = !edit)}
                     >Edit</button
                   >
