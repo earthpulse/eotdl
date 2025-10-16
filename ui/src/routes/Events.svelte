@@ -1,5 +1,6 @@
 <script>
   import events from "./events.json";
+
   import { parseISO, compareAsc } from "date-fns";
 
   let currentDate = $state(new Date());
@@ -94,7 +95,7 @@
     ),
   );
 
-  let limit = 3;
+  let limit = $state(3);
   let shownEvents = $derived(
     filteredEvents.slice(0, limit).sort(function (a, b) {
       if (a.date > b.date) {
@@ -107,6 +108,8 @@
   );
 
   let showMore = $state(-1);
+
+  $inspect(shownEvents);
 </script>
 
 <div class="w-full flex flex-col gap-3">
@@ -240,7 +243,9 @@
         <hr class="my-2 border-t border-[rgb(74,191,167)]" />
       </li>
     {/each}
-    <button onclick={() => (limit += 3)} class="text-xs text-[rgb(74,191,167)]"
+    <button
+      onclick={() => (limit += 3)}
+      class="text-xs text-[rgb(74,191,167)] cursor-pointer"
       >Show more events</button
     >
   </ul>
