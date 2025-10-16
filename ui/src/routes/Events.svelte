@@ -94,7 +94,7 @@
     ),
   );
 
-  let limit = 3;
+  let limit = $state(3);
   let shownEvents = $derived(
     filteredEvents.slice(0, limit).sort(function (a, b) {
       if (a.date > b.date) {
