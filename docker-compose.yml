@@ -21,20 +21,7 @@ services:
       - MINIO_ROOT_PASSWORD=12345678
       - MINIO_HOST=0.0.0.0
     command: server /data --console-address ":9001"
-
-  eotdl-qdrant:
-    image: qdrant/qdrant:latest
-    container_name: eotdl-qdrant
-    ports:
-      - 6333:6333
-      - 6334:6334
-    volumes:
-      - ./data/qdrant:/qdrant/storage
-    environment:
-      - QDRANT__SERVICE__HTTP_PORT=6333
-      - QDRANT__SERVICE__GRPC_PORT=6334
-    restart: unless-stopped
-
+    
   eotdl-api:
     build: ./api
     # image: eotdl/api:2025.10.9
@@ -50,8 +37,6 @@ services:
       - S3_SSL=False
       - ADMIN_API_KEY=12345678
       - TZ=Europe/Madrid
-      - QDRANT_URL=http://eotdl-qdrant:6333
-      - QDRANT_API_KEY=  # Optional: set if you want API key authentication
       # - API_BASE_URL=http://localhost:8000 # used to generate file urls
     env_file: # auth0 and eox credentials
       - .env
@@ -61,19 +46,4 @@ services:
       - ./kk:/tmp
     ports:
       - 8000:8000
-    depends_on:
-      - eotdl-qdrant
     command: uvicorn api.main:app --host 0.0.0.0 --reload
-
-  eotdl-mcp:
-    build: ./mcp
-    container_name: eotdl-mcp
-    ports:
-      - 8001:8000
-    env_file:
-      - ./mcp/.env
-    volumes:
-      - ./mcp/server.py:/server.py
-    depends_on:
-      - eotdl-qdrant
-    command: uv run server.py --host 0.0.0.0 --port 8000
