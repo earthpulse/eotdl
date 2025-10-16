@@ -76,7 +76,7 @@
 
 <main class="min-h-screen flex flex-col items-center justify-between">
   <div class="w-full h-full grow flex flex-col">
-    <!-- <Banner /> -->
+    <Banner />
     <Nav />
     <div class="relative grow flex flex-col">
       {@render children()}

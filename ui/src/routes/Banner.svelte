@@ -1,9 +1,14 @@
 <div class="w-full bg-[#4abfa7] flex items-center justify-center">
     <div class="max-w-7xl p-4 text-center">
         <p class="text-white">
-            <b>Join us</b> at the Living Planet Symposium 2025 (23—27 June 2025)
-            in Vienna 🌍. Learn more
-            <a href="/blog/LPS25" class="underline">here</a>.
+            <b>EOTDL</b> is now available in
+            <a
+                href="https://radiantearth.github.io/stac-browser/#/external/api.eotdl.com/stac?.language=en"
+                class="underline"
+                target="_blank"
+                rel="noopener noreferrer">STAC Browser</a
+            >! Explore datasets and models with a user-friendly catalog
+            interface.
         </p>
     </div>
 </div>
