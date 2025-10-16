@@ -5,6 +5,7 @@
 	let batch_size = 16;
 	let epochs = 10;
 </script>
+
 <label for="trainining-template" class="btn btn-ghost btn-outline">Train</label>
 <input type="checkbox" id="trainining-template" class="modal-toggle" />
 <div class="modal modal-bottom sm:modal-middle">
@@ -17,7 +18,7 @@
 			<p>Open the training template in your cloud workspace:</p>
 			<a
 				class="btn btn-outline"
-				href={dataset.training_template}
+				href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${dataset.training_template}`}
 				target="_blank">Notebook</a
 			>
 			<p>or execute a headless training job:</p>
@@ -48,13 +49,13 @@
 			</div>
 			<a
 				class="btn btn-outline"
-				href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/07_training_template.ipynb`}
+				href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${dataset.training_template}`}
 				target="_blank">Submit Job</a
 			>
 			<p>
 				You can track your training jobs <a
 					class="underline"
-					href="https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/07_training_template.ipynb"
+					href={`https://hub.api.eotdl.com/services/eoxhub-gateway/eotdl/notebook-view/notebooks/${dataset.training_template}`}
 					target="_blank">here</a
 				>.
 			</p>

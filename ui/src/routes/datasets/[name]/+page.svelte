@@ -18,6 +18,8 @@
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
   import Benchmark from "./Benchmark.svelte";
+  import STACBrowserLink from "$components/STACBrowserLink.svelte";
+
   let { data } = $props();
 
   let loading = $state(true);
@@ -176,8 +178,9 @@
                   <button class="btn btn-outline" onclick={save}>Save</button>
                   <button class="btn btn-outline" onclick={close}>Close</button>
                 {:else if dataset.training_template}
-                  <Train {dataset} />
-                {:else}
+                  {#if dataset.training_template}
+                    <Train {dataset} />
+                  {/if}
                   <button class="btn btn-outline" onclick={() => (edit = !edit)}
                     >Edit</button
                   >
@@ -237,6 +240,7 @@
               bind:source={dataset.metadata.source}
               {edit}
             />
+            <STACBrowserLink {dataset} />
             <FileExplorer {version} collection={dataset.name} />
           </div>
         </div>

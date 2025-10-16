@@ -16,6 +16,7 @@
   import { goto } from "$app/navigation";
   import EditableContent from "$components/EditableContent.svelte";
   import FileExplorer from "$components/FileExplorer.svelte";
+  import STACBrowserLink from "$components/STACBrowserLink.svelte";
 
   $effect(() => {
     load();
@@ -209,6 +210,7 @@
               bind:source={model.metadata.source}
               {edit}
             />
+            <STACBrowserLink dataset={model} />
             <FileExplorer {version} collection={model.name} />
           </div>
         </div>

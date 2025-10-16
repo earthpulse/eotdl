@@ -25,9 +25,7 @@
 	let filterFunctions = $state({
 		byName: (model) => {
 			if (filterName.length === 0) return true;
-			return model.name
-				.toLowerCase()
-				.includes(filterName.toLowerCase());
+			return model.name.toLowerCase().includes(filterName.toLowerCase());
 		},
 		byDescription: (model) => {
 			if (filterName.length === 0) return true;
@@ -39,11 +37,18 @@
 
 	// the value of the key should be the sort function
 	let orderBy = $state({
-		none: (a, b) => 0,
-		likes: (a, b) => (b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
-		downloads: (a, b) => (b.downloads - a.downloads) * (current_order_direction === "desc" ? 1 : -1),
-		created_at: (a, b) => (new Date(b.createdAt) - new Date(a.createdAt)) * (current_order_direction === "desc" ? 1 : -1),
-		size: (a, b) => (b.versions[b.versions.length - 1].size - a.versions[a.versions.length - 1].size) * (current_order_direction === "desc" ? 1 : -1),
+		likes: (a, b) =>
+			(b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
+		downloads: (a, b) =>
+			(b.downloads - a.downloads) *
+			(current_order_direction === "desc" ? 1 : -1),
+		created_at: (a, b) =>
+			(new Date(b.createdAt) - new Date(a.createdAt)) *
+			(current_order_direction === "desc" ? 1 : -1),
+		size: (a, b) =>
+			(b.versions[b.versions.length - 1].size -
+				a.versions[a.versions.length - 1].size) *
+			(current_order_direction === "desc" ? 1 : -1),
 	});
 
 	const load = async () => {
@@ -98,9 +103,7 @@
 			final_models = [...new Set(final_models)];
 		} else {
 			// Add datasets by description and name
-			final_models = models_after_name.concat(
-				models_after_description,
-			);
+			final_models = models_after_name.concat(models_after_description);
 			// Remove duplicated datasets (If the searched text is in the name and description)
 			final_models = [...new Set(final_models)];
 		}
@@ -155,28 +158,42 @@
 								color={show_liked ? "red" : "gray"}
 							/></button
 						>
+						<a
+							href="https://radiantearth.github.io/stac-browser/#/external/api.eotdl.com/stac?.language=en"
+							target="_blank"
+							class="btn btn-outline btn-xs text-gray-400">STAC</a
+						>
 					</div>
 					<div class="flex flex-row gap-1 w-fit items-center">
-						<p class="text-gray-400 text-sm ml-2 whitespace-nowrap">Order by:</p>
 						<select
 							class="select select-bordered select-xs"
 							bind:value={current_order_by}
 						>
+							<option value="" disabled selected>
+								Order by
+							</option>
 							{#each Object.keys(orderBy) as key}
-								<option value={key}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " ")}</option>
+								<option value={key}
+									>{key.charAt(0).toUpperCase() +
+										key.slice(1).replace(/_/g, " ")}</option
+								>
 							{/each}
 						</select>
-                        {#if current_order_direction === "desc"}
-							<button onclick={() => {
-								current_order_direction = "asc";
-							}}>
-								<ChevronDown class="cursor-pointer"/>
+						{#if current_order_direction === "desc"}
+							<button
+								onclick={() => {
+									current_order_direction = "asc";
+								}}
+							>
+								<ChevronDown class="cursor-pointer" />
 							</button>
 						{:else}
-							<button onclick={() => {
-								current_order_direction = "desc";
-							}}>
-								<ChevronUp class="cursor-pointer"/>
+							<button
+								onclick={() => {
+									current_order_direction = "desc";
+								}}
+							>
+								<ChevronUp class="cursor-pointer" />
 							</button>
 						{/if}
 					</div>

@@ -115,6 +115,11 @@
 							color={show_liked ? "red" : "gray"}
 						/></button
 					>
+					<a
+						href="https://radiantearth.github.io/stac-browser/#/external/api.eotdl.com/stac?.language=en"
+						target="_blank"
+						class="btn btn-outline btn-xs text-gray-400">STAC</a
+					>
 				</span>
 			</div>
 			<Tags tags={data?.tags} bind:selected_tags {onToggleTag} />
