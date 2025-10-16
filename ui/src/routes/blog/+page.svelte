@@ -63,7 +63,7 @@
                 <input
                     class="input input-bordered w-full max-w-full input-xs"
                     type="text"
-                    placeholder="Filter by name"
+                    placeholder="Filter by name, description, tags, ..."
                     bind:value={filterName}
                 />
             </div>

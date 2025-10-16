@@ -45,7 +45,7 @@
 			return selected_tags.every((tag) => model.tags.includes(tag));
 		});
 
-		// Filter by name
+		// Filter by name, description, tags, ...
 		let pipelines_after_name = pipelines_after_tags.filter((model) => {
 			if (filterName.length === 0) return true;
 			return model.name.toLowerCase().includes(filterName.toLowerCase());
@@ -100,7 +100,7 @@
 				<input
 					class="input input-bordered max-w-full input-xs"
 					type="text"
-					placeholder="Filter by name"
+					placeholder="Filter by name, description, tags, ..."
 					bind:value={filterName}
 				/>
 				<span class="flex flew-row justify-between mt-1 mb-3">
@@ -114,6 +114,11 @@
 							class="cursor-pointer hover:scale-115 transition-all duration-200"
 							color={show_liked ? "red" : "gray"}
 						/></button
+					>
+					<a
+						href="https://radiantearth.github.io/stac-browser/#/external/api.eotdl.com/stac?.language=en"
+						target="_blank"
+						class="btn btn-outline btn-xs text-gray-400">STAC</a
 					>
 				</span>
 			</div>

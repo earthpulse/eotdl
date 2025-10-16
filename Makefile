@@ -2,12 +2,13 @@ run:
 	docker compose up
 
 build:
-	# linux
-	sed -i 's/^VERSION = .*/VERSION = "$(v)"/' api/api/main.py
-	docker build -t eotdl/api:${v} ./api
-	# mac
-	# sed -i '' 's/^VERSION = .*/VERSION = "$(v)"/' api/api/main.py
-	# docker build --platform linux/amd64 -t eotdl/api:${v} ./api
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		sed -i '' 's/^VERSION = .*/VERSION = "$(v)"/' api/api/config.py; \
+		docker build --platform linux/amd64 -t eotdl/api:${v} ./api; \
+	else \
+		sed -i 's/^VERSION = .*/VERSION = "$(v)"/' api/api/config.py; \
+		docker build -t eotdl/api:${v} ./api; \
+	fi
 	
 push:
 	docker push eotdl/api:${v}

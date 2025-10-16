@@ -40,11 +40,18 @@
 
 	// the value of the key should be the sort function
 	let orderBy = $state({
-		none: (a, b) => 0,
-		likes: (a, b) => (b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
-		downloads: (a, b) => (b.downloads - a.downloads) * (current_order_direction === "desc" ? 1 : -1),
-		created_at: (a, b) => (new Date(b.createdAt) - new Date(a.createdAt)) * (current_order_direction === "desc" ? 1 : -1),
-		size: (a, b) => (b.versions[b.versions.length - 1].size - a.versions[a.versions.length - 1].size) * (current_order_direction === "desc" ? 1 : -1),
+		likes: (a, b) =>
+			(b.likes - a.likes) * (current_order_direction === "desc" ? 1 : -1),
+		downloads: (a, b) =>
+			(b.downloads - a.downloads) *
+			(current_order_direction === "desc" ? 1 : -1),
+		created_at: (a, b) =>
+			(new Date(b.createdAt) - new Date(a.createdAt)) *
+			(current_order_direction === "desc" ? 1 : -1),
+		size: (a, b) =>
+			(b.versions[b.versions.length - 1].size -
+				a.versions[a.versions.length - 1].size) *
+			(current_order_direction === "desc" ? 1 : -1),
 	});
 
 	const load = async () => {
@@ -74,7 +81,7 @@
 			return selected_tags.every((tag) => dataset.tags.includes(tag));
 		});
 
-		// Filter by name
+		// Filter by name, description, tags, ...
 		let datasets_after_name = datasets_after_tags.filter(
 			filterFunctions.byName,
 		);
@@ -166,10 +173,12 @@
 				<input
 					class="input input-bordered max-w-full input-xs"
 					type="text"
-					placeholder="Filter by name"
+					placeholder="Filter by name, description, tags, ..."
 					bind:value={filterName}
 				/>
-				<span class="flex flew-row mt-1 mb-3 gap-1 w-full justify-between">
+				<span
+					class="flex flew-row mt-1 mb-3 gap-1 w-full justify-between"
+				>
 					<div class="flex flex-row gap-1 w-fit items-center">
 						<button
 							onclick={toggleLike}
@@ -183,30 +192,44 @@
 							class="cursor-pointer hover:scale-115 transition-all duration-200"
 							><LockOutline
 								color={show_private ? "purple" : "gray"}
-								/></button
+							/></button
+						>
+						<a
+							href="https://radiantearth.github.io/stac-browser/#/external/api.eotdl.com/stac?.language=en"
+							target="_blank"
+							class="btn btn-outline btn-xs text-gray-400">STAC</a
 						>
 					</div>
 					<div class="flex flex-row gap-1 w-fit items-center">
-						<p class="text-gray-400 text-sm ml-2 whitespace-nowrap">Order by:</p>
 						<select
 							class="select select-bordered select-xs"
 							bind:value={current_order_by}
 						>
+							<option value="" disabled selected>
+								Order by
+							</option>
 							{#each Object.keys(orderBy) as key}
-								<option value={key}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " ")}</option>
+								<option value={key}
+									>{key.charAt(0).toUpperCase() +
+										key.slice(1).replace(/_/g, " ")}</option
+								>
 							{/each}
 						</select>
-                        {#if current_order_direction === "desc"}
-							<button onclick={() => {
-								current_order_direction = "asc";
-							}}>
-								<ChevronDown class="cursor-pointer"/>
+						{#if current_order_direction === "desc"}
+							<button
+								onclick={() => {
+									current_order_direction = "asc";
+								}}
+							>
+								<ChevronDown class="cursor-pointer" />
 							</button>
 						{:else}
-							<button onclick={() => {
-								current_order_direction = "desc";
-							}}>
-								<ChevronUp class="cursor-pointer"/>
+							<button
+								onclick={() => {
+									current_order_direction = "desc";
+								}}
+							>
+								<ChevronUp class="cursor-pointer" />
 							</button>
 						{/if}
 					</div>
