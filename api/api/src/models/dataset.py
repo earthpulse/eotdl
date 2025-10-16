@@ -22,6 +22,7 @@ class Dataset(BaseModel):
     allowed_users: List[str] = []
     benchmark: Optional[dict] = None
     visibility: str = "public"
+    training_template: Optional[str] = None
 
     @field_validator("name")
     def check_name_is_valid(cls, name):
