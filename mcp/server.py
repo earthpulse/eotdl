@@ -26,8 +26,8 @@ def format_docs(docs):
   doc_str = ''
   for i, doc in enumerate(docs):
     doc_str += f'Resource: {i+1}\n'
-    doc_str += f'TITLE: {doc.metadata.get("source_name", "No title")}\n' # Add source name
-    doc_str += f'URL: {doc.metadata.get("source", "No url")}\n\n' # Add URL of the resource
+    doc_str += f'NAME: {doc.metadata.get("name", "No name")}\n' 
+    doc_str += f'URL: {doc.metadata.get("url", "No url")}\n\n' 
     # Add here all the other metadata you want to show to the user
     doc_str += f'{doc.page_content}\n\n'
   return doc_str
@@ -54,10 +54,10 @@ class QdrantRetriever():
         for hit in search_result:
             # Adjust based on your actual data structure
             data = hit.payload
-            content = data.get("text", "")
+            content = data.get("content", "")
             metadata = {}
             for key, value in data.items():
-                if key != "text":
+                if key != "content":
                     metadata[key] = value
             docs.append(Document(page_content=content, metadata=metadata))
 

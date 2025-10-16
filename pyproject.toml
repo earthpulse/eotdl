@@ -14,6 +14,7 @@ dependencies = [
     "langchain-community>=0.3.21",
     "leafmap>=0.48.5",
     "matplotlib>=3.10.1",
+    "mcp>=1.17.0",
     "minio>=7.2.15",
     "onnx>=1.18.0",
     "onnxruntime>=1.21.0",

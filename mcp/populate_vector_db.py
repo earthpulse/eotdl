@@ -129,6 +129,7 @@ def populate_vector_database(items: List[Dict[str, Any]], item_type: str, start_
                         "description": item['metadata'].get('description', ''),
                         "tags": item['tags'] if item['tags'] else [],
                         "content": text_content,
+                        "url": f"https://eotdl.com/{item_type}s/{item['name']}"
                     }
                 )
                 dataset_points.append(point)

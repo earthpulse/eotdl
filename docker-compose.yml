@@ -64,3 +64,16 @@ services:
     depends_on:
       - eotdl-qdrant
     command: uvicorn api.main:app --host 0.0.0.0 --reload
+
+  eotdl-mcp:
+    build: ./mcp
+    container_name: eotdl-mcp
+    ports:
+      - 8001:8000
+    env_file:
+      - ./mcp/.env
+    volumes:
+      - ./mcp/server.py:/server.py
+    depends_on:
+      - eotdl-qdrant
+    command: uv run server.py --host 0.0.0.0 --port 8000
