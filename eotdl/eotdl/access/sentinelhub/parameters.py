@@ -22,6 +22,8 @@ class SHParameters:
     MOSAICKING_ORDER = MosaickingOrder.MOST_RECENT
     EVALSCRIPT = None
     OUTPUT_FORMAT = MimeType.TIFF
+    OTHER_ARGUMENTS = {}
+    AGGREGATION_INTERVAL = "P1D"  # ISO 8601 DURATION FORMAT
 
     def __init__(self):
         pass
@@ -71,6 +73,7 @@ class SHS1Parameters(SHParameters):
     DATA_COLLECTION = DataCollection.SENTINEL1
     EVALSCRIPT = EvalScripts.SENTINEL_1
     MOSAICKING_ORDER = MosaickingOrder.MOST_RECENT
+    FILTER = None
     FIELDS = {
         "include": [
             "id",
@@ -83,8 +86,7 @@ class SHS1Parameters(SHParameters):
         ],
         "exclude": [],
     }
-    FILTER = None
-    RESOLUTION = 3
+    RESOLUTION = 10
     BASE_URL = "https://services.sentinel-hub.com"
     CLOUD_COVERAGE = False
 
@@ -99,7 +101,7 @@ class SHDEMParameters(SHParameters):
     EVALSCRIPT = EvalScripts.DEM
     FIELDS = None
     FILTER = None
-    RESOLUTION = 3
+    RESOLUTION = 30
     BASE_URL = "https://services.sentinel-hub.com"
     CLOUD_COVERAGE = False
 
@@ -129,7 +131,52 @@ class SHLandsatOTL2(SHParameters):
     EVALSCRIPT = EvalScripts.LANDSAT_OT_L2_TRUE_COLOR
     FIELDS = None
     FILTER = None
-    RESOLUTION = 10
+    RESOLUTION = 30
+    BASE_URL = "https://services-uswest2.sentinel-hub.com"
+    CLOUD_COVERAGE = True
+
+
+class SHLandsatOTL1(SHParameters):
+    """
+    Landsat 8-9 Collection 2 level 1 imagery
+    """
+
+    DATA_COLLECTION = DataCollection.LANDSAT_OT_L1
+    MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
+    EVALSCRIPT = EvalScripts.LANDSAT_OT_L1_TRUE_COLOR
+    FIELDS = None
+    FILTER = None
+    RESOLUTION = 30
+    BASE_URL = "https://services-uswest2.sentinel-hub.com"
+    CLOUD_COVERAGE = True
+
+
+class SHLandsatTML1(SHParameters):
+    """
+    Landsat 4-5 TM Collection 2 Level 1 imagery
+    """
+
+    DATA_COLLECTION = DataCollection.LANDSAT_TM_L1
+    MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
+    EVALSCRIPT = EvalScripts.LANDSTAT_TM_L1_TRUE_COLOR
+    FIELDS = None
+    FILTER = None
+    RESOLUTION = 30
+    BASE_URL = "https://services-uswest2.sentinel-hub.com"
+    CLOUD_COVERAGE = True
+
+
+class SHLandsatTML2(SHParameters):
+    """
+    Landsat 4-5 TM Collection 2 Level 2 imagery
+    """
+
+    DATA_COLLECTION = DataCollection.LANDSAT_TM_L2
+    MOSAICKING_ORDER = MosaickingOrder.LEAST_CC
+    EVALSCRIPT = EvalScripts.LANDSTAT_TM_L2_TRUE_COLOR
+    FIELDS = None
+    FILTER = None
+    RESOLUTION = 30
     BASE_URL = "https://services-uswest2.sentinel-hub.com"
     CLOUD_COVERAGE = True
 
@@ -141,6 +188,9 @@ class DATA_COLLECTION_ID:
     DEM = DataCollection.DEM_COPERNICUS_30.api_id
     HLS = DataCollection.HARMONIZED_LANDSAT_SENTINEL.api_id
     LANDSAT_OT_L2 = DataCollection.LANDSAT_OT_L2.api_id
+    LANDSAT_OT_L1 = DataCollection.LANDSAT_OT_L1.api_id
+    LANDSAT_TM_L2 = DataCollection.LANDSAT_TM_L2.api_id
+    LANDSAT_TM_L1 = DataCollection.LANDSAT_TM_L1.api_id
 
 
 SUPPORTED_COLLECTION_IDS = [
@@ -156,6 +206,9 @@ SH_PARAMETERS_DICT = {
     DATA_COLLECTION_ID.DEM: SHDEMParameters,
     DATA_COLLECTION_ID.HLS: SHHarmonizedLandsatSentinel,
     DATA_COLLECTION_ID.LANDSAT_OT_L2: SHLandsatOTL2,
+    DATA_COLLECTION_ID.LANDSAT_OT_L1: SHLandsatOTL1,
+    DATA_COLLECTION_ID.LANDSAT_TM_L2: SHLandsatTML2,
+    DATA_COLLECTION_ID.LANDSAT_TM_L1: SHLandsatTML1,
 }
 
 

@@ -6,6 +6,7 @@
         Credentials: "/profile/credentials",
         "Api keys": "/profile/apikeys",
         Notifications: "/profile/notifications",
+        // Credits: "/profile/credits",
     };
 </script>
 

@@ -5,5 +5,5 @@ export default async (collection, version) => {
     let url = `${PUBLIC_EOTDL_API}/stac/collections/${collection}/items?version=${version}`;
     const { data, error } = await fetch(url);
     if (error) throw new Error(error);
-    return data;
+    return data.features;
 };
