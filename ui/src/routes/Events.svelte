@@ -108,8 +108,6 @@
   );
 
   let showMore = $state(-1);
-
-  $inspect(shownEvents);
 </script>
 
 <div class="w-full flex flex-col gap-3">
