@@ -171,9 +171,9 @@
                 </h2>
                 <p class="px-3 mb-4 text-gray-700 max-w-xl text-center">
                     We can sponsor your research activities. Tell us about your
-                    project and we'll grant you a free plan with your needs.
-                    Take advantage of the sponsorship and get
-                    <strong> Premium features at zero cost. </strong>
+                    project and we'll grant you <strong>
+                        Premium features at zero cost.
+                    </strong>
                 </p>
                 <a
                     href="mailto:support@eotld.com?subject=Research%20sponsorship"
