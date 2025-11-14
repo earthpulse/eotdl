@@ -1,0 +1,5 @@
+mcp
+qdrant-client
+langchain-community
+python-dotenv
+sentence-transformers

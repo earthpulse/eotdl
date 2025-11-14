@@ -36,3 +36,7 @@ test:
 	echo "Using IP: $$USER_IP"; \
 	export S3_ENDPOINT=$$USER_IP:9000; \
 	docker-compose -f docker-compose.test.yml up 
+
+.PHONY: mcp
+mcp:
+	docker compose -f docker-compose.mcp.yml up

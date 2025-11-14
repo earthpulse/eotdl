@@ -1,0 +1,11 @@
+{
+    "servers": [
+        {
+            "name": "EOTDL Retriever",
+            "transport": {
+                "type": "sse",
+                "url": "http://localhost:8001"
+            }
+        }
+    ]
+}

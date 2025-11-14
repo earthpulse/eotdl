@@ -21,7 +21,7 @@ services:
       - MINIO_ROOT_PASSWORD=12345678
       - MINIO_HOST=0.0.0.0
     command: server /data --console-address ":9001"
-
+    
   eotdl-api:
     build: ./api
     # image: eotdl/api:2025.10.9
