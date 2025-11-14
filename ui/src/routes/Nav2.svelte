@@ -30,7 +30,7 @@
         // { href: "/", label: "Labelling" },
         // { href: "/", label: "Training" },
         { href: "/blog", label: "Blog" },
-        // { href: "/", label: "Youtube" },
+        { href: "/pricing", label: "Pricing" },
     ];
     const external_links = [
         // { href: "/", label: "Youtube" },
