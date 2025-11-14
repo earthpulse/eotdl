@@ -60,8 +60,8 @@
         {
             name: "[4 x T4] Multi-GPU cloud workspace",
             pricingModel: "Per hour",
-            commercial: { price: 4.5, unit: "" },
-            research: { price: 5, unit: "" },
+            commercial: { price: 5, unit: "" },
+            research: { price: 4.5, unit: "" },
         },
         {
             name: "STAC metadata validation",
@@ -72,11 +72,11 @@
         {
             name: "Training Course (webinar)",
             pricingModel: "Per hour",
-            commercial: { price: 108, unit: "" },
-            research: null,
+            commercial: { price: 200, unit: "" },
+            research: { price: 108, unit: "" },
         },
         {
-            name: "Benchmark dataset generation**",
+            name: "Dataset generation*",
             pricingModel: "Per package",
             commercial: {
                 bronze: { price: 700, description: "Up to 100GB" },
@@ -90,17 +90,17 @@
             },
         },
         {
-            name: "Challenge-as-a-service",
+            name: "Challenge-as-a-service**",
             pricingModel: "Per package",
             commercial: {
-                bronze: { price: 5000, description: "Up to 10 usr/mo" },
-                silver: { price: 8000, description: "Up to 50 usr/mo" },
-                gold: { price: 13400, description: "Up to 100 usr/mo" },
+                bronze: { price: 8000, description: "Up to 10 usr/mo" },
+                silver: { price: 11000, description: "Up to 50 usr/mo" },
+                gold: { price: 16400, description: "Up to 100 usr/mo" },
             },
             research: {
-                bronze: { price: 4500, description: "Up to 10 usr/mo" },
-                silver: { price: 7200, description: "Up to 50 usr/mo" },
-                gold: { price: 12060, description: "Up to 100 usr/mo" },
+                bronze: { price: 7200, description: "Up to 10 usr/mo" },
+                silver: { price: 9900, description: "Up to 50 usr/mo" },
+                gold: { price: 14760, description: "Up to 100 usr/mo" },
             },
         },
         {
@@ -109,7 +109,7 @@
             commercial: {
                 bronze: { price: 2700, description: "Up to 100GB" },
                 silver: { price: 4400, description: "Up to 500 GB" },
-                gold: { price: 520, description: "Up to 1TB" },
+                gold: { price: 5250, description: "Up to 1TB" },
             },
             research: {
                 bronze: { price: 2430, description: "Up to 100GB" },
@@ -126,7 +126,7 @@
                 gold: { price: 6600, description: "Up to 100 expert h" },
             },
             research: {
-                bronze: { price: 512, description: "Up to 10 expert h" },
+                bronze: { price: 612, description: "Up to 10 expert h" },
                 silver: { price: 2430, description: "Up to 40 expert h" },
                 gold: { price: 5940, description: "Up to 100 expert h" },
             },
@@ -159,8 +159,34 @@
             </p>
         </div>
 
+        <!-- Sponsorship CTA -->
+        <div
+            class="px-3 w-full mb-12 mt-6 m-auto max-w-6xl flex flex-col items-center justify-center"
+        >
+            <div
+                class="sponsorship-cta-card flex flex-col items-center justify-center w-full px-8 py-10 rounded-2xl border border-blue-200 shadow-md bg-gradient-to-br from-blue-50 via-white to-blue-100"
+            >
+                <h2 class="font-bold text-3xl mb-2 text-blue-800 text-center">
+                    Need sponsorship?
+                </h2>
+                <p class="px-3 mb-4 text-gray-700 max-w-xl text-center">
+                    We can sponsor your research activities. Tell us about your
+                    project and we'll grant you a free plan with your needs.
+                    Take advantage of the sponsorship and get
+                    <strong> Premium features at zero cost. </strong>
+                </p>
+                <a
+                    href="mailto:support@eotld.com?subject=Research%20sponsorship"
+                    class="btn btn-primary shadow transition hover:scale-105"
+                    style="min-width: 160px;">Get in touch</a
+                >
+            </div>
+        </div>
+
         <!-- Pricing Toggle -->
-        <div class="flex items-center justify-center mb-8 w-full pt-4">
+        <div
+            class="flex items-center justify-center sm:justify-left mb-8 w-full pt-4"
+        >
             <fieldset
                 class="fieldset bg-base-100 border-base-300 rounded-box border p-4"
             >
@@ -383,32 +409,14 @@
                 </tbody>
             </table>
             <p class="text-sm text-gray-600 mt-4">
-                **After generation, the dataset is stored in the user's private
+                *After generation, the dataset is stored in the user's private
                 storage area. If the plan's included storage is exceeded, the
                 user must procure additional storage.
             </p>
-        </div>
-    </div>
-
-    <!-- Sponsorship CTA -->
-    <div
-        class="px-3 w-full mb-12 mt-12 m-auto max-w-6xl flex flex-col items-center justify-center"
-    >
-        <div
-            class="sponsorship-cta-card flex flex-col items-center justify-center w-full px-8 py-10 rounded-2xl border border-blue-200 shadow-md bg-gradient-to-br from-blue-50 via-white to-blue-100"
-        >
-            <h2 class="font-bold text-3xl mb-2 text-blue-800">
-                Need sponsorship?
-            </h2>
-            <p class="px-3 mb-4 text-gray-700 max-w-xl text-center">
-                We can sponsor your research activities. Tell us about your
-                project and we'll work out a custom plan.
+            <p class="text-sm text-gray-600 mt-4">
+                **If the challenge requires dataset generation or labelling,
+                separated add-ons must be purchased.
             </p>
-            <a
-                href="mailto:support@eotld.com?subject=Research%20sponsorship"
-                class="btn btn-primary shadow transition hover:scale-105"
-                style="min-width: 160px;">Get in touch</a
-            >
         </div>
     </div>
 </div>
