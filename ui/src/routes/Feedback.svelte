@@ -10,22 +10,25 @@
             <h1 class="text-4xl font-bold">Got feedback?</h1>
             <h1 class="text-4xl font-bold">We'd love to hear it!</h1>
             <p class="text-md">
-                EOTDL is a community dirven initiative and as such we would love
-                to hear from you
+                EOTDL is a community driven initiative and as such we would love
+                to hear from you.
             </p>
             <p class="text-md">
-                What do you like about EOTDL? Whhat features are you missing?
-                What would you like tos ee improve?
+                What do you like about EOTDL? What features are you missing?
+                What would you like to see improved?
             </p>
             <p class="text-md">
-                Follow the QR code or hyperlink on the irght, complete the
+                Follow the QR code or hyperlink on the right, complete the
                 survey and let us know your feedback. Your ideas and voice
                 matter.
             </p>
         </div>
         <div class="flex flex-col items-center gap-4">
-            <a href="http://subscribepage.io/YcTU97" target="_blank">
-                <img src="QR.png" alt="QR Code" />
+            <a
+                href="https://www.subscribepage.io/eotdl-usersurvey"
+                target="_blank"
+            >
+                <img src="QR2.png" alt="QR Code" />
             </a>
             <p class="text-center font-bold">Click or scan the QR code</p>
         </div>
