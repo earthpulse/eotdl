@@ -17,8 +17,9 @@ services:
     container_name: eotdl-mcp
     ports:
       - 8001:8000
-    env_file:
-      - ./mcp/.env
+    environment:
+      - QDRANT_URL=http://eotdl-qdrant:6333
+      - QDRANT_API_KEY=
     volumes:
       - ./mcp/server.py:/server.py
     depends_on:

@@ -42,4 +42,4 @@ mcp:
 	docker compose -f docker-compose.mcp.yml up
 
 test-mcp:
-	npx @modelcontextprotocol/inspector uv run mcp/server.py
+	npx @modelcontextprotocol/inspector http://localhost:8001
