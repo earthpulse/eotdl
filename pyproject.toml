@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115.12",
+    "fastmcp>=2.13.1",
     "folium>=0.19.7",
     "geojson>=3.2.0",
     "geopandas>=1.0.1",
@@ -14,7 +15,6 @@ dependencies = [
     "langchain-community>=0.3.21",
     "leafmap>=0.48.5",
     "matplotlib>=3.10.1",
-    "mcp>=1.17.0",
     "minio>=7.2.15",
     "onnx>=1.18.0",
     "onnxruntime>=1.21.0",

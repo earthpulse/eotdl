@@ -1,4 +1,4 @@
-mcp
+fastmcp
 qdrant-client
 langchain-community
 python-dotenv
