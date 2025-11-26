@@ -1,7 +1,7 @@
 const workshops = [
     {
         name: "Community Webinar 2025",
-        thumbnail: "/tutorials/webinar.png",
+        thumbnail: "/tutorials/EOTDLBanner.png",
         description: "Workshop conducted at Community Webinar on November 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
         link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/community_webinar/README.md",
     },
