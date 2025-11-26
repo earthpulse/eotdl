@@ -1,5 +1,11 @@
 const workshops = [
     {
+        name: "Community Webinar 2025",
+        thumbnail: "/tutorials/webinar.png",
+        description: "Workshop conducted at Community Webinar on November 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
+        link: "https://github.com/earthpulse/eotdl/blob/main/tutorials/workshops/community_webinar/README.md",
+    },
+    {
         name: "LPS 2025",
         thumbnail: "/tutorials/lps25.png",
         description: "Workshop conducted at LPS premises on June 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
