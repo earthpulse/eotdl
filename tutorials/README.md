@@ -4,6 +4,8 @@
 
 ## Workshops
 
+- Community Webinar 2025 ([notebooks](workshops/community_webinar/README.md))
+- Living Planet Symposium 2025 ([notebooks](workshops/lps25/README.md))
 - PhiLab 2024 ([notebooks](workshops/philab24/README.md))
 - BiDS 2023 ([notebooks](workshops/bids23/README.md))
 
