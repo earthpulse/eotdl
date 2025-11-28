@@ -181,10 +181,10 @@
                   {#if dataset.training_template}
                     <Train {dataset} />
                   {/if}
-                  <button class="btn btn-outline" onclick={() => (edit = !edit)}
-                    >Edit</button
-                  >
                 {/if}
+                <button class="btn btn-outline" onclick={() => (edit = !edit)}
+                  >Edit</button
+                >
               {/if}
             </span>
           {:else if dataset.uid == auth.user.uid && _change.status == "pending"}
