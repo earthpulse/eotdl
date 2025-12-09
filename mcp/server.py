@@ -51,11 +51,11 @@ class QdrantRetriever():
 
     def get_relevant_documents(self, query: str) -> List[Document]:
         query_emb = self.embedding.embed_query(query)
-        search_result = self._client.search(
+        search_result = self._client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_emb,
+            query=query_emb,
             limit=self.k
-        )
+        ).points
         docs = []
         for hit in search_result:
             data = hit.payload

@@ -43,3 +43,13 @@ mcp:
 
 test-mcp:
 	npx @modelcontextprotocol/inspector http://localhost:8001
+
+build-mcp:
+	if [ "$$(uname -s)" = "Darwin" ]; then \
+		docker build --platform linux/amd64 -t eotdl/mcp:${v} ./mcp; \
+	else \
+		docker build -t eotdl/mcp:${v} ./mcp; \
+	fi
+
+push-mcp:
+	docker push eotdl/mcp:${v}
