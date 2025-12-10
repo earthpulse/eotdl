@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 import json
 from typing import List, Dict, Any
 
@@ -154,9 +154,9 @@ def populate_vector_database(items: List[Dict[str, Any]], item_type: str, start_
 if __name__ == "__main__":
     print("🚀 Starting vector database population...")
     
-    datasets = list(db.datasets.find({"active": True}))
-    models = list(db.models.find({"active": True}))
-    pipelines = list(db.pipelines.find({"active": True}))
+    datasets = list(db.datasets.find({"$or": [{"active": True}, {"active": {"$exists": False}}]}))
+    models = list(db.models.find({"$or": [{"active": True}, {"active": {"$exists": False}}]}))
+    pipelines = list(db.pipelines.find({"$or": [{"active": True}, {"active": {"$exists": False}}]}))
     
     total_points = 0
     current_id = 0
