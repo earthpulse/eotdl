@@ -13,6 +13,17 @@ const tutorials = [
         }
     },
     {
+        name: "Use Cases",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/commons/7/77/A-Train_w-Time2013_Web.jpg",
+        description: "Leverage EOTDL to create and train ML models for specific use cases.",
+        links: {
+            "Unsupervised Learning": "https://github.com/earthpulse/eotdl/blob/main/tutorials/usecases/useCaseA",
+            "Superresolution": "https://github.com/earthpulse/eotdl/blob/main/tutorials/usecases/useCaseB",
+            "Multi-task Learning": "https://github.com/earthpulse/eotdl/blob/main/tutorials/usecases/useCaseC",
+            "Road Extraction": "https://github.com/earthpulse/eotdl/blob/main/tutorials/usecases/gdaapp",
+        }
+    },
+    {
         name: "Community Webinar 2025",
         thumbnail: "/tutorials/webinar.png",
         description: "Workshop conducted at Community Webinar on November 2025. Learn how to explore and stage datasets and models from EOTDL, train an ML model locally or in the cloud, ingest new datasets and models, create a brand new dataset and get involved in the project.",
