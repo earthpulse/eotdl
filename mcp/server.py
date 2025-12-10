@@ -86,7 +86,7 @@ def eotdl_search(query: str) -> str:
     :return: Formatted string of relevant documents
     """
     try:
-        docs = qdrant_retriever.search(query)
+        docs = qdrant_retriever.get_relevant_documents(query)
     except Exception as e:
         logging.error(f"Error searching Qdrant: {e}")
         return "Error searching Qdrant"
