@@ -1,0 +1,53 @@
+<graph id="Resample_and_C2RCC_S2">
+  <version>1.0</version>
+
+  <!-- Step 1: Read Sentinel-2 input -->
+  <node id="Read">
+    <operator>Read</operator>
+    <parameters>
+      <file>${input}</file>
+    </parameters>
+  </node>
+
+  <!-- Step 3: Run C2RCC (Sentinel-2 MSI) -->
+  <node id="C2RCC">
+    <operator>c2rcc.msi</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters>
+      <validPixelExpression>true</validPixelExpression>
+      <salinity>35.0</salinity>
+      <temperature>15.0</temperature>
+      <ozone>330.0</ozone>
+      <press>1013.25</press>
+      <elevation>0.0</elevation>
+      <TSMfac>1.72</TSMfac>
+      <TSMexp>1.04</TSMexp>
+      <CHLexp>1.04</CHLexp>
+      <CHLfac>21.0</CHLfac>
+      <thresholdRtosaOOS>0.05</thresholdRtosaOOS>
+      <thresholdAcReflecOos>0.2</thresholdAcReflecOos>
+      <thresholdCloudTDown865>0.955</thresholdCloudTDown865>
+      <outputAsRrs>false</outputAsRrs>
+      <outputAcReflectance>true</outputAcReflectance>
+      <outputOos>true</outputOos>
+      <outputKd>true</outputKd>
+      <outputUncertainties>false</outputUncertainties>
+	  <alternativeNNPath>${NNpath}</alternativeNNPath> <!-- optional -->
+    </parameters>
+  </node>
+
+  <!-- Step 4: Write output -->
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="C2RCC"/>
+    </sources>
+    <parameters>
+      <file>${output}</file>
+      <formatName>NetCDF4-BEAM</formatName>
+    </parameters>
+  </node>
+
+</graph>
