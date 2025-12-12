@@ -1,0 +1,40 @@
+<graph id="mndwi_S2">
+    <version>1.0</version>
+
+    <!-- Step 1: Read Sentinel-2 input -->
+    <node id="Read">
+        <operator>Read</operator>
+        <parameters>
+            <file>${input}</file>
+        </parameters>
+    </node>
+
+    <!-- Step 2: Calculate MNDWI -->
+    <node id="MndwiOp">
+        <operator>MndwiOp</operator>
+        <sources>
+		  <sourceProduct refid="Read"/>
+		</sources>
+		<parameters class="com.bc.ceres.binding.dom.XppDomElement">
+		  <resampleType>None</resampleType>
+		  <upsampling>Nearest</upsampling>
+		  <downsampling>First</downsampling>
+		  <greenFactor>1.0</greenFactor>
+		  <mirFactor>1.0</mirFactor>
+		  <greenSourceBand/>
+		  <mirSourceBand/>
+		</parameters>
+    </node>
+
+    <!-- Step 3: Write output -->
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="MndwiOp"/>
+        </sources>
+        <parameters>
+            <file>${output}</file>
+            <formatName>NetCDF4-BEAM</formatName>
+        </parameters>
+    </node>
+</graph>
