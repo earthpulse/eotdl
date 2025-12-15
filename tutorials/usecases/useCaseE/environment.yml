@@ -1,0 +1,47 @@
+name: eotdl_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  # System/geospatial dependencies
+  - gdal
+  - proj
+  - geopandas
+  - folium
+  - matplotlib
+  - pandas
+  - jupyter
+  # Optional: PyTorch (cpu version, adjust for gpu if needed)
+  - pytorch
+  - torchvision
+  - torchaudio
+  # pip itself will handle all remaining dependencies from pyproject.toml
+  - pip:
+    - fastapi[standard]>=0.115.12
+    - geojson>=3.2.0
+    - imagecodecs>=2025.3.30
+    - langchain-community>=0.3.21
+    - leafmap>=0.48.5
+    - mcp>=1.17.0
+    - minio>=7.2.15
+    - onnx>=1.18.0
+    - onnxruntime>=1.21.0
+    - openeo-gfmap>=0.4.5
+    - openpyxl>=3.1.5
+    - pydantic>=2.11.3
+    - pyjwt>=2.10.1
+    - pystac>=1.13.0
+    - python-dotenv>=1.1.0
+    - python-frontmatter>=1.1.0
+    - python-multipart>=0.0.20
+    - pytorch-eo>=2025.4.3
+    - qdrant-client>=1.12.1
+    - requests>=2.32.3
+    - scaneo>=2025.6.18.post7
+    - segmentation-models-pytorch>=0.4.0
+    - sentence-transformers>=5.1.1
+    - sentinelhub>=3.11.1
+    - stac-geoparquet>=0.6.0
+    - tqdm>=4.67.1
+    - typer>=0.15.2

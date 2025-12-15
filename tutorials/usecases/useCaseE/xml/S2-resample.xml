@@ -1,0 +1,39 @@
+<graph id="Resample_S2">
+  <version>1.0</version>
+
+  <!-- Step 1: Read Sentinel-2 input -->
+  <node id="Read">
+    <operator>Read</operator>
+    <parameters>
+      <file>${input}</file>
+    </parameters>
+  </node>
+
+  <!-- Step 2: Resample to 60m -->
+  <node id="Resample">
+    <operator>S2Resampling</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters>
+      <resolution>60</resolution>
+      <upsampling>Nearest</upsampling>
+      <downsampling>Mean</downsampling>
+      <flagDownsampling>First</flagDownsampling>
+      <resampleOnPyramidLevels>false</resampleOnPyramidLevels>
+    </parameters>
+  </node>
+
+  <!-- Step 4: Write output -->
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Resample"/>
+    </sources>
+    <parameters>
+      <file>${output}</file>
+      <formatName>NetCDF4-BEAM</formatName>
+    </parameters>
+  </node>
+
+</graph>
