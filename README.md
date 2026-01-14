@@ -34,7 +34,7 @@ One of the most limiting factors of AI for EO applications is the scarcity of su
 
 Generating TDS is time consuming and expensive. Data access is usually limited and costly, especially for Very High Resolution (VHR) images that allow objects like trees to be clearly identified. In some cases, domain experts or even in-person (in-situ) trips are required to manually confirm the objects in a satellite image are correctly annotated with a high degree of quality. This results in the field of AI for EO applications lagging when compared to other fields, impeding the development of new applications and limiting the full potential of AI in EO.
 
-The European Space Agency (ESA) Earth Observation Training Data Lab (EOTDL) will address key limitations and capability gaps for working with Machine Learning (ML) training data in EO by providing a set of open-source tools to create, share, and improve datasets as well as training ML algorithms in the cloud. EOTDL will also offer an online repository where datasets and models can be explored and accessed.
+Earth Observation Training Data Lab (EOTDL) will address key limitations and capability gaps for working with Machine Learning (ML) training data in EO by providing a set of open-source tools to create, share, and improve datasets as well as training ML algorithms in the cloud. EOTDL will also offer an online repository where datasets and models can be explored and accessed.
 
 ## Installation
 

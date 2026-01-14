@@ -26,16 +26,6 @@
             >
         </li>
     </ul>
-    <div class="text-slate-100">
-        <p>
-            EOTDL is carried out under a programme of, and funded by the
-            European Space Agency (ESA).
-        </p>
-        <p>
-            Disclaimer: The views expressed on this site shall not be construed
-            to reflect the official opinion of ESA.
-        </p>
-    </div>
     <div class="flex flex-row text-[#335e6f] gap-10 font-bold text-lg">
         <div class="flex flex-col">
             <h2>Contact Us</h2>

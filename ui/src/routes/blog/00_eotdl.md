@@ -18,7 +18,7 @@ Generating TDS is time consuming and expensive. Data access is usually limited a
 
 The Earth Observation Training Data Lab (EOTDL) address these limitations and gaps for working with Machine Learning (ML) training data in EO by providing, one one hand, a set of open-source tools to create, share, and improve datasets as well as training ML algorithms in the cloud. On the other hand, EOTDL will is also an online repository where datasets and models can be explored and downloaded.
 
-EOTDL is a project funded by [ESA](https://www.esa.int/), and developed by [Earthpulse](https://earthpulse.ai/) (project lead), [EOX](https://eox.at/), [Brockmann Consult](https://www.brockmann-consult.de/), [Sinergise](https://www.sinergise.com/) and [SpaceTec Partners](https://www.spacetec.partners/).
+EOTDL is a project developed by [Earthpulse](https://earthpulse.ai/) (project lead), [EOX](https://eox.at/), [Brockmann Consult](https://www.brockmann-consult.de/), [Sinergise](https://www.sinergise.com/) and [SpaceTec Partners](https://www.spacetec.partners/).
 
 ## Ecosystem
 
