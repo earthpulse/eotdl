@@ -26,6 +26,9 @@ def logout(request: Request, redirect_uri: str = Query(None, description="The UR
             redirect_uri = str(request.url_for("callback"))
         logout_url = generate_logout_url(redirect_uri)
         return {"logout_url": logout_url}
+    except NotImplementedError as e:
+        logger.warning("logout.deprecated", exc_info=e)
+        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e))
     except Exception as e:
         logger.exception("logout")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

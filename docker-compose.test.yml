@@ -34,7 +34,7 @@ services:
       - S3_SSL=False
       - TZ=Europe/Madrid
       - API_BASE_URL=http://localhost:8010 # used to generate file urls
-    env_file: # auth0 and eox credentials
+    env_file: # logto and eox credentials
       - .env
     volumes:
       - ./api/api:/api

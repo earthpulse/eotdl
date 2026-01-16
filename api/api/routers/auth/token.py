@@ -17,6 +17,9 @@ def token(code: str = Query(None, description="The code that you received after 
     """
     try:
         return generate_id_token(code)
+    except NotImplementedError as e:
+        logger.warning("token.deprecated", exc_info=e)
+        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e))
     except Exception as e:
         logger.exception("token")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

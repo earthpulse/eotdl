@@ -20,6 +20,9 @@ def login():
     """
     try:
         return generate_login_url()
+    except NotImplementedError as e:
+        logger.warning("login.deprecated", exc_info=e)
+        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e))
     except Exception as e:
         logger.exception("login")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

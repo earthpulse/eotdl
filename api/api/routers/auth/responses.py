@@ -9,7 +9,7 @@ me_responses = {
             "application/json": {
                         "example": {
                             "id": "123abc",
-                            "uid": "auth0|123abc",
+                            "uid": "logto|123abc",
                             "name": "yourname",
                             "email": "mail@example.ai",
                             "picture": "yourpicture.png",
@@ -57,7 +57,7 @@ login_responses = {
         "content": {
             "application/json": {
                         "example": {
-                            "login_url": "https://earthpulse.eu.auth0.com/activate?user_code=123456",
+                            "login_url": "https://logto.example.com/activate?user_code=123456",
                             "code": "123456abc",
                             "message": "Navigate to the URL and confirm to login. Then, request your token at the /token endpoint with the provided code."
                         }
@@ -72,7 +72,7 @@ logout_responses = {
         "content": {
             "application/json": {
                         "example": {
-                            "logout_url": "https://earthpulse.eu.auth0.com/v2/logout?cliend_id=123abc&returnTo=http://api.eotdl.com/auth/callback"
+                            "logout_url": "https://logto.example.com/oidc/session/end?post_logout_redirect_uri=http://api.eotdl.com/auth/callback"
                         }
                     }
                 }

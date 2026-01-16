@@ -6,7 +6,7 @@ from ...errors import UserAlreadyExistsError, NameCharsValidationError, NameLeng
 from ...models import User 
 from .retrieve_user import retrieve_user
 
-# we do it here instead of in model because first time a user is created, the name comes from auth0 and is usually an email
+# we do it here instead of in model because first time a user is created, the name can come from the IdP
 def validate_name(name: str, regex: str = "^[^a-zA-Z]{1}|[^a-zA-Z0-9-]", max_length: int = 15, min_length: int = 3) -> str:
     if re.findall(regex, name):
         raise NameCharsValidationError()
@@ -32,4 +32,3 @@ def update_user(user: User, data: dict) -> User:
     user = User(**user_data)
     repo.update_user(user_data['id'], user.model_dump())
     return user
-
