@@ -3,7 +3,6 @@ from fastapi.exceptions import HTTPException
 import logging
 
 from ...src.models import User
-from ...src.usecases.auth import generate_id_token
 from ...src.usecases.user import retrieve_user
 from .main import get_current_user
 from .responses import me_responses as responses

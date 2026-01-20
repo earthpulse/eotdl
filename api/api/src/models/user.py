@@ -18,9 +18,9 @@ class TermsAndConditions(BaseModel):
 class User(BaseModel):
     id: str
     uid: str
-    name: str
+    name: str | None
     email: str
-    picture: str
+    picture: str | None
     createdAt: datetime = Field(default_factory=datetime.now)
     updatedAt: datetime = Field(default_factory=datetime.now)
     dataset_count: int = 0

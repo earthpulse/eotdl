@@ -9,12 +9,9 @@ def persist_user(data: dict) -> User:
     repo = UserDBRepo()
     try:
         user = retrieve_user(data["uid"]).model_dump()
-        # Do not overwrite profile edits on each login; only fill missing fields.
-        if not user.get("name") and data.get("name"):
-            user["name"] = data.get("name")
-        if not user.get("picture") and data.get("picture"):
-            user["picture"] = data.get("picture")
         user.update(
+            name=data["name"] if data.get("name") else user.get("name"),
+            picture=data["picture"] if data.get("picture") else user.get("picture"),
             email=data["email"],
             updatedAt=datetime.now(),
         )

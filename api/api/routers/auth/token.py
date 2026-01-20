@@ -1,9 +1,9 @@
-from fastapi import APIRouter, status, Query
+from fastapi import APIRouter, status, Query, Request
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel
 import logging
 
-from ...src.usecases.auth import generate_id_token
+from ...src.usecases.auth import exchange_code_for_tokens
+from .login import _code_store
 from .responses import token_responses as responses
 
 router = APIRouter()
@@ -11,15 +11,24 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/token", summary='Get EOTDL ID token', responses=responses)
-def token(code: str = Query(None, description="The code that you received after logging in.")):
+def token(
+    request: Request,
+    state: str = Query(None, description="The state that you received after logging in."),
+):
     """
     Generate an ID token for the current EOTDL user.
     """
     try:
-        return generate_id_token(code)
-    except NotImplementedError as e:
-        logger.warning("token.deprecated", exc_info=e)
-        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e))
+        data = _code_store.get(state)
+        if not data or not data.get("code") or not data.get("code_verifier"):
+            raise HTTPException(status_code=400, detail="Code or code_verifier not found")
+        tokens = exchange_code_for_tokens(
+            code=data["code"],
+            code_verifier=data["code_verifier"],
+            redirect_uri=str(request.url_for("callback")),
+        )
+        _code_store.pop(state)
+        return tokens
     except Exception as e:
         logger.exception("token")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
