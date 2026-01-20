@@ -1,5 +1,6 @@
 import time
 import os
+import webbrowser
 
 from ..repos import AuthRepo, AuthAPIRepo
 from .errors import LoginError, AuthTimeOut
@@ -24,11 +25,13 @@ def auth(max_t=60, interval=2):
         if response.status_code != 200:
             raise LoginError()
         data = response.json()
-        print("On your computer or mobile device navigate to: ", data["login_url"])
+        opened = webbrowser.open(data["login_url"])
+        if not opened:
+            print(f"Please open this URL manually:\n{data['login_url']}")
         authenticated = False
         t0 = time.time()
         while not authenticated and time.time() - t0 < max_t:
-            response = api_repo.token(data["code"])
+            response = api_repo.token(data["state"])
             token_data = response.json()
             if response.status_code == 200:
                 print("Authenticated!")
