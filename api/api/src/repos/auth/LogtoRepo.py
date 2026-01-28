@@ -13,7 +13,9 @@ class LogtoRepo:
         self.domain = os.environ["LOGTO_DOMAIN"]
         self.client_id = os.environ["LOGTO_APP_ID"]
         self.client_secret = os.environ["LOGTO_APP_SECRET"]
-        well_known = requests.get(f"https://{self.domain}/oidc/.well-known/openid-configuration", timeout=10).json()
+        well_known = requests.get(
+            f"https://{self.domain}/oidc/.well-known/openid-configuration", timeout=10
+        ).json()
         self.issuer = well_known["issuer"]
         self.authz_endpoint = well_known["authorization_endpoint"]
         self.token_endpoint = well_known["token_endpoint"]
@@ -22,10 +24,14 @@ class LogtoRepo:
         self.algorithms = ["RS256"]
 
     def generate_login_url(self, redirect_uri):
-        code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(64)).rstrip(b"=").decode()
-        code_challenge = base64.urlsafe_b64encode(
-            hashlib.sha256(code_verifier.encode()).digest()
-        ).rstrip(b"=").decode()
+        code_verifier = (
+            base64.urlsafe_b64encode(secrets.token_bytes(64)).rstrip(b"=").decode()
+        )
+        code_challenge = (
+            base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest())
+            .rstrip(b"=")
+            .decode()
+        )
         state = secrets.token_urlsafe(16)
         params = {
             "client_id": self.client_id,
@@ -34,14 +40,14 @@ class LogtoRepo:
             "scope": "openid profile email",
             "code_challenge": code_challenge,
             "code_challenge_method": "S256",
-            "state": state
+            "state": state,
         }
         return {
-            "login_url": f'{self.authz_endpoint}?{urlencode(params)}', 
-            "state": state, 
-            "code_verifier": code_verifier
+            "login_url": f"{self.authz_endpoint}?{urlencode(params)}",
+            "state": state,
+            "code_verifier": code_verifier,
         }
-    
+
     def exchange_code_for_tokens(self, code, code_verifier, redirect_uri):
         data = {
             "grant_type": "authorization_code",
@@ -54,7 +60,7 @@ class LogtoRepo:
             self.token_endpoint,
             data=data,
             auth=(self.client_id, self.client_secret),
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
         tokens = response.json()
@@ -63,7 +69,6 @@ class LogtoRepo:
             "token_type": tokens.get("token_type"),
             "expires_in": tokens.get("expires_in"),
         }
-
 
     def validate_token(self, id_token):
         jwks_resp = requests.get(self.jwks_uri, timeout=10)
@@ -87,7 +92,9 @@ class LogtoRepo:
         return payload
 
     def parse_token(self, token):
-        payload = jwt.decode(token, algorithms=self.algorithms, options={"verify_signature": False})
+        payload = jwt.decode(
+            token, algorithms=self.algorithms, options={"verify_signature": False}
+        )
         return {
             "uid": payload.get("sub"),
             "name": payload.get("name"),
@@ -99,7 +106,7 @@ class LogtoRepo:
         r = requests.get(
             self.userinfo_endpoint,
             headers={"Authorization": f"Bearer {access_token}"},
-            timeout=10
+            timeout=10,
         )
         r.raise_for_status()
         return r.json()
