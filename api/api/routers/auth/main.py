@@ -1,8 +1,9 @@
 from fastapi.exceptions import HTTPException
-from fastapi import Depends, APIRouter
+from fastapi import Depends
 from fastapi.security import HTTPBearer, APIKeyHeader
 import logging
 import os
+import traceback
 
 from ...src.usecases.user import persist_user, retrieve_user_by_key
 from ...src.usecases.auth import parse_token
@@ -33,7 +34,8 @@ def token_auth(token: str = Depends(token_auth_scheme)):
         return None
     try:
         return parse_token(token.credentials)
-    except Exception as e:
+    except Exception:
+        traceback.print_exc()
         logger.exception("get_current_user")
         raise HTTPException(status_code=401, detail="Invalid token")
 

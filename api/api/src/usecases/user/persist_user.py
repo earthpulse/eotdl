@@ -5,6 +5,7 @@ from ...repos import UserDBRepo
 from .retrieve_user import retrieve_user
 from ...errors import UserDoesNotExistError
 
+
 def persist_user(data: dict) -> User:
     repo = UserDBRepo()
     try:
@@ -19,6 +20,20 @@ def persist_user(data: dict) -> User:
         repo.update_user(user["id"], updated_user.model_dump())
         return updated_user
     except UserDoesNotExistError:
+        # check if user exists by email
+        user = repo.find_one_user_by_email(data["email"])
+        if user:
+            user.update(
+                uid=data["uid"],
+                name=data["name"] if data.get("name") else user.get("name"),
+                picture=data["picture"] if data.get("picture") else user.get("picture"),
+                email=data["email"],
+                updatedAt=datetime.now(),
+            )
+            updated_user = User(**user)
+            repo.update_user(user["id"], updated_user.model_dump())
+            return updated_user
+        # user does not exist, create new user
         data["id"] = repo.generate_id()
         new_user = User(**data)
         repo.persist_user(new_user.model_dump(), new_user.id)
