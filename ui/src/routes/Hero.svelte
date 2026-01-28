@@ -44,12 +44,12 @@
       >
         Tutorials</a
       >
-      <a
+      <!-- <a
         href="#feedback"
         class="btn btn-lg btn-ghost text-white capitalize border-none transition-all duration-200 hover:scale-105 hover:bg-transparent"
       >
         Got feedback?
-      </a>
+      </a> -->
     </span>
   </div>
   <div class="absolute bottom-12 animate-bounce">

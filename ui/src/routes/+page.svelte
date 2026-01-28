@@ -11,7 +11,7 @@
   import PopularModels from "./PopularModels.svelte";
   import ModelsLeaderboard from "./ModelsLeaderboard.svelte";
   import { parseISO, format } from "date-fns";
-  import Events from "./Events.svelte";
+  // import Events from "./Events.svelte"; // removed after project closing, could bring back if someone mantains it in the future
   import Feedback from "./Feedback.svelte";
 
   let { data } = $props();
@@ -41,7 +41,7 @@
           <PopularDatasets tags={data.tags} />
           <DatasetsLeaderboard />
         </div>
-        <div class="w-full lg:w-[300px] p-3">
+        <!-- <div class="w-full lg:w-[300px] p-3">
           <div
             class="h-full flex lg:flex-col md:flex-row sm:flex-row flex-col gap-10"
           >
@@ -69,7 +69,7 @@
               {/if}
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -86,6 +86,6 @@
     </div>
   </div>
   <Posts posts={data.posts} />
-  <Feedback />
-  <Consortium />
+  <!-- <Feedback /> -->
+  <!-- <Consortium /> -->
 </div>
