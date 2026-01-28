@@ -8,6 +8,7 @@ from prometheus_client import CollectorRegistry, make_asgi_app
 from .config import VERSION
 
 from .routers.auth import (
+    callback,
     login,
     logout,
     me,
@@ -94,6 +95,7 @@ app.add_middleware(
 )
 # auth
 app.include_router(login.router, prefix="/auth", tags=["auth"])
+app.include_router(callback.router, prefix="/auth", tags=["auth"])
 app.include_router(logout.router, prefix="/auth", tags=["auth"])
 app.include_router(me.router, prefix="/auth", tags=["auth"])
 app.include_router(token.router, prefix="/auth", tags=["auth"])

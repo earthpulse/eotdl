@@ -1,1 +1,1 @@
-from .Auth0Repo import Auth0Repo
+from .LogtoRepo import LogtoRepo

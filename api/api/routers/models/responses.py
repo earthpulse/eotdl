@@ -38,7 +38,7 @@ retrieve_models_responses = {
             "application/json": {
                 "example": [
                     {
-                        "uid": "auth0|123",
+                        "uid": "logto|123",
                         "id": "123acb",
                         "name": "awesome-model",
                         "authors": ["awesome-author-1", "awesome-author-2"],

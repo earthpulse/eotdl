@@ -8,7 +8,7 @@ retrieve_datasets_responses = {
             "application/json": {
                         "example": [
                             {
-                                "uid": "auth0|123",
+                                "uid": "logto|123",
                                 "id": "123acb",
                                 "name": "awesome-dataset",
                                 "authors": [

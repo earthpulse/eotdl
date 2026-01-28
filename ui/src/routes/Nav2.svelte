@@ -214,6 +214,7 @@
                             <img
                                 src={$user?.picture || "/avatar.webp"}
                                 alt="avatar"
+                                referrerpolicy="no-referrer"
                             />
                         </div>
                     </div>

@@ -9,8 +9,8 @@ class AuthAPIRepo(APIRepo):
     def login(self):
         return requests.get(self.url + "auth/login")
 
-    def token(self, code):
-        return requests.get(self.url + "auth/token?code=" + code)
+    def token(self, state):
+        return requests.get(self.url + "auth/token?state=" + state)
 
     def logout_url(self):
         response = requests.get(self.url + "auth/logout")

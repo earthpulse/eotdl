@@ -1,6 +1,5 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel
 import logging
 
 from ...src.usecases.auth import generate_login_url
@@ -8,10 +7,11 @@ from .responses import login_responses as responses
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+_code_store = {}
 
 
 @router.get("/login", summary='Login to the EOTDL', responses=responses)
-def login():
+def login(request: Request):
     """
     Login to the EOTDL. 
     
@@ -19,8 +19,15 @@ def login():
     It enables future commands to be executed without having to authenticate again (at least while the credentials are valid).
     """
     try:
-        return generate_login_url()
+        redirect_uri = str(request.url_for("callback"))
+        response = generate_login_url(redirect_uri)
+        state = response.get("state")
+        if state:
+            _code_store[state] = {
+                "code_verifier": response.get("code_verifier"),
+                "code": None,
+            }
+        return response
     except Exception as e:
         logger.exception("login")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-

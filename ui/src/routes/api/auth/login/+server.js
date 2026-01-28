@@ -1,7 +1,5 @@
-import { AUTH0_DOMAIN, AUTH0_CLIENT_ID } from '$env/static/private';
+import { redirect } from '@sveltejs/kit';
 
-export async function GET({url}) {
-  const redirect_uri = `http://${url.host}/api/auth/callback`; 
-  const login_url = `https://${AUTH0_DOMAIN}/authorize?response_type=code&scope=openid profile email&client_id=${AUTH0_CLIENT_ID}&redirect_uri=${redirect_uri}`;
-  return Response.redirect(login_url, 302)
-}
+export const GET = async ({ locals, url }) => {
+  await locals.logtoClient.signIn(`${url.origin}/callback`);
+};

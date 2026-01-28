@@ -35,7 +35,6 @@ RUN pip install --upgrade pip && \
         minio \
         pyjwt \
         requests \
-        auth0-python \
         python-multipart \
         httpx \
         boto3 \
