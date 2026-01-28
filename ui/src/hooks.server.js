@@ -23,15 +23,8 @@ const logtoHandler = handleLogto(
 const persistUserHandler = async ({ event, resolve }) => {
   if (event.locals.user) {
     const token = await event.locals.logtoClient.getIdToken();
+    console.log(event.locals.user);
     event.locals.id_token = token;
-    const response = await fetch(`${PUBLIC_EOTDL_API}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.ok) {
-      event.locals.user = await response.json();
-    }
   }
   return resolve(event);
 };
