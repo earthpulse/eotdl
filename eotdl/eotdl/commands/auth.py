@@ -34,18 +34,16 @@ def logout(
     """
     Logout from the EOTDL.
 
-    You will receive a logout url that you can visit in case you want to authenticate with a different account.
+    Logout and remove local credentials.
     """
     user = is_logged()
     if user:
         typer.echo(f"You are logged in as {user['email']}")
         if not yes:
             typer.confirm("Are you sure you want to logout?", abort=True)
-        logout_url = logout_user()
+        logout_user()
         typer.echo("You are logged out.")
-        typer.echo(
-            f"If you want to login with a different account, visit {logout_url} and login again."
-        )
+        typer.echo("If you want to login with a different account, run `eotdl auth login`.")
     else:
         typer.echo("You are not logged in.")
 

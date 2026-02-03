@@ -1,9 +1,37 @@
-import typer
 import os
+from pathlib import Path
+import typer
+
+try:
+    from dotenv import load_dotenv, find_dotenv  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    load_dotenv = None
+    find_dotenv = None
 
 from .commands import auth, datasets, models, stac, pipelines, challenges
 from .repos import APIRepo
 from . import __version__
+
+def _load_dotenv_fallback():
+    for parent in Path.cwd().resolve().parents:
+        candidate = parent / ".env"
+        if candidate.exists():
+            for line in candidate.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
+            return
+
+
+if load_dotenv and find_dotenv:
+    load_dotenv(find_dotenv())
+else:
+    _load_dotenv_fallback()
 
 app = typer.Typer(help="Welcome to EOTDL. Learn more at https://www.eotdl.com/")
 
