@@ -6,9 +6,11 @@ from .APIRepo import APIRepo
 
 class ChallengesAPIRepo(APIRepo):
     def __init__(self, url=None):
-        default_url = "http://localhost:8001/"
         self._env_url = os.getenv("PHILABCHALLENGES_API_URL")
-        self.url = url if url else self._env_url or default_url
+        self.url = url if url else os.getenv(
+            "PHILABCHALLENGES_API_URL",
+            "https://philabchallenges.api-dev.earthpulse.ai/",
+        )
         if not self.url.endswith("/"):
             self.url += "/"
 
