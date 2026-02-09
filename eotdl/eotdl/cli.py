@@ -1,11 +1,5 @@
 import typer
 
-try:
-    from dotenv import load_dotenv, find_dotenv  # type: ignore
-except Exception:  # pragma: no cover - optional dependency
-    load_dotenv = None
-    find_dotenv = None
-
 from .commands import auth, datasets, models, stac, pipelines, challenges
 from .repos import APIRepo
 from . import __version__
