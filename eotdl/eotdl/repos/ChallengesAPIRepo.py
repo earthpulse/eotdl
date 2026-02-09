@@ -9,7 +9,7 @@ class ChallengesAPIRepo(APIRepo):
         self._env_url = os.getenv("PHILABCHALLENGES_API_URL")
         self.url = url if url else os.getenv(
             "PHILABCHALLENGES_API_URL",
-            "https://philabchallenges.api-dev.earthpulse.ai/",
+            "https://philabchallenges.api.earthpulse.ai/",
         )
         if not self.url.endswith("/"):
             self.url += "/"
