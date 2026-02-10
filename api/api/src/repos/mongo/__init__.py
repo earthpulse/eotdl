@@ -7,3 +7,4 @@ from .MongoModelsRepo import MongoModelsRepo
 from .MongoChangesRepo import MongoChangesRepo
 from .MongoNotificationsRepo import MongoNotificationsRepo
 from .MongoPipelinesRepo import MongoPipelinesRepo
+from .MongoAuthRepo import MongoAuthRepo
