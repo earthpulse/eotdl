@@ -152,6 +152,8 @@
 		}
 		goto(newURL, { keepFocus: true, noScroll: true });
 	};
+
+	$inspect(auth.user, "auth.user");
 </script>
 
 <svelte:head>

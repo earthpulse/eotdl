@@ -23,7 +23,6 @@ const logtoHandler = handleLogto(
 const persistUserHandler = async ({ event, resolve }) => {
   if (event.locals.user) {
     const token = await event.locals.logtoClient.getIdToken();
-    console.log(event.locals.user);
     event.locals.id_token = token;
   }
   return resolve(event);
