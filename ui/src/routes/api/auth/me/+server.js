@@ -1,3 +1,5 @@
+import retrieveUserData from '$lib/auth/retrieveUserData';
+
 export async function GET({ locals }) {
   if (!locals?.user || !locals?.id_token) {
     return new Response("unauthorized", { status: 401 });
