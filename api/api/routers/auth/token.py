@@ -1,6 +1,5 @@
 from fastapi import APIRouter, status, Query, Request
 from fastapi.exceptions import HTTPException
-from fastapi.responses import JSONResponse
 import logging
 import traceback
 
@@ -22,20 +21,8 @@ def token(
     Generate an ID token for the current EOTDL user.
     """
     try:
-        if not state:
-            raise HTTPException(status_code=400, detail="Invalid login state")
         redirect_uri = str(request.url_for("callback"))
-        try:
-            return exchange_code_for_tokens(state, redirect_uri)
-        except Exception as e:
-            if str(e) == "Code not found":
-                return JSONResponse(
-                    status_code=status.HTTP_202_ACCEPTED,
-                    content={"detail": "Authorization pending"},
-                )
-            if str(e) == "Auth state not found":
-                raise HTTPException(status_code=400, detail="Invalid login state")
-            raise
+        return exchange_code_for_tokens(state, redirect_uri)
     except Exception as e:
         traceback.print_exc()
         logger.exception("token")

@@ -25,22 +25,13 @@ def auth(max_t=60, interval=2):
         if response.status_code != 200:
             raise LoginError()
         data = response.json()
-        if not data.get("state"):
-            raise LoginError(
-                "Unexpected login response (missing state). "
-                "Check EOTDL_API_URL points to the Logto-enabled API."
-            )
         opened = webbrowser.open(data["login_url"])
         if not opened:
             print(f"Please open this URL manually:\n{data['login_url']}")
         authenticated = False
         t0 = time.time()
         while not authenticated and time.time() - t0 < max_t:
-            try:
-                response = api_repo.token(data["state"])
-            except Exception:
-                time.sleep(interval)
-                continue
+            response = api_repo.token(data["state"])
             token_data = response.json()
             if response.status_code == 200:
                 print("Authenticated!")
@@ -52,10 +43,6 @@ def auth(max_t=60, interval=2):
                     "email": user["email"],
                     "uid": user["sub"],
                 }
-            elif response.status_code in (400, 401, 403, 409):
-                raise LoginError(
-                    token_data.get("detail", "Authentication failed. Please try again.")
-                )
             else:
                 time.sleep(interval)
         if not authenticated:
