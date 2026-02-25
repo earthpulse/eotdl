@@ -30,7 +30,7 @@ class Metadata(BaseModel):
 
     def save_metadata(self, dst_path):
         os.makedirs(dst_path, exist_ok=True)
-        with open(Path(dst_path) / "README.md", "w") as f:
+        with open(Path(dst_path) / "README.md", "w", encoding="utf-8") as f:
             f.write("---\n")
             f.write(f"name: {self.name}\n")
             f.write(f"license: {self.license}\n") 
