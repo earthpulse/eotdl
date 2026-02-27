@@ -16,11 +16,11 @@ push:
 cli:
 	rm -rf eotdl/dist
 	# linux
-	sed -i 's/^version = .*/version = "$(v)"/' eotdl/pyproject.toml
-	sed -i 's/__version__ = '.*'/__version__ = "${v}"/' eotdl/eotdl/__init__.py
+	# sed -i 's/^version = .*/version = "$(v)"/' eotdl/pyproject.toml
+	# sed -i 's/__version__ = '.*'/__version__ = "${v}"/' eotdl/eotdl/__init__.py
 	# mac
-	# sed -i '' 's/^version = .*/version = "$(v)"/' eotdl/pyproject.toml
-	# sed -i '' 's/__version__ = '.*'/__version__ = "${v}"/' eotdl/eotdl/__init__.py
+	sed -i '' 's/^version = .*/version = "$(v)"/' eotdl/pyproject.toml
+	sed -i '' 's/__version__ = '.*'/__version__ = "${v}"/' eotdl/eotdl/__init__.py
 	cd eotdl && uv build
 
 publish:

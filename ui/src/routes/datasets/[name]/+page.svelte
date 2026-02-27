@@ -127,6 +127,8 @@
       await goto(`/datasets`);
     }
   };
+
+  $inspect(auth.user);
 </script>
 
 <svelte:head>
