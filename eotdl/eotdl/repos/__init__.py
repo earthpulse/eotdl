@@ -6,3 +6,4 @@ from .FilesAPIRepo import FilesAPIRepo
 from .ModelsAPIRepo import ModelsAPIRepo
 from .STACAPIRepo import STACAPIRepo
 from .FEAPIRepo import FEAPIRepo
+from .ChallengesAPIRepo import ChallengesAPIRepo

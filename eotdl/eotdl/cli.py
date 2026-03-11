@@ -1,9 +1,9 @@
 import typer
-import os
 
-from .commands import auth, datasets, models, stac, pipelines
+from .commands import auth, datasets, models, stac, pipelines, challenges
 from .repos import APIRepo
 from . import __version__
+
 
 app = typer.Typer(help="Welcome to EOTDL. Learn more at https://www.eotdl.com/")
 
@@ -12,6 +12,7 @@ app.add_typer(datasets.app, name="datasets")
 app.add_typer(models.app, name="models")
 app.add_typer(stac.app, name="stac")
 app.add_typer(pipelines.app, name="pipelines")
+app.add_typer(challenges.app, name="challenges")
 
 @app.command()
 def version():
