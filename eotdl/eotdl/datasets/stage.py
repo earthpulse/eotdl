@@ -8,6 +8,17 @@ from .retrieve import retrieve_dataset
 from ..repos import FilesAPIRepo
 from ..files.metadata import Metadata
 
+
+def _logical_asset_name(row, asset_key):
+    item_id = row.get("id")
+    assets = row.get("assets")
+    if not item_id or not isinstance(assets, dict):
+        return None
+    if len(assets) == 1:
+        return str(item_id)
+    return f"{item_id}_{asset_key}"
+
+
 @with_auth
 def stage_dataset(
     dataset_name,
@@ -54,11 +65,16 @@ def stage_dataset(
         gdf = gpd.read_parquet(catalog_path)
         for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):
             for k, v in row["assets"].items():
-                stage_dataset_file(v["href"], download_path)
+                output_name = _logical_asset_name(row, k)
+                stage_dataset_file(
+                    v["href"],
+                    download_path,
+                    output_name=output_name,
+                )
     return download_path
 
 
 @with_auth
-def stage_dataset_file(file_url, path, user):
+def stage_dataset_file(file_url, path, user, output_name=None):
     repo = FilesAPIRepo()
-    return repo.stage_file_url(file_url, path, user)
+    return repo.stage_file_url(file_url, path, user, output_name=output_name)

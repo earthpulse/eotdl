@@ -68,10 +68,11 @@ class FilesAPIRepo(APIRepo):
         url,
         path,
         user,
+        output_name=None,
     ):
         if '/stage/' in url:  # asset is in EOTDL (can do better...)
             splitted = url.split("/stage/")
-            file_name = splitted[-1]
+            file_name = splitted[-1].split("?", 1)[0]
             dataset_or_model_id = splitted[0].split("/")[-1]
             response = requests.get(url, headers=self.generate_headers(user))  # fixed typo
             #print(url)
@@ -82,11 +83,12 @@ class FilesAPIRepo(APIRepo):
             presigned_url = data["presigned_url"]
         else:
             splitted = url.split("//")
-            file_name = splitted[-1]
+            file_name = splitted[-1].split("?", 1)[0]
             dataset_or_model_id = splitted[0].split("/")[-1]
             presigned_url = url
 
-        file_path = f"{path}/{file_name}"
+        local_file_name = output_name if output_name else file_name
+        file_path = f"{path}/{local_file_name}"
         for i in range(1, len(file_path.split("/")) - 1):
             os.makedirs("/".join(file_path.split("/")[: i + 1]), exist_ok=True)
 
