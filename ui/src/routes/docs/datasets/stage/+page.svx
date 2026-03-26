@@ -13,6 +13,8 @@
 
 Once you find a suitable dataset you can stage it for training your models.
 
+> You can tune the number of workers used to stage the dataset with the `EOTDL_STAGE_WORKERS` option. 8 workers are used by default, but a larger number of workers can be used to speed up the process.
+
 <!-- ## User interface
 
 <UI><p class="flex flex-row gap-2">Inside the model's page, click on the stage icon <Download color="gray" size={20} /> in the file that you want to stage.</p></UI>
