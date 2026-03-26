@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from tqdm import tqdm
 import geopandas as gpd
@@ -52,9 +53,29 @@ def stage_dataset(
     # stage assets
     if assets:
         gdf = gpd.read_parquet(catalog_path)
-        for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):
-            for k, v in row["assets"].items():
-                stage_dataset_file(v["href"], download_path)
+        asset_urls = []
+        for _, row in gdf.iterrows():
+            for _, v in row["assets"].items():
+                asset_urls.append(v["href"])
+
+        workers = max(1, int(os.getenv("EOTDL_STAGE_WORKERS", "8")))
+        workers = min(workers, len(asset_urls) or 1)
+
+        if workers == 1:
+            for href in tqdm(asset_urls, total=len(asset_urls), desc="Staging assets"):
+                repo.stage_file_url(href, download_path, user)
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = [
+                    executor.submit(repo.stage_file_url, href, download_path, user)
+                    for href in asset_urls
+                ]
+                for future in tqdm(
+                    as_completed(futures),
+                    total=len(futures),
+                    desc=f"Staging assets ({workers} workers)",
+                ):
+                    future.result()
     return download_path
 
 
