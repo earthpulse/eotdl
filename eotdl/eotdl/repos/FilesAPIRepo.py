@@ -86,6 +86,7 @@ class FilesAPIRepo(APIRepo):
             presigned_url = url
 
         file_name = file_name.split("?", 1)[0]
+        # `file_name` points to the real object in storage; `output_name` controls only the local filename.
         local_file_name = output_name if output_name else file_name
         file_path = f"{path}/{local_file_name}"
         os.makedirs(os.path.dirname(file_path), exist_ok=True)

@@ -54,6 +54,7 @@ def stage_dataset(
         gdf = gpd.read_parquet(catalog_path)
         for _, row in tqdm(gdf.iterrows(), total=len(gdf), desc="Staging assets"):
             for k, v in row["assets"].items():
+                # Keep local name stable (id/id_asset) even if storage filename has a random suffix.
                 output_name = None
                 item_id = row.get("id")
                 assets = row.get("assets")
