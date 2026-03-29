@@ -71,9 +71,8 @@ class FilesAPIRepo(APIRepo):
         output_name=None,
     ):
         if '/stage/' in url:  # asset is in EOTDL (can do better...)
-            splitted = url.split("/stage/")
-            file_name = splitted[-1].split("?", 1)[0]
-            dataset_or_model_id = splitted[0].split("/")[-1]
+            prefix, file_name = url.split("/stage/", 1)
+            dataset_or_model_id = prefix.split("/")[-1]
             response = requests.get(url, headers=self.generate_headers(user))  # fixed typo
             #print(url)
             data, error = self.format_response(response)
@@ -82,15 +81,14 @@ class FilesAPIRepo(APIRepo):
                 raise Exception(error)
             presigned_url = data["presigned_url"]
         else:
-            splitted = url.split("//")
-            file_name = splitted[-1].split("?", 1)[0]
-            dataset_or_model_id = splitted[0].split("/")[-1]
+            prefix, file_name = url.split("//", 1)
+            dataset_or_model_id = prefix.split("/")[-1]
             presigned_url = url
 
+        file_name = file_name.split("?", 1)[0]
         local_file_name = output_name if output_name else file_name
         file_path = f"{path}/{local_file_name}"
-        for i in range(1, len(file_path.split("/")) - 1):
-            os.makedirs("/".join(file_path.split("/")[: i + 1]), exist_ok=True)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         try:
             symbolic_link = False
