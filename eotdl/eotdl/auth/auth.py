@@ -27,7 +27,10 @@ def auth(max_t=60, interval=2):
         data = response.json()
         opened = webbrowser.open(data["login_url"])
         if not opened:
-            print(f"Please open this URL manually:\n{data['login_url']}")
+            print(f"[Headless/SSH mode] Please open this URL in your browser:\n{data['login_url']}")
+            print("After login, come back here and press Enter to continue...")
+            input()
+
         authenticated = False
         t0 = time.time()
         while not authenticated and time.time() - t0 < max_t:
