@@ -1,3 +1,4 @@
+#dev (local)
 services:
   eotdl-qdrant:
     image: qdrant/qdrant:latest
@@ -10,6 +11,7 @@ services:
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6333
       - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
     restart: unless-stopped
 
   eotdl-mcp:
@@ -19,7 +21,7 @@ services:
       - 8001:8000
     environment:
       - QDRANT_URL=http://eotdl-qdrant:6333
-      - QDRANT_API_KEY=
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
     volumes:
       - ./mcp/server.py:/server.py
     depends_on:

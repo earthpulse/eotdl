@@ -3,31 +3,34 @@ from langchain_core.documents import Document
 from qdrant_client import QdrantClient
 from typing import List
 import os
+from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 import logging
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 # Load the embeddings model
 
 logging.info(f"Loading embedding model")
 indus_embd = HuggingFaceEmbeddings(
-    model_name=os.getenv("EMBEDDING_MODEL", "nasa-impact/nasa-smd-ibm-st-v2"), # Use the embedding model you prefe
+    model_name="nasa-impact/nasa-smd-ibm-st-v2",
     encode_kwargs={"normalize_embeddings": True}
 )
 logging.info(f"Embedding model loaded")
 
 # rag retriever
 
-qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
+qdrant_url = os.getenv("QDRANT_URL")
+qdrant_api_key = os.getenv("QDRANT_API_KEY")
+if not qdrant_url:
+    raise SystemExit("QDRANT_URL is not set")
+if not qdrant_api_key:
+    raise SystemExit("QDRANT_API_KEY is not set")
 
 class QdrantRetriever():
     def __init__(self, collection_name='EOTDL', k: int = 3):
-        if qdrant_api_key:
-            qdrant_client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
-        else:
-            qdrant_client = QdrantClient(url=qdrant_url)
+        qdrant_client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
         self._client = qdrant_client
         collections = self._client.get_collections()
         logging.info("✅ Successfully connected to Qdrant!")
@@ -74,6 +77,7 @@ def format_docs(docs):
         description = doc.metadata.get('description', 'No description')
         doc_str += f"Description: {description}...\n"
         doc_str += f"Tags: {doc.metadata.get('tags', 'No tags')}\n"
+        doc_str += f"URL: {doc.metadata.get('url', 'No url')}\n"
         doc_str += "\n"
     return doc_str
 
