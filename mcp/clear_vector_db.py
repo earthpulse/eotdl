@@ -10,8 +10,10 @@ from qdrant_client import QdrantClient
 load_dotenv()
 
 # Setup Qdrant client
-qdrant_url = os.getenv('QDRANT_URL', 'http://localhost:6333')
-qdrant_api_key = os.getenv('QDRANT_API_KEY', '')
+qdrant_url = os.getenv('QDRANT_URL')
+if not qdrant_url:
+    raise SystemExit('QDRANT_URL is not set')
+qdrant_api_key = os.getenv('QDRANT_API_KEY') or ''
 collection_name = "EOTDL"
 
 print(f"Connecting to Qdrant at: {qdrant_url}")

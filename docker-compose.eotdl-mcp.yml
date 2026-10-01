@@ -1,0 +1,25 @@
+#prod
+services:
+  eotdl-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: eotdl-qdrant
+    ports:
+      - 6333:6333
+      - 6334:6334
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
+    restart: unless-stopped
+
+  eotdl-mcp:
+    image: eotdl/mcp:2026.10.01
+    ports:
+      - 8014:8000
+    environment:
+      - QDRANT_URL=http://eotdl-qdrant:6333 # We do not use the public URL because both services are on the same Docker network. We still use the API key because that is how we have configured Qdrant.
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+    depends_on:
+      - eotdl-qdrant
